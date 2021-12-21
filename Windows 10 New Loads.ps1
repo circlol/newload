@@ -4,7 +4,7 @@ If (!([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]:
 }$Title = "Windows New Loads Utility - Created by Mike Ivison"
 $host.UI.RawUI.WindowTitle = $Title
 $Folder = Get-Location
-
+Import-Module BitsTransfer
 Function License { 
     net start w32time 2> $NULL
     reg export HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\services\w32time\Config "$folder\exported_w32time.reg" /y | Out-Null 2> $NULL
@@ -29,8 +29,6 @@ Function License {
         Exit
         } else {
             If ($Time -gt $minimum) {
-                write-host License Valid. Continuing..
-                start-sleep 2
                 Clear-Host
                 } else {
                     Write-Host License has Expired. Exiting...
@@ -94,15 +92,14 @@ Function Visuals {
     $WantedBuild = "10.0.22000"
     If ($BuildNumber -gt $WantedBuild) {
         write-Host "I have detected that you are on Windows 11 `n `nApplying appropriate theme"
-        Import-Module BitsTransfer
-        Start-BitsTransfer -Source "https://github.com/circlol/newload/raw/main/win11-light.deskthemepack" -Destination win11-light.deskthemepack
+        Start-BitsTransfer -Source "https://www40.zippyshare.com/d/ITnX1PTu/920358/win11-light.deskthemepack" -Destination win11-light.deskthemepack
         Start-Sleep 3
         Start-Process "win11-light.deskthemepack"
     } else {
         If ($BuildNumber -lt $WantedBuild) {
             write-Host "I have detected that you are on Windows 10 `n `nApplying appropriate Theme"
             Import-Module BitsTransfer
-            Start-BitsTransfer -Source "https://github.com/circlol/newload/raw/main/win10-purple.deskthemepack" -Destination win10-purple.deskthemepack
+            Start-BitsTransfer -Source "https://www40.zippyshare.com/d/HIAEBGvh/266967/win10-purple.deskthemepack" -Destination win10-purple.deskthemepack
             Start-Sleep 3
             Start-Process "win10-purple.deskthemepack"
         }
@@ -766,7 +763,6 @@ Function Cleanup {
 #Powershell -ExecutionPolicy RemoteSigned -WindowStyle Maximized -NonInteractive -Command "exit"
 License
 Write-Host "`n ================================================================================================ `n `n `n `n `n `n `n `n `n `n `n `n `n Fresh Loads Utility For Windows 10 & 11 `n `n Created by Mike Ivison `n `n `n `n Ideally run updates before this script. `n `n `n `n `n `n `n `n `n `n `n `n `n ================================================================================================ `n `n"
-Start-Sleep 4
 Start-Transcript -OutputDirectory "$Folder" > $NULL
 Write-Host "`n `n ======================================== `n `n Checking for WinGet `n `n ======================================== `n `n"                                    
 WinGInstallation 
