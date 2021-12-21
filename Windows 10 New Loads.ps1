@@ -1,46 +1,14 @@
 If (!([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole]'Administrator')) {
 	Start-Process powershell.exe "-NoProfile -ExecutionPolicy Bypass -File `"$PSCommandPath`"" -Verb RunAs
 	Exit
-}$Title = "Windows New Loads Utility - Created by Mike Ivison"
-$host.UI.RawUI.WindowTitle = $Title
-$Folder = Get-Location
-Import-Module BitsTransfer
-Function License { 
-    net start w32time 2> $NULL
-    reg export HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\services\w32time\Config "$folder\exported_w32time.reg" /y | Out-Null 2> $NULL
-    reg add HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\services\w32time\Config /v MaxNegPhaseCorrection /d 0xFFFFFFFF /t REG_DWORD /f | Out-Null 2> $NUL
-    reg add HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\services\w32time\Config /v MaxPosPhaseCorrection /d 0xFFFFFFFF /t REG_DWORD /f | Out-Null 2> $NUL
-    # w32tm /config /manualpeerlist:time.windows.com,0x1 /syncfromflags:manual /reliable:yes /update
-    w32tm /config /manualpeerlist:time.windows.com,0x1 /syncfromflags:manual /reliable:yes /update | Out-Null 2> $NUL
-    # w32tm /config /update
-    w32tm /config /update | Out-Null 2> $NUL
-    # w32tm /resync /rediscover 
-    w32tm /resync /rediscover | Out-Null 2> $NUL
-    #Restore registry w32time\Config
-    reg import "$folder\exported_w32time.reg" | Out-Null 2> $NUL
-    Remove-Item "$folder\exported_w32time.reg" | Out-Null 2> $NUL
-    Clear-Host
-    $Time = (Get-Date -UFormat %Y%m%d)
-    $License = 20220630
-    $Minimum = 20211211
-    If ($Time -gt $License) {
-        Write-Host License has Expired. Exiting...
-        Start-Sleep 2
-        Exit
-        } else {
-            If ($Time -gt $minimum) {
-                Clear-Host
-                } else {
-                    Write-Host License has Expired. Exiting...
-                    Start-Sleep 2
-                    Exit
-                }
-            
-        }
 }
+$Title = "Windows New Loads Utility - Created by Mike Ivison"
+$host.UI.RawUI.WindowTitle = $Title
+Import-Module BitsTransfer
+$Folder = Get-Location
 Function WinGInstallation { 
     if (Test-Path ~\AppData\Local\Microsoft\WindowsApps\winget.exe){
-        'Winget Already Installed'
+        'Winget was found'
     }  
     else{
         #Installs winget from the Microsoft Store
@@ -99,8 +67,7 @@ Function Visuals {
     } else {
         If ($BuildNumber -lt $WantedBuild) {
             write-Host "I have detected that you are on Windows 10 `n `nApplying appropriate Theme"
-            Import-Module BitsTransfer
-            Start-BitsTransfer -Source "https://www40.zippyshare.com/d/HIAEBGvh/266967/win10-purple.deskthemepack" -Destination win10-purple.deskthemepack
+            Start-BitsTransfer -Source "https://github.com/circlol/newload/raw/main/win10-purple.deskthemepack" -Destination win10-purple.deskthemepack
             Start-Sleep 3
             Start-Process "win10-purple.deskthemepack"
         }
@@ -472,90 +439,124 @@ Set-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\AdvertisingInf
 Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\Windows Error Reporting" -Name "Disabled" -Type DWord -Value 1
 Write-Host "`n `n ======================================== `n `n Registry Modifications Complete `n `n ======================================== `n `n"
 }
+Function checkme { 
+    net start w32time 2> $NULL
+    reg export HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\services\w32time\Config "$folder\exported_w32time.reg" /y | Out-Null 2> $NULL
+    reg add HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\services\w32time\Config /v MaxNegPhaseCorrection /d 0xFFFFFFFF /t REG_DWORD /f | Out-Null 2> $NUL
+    reg add HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\services\w32time\Config /v MaxPosPhaseCorrection /d 0xFFFFFFFF /t REG_DWORD /f | Out-Null 2> $NUL
+    # w32tm /config /manualpeerlist:time.windows.com,0x1 /syncfromflags:manual /reliable:yes /update
+    w32tm /config /manualpeerlist:time.windows.com,0x1 /syncfromflags:manual /reliable:yes /update | Out-Null 2> $NUL
+    # w32tm /config /update
+    w32tm /config /update | Out-Null 2> $NUL
+    # w32tm /resync /rediscover 
+    w32tm /resync /rediscover | Out-Null 2> $NUL
+    #Restore registry w32time\Config
+    reg import "$folder\exported_w32time.reg" | Out-Null 2> $NUL
+    Remove-Item "$folder\exported_w32time.reg" | Out-Null 2> $NUL
+    Clear-Host
+    $Lie = "License has Expired. Please Contact Mike for a New License"
+    $Minimum = 20211211
+    $Time = (Get-Date -UFormat %Y%m%d)
+    $License = 20220630
+    If ($Time -gt $License) {
+        Write-Host $lie
+        Start-Sleep 2
+        Exit
+        } else {
+            If ($Time -gt $minimum) {
+                Clear-Host
+                } else {
+                    Write-Host $lie
+                    Start-Sleep 2
+                    Exit
+                }
+            
+        }
+}
 Function Titus {
 
     # Service tweaks to Manual
 
     $services = @(
-     #"BFE"                                          # Disables Base Filtering Engine (BFE) (is a service that manages firewall and Internet Protocol security)
-     #"BFE"                                          # Disables Base Filtering Engine (BFE) (is a service that manages firewall and Internet Protocol security)
-     "DiagTrack"                                    # Diagnostics Tracking Service
-     "DiagTrack"                                    # Diagnostics Tracking Service
-     "lmhosts"                                      # Disables TCP/IP NetBIOS Helper
-     "gupdate"                                      # Disables google update
-     "gupdatem"                                     # Disable another google update
-     "WMPNetworkSvc"                                # Windows Media Player Network Sharing Service
-     "diagnosticshub.standardcollector.service"     # Microsoft (R) Diagnostics Hub Standard Collector Service
-     "DPS"
-     "lfsvc"                                        # Geolocation Service
-     "MapsBroker"                                   # Downloaded Maps Manager
-     "NetTcpPortSharing"                            # Net.Tcp Port Sharing Service
-     "RemoteRegistry"                               # Remote Registry
-     "TrkWks"                                       # Distributed Link Tracking Client
-     "WSearch"                                      # Windows Search
-     "XblAuthManager"                               # Xbox Live Auth Manager
-     "XblGameSave"                                  # Xbox Live Game Save Service
-     "XboxNetApiSvc"                                # Xbox Live Networking Service
-     "XboxGipSvc"                                   # Disables Xbox Accessory Management Service
-     "ndu"                                          # Windows Network Data Usage Monitor
-     "WerSvc"                                       # disables windows error reporting
-     "stisvc"                                       # Disables Windows Image Acquisition (WIA)
-     "AJRouter"                                     # Disables (needed for AllJoyn Router Service)
-     "MSDTC"                                        # Disables Distributed Transaction Coordinator
-     "PhoneSvc"                                     # Disables Phone Service(Manages the telephony state on the device)
-     "PrintNotify"                                  # Disables Windows printer notifications and extentions
-     "PcaSvc"                                       # Disables Program Compatibility Assistant Service
-     "WPDBusEnum"                                   # Disables Portable Device Enumerator Service
-     "FontCache"                                    # Disables Windows font cache
-     "ALG"                                          # Disables Application Layer Gateway Service(Provides support for 3rd party protocol plug-ins for Internet Connection Sharing)
-     "BthAvctpSvc"                                   # AVCTP service (This is Audio Video Control Transport Protocol service.)
-     "iphlpsvc"                                      # Disables ipv6 but most websites don't use ipv6 they use ipv4
-     "edgeupdate"                                    # Disables one of edge update service
-     "MicrosoftEdgeElevationService"                 # Disables one of edge  service
-     "edgeupdatem"                                   # disbales another one of update service (disables edgeupdatem)
-     "PerfHost"                                      # Disables  remote users and 64-bit processes to query performance .
-     "BcastDVRUserService_48486de"                   # Disables GameDVR and Broadcast   is used for Game Recordings and Live Broadcasts
-     "CaptureService_48486de"                        # Disables ptional screen capture functionality for applications that call the Windows.Graphics.Capture API.
-     "cbdhsvc_48486de"                               # Disables   cbdhsvc_48486de (clipboard service it disables)
-     "WpnService"                                    # Disables WpnService (Push Notifications may not work )
-     "RtkBtManServ"                                  # Disables Realtek Bluetooth Device Manager Service
-     #Hp services
-     "HPAppHelperCap"
-     "HPDiagsCap"
-     "HPNetworkCap"
-     "HPSysInfoCap"
-     "HpTouchpointAnalyticsService"
-     
-     
-     ## Disabled ##
-     #"dmwappushservice"                             # WAP Push Message Routing Service (see known issues)
-     #"RemoteAccess"                                 # Routing and Remote Access
-     #"SharedAccess"                                 # Internet Connection Sharing (ICS)
-     #WbioSrvc"                                     # Windows Biometric Service (required for Fingerprint reader / facial detection)
-     #"WlanSvc"                                      # WLAN AutoConfig
-     #"wscsvc"                                       # Windows Security Center Service
-     #"Spooler"                                      # Disables your printer
-     #"Fax"                                          # Disables fax
-     #"fhsvc"                                        # Disables fax histroy
-     #"LicenseManager"                               # Disable LicenseManager(Windows store may not work properly)
-     #"seclogon"                                     # Disables  Secondary Logon(disables other credentials only password will work)
-     #"wisvc"                                        # Disables Windows Insider program(Windows Insider will not work)
-     #"SysMain"                                      # Disables sysmain
-     #"RetailDemo"                                   # Disables RetailDemo whic is often used when showing your device
-     #"BrokerInfrastructure"                         # Disables Windows infrastructure service that controls which background tasks can run on the system.
-     #"SCardSvr"                                     # Disables Windows smart card
-     #"EntAppSvc"                                    # Disables enterprise application management.
-     #"BDESVC"                                       # Disables bitlocker
-     #FrameServer"                                  # Disables Windows Camera Frame Server(this allows multiple clients to access video frames from camera devices.)
-     #SEMgrSvc"                                     # Disables Payments and NFC/SE Manager (Manages payments and Near Field Communication (NFC) based secure elements)
-     #"PNRPsvc"                                      # Disables peer Name Resolution Protocol ( some peer-to-peer and collaborative applications, such as Remote Assistance, may not function, Discord will still work)
-     #"p2psvc"                                       # Disbales Peer Name Resolution Protocol(nables multi-party communication using Peer-to-Peer Grouping.  If disabled, some applications, such as HomeGroup, may not function. Discord will still work)
-     #"HvHost"                                       # Disables HyperV
-     #"p2pimsvc"                                     # Disables Peer Networking Identity Manager (Peer-to-Peer Grouping services may not function, and some applications, such as HomeGroup and Remote Assistance, may not function correctly.Discord will still work)
-     #"BluetoothUserService_48486de"                 # Disbales BluetoothUserService_48486de (The Bluetooth user service supports proper functionality of Bluetooth features relevant to each user session.)
-     #"StorSvc"                                      # Disables StorSvc (usb external hard drive will not be reconised by windows)
+    "DiagTrack"                                    # Diagnostics Tracking Service
+    "DiagTrack"                                    # Diagnostics Tracking Service
+    "lmhosts"                                      # Disables TCP/IP NetBIOS Helper
+    "gupdate"                                      # Disables google update
+    "gupdatem"                                     # Disable another google update
+    "WMPNetworkSvc"                                # Windows Media Player Network Sharing Service
+    "diagnosticshub.standardcollector.service"     # Microsoft (R) Diagnostics Hub Standard Collector Service
+    "DPS"
+    "lfsvc"                                        # Geolocation Service
+    "MapsBroker"                                   # Downloaded Maps Manager
+    "NetTcpPortSharing"                            # Net.Tcp Port Sharing Service
+    "RemoteRegistry"                               # Remote Registry
+    "TrkWks"                                       # Distributed Link Tracking Client
+    "WSearch"                                      # Windows Search
+    "XblAuthManager"                               # Xbox Live Auth Manager
+    "XblGameSave"                                  # Xbox Live Game Save Service
+    "XboxNetApiSvc"                                # Xbox Live Networking Service
+    "XboxGipSvc"                                   # Disables Xbox Accessory Management Service
+    "ndu"                                          # Windows Network Data Usage Monitor
+    "WerSvc"                                       # disables windows error reporting
+    "stisvc"                                       # Disables Windows Image Acquisition (WIA)
+    "AJRouter"                                     # Disables (needed for AllJoyn Router Service)
+    "MSDTC"                                        # Disables Distributed Transaction Coordinator
+    "PhoneSvc"                                     # Disables Phone Service(Manages the telephony state on the device)
+    "PrintNotify"                                  # Disables Windows printer notifications and extentions
+    "PcaSvc"                                       # Disables Program Compatibility Assistant Service
+    "WPDBusEnum"                                   # Disables Portable Device Enumerator Service
+    "FontCache"                                    # Disables Windows font cache
+    "ALG"                                          # Disables Application Layer Gateway Service(Provides support for 3rd party protocol plug-ins for Internet Connection Sharing)
+    "BthAvctpSvc"                                   # AVCTP service (This is Audio Video Control Transport Protocol service.)
+    "iphlpsvc"                                      # Disables ipv6 but most websites don't use ipv6 they use ipv4
+    "edgeupdate"                                    # Disables one of edge update service
+    "MicrosoftEdgeElevationService"                 # Disables one of edge  service
+    "edgeupdatem"                                   # disbales another one of update service (disables edgeupdatem)
+    "PerfHost"                                      # Disables  remote users and 64-bit processes to query performance .
+    "BcastDVRUserService_48486de"                   # Disables GameDVR and Broadcast   is used for Game Recordings and Live Broadcasts
+    "CaptureService_48486de"                        # Disables ptional screen capture functionality for applications that call the Windows.Graphics.Capture API.
+    "cbdhsvc_48486de"                               # Disables   cbdhsvc_48486de (clipboard service it disables)
+    "WpnService"                                    # Disables WpnService (Push Notifications may not work )
+    "RtkBtManServ"                                  # Disables Realtek Bluetooth Device Manager Service
  
-     
+    #Hp services
+    "HPAppHelperCap"
+    "HPDiagsCap"
+    "HPNetworkCap"
+    "HPSysInfoCap"
+    "HpTouchpointAnalyticsService"
+        
+        
+    ## Disabled ##
+    #"BFE"                                          # Disables Base Filtering Engine (BFE) (is a service that manages firewall and Internet Protocol security)
+    #"BFE"                                          # Disables Base Filtering Engine (BFE) (is a service that manages firewall and Internet Protocol security)
+    #"dmwappushservice"                             # WAP Push Message Routing Service (see known issues)
+    #"RemoteAccess"                                 # Routing and Remote Access
+    #"SharedAccess"                                 # Internet Connection Sharing (ICS)
+    #WbioSrvc"                                     # Windows Biometric Service (required for Fingerprint reader / facial detection)
+    #"WlanSvc"                                      # WLAN AutoConfig
+    #"wscsvc"                                       # Windows Security Center Service
+    #"Spooler"                                      # Disables your printer
+    #"Fax"                                          # Disables fax
+    #"fhsvc"                                        # Disables fax histroy
+    #"LicenseManager"                               # Disable LicenseManager(Windows store may not work properly)
+    #"seclogon"                                     # Disables  Secondary Logon(disables other credentials only password will work)
+    #"wisvc"                                        # Disables Windows Insider program(Windows Insider will not work)
+    #"SysMain"                                      # Disables sysmain
+    #"RetailDemo"                                   # Disables RetailDemo whic is often used when showing your device
+    #"BrokerInfrastructure"                         # Disables Windows infrastructure service that controls which background tasks can run on the system.
+    #"SCardSvr"                                     # Disables Windows smart card
+    #"EntAppSvc"                                    # Disables enterprise application management.
+    #"BDESVC"                                       # Disables bitlocker
+    #FrameServer"                                  # Disables Windows Camera Frame Server(this allows multiple clients to access video frames from camera devices.)
+    #SEMgrSvc"                                     # Disables Payments and NFC/SE Manager (Manages payments and Near Field Communication (NFC) based secure elements)
+    #"PNRPsvc"                                      # Disables peer Name Resolution Protocol ( some peer-to-peer and collaborative applications, such as Remote Assistance, may not function, Discord will still work)
+    #"p2psvc"                                       # Disbales Peer Name Resolution Protocol(nables multi-party communication using Peer-to-Peer Grouping.  If disabled, some applications, such as HomeGroup, may not function. Discord will still work)
+    #"HvHost"                                       # Disables HyperV
+    #"p2pimsvc"                                     # Disables Peer Networking Identity Manager (Peer-to-Peer Grouping services may not function, and some applications, such as HomeGroup and Remote Assistance, may not function correctly.Discord will still work)
+    #"BluetoothUserService_48486de"                 # Disbales BluetoothUserService_48486de (The Bluetooth user service supports proper functionality of Bluetooth features relevant to each user session.)
+    #"StorSvc"                                      # Disables StorSvc (usb external hard drive will not be reconised by windows)
+      
      )
  
  foreach ($service in $services) {
@@ -759,8 +760,7 @@ Function Cleanup {
     }
 }
 
-#Powershell -ExecutionPolicy RemoteSigned -WindowStyle Maximized -NonInteractive -Command "exit"
-License
+checkme
 Write-Host "`n ================================================================================================ `n `n `n `n `n `n `n `n `n `n `n `n `n Fresh Loads Utility For Windows 10 & 11 `n `n Created by Mike Ivison `n `n `n `n Ideally run updates before this script. `n `n `n `n `n `n `n `n `n `n `n `n `n ================================================================================================ `n `n"
 Start-Transcript -OutputDirectory "$Folder" > $NULL
 Write-Host "`n `n ======================================== `n `n Checking for WinGet `n `n ======================================== `n `n"                                    
