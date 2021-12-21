@@ -1,5 +1,7 @@
-if (!([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole] "Administrator")) { Start-Process powershell.exe "-NoProfile -ExecutionPolicy Bypass -File `"$PSCommandPath`"" -Verb RunAs; exit }
-$Title = "Windows New Loads Utility - Created by Mike Ivison"
+If (!([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole]'Administrator')) {
+	Start-Process powershell.exe "-NoProfile -ExecutionPolicy Bypass -File `"$PSCommandPath`"" -Verb RunAs
+	Exit
+}$Title = "Windows New Loads Utility - Created by Mike Ivison"
 $host.UI.RawUI.WindowTitle = $Title
 $Folder = Get-Location
 
@@ -92,13 +94,17 @@ Function Visuals {
     $WantedBuild = "10.0.22000"
     If ($BuildNumber -gt $WantedBuild) {
         write-Host "I have detected that you are on Windows 11 `n `nApplying appropriate theme"
+        Import-Module BitsTransfer
+        Start-BitsTransfer -Source "https://github.com/circlol/newload/blob/main/win11-light.deskthemepack" -Destination win11-light.deskthemepack
         Start-Sleep 3
-        Start-Process "$Folder\theme\win11-light.deskthemepack"
+        Start-Process "win11-light.deskthemepack"
     } else {
         If ($BuildNumber -lt $WantedBuild) {
             write-Host "I have detected that you are on Windows 10 `n `nApplying appropriate Theme"
+            Import-Module BitsTransfer
+            Start-BitsTransfer -Source "https://github.com/circlol/newload/blob/main/win10-Purple.deskthemepack" -Destination win10-purple.deskthemepack
             Start-Sleep 3
-            Start-Process "$Folder\theme\win10-purple.deskthemepack"
+            Start-Process "win10-purple.deskthemepack"
         }
     }
 
@@ -467,7 +473,267 @@ Set-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\AdvertisingInf
 Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\Windows Error Reporting" -Name "Disabled" -Type DWord -Value 1
 Write-Host "`n `n ======================================== `n `n Registry Modifications Complete `n `n ======================================== `n `n"
 }
+Function Titus {
 
+    # Service tweaks to Manual
+
+    $services = @(
+     #"BFE"                                          # Disables Base Filtering Engine (BFE) (is a service that manages firewall and Internet Protocol security)
+     #"BFE"                                          # Disables Base Filtering Engine (BFE) (is a service that manages firewall and Internet Protocol security)
+     "DiagTrack"                                    # Diagnostics Tracking Service
+     "DiagTrack"                                    # Diagnostics Tracking Service
+     "lmhosts"                                      # Disables TCP/IP NetBIOS Helper
+     "gupdate"                                      # Disables google update
+     "gupdatem"                                     # Disable another google update
+     "WMPNetworkSvc"                                # Windows Media Player Network Sharing Service
+     "diagnosticshub.standardcollector.service"     # Microsoft (R) Diagnostics Hub Standard Collector Service
+     "DPS"
+     "lfsvc"                                        # Geolocation Service
+     "MapsBroker"                                   # Downloaded Maps Manager
+     "NetTcpPortSharing"                            # Net.Tcp Port Sharing Service
+     "RemoteRegistry"                               # Remote Registry
+     "TrkWks"                                       # Distributed Link Tracking Client
+     "WSearch"                                      # Windows Search
+     "XblAuthManager"                               # Xbox Live Auth Manager
+     "XblGameSave"                                  # Xbox Live Game Save Service
+     "XboxNetApiSvc"                                # Xbox Live Networking Service
+     "XboxGipSvc"                                   # Disables Xbox Accessory Management Service
+     "ndu"                                          # Windows Network Data Usage Monitor
+     "WerSvc"                                       # disables windows error reporting
+     "stisvc"                                       # Disables Windows Image Acquisition (WIA)
+     "AJRouter"                                     # Disables (needed for AllJoyn Router Service)
+     "MSDTC"                                        # Disables Distributed Transaction Coordinator
+     "PhoneSvc"                                     # Disables Phone Service(Manages the telephony state on the device)
+     "PrintNotify"                                  # Disables Windows printer notifications and extentions
+     "PcaSvc"                                       # Disables Program Compatibility Assistant Service
+     "WPDBusEnum"                                   # Disables Portable Device Enumerator Service
+     "FontCache"                                    # Disables Windows font cache
+     "ALG"                                          # Disables Application Layer Gateway Service(Provides support for 3rd party protocol plug-ins for Internet Connection Sharing)
+     "BthAvctpSvc"                                   # AVCTP service (This is Audio Video Control Transport Protocol service.)
+     "iphlpsvc"                                      # Disables ipv6 but most websites don't use ipv6 they use ipv4
+     "edgeupdate"                                    # Disables one of edge update service
+     "MicrosoftEdgeElevationService"                 # Disables one of edge  service
+     "edgeupdatem"                                   # disbales another one of update service (disables edgeupdatem)
+     "PerfHost"                                      # Disables  remote users and 64-bit processes to query performance .
+     "BcastDVRUserService_48486de"                   # Disables GameDVR and Broadcast   is used for Game Recordings and Live Broadcasts
+     "CaptureService_48486de"                        # Disables ptional screen capture functionality for applications that call the Windows.Graphics.Capture API.
+     "cbdhsvc_48486de"                               # Disables   cbdhsvc_48486de (clipboard service it disables)
+     "WpnService"                                    # Disables WpnService (Push Notifications may not work )
+     "RtkBtManServ"                                  # Disables Realtek Bluetooth Device Manager Service
+     #Hp services
+     "HPAppHelperCap"
+     "HPDiagsCap"
+     "HPNetworkCap"
+     "HPSysInfoCap"
+     "HpTouchpointAnalyticsService"
+     
+     
+     ## Disabled ##
+     #"dmwappushservice"                             # WAP Push Message Routing Service (see known issues)
+     #"RemoteAccess"                                 # Routing and Remote Access
+     #"SharedAccess"                                 # Internet Connection Sharing (ICS)
+     #WbioSrvc"                                     # Windows Biometric Service (required for Fingerprint reader / facial detection)
+     #"WlanSvc"                                      # WLAN AutoConfig
+     #"wscsvc"                                       # Windows Security Center Service
+     #"Spooler"                                      # Disables your printer
+     #"Fax"                                          # Disables fax
+     #"fhsvc"                                        # Disables fax histroy
+     #"LicenseManager"                               # Disable LicenseManager(Windows store may not work properly)
+     #"seclogon"                                     # Disables  Secondary Logon(disables other credentials only password will work)
+     #"wisvc"                                        # Disables Windows Insider program(Windows Insider will not work)
+     #"SysMain"                                      # Disables sysmain
+     #"RetailDemo"                                   # Disables RetailDemo whic is often used when showing your device
+     #"BrokerInfrastructure"                         # Disables Windows infrastructure service that controls which background tasks can run on the system.
+     #"SCardSvr"                                     # Disables Windows smart card
+     #"EntAppSvc"                                    # Disables enterprise application management.
+     #"BDESVC"                                       # Disables bitlocker
+     #FrameServer"                                  # Disables Windows Camera Frame Server(this allows multiple clients to access video frames from camera devices.)
+     #SEMgrSvc"                                     # Disables Payments and NFC/SE Manager (Manages payments and Near Field Communication (NFC) based secure elements)
+     #"PNRPsvc"                                      # Disables peer Name Resolution Protocol ( some peer-to-peer and collaborative applications, such as Remote Assistance, may not function, Discord will still work)
+     #"p2psvc"                                       # Disbales Peer Name Resolution Protocol(nables multi-party communication using Peer-to-Peer Grouping.  If disabled, some applications, such as HomeGroup, may not function. Discord will still work)
+     #"HvHost"                                       # Disables HyperV
+     #"p2pimsvc"                                     # Disables Peer Networking Identity Manager (Peer-to-Peer Grouping services may not function, and some applications, such as HomeGroup and Remote Assistance, may not function correctly.Discord will still work)
+     #"BluetoothUserService_48486de"                 # Disbales BluetoothUserService_48486de (The Bluetooth user service supports proper functionality of Bluetooth features relevant to each user session.)
+     #"StorSvc"                                      # Disables StorSvc (usb external hard drive will not be reconised by windows)
+ 
+     
+     )
+ 
+ foreach ($service in $services) {
+     # -ErrorAction SilentlyContinue is so it doesn't write an error to stdout if a service doesn't exist
+ 
+     Write-Host "Setting $service StartupType to Manual"
+     Get-Service -Name $service -ErrorAction SilentlyContinue | Set-Service -StartupType Manual
+ }
+ 
+}
+Function PrivacyProtection {
+ #Creates a PSDrive to be able to access the 'HKCR' tree
+ New-PSDrive -Name HKCR -PSProvider Registry -Root HKEY_CLASSES_ROOT
+     
+ #Disables Windows Feedback Experience
+ Write-Output "Disabling Windows Feedback Experience program"
+ $Advertising = 'HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\AdvertisingInfo'
+ If (Test-Path $Advertising) {
+     Set-ItemProperty $Advertising -Name Enabled -Value 0 -Verbose
+ }
+     
+ #Stops Cortana from being used as part of your Windows Search Function
+ Write-Output "Stopping Cortana from being used as part of your Windows Search Function"
+ $Search = 'HKLM:\SOFTWARE\Policies\Microsoft\Windows\Windows Search'
+ If (Test-Path $Search) {
+     Set-ItemProperty $Search -Name AllowCortana -Value 0 -Verbose
+ }
+     
+ #Stops the Windows Feedback Experience from sending anonymous data
+ Write-Output "Stopping the Windows Feedback Experience program"
+ $Period1 = 'HKCU:\Software\Microsoft\Siuf'
+ $Period2 = 'HKCU:\Software\Microsoft\Siuf\Rules'
+ $Period3 = 'HKCU:\Software\Microsoft\Siuf\Rules\PeriodInNanoSeconds'
+ If (!(Test-Path $Period3)) { 
+     mkdir $Period1 -ErrorAction SilentlyContinue
+     mkdir $Period2 -ErrorAction SilentlyContinue
+     mkdir $Period3 -ErrorAction SilentlyContinue
+     New-ItemProperty $Period3 -Name PeriodInNanoSeconds -Value 0 -Verbose -ErrorAction SilentlyContinue
+ }
+            
+ Write-Output "Adding Registry key to prevent bloatware apps from returning"
+ #Prevents bloatware applications from returning
+ $registryPath = "HKLM:\SOFTWARE\Policies\Microsoft\Windows\CloudContent"
+ If (!(Test-Path $registryPath)) {
+     Mkdir $registryPath -ErrorAction SilentlyContinue
+     New-ItemProperty $registryPath -Name DisableWindowsConsumerFeatures -Value 1 -Verbose -ErrorAction SilentlyContinue
+ }          
+ 
+ Write-Output "Setting Mixed Reality Portal value to 0 so that you can uninstall it in Settings"
+ $Holo = 'HKCU:\Software\Microsoft\Windows\CurrentVersion\Holographic'    
+ If (Test-Path $Holo) {
+     Set-ItemProperty $Holo -Name FirstRunSucceeded -Value 0 -Verbose
+ }
+ 
+ #Disables live tiles
+ Write-Output "Disabling live tiles"
+ $Live = 'HKCU:\SOFTWARE\Policies\Microsoft\Windows\CurrentVersion\PushNotifications'    
+ If (!(Test-Path $Live)) {
+     mkdir $Live -ErrorAction SilentlyContinue     
+     New-ItemProperty $Live -Name NoTileApplicationNotification -Value 1 -Verbose
+ }
+ 
+ #Turns off Data Collection via the AllowTelemtry key by changing it to 0
+ Write-Output "Turning off Data Collection"
+ $DataCollection = 'HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\DataCollection'    
+ If (Test-Path $DataCollection) {
+     Set-ItemProperty $DataCollection -Name AllowTelemetry -Value 0 -Verbose
+ }
+ 
+ #Disables People icon on Taskbar
+ Write-Output "Disabling People icon on Taskbar"
+ $People = 'HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\Advanced\People'
+ If (Test-Path $People) {
+     Set-ItemProperty $People -Name PeopleBand -Value 0 -Verbose
+ }
+
+ #Disables suggestions on start menu
+ Write-Output "Disabling suggestions on the Start Menu"
+ $Suggestions = 'HKCU:\Software\Microsoft\Windows\CurrentVersion\ContentDeliveryManager'    
+ If (Test-Path $Suggestions) {
+     Set-ItemProperty $Suggestions -Name SystemPaneSuggestionsEnabled -Value 0 -Verbose
+ }
+ 
+ 
+  Write-Output "Removing CloudStore from registry if it exists"
+  $CloudStore = 'HKCU:\Software\Microsoft\Windows\CurrentVersion\CloudStore'
+  If (Test-Path $CloudStore) {
+  Stop-Process -Name explorer -Force 2> $NULL
+  Remove-Item $CloudStore -Recurse -Force
+  Start-Process Explorer.exe -Wait
+ }
+
+ #Loads the registry keys/values below into the NTUSER.DAT file which prevents the apps from redownloading. Credit to a60wattfish
+ reg load HKU\Default_User C:\Users\Default\NTUSER.DAT
+ Set-ItemProperty -Path Registry::HKU\Default_User\SOFTWARE\Microsoft\Windows\CurrentVersion\ContentDeliveryManager -Name SystemPaneSuggestionsEnabled -Value 0
+ Set-ItemProperty -Path Registry::HKU\Default_User\SOFTWARE\Microsoft\Windows\CurrentVersion\ContentDeliveryManager -Name PreInstalledAppsEnabled -Value 0
+ Set-ItemProperty -Path Registry::HKU\Default_User\SOFTWARE\Microsoft\Windows\CurrentVersion\ContentDeliveryManager -Name OemPreInstalledAppsEnabled -Value 0
+ reg unload HKU\Default_User
+ 
+ #Disables scheduled tasks that are considered unnecessary 
+ Write-Output "Disabling scheduled tasks"
+ #Get-ScheduledTask -TaskName XblGameSaveTaskLogon | Disable-ScheduledTask -ErrorAction SilentlyContinue
+ Get-ScheduledTask -TaskName XblGameSaveTask | Disable-ScheduledTask -ErrorAction SilentlyContinue
+ Get-ScheduledTask -TaskName Consolidator | Disable-ScheduledTask -ErrorAction SilentlyContinue
+ Get-ScheduledTask -TaskName UsbCeip | Disable-ScheduledTask -ErrorAction SilentlyContinue
+ Get-ScheduledTask -TaskName DmClient | Disable-ScheduledTask -ErrorAction SilentlyContinue
+ Get-ScheduledTask -TaskName DmClientOnScenarioDownload | Disable-ScheduledTask -ErrorAction SilentlyContinue
+}
+Function KeyRemoval {
+
+    $Keys = @(
+        #Converted From Registry.PS1
+        "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\MultiTaskingView\AllUpView\Enabled"
+        "HKCU\Software\Microsoft\Windows\CurrentVersion\ContentDeliveryManager\Subscriptions"
+        "HKCU\Software\Microsoft\Windows\CurrentVersion\ContentDeliveryManager\SuggestedApps"
+
+        #Remove Background Tasks
+        "HKCR:\Extensions\ContractId\Windows.BackgroundTasks\PackageId\46928bounde.EclipseManager_2.2.4.51_neutral__a5h4egax66k6y"
+        "HKCR:\Extensions\ContractId\Windows.BackgroundTasks\PackageId\ActiproSoftwareLLC.562882FEEB491_2.6.18.18_neutral__24pqs290vpjk0"
+        "HKCR:\Extensions\ContractId\Windows.BackgroundTasks\PackageId\Microsoft.MicrosoftOfficeHub_17.7909.7600.0_x64__8wekyb3d8bbwe"
+        "HKCR:\Extensions\ContractId\Windows.BackgroundTasks\PackageId\Microsoft.PPIProjection_10.0.15063.0_neutral_neutral_cw5n1h2txyewy"
+        "HKCR:\Extensions\ContractId\Windows.BackgroundTasks\PackageId\Microsoft.XboxGameCallableUI_1000.15063.0.0_neutral_neutral_cw5n1h2txyewy"
+        "HKCR:\Extensions\ContractId\Windows.BackgroundTasks\PackageId\Microsoft.XboxGameCallableUI_1000.16299.15.0_neutral_neutral_cw5n1h2txyewy"
+        
+        #Windows File
+        "HKCR:\Extensions\ContractId\Windows.File\PackageId\ActiproSoftwareLLC.562882FEEB491_2.6.18.18_neutral__24pqs290vpjk0"
+        
+        #Registry keys to delete if they aren't uninstalled by RemoveAppXPackage/RemoveAppXProvisionedPackage
+        "HKCR:\Extensions\ContractId\Windows.Launch\PackageId\46928bounde.EclipseManager_2.2.4.51_neutral__a5h4egax66k6y"
+        "HKCR:\Extensions\ContractId\Windows.Launch\PackageId\ActiproSoftwareLLC.562882FEEB491_2.6.18.18_neutral__24pqs290vpjk0"
+        "HKCR:\Extensions\ContractId\Windows.Launch\PackageId\Microsoft.PPIProjection_10.0.15063.0_neutral_neutral_cw5n1h2txyewy"
+        "HKCR:\Extensions\ContractId\Windows.Launch\PackageId\Microsoft.XboxGameCallableUI_1000.15063.0.0_neutral_neutral_cw5n1h2txyewy"
+        "HKCR:\Extensions\ContractId\Windows.Launch\PackageId\Microsoft.XboxGameCallableUI_1000.16299.15.0_neutral_neutral_cw5n1h2txyewy"
+        
+        #Scheduled Tasks to delete
+        "HKCR:\Extensions\ContractId\Windows.PreInstalledConfigTask\PackageId\Microsoft.MicrosoftOfficeHub_17.7909.7600.0_x64__8wekyb3d8bbwe"
+        
+        #Windows Protocol Keys
+        "HKCR:\Extensions\ContractId\Windows.Protocol\PackageId\ActiproSoftwareLLC.562882FEEB491_2.6.18.18_neutral__24pqs290vpjk0"
+        "HKCR:\Extensions\ContractId\Windows.Protocol\PackageId\Microsoft.PPIProjection_10.0.15063.0_neutral_neutral_cw5n1h2txyewy"
+        "HKCR:\Extensions\ContractId\Windows.Protocol\PackageId\Microsoft.XboxGameCallableUI_1000.15063.0.0_neutral_neutral_cw5n1h2txyewy"
+        "HKCR:\Extensions\ContractId\Windows.Protocol\PackageId\Microsoft.XboxGameCallableUI_1000.16299.15.0_neutral_neutral_cw5n1h2txyewy"
+           
+        #Windows Share Target
+        "HKCR:\Extensions\ContractId\Windows.ShareTarget\PackageId\ActiproSoftwareLLC.562882FEEB491_2.6.18.18_neutral__24pqs290vpjk0"
+    )
+    
+    #This writes the output of each key it is removing and also removes the keys listed above.
+    ForEach ($key in $Keys) {
+        Write-Output "Removing $Key from registry"
+        Remove-Item $Key -Recurse -ErrorAction SilentlyContinue
+    }
+}
+
+Function FixApps {
+    
+    If(!(Get-AppxPackage -AllUsers | Select-Object Microsoft.Paint3D, Microsoft.MSPaint, Microsoft.WindowsCalculator, Microsoft.WindowsStore, Microsoft.MicrosoftStickyNotes, Microsoft.WindowsSoundRecorder, Microsoft.Windows.Photos)) {
+    
+    #Credit to abulgatz for the 4 lines of code
+    Get-AppxPackage -allusers Microsoft.Paint3D | ForEach-Object {Add-AppxPackage -DisableDevelopmentMode -Register "$($_.InstallLocation)\AppXManifest.xml"}
+    Get-AppxPackage -allusers Microsoft.MSPaint | ForEach-Object {Add-AppxPackage -DisableDevelopmentMode -Register "$($_.InstallLocation)\AppXManifest.xml"}
+    Get-AppxPackage -allusers Microsoft.WindowsCalculator | ForEach-Object {Add-AppxPackage -DisableDevelopmentMode -Register "$($_.InstallLocation)\AppXManifest.xml"}
+    Get-AppxPackage -allusers Microsoft.WindowsStore | ForEach-Object {Add-AppxPackage -DisableDevelopmentMode -Register "$($_.InstallLocation)\AppXManifest.xml"}
+    Get-AppxPackage -allusers Microsoft.MicrosoftStickyNotes | ForEach-Object {Add-AppxPackage -DisableDevelopmentMode -Register "$($_.InstallLocation)\AppXManifest.xml"}
+    Get-AppxPackage -allusers Microsoft.WindowsSoundRecorder | ForEach-Object {Add-AppxPackage -DisableDevelopmentMode -Register "$($_.InstallLocation)\AppXManifest.xml"}
+    Get-AppxPackage -allusers Microsoft.Windows.Photos | ForEach-Object {Add-AppxPackage -DisableDevelopmentMode -Register "$($_.InstallLocation)\AppXManifest.xml"} }
+}
+
+Function CheckDMWService {
+    
+    If (Get-Service -Name dmwappushservice | Where-Object {$_.StartType -eq "Disabled"}) {
+        Set-Service -Name dmwappushservice -StartupType Automatic}
+    
+    If(Get-Service -Name dmwappushservice | Where-Object {$_.Status -eq "Stopped"}) {
+       Start-Service -Name dmwappushservice
+    } 
+}
 Function Cleanup { 
 
 	Start-Process https://chrome.google.com/webstore/detail/ublock-origin/cjpalhdlnbpafiamejdnhcphjbkeiagm
@@ -492,9 +758,11 @@ Function Cleanup {
     If ($ctemp) { 
         Remove-Item $ctemp -Force -Recurse -Confirm:$false -ErrorAction SilentlyContinue 2> $NULL
     }
+    Write-Host "Restarting Explorer"
+    Start-Process Explorer
 }
 
-Powershell -ExecutionPolicy RemoteSigned -WindowStyle Maximized -NonInteractive -Command "exit"
+#Powershell -ExecutionPolicy RemoteSigned -WindowStyle Maximized -NonInteractive -Command "exit"
 License
 Write-Host "`n ================================================================================================ `n `n `n `n `n `n `n `n `n `n `n `n `n Fresh Loads Utility For Windows 10 & 11 `n `n Created by Mike Ivison `n `n `n `n Ideally run updates before this script. `n `n `n `n `n `n `n `n `n `n `n `n `n ================================================================================================ `n `n"
 Start-Sleep 4
@@ -510,10 +778,18 @@ Write-Host "`n `n ======================================== `n `n Removing OneDri
 OneDrive
 Write-Host "`n `n ======================================== `n `n Removing Bloatware from PC `n `n ======================================== `n `n"
 Debloat
-#Registry
+Write-Host "`n `n ======================================== `n `n Applying Registry Changes `n `n ======================================== `n `n"
+Registry
+KeyRemoval 
+Write-Host "`n `n ======================================== `n `n Applying Privacy Changes `n `n ======================================== `n `n"
+PrivacyProtection
+Titus
+Write-Host "`n `n ======================================== `n `n Looking for Broken AppxPackages `n `n ======================================== `n `n"
+FixApps
+Write-Host "Unloading the HKCR drive..."
+Remove-PSDrive HKCR
+CheckDMWService
 Cleanup
-Write-Host "Restarting Explorer"
-Start-Process Explorer
 Stop-Transcript
 Write-Host "`n `n ================================================================================================ `n `n `n `n `n `n `n `n `n `n `n `n `n `n `n Script Completed `n `n `n `n `n `n `n `n `n `n `n `n `n `n `n ================================================================================================ `n `n"
 Start-Sleep 5
