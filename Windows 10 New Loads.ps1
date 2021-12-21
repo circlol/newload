@@ -95,14 +95,14 @@ Function Visuals {
     If ($BuildNumber -gt $WantedBuild) {
         write-Host "I have detected that you are on Windows 11 `n `nApplying appropriate theme"
         Import-Module BitsTransfer
-        Start-BitsTransfer -Source "https://github.com/circlol/newload/blob/main/win11-light.deskthemepack" -Destination win11-light.deskthemepack
+        Start-BitsTransfer -Source "https://github.com/circlol/newload/raw/main/win11-light.deskthemepack" -Destination win11-light.deskthemepack
         Start-Sleep 3
         Start-Process "win11-light.deskthemepack"
     } else {
         If ($BuildNumber -lt $WantedBuild) {
             write-Host "I have detected that you are on Windows 10 `n `nApplying appropriate Theme"
             Import-Module BitsTransfer
-            Start-BitsTransfer -Source "https://github.com/circlol/newload/blob/main/win10-Purple.deskthemepack" -Destination win10-purple.deskthemepack
+            Start-BitsTransfer -Source "https://github.com/circlol/newload/raw/main/win10-purple.deskthemepack" -Destination win10-purple.deskthemepack
             Start-Sleep 3
             Start-Process "win10-purple.deskthemepack"
         }
@@ -222,6 +222,7 @@ Function Debloat {
         "Microsoft.People"
         "Microsoft.Print3D"
         "Microsoft.SkypeApp"
+        "MicrosoftTeams"
         "Microsoft.Wallet"
         "Microsoft.Whiteboard"
         "Microsoft.WindowsAlarms"
@@ -769,11 +770,11 @@ Start-Sleep 4
 Start-Transcript -OutputDirectory "$Folder" > $NULL
 Write-Host "`n `n ======================================== `n `n Checking for WinGet `n `n ======================================== `n `n"                                    
 WinGInstallation 
-Write-Host "`n `n ======================================== `n `n Applying Visual Tweaks `n `n ======================================== `n `n"
-Visuals
 Write-Host "`n `n ======================================== `n `n Installing Apps `n Please be patient as the programs install in the background. `n `n ============================================================= `n `n"
 Start-Sleep 5
 Programs
+Write-Host "`n `n ======================================== `n `n Applying Visual Tweaks `n `n ======================================== `n `n"
+Visuals
 Write-Host "`n `n ======================================== `n `n Removing OneDrive `n `n ======================================== `n `n"
 OneDrive
 Write-Host "`n `n ======================================== `n `n Removing Bloatware from PC `n `n ======================================== `n `n"
