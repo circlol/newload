@@ -92,7 +92,8 @@ Function Visuals {
     $WantedBuild = "10.0.22000"
     If ($BuildNumber -gt $WantedBuild) {
         write-Host "I have detected that you are on Windows 11 `n `nApplying appropriate theme"
-        Start-BitsTransfer -Source "https://www40.zippyshare.com/d/ITnX1PTu/920358/win11-light.deskthemepack" -Destination win11-light.deskthemepack
+        Start-BitsTransfer -Source "https://github.com/circlol/newload/raw/main/win11-light.deskthemepack" -Destination win11-light.deskthemepack
+        #Start-BitsTransfer -Source "https://www40.zippyshare.com/d/ITnX1PTu/920358/win11-light.deskthemepack" -Destination win11-light.deskthemepack
         Start-Sleep 3
         Start-Process "win11-light.deskthemepack"
     } else {
@@ -756,8 +757,6 @@ Function Cleanup {
     If ($ctemp) { 
         Remove-Item $ctemp -Force -Recurse -Confirm:$false -ErrorAction SilentlyContinue 2> $NULL
     }
-    Write-Host "Restarting Explorer"
-    Start-Process Explorer
 }
 
 #Powershell -ExecutionPolicy RemoteSigned -WindowStyle Maximized -NonInteractive -Command "exit"
@@ -783,8 +782,6 @@ PrivacyProtection
 Titus
 Write-Host "`n `n ======================================== `n `n Looking for Broken AppxPackages `n `n ======================================== `n `n"
 FixApps
-Write-Host "Unloading the HKCR drive..."
-Remove-PSDrive HKCR
 CheckDMWService
 Cleanup
 Stop-Transcript
