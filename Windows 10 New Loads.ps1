@@ -12,11 +12,11 @@ Function WinGInstallation {
     }  
     else{
         #Installs winget from the Microsoft Store
-        Write-Host "Winget not found, installing it now."
+        Write-Host " Winget not found, installing it now."
         Start-Process "ms-appinstaller:?source=https://aka.ms/getwinget"
         $nid = (Get-Process AppInstaller).Id
         Wait-Process -Id $nid
-        Write-Host "Winget Installed"
+        Write-Host " Winget Installed"
         Start-Sleep 4
         Stop-Process -Name AppInstaller -Force
     }
@@ -32,7 +32,7 @@ Function Programs {
 foreach ($Package in $Packages) {
     Write-Host "`n `nInstalling $Package `n" 
     winget install $package -e -h -s winget
-    Write-Host "`n `n$Package has been Installed `n"
+    Write-Host "`n `n$Package has been Installed"
     }
 
 $Location1 = "$env:PROGRAMFILES\Google\Chrome\Application\chrome.exe"
@@ -128,34 +128,35 @@ Function Visuals {
     Import-StartLayout -LayoutPath $layoutFile -MountPath $env:SystemDrive\
     Remove-Item $layoutFile
     taskkill /F /IM explorer.exe | Out-Null
+    Write-Host "Disabling OneDrive..."
+    If (!(Test-Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\OneDrive")) {
+        New-Item -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\OneDrive"
+    }
+    Set-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\OneDrive" -Name "DisableFileSyncNGSC" -Type DWord -Value 1
+    Write-Host "Uninstalling OneDrive..."
+    Stop-Process -Name "OneDrive" -ErrorAction SilentlyContinue
+    Start-Sleep -s 2
+    $onedrive = "$env:SYSTEMROOT\SysWOW64\OneDriveSetup.exe"
+    If (!(Test-Path $onedrive)) {
+        $onedrive = "$env:SYSTEMROOT\System32\OneDriveSetup.exe"
+    }
+    Start-Process $onedrive "/uninstall" -NoNewWindow -Wait
+    Start-Sleep -s 2
+    Stop-Process -Name "explorer" -ErrorAction SilentlyContinue
+    Start-Sleep -s 2
+    Remove-Item -Path "$env:USERPROFILE\OneDrive" -Force -Recurse -ErrorAction SilentlyContinue
+    Remove-Item -Path "$env:LOCALAPPDATA\Microsoft\OneDrive" -Force -Recurse -ErrorAction SilentlyContinue
+    Remove-Item -Path "$env:PROGRAMDATA\Microsoft OneDrive" -Force -Recurse -ErrorAction SilentlyContinue
+    Remove-Item -Path "$env:SYSTEMDRIVE\OneDriveTemp" -Force -Recurse -ErrorAction SilentlyContinue
+    If (!(Test-Path "HKCR:")) {
+        New-PSDrive -Name HKCR -PSProvider Registry -Root HKEY_CLASSES_ROOT
+    }
+    Remove-Item -Path "HKCR:\CLSID\{018D5C66-4533-4307-9B53-224DE2ED1FE6}" -Recurse -ErrorAction SilentlyContinue
+    Remove-Item -Path "HKCR:\Wow6432Node\CLSID\{018D5C66-4533-4307-9B53-224DE2ED1FE6}" -Recurse -ErrorAction SilentlyContinue
+    Write-Host "Disabled OneDrive"
 }
 Function OneDrive {
-Write-Host "Disabling OneDrive..."
-If (!(Test-Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\OneDrive")) {
-    New-Item -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\OneDrive"
-}
-Set-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\OneDrive" -Name "DisableFileSyncNGSC" -Type DWord -Value 1
-Write-Host "Uninstalling OneDrive..."
-Stop-Process -Name "OneDrive" -ErrorAction SilentlyContinue
-Start-Sleep -s 2
-$onedrive = "$env:SYSTEMROOT\SysWOW64\OneDriveSetup.exe"
-If (!(Test-Path $onedrive)) {
-    $onedrive = "$env:SYSTEMROOT\System32\OneDriveSetup.exe"
-}
-Start-Process $onedrive "/uninstall" -NoNewWindow -Wait
-Start-Sleep -s 2
-Stop-Process -Name "explorer" -ErrorAction SilentlyContinue
-Start-Sleep -s 2
-Remove-Item -Path "$env:USERPROFILE\OneDrive" -Force -Recurse -ErrorAction SilentlyContinue
-Remove-Item -Path "$env:LOCALAPPDATA\Microsoft\OneDrive" -Force -Recurse -ErrorAction SilentlyContinue
-Remove-Item -Path "$env:PROGRAMDATA\Microsoft OneDrive" -Force -Recurse -ErrorAction SilentlyContinue
-Remove-Item -Path "$env:SYSTEMDRIVE\OneDriveTemp" -Force -Recurse -ErrorAction SilentlyContinue
-If (!(Test-Path "HKCR:")) {
-    New-PSDrive -Name HKCR -PSProvider Registry -Root HKEY_CLASSES_ROOT
-}
-Remove-Item -Path "HKCR:\CLSID\{018D5C66-4533-4307-9B53-224DE2ED1FE6}" -Recurse -ErrorAction SilentlyContinue
-Remove-Item -Path "HKCR:\Wow6432Node\CLSID\{018D5C66-4533-4307-9B53-224DE2ED1FE6}" -Recurse -ErrorAction SilentlyContinue
-Write-Host "Disabled OneDrive"
+
 }
 Function Debloat {
     $Programs = @(
@@ -481,14 +482,14 @@ Function PrivacyProtection {
  Write-Output "Disabling Windows Feedback Experience program"
  $Advertising = 'HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\AdvertisingInfo'
  If (Test-Path $Advertising) {
-     Set-ItemProperty $Advertising -Name Enabled -Value 0 -Verbose
+     Set-ItemProperty $Advertising -Name Enabled -Value 0
  }
      
  #Stops Cortana from being used as part of your Windows Search Function
  Write-Output "Stopping Cortana from being used as part of your Windows Search Function"
  $Search = 'HKLM:\SOFTWARE\Policies\Microsoft\Windows\Windows Search'
  If (Test-Path $Search) {
-     Set-ItemProperty $Search -Name AllowCortana -Value 0 -Verbose
+     Set-ItemProperty $Search -Name AllowCortana -Value 0
  }
      
  #Stops the Windows Feedback Experience from sending anonymous data
@@ -500,7 +501,7 @@ Function PrivacyProtection {
      mkdir $Period1 -ErrorAction SilentlyContinue
      mkdir $Period2 -ErrorAction SilentlyContinue
      mkdir $Period3 -ErrorAction SilentlyContinue
-     New-ItemProperty $Period3 -Name PeriodInNanoSeconds -Value 0 -Verbose -ErrorAction SilentlyContinue
+     New-ItemProperty $Period3 -Name PeriodInNanoSeconds -Value 0 -ErrorAction SilentlyContinue
  }
             
  Write-Output "Adding Registry key to prevent bloatware apps from returning"
@@ -508,13 +509,13 @@ Function PrivacyProtection {
  $registryPath = "HKLM:\SOFTWARE\Policies\Microsoft\Windows\CloudContent"
  If (!(Test-Path $registryPath)) {
      Mkdir $registryPath -ErrorAction SilentlyContinue
-     New-ItemProperty $registryPath -Name DisableWindowsConsumerFeatures -Value 1 -Verbose -ErrorAction SilentlyContinue
+     New-ItemProperty $registryPath -Name DisableWindowsConsumerFeatures -Value 1 -ErrorAction SilentlyContinue
  }          
  
  Write-Output "Setting Mixed Reality Portal value to 0 so that you can uninstall it in Settings"
  $Holo = 'HKCU:\Software\Microsoft\Windows\CurrentVersion\Holographic'    
  If (Test-Path $Holo) {
-     Set-ItemProperty $Holo -Name FirstRunSucceeded -Value 0 -Verbose
+     Set-ItemProperty $Holo -Name FirstRunSucceeded -Value 0
  }
  
  #Disables live tiles
@@ -522,28 +523,28 @@ Function PrivacyProtection {
  $Live = 'HKCU:\SOFTWARE\Policies\Microsoft\Windows\CurrentVersion\PushNotifications'    
  If (!(Test-Path $Live)) {
      mkdir $Live -ErrorAction SilentlyContinue     
-     New-ItemProperty $Live -Name NoTileApplicationNotification -Value 1 -Verbose
+     New-ItemProperty $Live -Name NoTileApplicationNotification -Value 1
  }
  
  #Turns off Data Collection via the AllowTelemtry key by changing it to 0
  Write-Output "Turning off Data Collection"
  $DataCollection = 'HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\DataCollection'    
  If (Test-Path $DataCollection) {
-     Set-ItemProperty $DataCollection -Name AllowTelemetry -Value 0 -Verbose
+     Set-ItemProperty $DataCollection -Name AllowTelemetry -Value 0
  }
  
  #Disables People icon on Taskbar
  Write-Output "Disabling People icon on Taskbar"
  $People = 'HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\Advanced\People'
  If (Test-Path $People) {
-     Set-ItemProperty $People -Name PeopleBand -Value 0 -Verbose
+     Set-ItemProperty $People -Name PeopleBand -Value 0
  }
 
  #Disables suggestions on start menu
  Write-Output "Disabling suggestions on the Start Menu"
  $Suggestions = 'HKCU:\Software\Microsoft\Windows\CurrentVersion\ContentDeliveryManager'    
  If (Test-Path $Suggestions) {
-     Set-ItemProperty $Suggestions -Name SystemPaneSuggestionsEnabled -Value 0 -Verbose
+     Set-ItemProperty $Suggestions -Name SystemPaneSuggestionsEnabled -Value 0
  }
  
  
@@ -667,12 +668,12 @@ Function Cleanup {
 }
 
 checkme
-Write-Host "`n================================================================================================ `n `n `n `n `n `n `n `n `n `n `n `n `n Fresh Loads Utility For Windows 10 & 11 `n `n Created by Mike Ivison `n `n `n `n Ideally run updates before this script. `n `n `n `n `n `n `n `n `n `n `n `n `n================================================================================================ `n `n"
+Write-Host "`n `n `n `n `n `n `n `n `n `n `n `n `n `n================================================================================================ `n `n `n `n `n `n `n `n `n `n `n `n `n Fresh Loads Utility For Windows 10 & 11 `n `n Created by Mike Ivison `n `n `n `n Ideally run updates before this script. `n `n `n `n `n `n `n `n `n `n `n `n `n================================================================================================ `n `n"
+Start-Sleep 5
 Start-Transcript -OutputDirectory "$Folder" > $NULL
 Write-Host "`n `n======================================== `n `n Checking for WinGet `n `n======================================== `n `n"                                    
 WinGInstallation 
 Write-Host "`n `n======================================== `n `n Installing Apps `n Please be patient as the programs install in the background. `n `n============================================================= `n `n"
-Start-Sleep 5
 Programs
 Write-Host "`n `n======================================== `n `n Applying Visual Tweaks `n `n======================================== `n `n"
 Visuals
