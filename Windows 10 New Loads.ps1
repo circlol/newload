@@ -454,7 +454,6 @@ Function checkme {
     #Restore registry w32time\Config
     reg import "$folder\exported_w32time.reg" | Out-Null 2> $NUL
     Remove-Item "$folder\exported_w32time.reg" | Out-Null 2> $NUL
-    Clear-Host
     $Lie = "License has Expired. Please Contact Mike for a New License"
     $Minimum = 20211211
     $Time = (Get-Date -UFormat %Y%m%d)
@@ -462,12 +461,14 @@ Function checkme {
     If ($Time -gt $License) {
         Write-Host $lie
         Start-Sleep 2
+        Clear-Host
         Exit
         } else {
             If ($Time -gt $minimum) {
                 Clear-Host
                 } else {
                     Write-Host $lie
+                    Clear-Host
                     Start-Sleep 2
                     Exit
                 }
@@ -642,45 +643,43 @@ Function CheckDMWService {
     } 
 }
 Function Cleanup { 
-
-	Start-Process https://chrome.google.com/webstore/detail/ublock-origin/cjpalhdlnbpafiamejdnhcphjbkeiagm
-    Remove-Item "$Env:Temp\*.*" -Force -Recurse -Confirm:$false -ErrorAction SilentlyContinue 2> $NULL
+    $delvari = "-Force -Recurse -Confirm:$false -ErrorAction SilentlyContinue 2> $NULL"
+    Start-Process https://chrome.google.com/webstore/detail/ublock-origin/cjpalhdlnbpafiamejdnhcphjbkeiagm
+    Remove-Item "$Env:Temp\*.*" $delvari
     $EdgeShortcut = "$Env:USERPROFILE\Desktop\Microsoft Edge.lnk"
     If ($EdgeShortcut) { 
-        Remove-Item $EdgeShortcut -Force -Recurse -Confirm:$false -ErrorAction SilentlyContinue 2> $NULL
+        Remove-Item $EdgeShortcut $delvari
     }
     $edgescpub = "$Env:PUBLIC\Desktop\Microsoft Edge.lnk"
     If ($edgescpub) { 
-        Remove-Item $edgescpub -Force -Recurse -Confirm:$false -ErrorAction SilentlyContinue 2> $NULL
+        Remove-Item $edgescpub $delvari
     }
     $vlcsc = "$Env:PUBLIC\Desktop\VLC Media Player.lnk"
     If ($vlcsc) { 
-        Remove-Item $vlcsc -Force -Recurse -Confirm:$false -ErrorAction SilentlyContinue 2> $NULL
+        Remove-Item $vlcsc $delvari
     }
     $acrosc = "$Env:PUBLIC\Desktop\Adobe Acrobat DC.lnk"
     If ($acrosc) { 
-        Remove-Item $acrosc -Force -Recurse -Confirm:$false -ErrorAction SilentlyContinue 2> $NULL
+        Remove-Item $acrosc $delvari
     }
     $ctemp = "C:\Temp"
     If ($ctemp) { 
-        Remove-Item $ctemp -Force -Recurse -Confirm:$false -ErrorAction SilentlyContinue 2> $NULL
+        Remove-Item $ctemp $delvari
     }
 }
 
 checkme
-Write-Host "`n `n `n `n `n `n `n `n `n `n `n `n `n `n================================================================================================ `n `n `n `n `n `n `n `n `n `n `n `n `n Fresh Loads Utility For Windows 10 & 11 `n `n Created by Mike Ivison `n `n `n `n Ideally run updates before this script. `n `n `n `n `n `n `n `n `n `n `n `n `n================================================================================================ `n `n"
-Start-Sleep 5
 Start-Transcript -OutputDirectory "$Folder" > $NULL
-Write-Host "`n `n======================================== `n `n Checking for WinGet `n `n======================================== `n `n"                                    
+Write-Host "`n `n `n `n `n `n `n `n `n `n `n================================================================================================ `n `n `n `n `n `n `n `n `n `n `n `n `n Fresh Loads Utility For Windows 10 & 11 `n `n Created by Mike Ivison `n `n `n `n Ideally run updates before this script. `n `n `n `n `n `n `n `n `n `n `n `n `n================================================================================================ `n `n"
+Start-Sleep 5
 WinGInstallation 
 Write-Host "`n `n======================================== `n `n Installing Apps `n Please be patient as the programs install in the background. `n `n============================================================= `n `n"
 Programs
 Write-Host "`n `n======================================== `n `n Applying Visual Tweaks `n `n======================================== `n `n"
 Visuals
-Write-Host "`n `n======================================== `n `n Removing OneDrive `n `n======================================== `n `n"
-OneDrive
 Write-Host "`n `n======================================== `n `n Removing Bloatware from PC `n `n======================================== `n `n"
 Debloat
+OneDrive
 Write-Host "`n `n======================================== `n `n Applying Registry Changes `n `n======================================== `n `n"
 Registry
 KeyRemoval 
