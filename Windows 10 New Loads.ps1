@@ -473,100 +473,6 @@ Function checkme {
             
         }
 }
-Function Titus {
-
-    # Service tweaks to Manual
-
-    $services = @(
-    "DiagTrack"                                    # Diagnostics Tracking Service
-    "DiagTrack"                                    # Diagnostics Tracking Service
-    "lmhosts"                                      # Disables TCP/IP NetBIOS Helper
-    "gupdate"                                      # Disables google update
-    "gupdatem"                                     # Disable another google update
-    "WMPNetworkSvc"                                # Windows Media Player Network Sharing Service
-    "diagnosticshub.standardcollector.service"     # Microsoft (R) Diagnostics Hub Standard Collector Service
-    "DPS"
-    "lfsvc"                                        # Geolocation Service
-    "MapsBroker"                                   # Downloaded Maps Manager
-    "NetTcpPortSharing"                            # Net.Tcp Port Sharing Service
-    "RemoteRegistry"                               # Remote Registry
-    "TrkWks"                                       # Distributed Link Tracking Client
-    "WSearch"                                      # Windows Search
-    "XblAuthManager"                               # Xbox Live Auth Manager
-    "XblGameSave"                                  # Xbox Live Game Save Service
-    "XboxNetApiSvc"                                # Xbox Live Networking Service
-    "XboxGipSvc"                                   # Disables Xbox Accessory Management Service
-    "ndu"                                          # Windows Network Data Usage Monitor
-    "WerSvc"                                       # disables windows error reporting
-    "stisvc"                                       # Disables Windows Image Acquisition (WIA)
-    "AJRouter"                                     # Disables (needed for AllJoyn Router Service)
-    "MSDTC"                                        # Disables Distributed Transaction Coordinator
-    "PhoneSvc"                                     # Disables Phone Service(Manages the telephony state on the device)
-    "PrintNotify"                                  # Disables Windows printer notifications and extentions
-    "PcaSvc"                                       # Disables Program Compatibility Assistant Service
-    "WPDBusEnum"                                   # Disables Portable Device Enumerator Service
-    "FontCache"                                    # Disables Windows font cache
-    "ALG"                                          # Disables Application Layer Gateway Service(Provides support for 3rd party protocol plug-ins for Internet Connection Sharing)
-    "BthAvctpSvc"                                   # AVCTP service (This is Audio Video Control Transport Protocol service.)
-    "iphlpsvc"                                      # Disables ipv6 but most websites don't use ipv6 they use ipv4
-    "edgeupdate"                                    # Disables one of edge update service
-    "MicrosoftEdgeElevationService"                 # Disables one of edge  service
-    "edgeupdatem"                                   # disbales another one of update service (disables edgeupdatem)
-    "PerfHost"                                      # Disables  remote users and 64-bit processes to query performance .
-    "BcastDVRUserService_48486de"                   # Disables GameDVR and Broadcast   is used for Game Recordings and Live Broadcasts
-    "CaptureService_48486de"                        # Disables ptional screen capture functionality for applications that call the Windows.Graphics.Capture API.
-    "cbdhsvc_48486de"                               # Disables   cbdhsvc_48486de (clipboard service it disables)
-    "WpnService"                                    # Disables WpnService (Push Notifications may not work )
-    "RtkBtManServ"                                  # Disables Realtek Bluetooth Device Manager Service
- 
-    #Hp services
-    "HPAppHelperCap"
-    "HPDiagsCap"
-    "HPNetworkCap"
-    "HPSysInfoCap"
-    "HpTouchpointAnalyticsService"
-        
-        
-    ## Disabled ##
-    #"BFE"                                          # Disables Base Filtering Engine (BFE) (is a service that manages firewall and Internet Protocol security)
-    #"BFE"                                          # Disables Base Filtering Engine (BFE) (is a service that manages firewall and Internet Protocol security)
-    #"dmwappushservice"                             # WAP Push Message Routing Service (see known issues)
-    #"RemoteAccess"                                 # Routing and Remote Access
-    #"SharedAccess"                                 # Internet Connection Sharing (ICS)
-    #WbioSrvc"                                     # Windows Biometric Service (required for Fingerprint reader / facial detection)
-    #"WlanSvc"                                      # WLAN AutoConfig
-    #"wscsvc"                                       # Windows Security Center Service
-    #"Spooler"                                      # Disables your printer
-    #"Fax"                                          # Disables fax
-    #"fhsvc"                                        # Disables fax histroy
-    #"LicenseManager"                               # Disable LicenseManager(Windows store may not work properly)
-    #"seclogon"                                     # Disables  Secondary Logon(disables other credentials only password will work)
-    #"wisvc"                                        # Disables Windows Insider program(Windows Insider will not work)
-    #"SysMain"                                      # Disables sysmain
-    #"RetailDemo"                                   # Disables RetailDemo whic is often used when showing your device
-    #"BrokerInfrastructure"                         # Disables Windows infrastructure service that controls which background tasks can run on the system.
-    #"SCardSvr"                                     # Disables Windows smart card
-    #"EntAppSvc"                                    # Disables enterprise application management.
-    #"BDESVC"                                       # Disables bitlocker
-    #FrameServer"                                  # Disables Windows Camera Frame Server(this allows multiple clients to access video frames from camera devices.)
-    #SEMgrSvc"                                     # Disables Payments and NFC/SE Manager (Manages payments and Near Field Communication (NFC) based secure elements)
-    #"PNRPsvc"                                      # Disables peer Name Resolution Protocol ( some peer-to-peer and collaborative applications, such as Remote Assistance, may not function, Discord will still work)
-    #"p2psvc"                                       # Disbales Peer Name Resolution Protocol(nables multi-party communication using Peer-to-Peer Grouping.  If disabled, some applications, such as HomeGroup, may not function. Discord will still work)
-    #"HvHost"                                       # Disables HyperV
-    #"p2pimsvc"                                     # Disables Peer Networking Identity Manager (Peer-to-Peer Grouping services may not function, and some applications, such as HomeGroup and Remote Assistance, may not function correctly.Discord will still work)
-    #"BluetoothUserService_48486de"                 # Disbales BluetoothUserService_48486de (The Bluetooth user service supports proper functionality of Bluetooth features relevant to each user session.)
-    #"StorSvc"                                      # Disables StorSvc (usb external hard drive will not be reconised by windows)
-      
-     )
- 
- foreach ($service in $services) {
-     # -ErrorAction SilentlyContinue is so it doesn't write an error to stdout if a service doesn't exist
- 
-     Write-Host "Setting $service StartupType to Manual"
-     Get-Service -Name $service -ErrorAction SilentlyContinue | Set-Service -StartupType Manual
- }
- 
-}
 Function PrivacyProtection {
  #Creates a PSDrive to be able to access the 'HKCR' tree
  New-PSDrive -Name HKCR -PSProvider Registry -Root HKEY_CLASSES_ROOT
@@ -761,26 +667,25 @@ Function Cleanup {
 }
 
 checkme
-Write-Host "`n ================================================================================================ `n `n `n `n `n `n `n `n `n `n `n `n `n Fresh Loads Utility For Windows 10 & 11 `n `n Created by Mike Ivison `n `n `n `n Ideally run updates before this script. `n `n `n `n `n `n `n `n `n `n `n `n `n ================================================================================================ `n `n"
+Write-Host "`n================================================================================================ `n `n `n `n `n `n `n `n `n `n `n `n `n Fresh Loads Utility For Windows 10 & 11 `n `n Created by Mike Ivison `n `n `n `n Ideally run updates before this script. `n `n `n `n `n `n `n `n `n `n `n `n `n================================================================================================ `n `n"
 Start-Transcript -OutputDirectory "$Folder" > $NULL
-Write-Host "`n `n ======================================== `n `n Checking for WinGet `n `n ======================================== `n `n"                                    
+Write-Host "`n `n======================================== `n `n Checking for WinGet `n `n======================================== `n `n"                                    
 WinGInstallation 
-Write-Host "`n `n ======================================== `n `n Installing Apps `n Please be patient as the programs install in the background. `n `n ============================================================= `n `n"
+Write-Host "`n `n======================================== `n `n Installing Apps `n Please be patient as the programs install in the background. `n `n============================================================= `n `n"
 Start-Sleep 5
 Programs
-Write-Host "`n `n ======================================== `n `n Applying Visual Tweaks `n `n ======================================== `n `n"
+Write-Host "`n `n======================================== `n `n Applying Visual Tweaks `n `n======================================== `n `n"
 Visuals
-Write-Host "`n `n ======================================== `n `n Removing OneDrive `n `n ======================================== `n `n"
+Write-Host "`n `n======================================== `n `n Removing OneDrive `n `n======================================== `n `n"
 OneDrive
-Write-Host "`n `n ======================================== `n `n Removing Bloatware from PC `n `n ======================================== `n `n"
+Write-Host "`n `n======================================== `n `n Removing Bloatware from PC `n `n======================================== `n `n"
 Debloat
-Write-Host "`n `n ======================================== `n `n Applying Registry Changes `n `n ======================================== `n `n"
+Write-Host "`n `n======================================== `n `n Applying Registry Changes `n `n======================================== `n `n"
 Registry
 KeyRemoval 
-Write-Host "`n `n ======================================== `n `n Applying Privacy Changes `n `n ======================================== `n `n"
+Write-Host "`n `n======================================== `n `n Applying Privacy Changes `n `n======================================== `n `n"
 PrivacyProtection
-Titus
-Write-Host "`n `n ======================================== `n `n Looking for Broken AppxPackages `n `n ======================================== `n `n"
+Write-Host "`n `n======================================== `n `n Finishing Up `n `n======================================== `n `n"
 FixApps
 CheckDMWService
 Cleanup
