@@ -121,15 +121,18 @@ Function Visuals {
     $wshell = New-Object -ComObject wscript.shell; $wshell.SendKeys('^{ESCAPE}')
     Start-Sleep -s 5
     foreach ($regAlias in $regAliases){
-    $basePath = $regAlias + ":\SOFTWARE\Policies\Microsoft\Windows"
-    $keyPath = $basePath + "\Explorer" 
-    Set-ItemProperty -Path $keyPath -Name "LockedStartLayout" -Value 0
+        $basePath = $regAlias + ":\SOFTWARE\Policies\Microsoft\Windows"
+        $keyPath = $basePath + "\Explorer" 
+        Set-ItemProperty -Path $keyPath -Name "LockedStartLayout" -Value 0
+    }
     Stop-Process -name explorer -force | Out-Null
     Import-StartLayout -LayoutPath $layoutFile -MountPath $env:SystemDrive\
     Remove-Item $layoutFile
     taskkill /F /IM explorer.exe | Out-Null
+    Write-Host "Disabling OneDrive..."
+    If (!(Test-Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\OneDrive")) {
+        New-Item -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\OneDrive"
     }
-
 }
 Function OneDrive {
     Write-Host "Disabling OneDrive..."
@@ -330,6 +333,10 @@ Function Registry {
     powercfg -change -monitor-timeout-dc "10"
     start-sleep 1
 
+    REG DELETE "HKCU\Software\Microsoft\Windows\CurrentVersion\ContentDeliveryManager\Subscriptions" /f | Out-Null
+    REG DELETE "HKCU\Software\Microsoft\Windows\CurrentVersion\ContentDeliveryManager\SuggestedApps" /f | Out-Null
+    REG DELETE "HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\MultiTaskingView\AllUpView" /v Enabled /f | Out-Null
+    
     #Explorer Related Settings    
     Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer" -Name "EnableAutoTray" -Value 0
     Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer" -Name "ShowRecent" -Value 0
@@ -375,17 +382,20 @@ Function Registry {
     Set-ItemProperty -Path "HKCU:\Control Panel\Mouse" -Name "MouseThreshold1" -Value 0
     Set-ItemProperty -Path "HKCU:\Control Panel\Mouse" -Name "MouseThreshold2" -Value 0
     
-    If (!("HKCU:\Software\Policies\Microsoft\Windows\EdgeUI")) {
-        New-Item "HKCU:\Software\Policies\Microsoft\Windows\EdgeUI" -Force | Out-Null
-    }
-    Set-ItemProperty -Path "HKCU:\Software\Policies\Microsoft\Windows\EdgeUI" -Name "DisableMFUTracking" -Value 1
-    
     Set-ItemProperty -Path "HKCU:\Software\Microsoft\InputPersonalization\TrainedDataStore" -Name "HarvestContacts" -Value 0
     Set-ItemProperty -Path "HKCU:\Software\Microsoft\InputPersonalization" -Name "RestrictImplicitInkCollection" -Value 1
     Set-ItemProperty -Path "HKCU:\Software\Microsoft\InputPersonalization" -Name "RestrictImplicitTextCollection" -Value 1
     
     Set-ItemProperty -Path "HKCU:\Software\Microsoft\Personalization\Settings" -Name "AcceptedPrivacyPolicy" -Value 0
     
+    Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\SearchSettings" -Name "IsMSACloudSearchEnabled" -Value 0
+    Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\SearchSettings" -Name "IsAADCloudSearchEnabled" -Value 0
+    
+    
+    If (!("HKCU:\Software\Policies\Microsoft\Windows\EdgeUI")) {
+        New-Item "HKCU:\Software\Policies\Microsoft\Windows\EdgeUI" -Force | Out-Null
+    }
+    Set-ItemProperty -Path "HKCU:\Software\Policies\Microsoft\Windows\EdgeUI" -Name "DisableMFUTracking" -Value 1
     
     If (!(Test-Path "HKCU:\SOFTWARE\Microsoft\Siuf\Rules")) {
         New-Item -Path "HKCU:\SOFTWARE\Microsoft\Siuf\Rules" -Force | Out-Null
@@ -395,10 +405,6 @@ Function Registry {
     Set-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\DataCollection" -Name "DoNotShowFeedbackNotifications" -Type DWord -Value 1
     Disable-ScheduledTask -TaskName "Microsoft\Windows\Feedback\Siuf\DmClient" -ErrorAction SilentlyContinue | Out-Null
     Disable-ScheduledTask -TaskName "Microsoft\Windows\Feedback\Siuf\DmClientOnScenarioDownload" -ErrorAction SilentlyContinue | Out-Null
-    
-    
-    Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\SearchSettings" -Name "IsMSACloudSearchEnabled" -Value 0
-    Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\SearchSettings" -Name "IsAADCloudSearchEnabled" -Value 0
     
     
     If (!("HKCU:\Software\Microsoft\Windows\CurrentVersion\UserProfileEngagement")) {
@@ -423,10 +429,6 @@ Function Registry {
         New-Item "HKCU:\Software\Policies\Microsoft\Windows\Windows Search" -Force | Out-Null
     }
     Set-ItemProperty -Path "HKCU:\Software\Policies\Microsoft\Windows\Windows Search" -Name "AllowCortana" -Value 0
-    
-    REG DELETE "HKCU\Software\Microsoft\Windows\CurrentVersion\ContentDeliveryManager\Subscriptions" /f | Out-Null
-    REG DELETE "HKCU\Software\Microsoft\Windows\CurrentVersion\ContentDeliveryManager\SuggestedApps" /f | Out-Null
-    REG DELETE "HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\MultiTaskingView\AllUpView" /v Enabled /f | Out-Null
     
     Write-Host "`n `n ======================================== `n `n Registry Modifications Complete `n `n ======================================== `n `n"
 } 
