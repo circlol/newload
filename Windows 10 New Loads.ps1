@@ -332,7 +332,7 @@ Function Registry {
     powercfg -change -standby-timeout-dc "15"
     powercfg -change -monitor-timeout-dc "10"
     start-sleep 1
-
+    
     REG DELETE "HKCU\Software\Microsoft\Windows\CurrentVersion\ContentDeliveryManager\Subscriptions" /f | Out-Null
     REG DELETE "HKCU\Software\Microsoft\Windows\CurrentVersion\ContentDeliveryManager\SuggestedApps" /f | Out-Null
     REG DELETE "HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\MultiTaskingView\AllUpView" /v Enabled /f | Out-Null
@@ -341,7 +341,13 @@ Function Registry {
     REG ADD "HKCU\Software\Microsoft\Siuf\Rules" /v "PeriodInNanoSeconds" /t REG_QWORD /d "0" /f
     REG ADD "HKLM\SOFTWARE\Policies\Microsoft\Windows\Windows Search" /v "AllowCortana" /T REG_DWORD /d "0" /f
     REG ADD "HKLM\Software\Microsoft\WindowsUpdate\UX\Settings" /v "UxOption" /t REG_DWORD /d "1" /f
+    REG ADD "HKEY_CURRENT_USER\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\Ribbon" /v "MinimizedStateTabletModeOff" /t REG_DWORD /d "0" /f
+    REG ADD "HKCU\SOFTWARE\Microsoft\Windows\CurrentVersion\UserProfileEngagement" /v "ScoobeSystemSettingEnabled" /t REG_DWORD /d "0" /f
 
+    REG ADD "HKCU\Software\Microsoft\Windows\CurrentVersion\AdvertisingInfo" /f
+    REG ADD "HKCU\Software\Microsoft\Windows\CurrentVersion\AdvertisingInfo" /v "Enabled" /t REG_DWORD /d "0" /f
+    Set-ItemProperty -Path "HKLM:\Software\Policies\Microsoft\Windows\AdvertisingInfo" -Name "DisabledByGroupPolicy" -Type DWord -Value 1 -Verbose
+    
     #Explorer Related Settings    
     Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer" -Name "EnableAutoTray" -Value 0 -Verbose
     Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer" -Name "ShowRecent" -Value 0 -Verbose
@@ -400,22 +406,7 @@ Function Registry {
     Disable-ScheduledTask -TaskName "Microsoft\Windows\Feedback\Siuf\DmClient" -ErrorAction SilentlyContinue | Out-Null
     Disable-ScheduledTask -TaskName "Microsoft\Windows\Feedback\Siuf\DmClientOnScenarioDownload" -ErrorAction SilentlyContinue | Out-Null
     
-    If (!("HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Ribbon")) {
-        New-Item -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Ribbon" -Force | Out-Null
-    }
-    Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Ribbon" -Name "MinimizedStateTabletModeOff" -Value 0 -Verbose
 
-    
-    If (!("HKCU:\Software\Microsoft\Windows\CurrentVersion\UserProfileEngagement")) {
-        New-Item "HKCU:\Software\Microsoft\Windows\CurrentVersion\UserProfileEngagement" -Force | Out-Null
-    }
-    Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\UserProfileEngagement" -Name "ScoobeSystemSettingEnabled" -Value 0 -Verbose
-    
-    
-    If (!("HKLM:\Software\Policies\Microsoft\Windows\AdvertisingInfo")) {
-        New-Item "HKLM:\Software\Policies\Microsoft\Windows\AdvertisingInfo" -Force | Out-Null
-    } 
-    Set-ItemProperty -Path "HKLM:\Software\Policies\Microsoft\Windows\AdvertisingInfo" -Name "DisabledByGroupPolicy" -Type DWord -Value 1 -Verbose
     Set-ItemProperty -Path "HKLM:\Software\Microsoft\Windows\Windows Error Reporting" -Name "Disabled" -Type DWord -Value 1 -Verbose
         
 
@@ -490,7 +481,7 @@ Write-Host "`n `n======================================== `n `n Installing Apps 
 Programs
 Write-Host "`n `n======================================== `n `n Applying Visual Tweaks `n `n======================================== `n `n"
 Visuals
-Write-Host "`n `n======================================== `n `n Removing Bloatware from PC `n `n=====================@$=================== `n `n"
+Write-Host "`n `n======================================== `n `n Removing Bloatware from PC `n `n======================================== `n `n"
 Debloat
 OneDrive
 Write-Host "`n `n======================================== `n `n Applying Registry Changes `n `n======================================== `n `n"
