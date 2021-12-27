@@ -9,9 +9,9 @@ $form.StartPosition              = "CenterScreen"
 #$form.Location                   = New-Object System.Drawing.Size(1400, 300)
 $Form.TopMost                    = $true
 $Form.BackColor                  = [System.Drawing.ColorTranslator]::FromHtml("#4b4b4b")
-#$Form.AutoScaleDimensions        = '192, 192'
-#$Form.AutoScaleMode              = "Dpi"
-#$Form.AutoSize                   = $True
+$Form.AutoScaleDimensions        = '192, 192'
+$Form.AutoScaleMode              = "Dpi"
+$Form.AutoSize                   = $True
 #$Form.AutoScroll                 = $True
 $Form.FormBorderStyle            = 'FixedSingle'
 
