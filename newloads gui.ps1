@@ -842,7 +842,7 @@ $LightMode.Add_Click{
         #Start-BitsTransfer -Source "https://www40.zippyshare.com/d/ITnX1PTu/920358/win11-light.deskthemepack" -Destination win11-light.deskthemepack
         Start-Sleep 3
         Start-Process "win11-light.deskthemepack"
-        Remove-Item "*.deskthemepack" -Force -Recurse 
+        Remove-Item "win11-light.deskthemepack" -Force -Recurse 
     } else {
         If ($BuildNumber -lt $WantedBuild) {
             write-Host "Applying Light Mode for Windows 10"
@@ -851,7 +851,7 @@ $LightMode.Add_Click{
             Start-Process "win10-purple.deskthemepack"
             REG ADD "HKCU\Software\Microsoft\Windows\CurrentVersion\Themes\Personalize" /v "AppsUseLightTheme" /d "1" /t REG_DWORD
             REG ADD "HKCU\Software\Microsoft\Windows\CurrentVersion\Themes\Personalize" /v "SystemUseLightTheme" /d "1" /t REG_DWORD
-            Remove-Item "*.deskthemepack" -Force -Recurse
+            Remove-Item "win10-purple.deskthemepack" -Force -Recurse
         }
     }
 }
