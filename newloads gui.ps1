@@ -27,7 +27,7 @@ $RunNoOEM                        = New-Object system.Windows.Forms.Button
 $RunNoOEM.text                   = "Run without Branding"
 $RunNoOEM.width                  = 240
 $RunNoOEM.height                 = 36
-$RunNoOEM.location               = New-Object System.Drawing.Point(356,386)
+$RunNoOEM.location               = New-Object System.Drawing.Point(356,385)
 $RunNoOEM.Font                   = New-Object System.Drawing.Font('Microsoft Sans Serif',9)
 $RunNoOEM.ForeColor              = [System.Drawing.ColorTranslator]::FromHtml("")
 $RunNoOEM.BackColor              = [System.Drawing.ColorTranslator]::FromHtml("#9b9b9b")
@@ -87,7 +87,7 @@ $asusshortcut                    = New-Object system.Windows.Forms.Button
 $asusshortcut.text               = "ASUS"
 $asusshortcut.width              = 102
 $asusshortcut.height             = 53
-$asusshortcut.location           = New-Object System.Drawing.Point(379,132)
+$asusshortcut.location           = New-Object System.Drawing.Point(379,189)
 $asusshortcut.Font               = New-Object System.Drawing.Font('Microsoft Sans Serif',10)
 $asusshortcut.ForeColor          = [System.Drawing.ColorTranslator]::FromHtml("#ffffff")
 $asusshortcut.BackColor          = [System.Drawing.ColorTranslator]::FromHtml("#9b9b9b")
@@ -96,7 +96,7 @@ $msishortcut                     = New-Object system.Windows.Forms.Button
 $msishortcut.text                = "MSI"
 $msishortcut.width               = 102
 $msishortcut.height              = 53
-$msishortcut.location            = New-Object System.Drawing.Point(494,132)
+$msishortcut.location            = New-Object System.Drawing.Point(494,189)
 $msishortcut.Font                = New-Object System.Drawing.Font('Microsoft Sans Serif',10)
 $msishortcut.ForeColor           = [System.Drawing.ColorTranslator]::FromHtml("#ffffff")
 $msishortcut.BackColor           = [System.Drawing.ColorTranslator]::FromHtml("#9b9b9b")
@@ -168,7 +168,7 @@ $intelshortcut                   = New-Object system.Windows.Forms.Button
 $intelshortcut.text              = "Intel"
 $intelshortcut.width             = 102
 $intelshortcut.height            = 53
-$intelshortcut.location          = New-Object System.Drawing.Point(438,201)
+$intelshortcut.location          = New-Object System.Drawing.Point(435,127)
 $intelshortcut.Font              = New-Object System.Drawing.Font('Microsoft Sans Serif',10)
 $intelshortcut.ForeColor         = [System.Drawing.ColorTranslator]::FromHtml("#ffffff")
 $intelshortcut.BackColor         = [System.Drawing.ColorTranslator]::FromHtml("#4a90e2")
@@ -180,7 +180,33 @@ $Label4.height                   = 10
 $Label4.location                 = New-Object System.Drawing.Point(64,468)
 $Label4.Font                     = New-Object System.Drawing.Font('Microsoft Sans Serif',10)
 
-$Form.controls.AddRange(@($RunScript,$RunNoOEM,$UndoScript,$ExitButton,$mocologo,$nvidiashortcut,$amdshortcut,$DriverWebsites,$asusshortcut,$msishortcut,$Shortcuts,$activationbutton,$programsbutton,$updatesbutton,$ThemeButton,$powerplanbutton,$Label3,$intelshortcut,$Label4))
+$LightMode                       = New-Object system.Windows.Forms.Button
+$LightMode.text                  = "Light Mode"
+$LightMode.width                 = 131
+$LightMode.height                = 35
+$LightMode.location              = New-Object System.Drawing.Point(36,316)
+$LightMode.Font                  = New-Object System.Drawing.Font('Microsoft Sans Serif',10)
+$LightMode.ForeColor             = [System.Drawing.ColorTranslator]::FromHtml("#ffffff")
+$LightMode.BackColor             = [System.Drawing.ColorTranslator]::FromHtml("#9b9b9b")
+
+$DarkMode                        = New-Object system.Windows.Forms.Button
+$DarkMode.text                   = "Dark Mode"
+$DarkMode.width                  = 131
+$DarkMode.height                 = 35
+$DarkMode.location               = New-Object System.Drawing.Point(36,270)
+$DarkMode.Font                   = New-Object System.Drawing.Font('Microsoft Sans Serif',10)
+$DarkMode.ForeColor              = [System.Drawing.ColorTranslator]::FromHtml("#ffffff")
+$DarkMode.BackColor              = [System.Drawing.ColorTranslator]::FromHtml("#9b9b9b")
+
+$Reboot                          = New-Object system.Windows.Forms.Button
+$Reboot.text                     = "REBOOT"
+$Reboot.width                    = 100
+$Reboot.height                   = 89
+$Reboot.location                 = New-Object System.Drawing.Point(230,480)
+$Reboot.Font                     = New-Object System.Drawing.Font('Microsoft Sans Serif',10,[System.Drawing.FontStyle]([System.Drawing.FontStyle]::Bold))
+$Reboot.BackColor                = [System.Drawing.ColorTranslator]::FromHtml("#ff0000")
+
+$Form.controls.AddRange(@($RunScript,$RunNoOEM,$UndoScript,$ExitButton,$mocologo,$nvidiashortcut,$amdshortcut,$DriverWebsites,$asusshortcut,$msishortcut,$Shortcuts,$activationbutton,$programsbutton,$updatesbutton,$ThemeButton,$powerplanbutton,$Label3,$intelshortcut,$Label4,$LightMode,$DarkMode,$Reboot))
 
 
 #region Logic 
@@ -393,8 +419,6 @@ Function OneDrive {
     Remove-Item -Path "HKCR:\CLSID\{018D5C66-4533-4307-9B53-224DE2ED1FE6}" -Recurse -ErrorAction SilentlyContinue
     Remove-Item -Path "HKCR:\Wow6432Node\CLSID\{018D5C66-4533-4307-9B53-224DE2ED1FE6}" -Recurse -ErrorAction SilentlyContinue
     Write-Host "Disabled OneDrive"
-    Start-Process Explorer
-    Write-Host "Restarted Explorer"
 }
 Function UndoDebloat{
     Get-AppxPackage -AllUsers| ForEach-Object {Add-AppxPackage -DisableDevelopmentMode -Register “$($_.InstallLocation)\AppXManifest.xml”} 2< $NULL
@@ -738,6 +762,8 @@ Function OEMInfo{
 }
 Function Cleanup {
     Write-Host "$frmt Finishing Up $frmt "
+    Start-Process Explorer
+    Write-Host "Restarted Explorer"
     Start-Process https://chrome.google.com/webstore/detail/ublock-origin/cjpalhdlnbpafiamejdnhcphjbkeiagm
     Remove-Item "$Env:Temp\*.*" -Force -Recurse -Confirm:$false -ErrorAction SilentlyContinue 2> $NULL
     $EdgeShortcut = "$Env:USERPROFILE\Desktop\Microsoft Edge.lnk"
@@ -805,6 +831,50 @@ $amdshortcut.Add_Click{
 }
 $intelshortcut.Add_Click{
     Start-Process "https://www.intel.com/content/www/us/en/download-center/home.html"
+}
+$Reboot.Add_Click{
+    shutdown -r -t 0
+}
+$LightMode.Add_Click{
+    If ($BuildNumber -gt $WantedBuild) {
+        write-Host "Applying Light mode for Windows 11"
+        Start-BitsTransfer -Source "https://github.com/circlol/newload/raw/main/win11-light.deskthemepack" -Destination win11-light.deskthemepack
+        #Start-BitsTransfer -Source "https://www40.zippyshare.com/d/ITnX1PTu/920358/win11-light.deskthemepack" -Destination win11-light.deskthemepack
+        Start-Sleep 3
+        Start-Process "win11-light.deskthemepack"
+        Remove-Item "*.deskthemepack" -Force -Recurse -ErrorAction SilentlyContinue  
+    } else {
+        If ($BuildNumber -lt $WantedBuild) {
+            write-Host "Applying Light Mode for Windows 10"
+            Start-BitsTransfer -Source "https://github.com/circlol/newload/raw/main/win10-purple.deskthemepack" -Destination win10-purple.deskthemepack
+            Start-Sleep 3
+            Start-Process "win10-purple.deskthemepack"
+            REG ADD "HKCU\Software\Microsoft\Windows\CurrentVersion\Themes\Personalize" /v "AppsUseLightTheme" /d "1" /t REG_DWORD
+            REG ADD "HKCU\Software\Microsoft\Windows\CurrentVersion\Themes\Personalize" /v "SystemUseLightTheme" /d "1" /t REG_DWORD
+            Remove-Item "*.deskthemepack" -Force -Recurse -ErrorAction SilentlyContinue
+        }
+    }
+}
+
+$DarkMode.Add_Click{
+    If ($BuildNumber -gt $WantedBuild) {
+        write-Host "Applying Light mode for Windows 11"
+        Start-BitsTransfer -Source "https://github.com/circlol/newload/raw/main/win11-light.deskthemepack" -Destination win11-light.deskthemepack
+        #Start-BitsTransfer -Source "https://www40.zippyshare.com/d/ITnX1PTu/920358/win11-light.deskthemepack" -Destination win11-light.deskthemepack
+        Start-Sleep 3
+        Start-Process "win11-dark.deskthemepack"        
+        Remove-Item "*.deskthemepack" -Force -Recurse -ErrorAction SilentlyContinue  
+    } else {
+        If ($BuildNumber -lt $WantedBuild) {
+            write-Host "Applying Light Mode for Windows 10"
+            Start-BitsTransfer -Source "https://github.com/circlol/newload/raw/main/win10-purple.deskthemepack" -Destination win10-purple.deskthemepack
+            Start-Sleep 3
+            Start-Process "win10-purple.deskthemepack"
+            REG ADD "HKCU\Software\Microsoft\Windows\CurrentVersion\Themes\Personalize" /v "AppsUseLightTheme" /d "0" /t REG_DWORD
+            REG ADD "HKCU\Software\Microsoft\Windows\CurrentVersion\Themes\Personalize" /v "SystemUseLightTheme" /d "0" /t REG_DWORD
+            Remove-Item "*.deskthemepack" -Force -Recurse -ErrorAction SilentlyContinue            
+        }
+    }    
 }
 
 $RunScript.Add_Click{
