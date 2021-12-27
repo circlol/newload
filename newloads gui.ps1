@@ -257,7 +257,7 @@ $License = 20220330
         }
 Start-Transcript -OutputDirectory "$env:USERPROFILE\Desktop" > $NULL
 Clear-Host
-Write-Host "`n `n `n `n `n `n `n `n `n `n `n `n `n `n================================================================================================ `n `n `n `n `n `n `n `n `n `n `n `n `n Fresh Loads Utility For Windows 10 & 11 `n `n Created by Mike Ivison `n `n Script will run in : GUI Mode`n `n Ideally run updates before continuing with this script. `n `n `n `n `n `n `n `n `n `n `n `n `n================================================================================================ `n `n"
+Write-Host "`n `n `n `n `n `n `n `n `n `n `n `n `n `n================================================================================================ `n `n `n `n `n `n `n `n `n `n `n `n `n New Loads Utility For Windows 10 & 11 `n `n Created by Mike Ivison `n `n Script will run in : GUI Mode`n `n Ideally run updates before continuing with this script. `n `n `n `n `n `n `n `n `n `n `n `n `n================================================================================================ `n `n"
 Function WinG{
 if (Test-Path ~\AppData\Local\Microsoft\WindowsApps\winget.exe){
     'Winget was found'
@@ -388,7 +388,7 @@ Function StartMenu {
     Remove-Item $layoutFile
 }
 Function UndoOneDrive{
-    Start-Process "$env:SystemRoot\SysWOW64\OneDriveSetup.exe" /Silent /AllUsers
+    Start-Process "$env:SystemRoot\SysWOW64\OneDriveSetup.exe" /Silent
     Write-Host "`n `n OneDrive has been Reinstalled"
 }
 Function OneDrive {
@@ -789,9 +789,9 @@ Function Cleanup {
         Remove-Item $ctemp -Force -Recurse -Confirm:$false -ErrorAction SilentlyContinue 2> $NULL
     }
 
-    $mocotheme1 = "$Env:USERPROFILE\win11-light.deskthemepack"
-    $mocotheme2 = "$Env:USERPROFILE\win11-dark.deskthemepack"
-    $mocotheme3 = "$Env:USERPROFILE\win10-purple.deskthemepack"
+    $mocotheme1 = "$Env:USERPROFILE\desktop\win11-light.deskthemepack"
+    $mocotheme2 = "$Env:USERPROFILE\desktop\win11-dark.deskthemepack"
+    $mocotheme3 = "$Env:USERPROFILE\desktop\win10-purple.deskthemepack"
     If ($mocotheme1) { 
         Remove-Item "$mocotheme1" -Force -Recurse -Confirm:$false -ErrorAction SilentlyContinue 2> $NULL
     }
