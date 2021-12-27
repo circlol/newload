@@ -587,9 +587,9 @@ Function UndoDebloat{
     Write-Host " Finished Reinstalling Bloatware Apps"
 }
 Function UndoRegistry {
-    REG ADD "HKCU\Software\Microsoft\Windows\CurrentVersion\ContentDeliveryManager\Subscriptions" /f | Out-Null
-    REG ADD "HKCU\Software\Microsoft\Windows\CurrentVersion\ContentDeliveryManager\SuggestedApps" /f | Out-Null
-    REG ADD "HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\MultiTaskingView\AllUpView" /v Enabled /f | Out-Null
+    #REG ADD "HKCU\Software\Microsoft\Windows\CurrentVersion\ContentDeliveryManager\Subscriptions" /f | Out-Null
+    #REG ADD "HKCU\Software\Microsoft\Windows\CurrentVersion\ContentDeliveryManager\SuggestedApps" /f | Out-Null
+    REG ADD "HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\MultiTaskingView\AllUpView" /v Enabled /t REG_SZ /f | Out-Null
     REG ADD "HKCU\Software\Policies\Microsoft\Windows\EdgeUI" /v "DisableMFUTracking" /t REG_DWORD /d "0" /f
     #REG ADD "HKCU\Software\Microsoft\Siuf\Rules" /v "NumberOfSIUFInPeriod" /t REG_DWORD /d "0" /f
     #REG ADD "HKCU\Software\Microsoft\Siuf\Rules" /v "PeriodInNanoSeconds" /t REG_QWORD /d "0" /f
@@ -898,8 +898,8 @@ Programs
 StartMenu
 Visuals
 OEMInfo
-OneDrive
 Debloat
+OneDrive
 Registry
 Cleanup
 Write-Host "`n `n ================================================================================================ `n `n `n `n `n `n `n `n `n `n `n `n `nRequested Action Completed `n `n `n `n `n `n `n `n `n `n `n `n `n================================================================================================ `n `n"
@@ -911,8 +911,8 @@ Write-Host "$frmt Running Script without Branding`n `nGUI will be unusable whils
 WinG
 Programs
 StartMenu
-OneDrive
 Debloat
+OneDrive
 Registry
 Cleanup
 Write-Host "`n `n ================================================================================================ `n `n `n `n `n `n `n `n `n `n `n `n `nRequested Action Completed `n `n `n `n `n `n `n `n `n `n `n `n `n================================================================================================ `n `n"
@@ -923,8 +923,8 @@ $UndoScript.Add_Click{
 Write-Host "$frmt Undoing Changes made by Script `n `nGUI will be unusable whilst script is running. Please Standby `n$frmt"
 Start-Sleep 2
 UndoOEMInfo
-#Write-Host "$frmt Reinstalling Bloatware $frmt"
-#UndoDebloat
+Write-Host "$frmt Reinstalling Bloatware $frmt"
+UndoDebloat
 Write-Host "$frmt Reinstalling OneDrive $frmt"
 UndoOneDrive
 Write-Host "$frmt Undoing Registry Changes $frmt"

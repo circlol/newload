@@ -475,14 +475,12 @@ Function Cleanup {
     If ($ctemp) { 
         Remove-Item $ctemp -Force -Recurse -Confirm:$false -ErrorAction SilentlyContinue 2> $NULL
     }
-    Write-Host "Restarting Explorer"
-    Start-Process Explorer
 
 }
 
 checkme
 Start-Transcript -OutputDirectory "$env:USERPROFILE\Desktop" > $NULL
-Write-Host "`n `n `n `n `n `n `n `n `n `n `n `n `n `n================================================================================================ `n `n `n `n `n `n `n `n `n `n `n `n `n New Loads Utility For Windows 10 & 11 `n `n Created by Mike Ivison `n `n Script will run in : Unattended Mode`n `n Ideally run updates before continuing with this script. `n `n `n `n `n `n `n `n `n `n `n `n `n================================================================================================ `n `n"
+Write-Host "`n `n `n `n `n `n `n `n `n `n `n `n `n `n================================================================================================ `n `n `n `n `n `n `n `n `n `n `n `n `n New Loads Utility For Windows 10 & 11 `n `n Created by Mike Ivison `n `n Script will run in : Automatic Mode`n `n Ideally run updates before continuing with this script. `n `n `n `n `n `n `n `n `n `n `n `n `n================================================================================================ `n `n"
 Start-Sleep 5
 WinGInstallation 
 Write-Host "`n `n======================================== `n `n Installing Apps `n Please be patient as the programs install in the background. `n `n============================================================= `n `n"
