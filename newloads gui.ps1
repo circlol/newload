@@ -580,8 +580,8 @@ Function Debloat {
 Function UndoDebloat {
     foreach ($Program in $Programs) {
     Write-Host "Trying to Reinstall $Program"
-    Get-AppxPackage -Name $Program| Add-AppxPackage
-    Get-AppxProvisionedPackage -Online | Where-Object DisplayName -like $Program | Add-AppxProvisionedPackage -Online
+    Get-AppxPackage -Name $Program| Get-AppxPackage
+    Get-AppxProvisionedPackage -Online | Where-Object DisplayName -like $Program | Get-AppxProvisionedPackage -Online
     }
 }
 Function Registry {
