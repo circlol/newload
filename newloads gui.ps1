@@ -858,7 +858,7 @@ $LightMode.Add_Click{
 
 $DarkMode.Add_Click{
     If ($BuildNumber -gt $WantedBuild) {
-        write-Host "Applying Light mode for Windows 11"
+        write-Host "Applying Dark mode for Windows 11"
         Start-BitsTransfer -Source "https://github.com/circlol/newload/raw/main/win11-light.deskthemepack" -Destination win11-light.deskthemepack
         #Start-BitsTransfer -Source "https://www40.zippyshare.com/d/ITnX1PTu/920358/win11-light.deskthemepack" -Destination win11-light.deskthemepack
         Start-Sleep 3
@@ -866,7 +866,7 @@ $DarkMode.Add_Click{
         Remove-Item "*.deskthemepack" -Force -Recurse -ErrorAction SilentlyContinue  
     } else {
         If ($BuildNumber -lt $WantedBuild) {
-            write-Host "Applying Light Mode for Windows 10"
+            write-Host "Applying Dark Mode for Windows 10"
             Start-BitsTransfer -Source "https://github.com/circlol/newload/raw/main/win10-purple.deskthemepack" -Destination win10-purple.deskthemepack
             Start-Sleep 3
             Start-Process "win10-purple.deskthemepack"
