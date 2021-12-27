@@ -257,7 +257,7 @@ $License = 20220330
         }
 Start-Transcript -OutputDirectory "$env:USERPROFILE\Desktop" > $NULL
 Clear-Host
-Write-Host "`n `n `n `n `n `n `n `n `n `n `n `n `n `n================================================================================================ `n `n `n `n `n `n `n `n `n `n `n `n `n Fresh Loads Utility For Windows 10 & 11 `n `n Created by Mike Ivison `n `n `n `n Ideally run updates before continuing with this script. `n `n `n `n `n `n `n `n `n `n `n `n `n================================================================================================ `n `n"
+Write-Host "`n `n `n `n `n `n `n `n `n `n `n `n `n `n================================================================================================ `n `n `n `n `n `n `n `n `n `n `n `n `n Fresh Loads Utility For Windows 10 & 11 `n `n Created by Mike Ivison `n `n Script will run in : GUI Mode`n `n Ideally run updates before continuing with this script. `n `n `n `n `n `n `n `n `n `n `n `n `n================================================================================================ `n `n"
 Function WinG{
 if (Test-Path ~\AppData\Local\Microsoft\WindowsApps\winget.exe){
     'Winget was found'
