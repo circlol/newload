@@ -838,11 +838,11 @@ $LightMode.Add_Click{
     If ($BuildNumber -gt $WantedBuild) {
         write-Host "Applying Light mode for Windows 11"
         Start-BitsTransfer -Source "https://github.com/circlol/newload/raw/main/win11-light.deskthemepack" -Destination win11-light.deskthemepack
-        #Start-BitsTransfer -Source "https://www40.zippyshare.com/d/ITnX1PTu/920358/win11-light.deskthemepack" -Destination win11-light.deskthemepack
         Start-Sleep 3
         Start-Process "win11-light.deskthemepack"
         Start-Sleep 3
         Remove-Item "win11-light.deskthemepack" -Force -Recurse 
+        taskkill /F /IM systemsettings.exe 2> $NULL
     } else {
         If ($BuildNumber -lt $WantedBuild) {
             write-Host "Applying Light Mode for Windows 10"
@@ -850,9 +850,10 @@ $LightMode.Add_Click{
             Start-Sleep 3
             Start-Process "win10-purple.deskthemepack"
             Start-Sleep 3
+            Remove-Item "win10-purple.deskthemepack" -Force -Recurse
+            taskkill /F /IM systemsettings.exe 2> $NULL
             REG ADD "HKCU\Software\Microsoft\Windows\CurrentVersion\Themes\Personalize" /v "AppsUseLightTheme" /d "1" /t REG_DWORD
             REG ADD "HKCU\Software\Microsoft\Windows\CurrentVersion\Themes\Personalize" /v "SystemUseLightTheme" /d "1" /t REG_DWORD
-            Remove-Item "win10-purple.deskthemepack" -Force -Recurse
         }
     }
 }
@@ -864,7 +865,8 @@ $DarkMode.Add_Click{
         Start-Sleep 3
         Start-Process "win11-dark.deskthemepack"
         Start-Sleep 3
-        Remove-Item "win11-dark.deskthemepack" -Force -Recurse        
+        Remove-Item "win11-dark.deskthemepack" -Force -Recurse
+        taskkill /F /IM systemsettings.exe 2> $NULL           
     } else {
         If ($BuildNumber -lt $WantedBuild) {
             write-Host "Applying Dark Mode for Windows 10"
@@ -874,7 +876,8 @@ $DarkMode.Add_Click{
             Start-Sleep 3
             REG ADD "HKCU\Software\Microsoft\Windows\CurrentVersion\Themes\Personalize" /v "AppsUseLightTheme" /d "0" /t REG_DWORD
             REG ADD "HKCU\Software\Microsoft\Windows\CurrentVersion\Themes\Personalize" /v "SystemUseLightTheme" /d "0" /t REG_DWORD
-            Remove-Item "win10-purple.deskthemepack" -Force -Recurse        
+            Remove-Item "win10-purple.deskthemepack" -Force -Recurse  
+            taskkill /F /IM systemsettings.exe 2> $NULL                  
         }
     }    
 }
