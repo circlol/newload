@@ -852,11 +852,13 @@ $LightMode.Add_Click{
             Start-Sleep 3
             Remove-Item "win10-purple.deskthemepack" -Force -Recurse
             taskkill /F /IM systemsettings.exe 2> $NULL
-            REG ADD "HKCU\Software\Microsoft\Windows\CurrentVersion\Themes\Personalize" /v "AppsUseLightTheme" /d "1" /t REG_DWORD
-            REG ADD "HKCU\Software\Microsoft\Windows\CurrentVersion\Themes\Personalize" /v "SystemUseLightTheme" /d "1" /t REG_DWORD
+            Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Themes\Personalize" -Name "AppsUseLightTheme" -Type DWord -Value 1 -Verbose
+            Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Themes\Personalize" -Name "SystemUseLightTheme" -Type DWord -Value 1 -Verbose
         }
     }
-}
+}    
+
+
 
 $DarkMode.Add_Click{
     If ($BuildNumber -gt $WantedBuild) {
@@ -874,10 +876,10 @@ $DarkMode.Add_Click{
             Start-Sleep 3
             Start-Process "win10-purple.deskthemepack"
             Start-Sleep 3
-            REG ADD "HKCU\Software\Microsoft\Windows\CurrentVersion\Themes\Personalize" /v "AppsUseLightTheme" /d "0" /t REG_DWORD
-            REG ADD "HKCU\Software\Microsoft\Windows\CurrentVersion\Themes\Personalize" /v "SystemUseLightTheme" /d "0" /t REG_DWORD
             Remove-Item "win10-purple.deskthemepack" -Force -Recurse  
-            taskkill /F /IM systemsettings.exe 2> $NULL                  
+            taskkill /F /IM systemsettings.exe 2> $NULL               
+            Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Themes\Personalize" -Name "AppsUseLightTheme" -Type DWord -Value 0 -Verbose
+            Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Themes\Personalize" -Name "SystemUseLightTheme" -Type DWord -Value 0 -Verbose
         }
     }    
 }
