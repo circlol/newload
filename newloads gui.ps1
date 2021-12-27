@@ -4,9 +4,9 @@ Add-Type -AssemblyName System.Windows.Forms
 $Form                            = New-Object system.Windows.Forms.Form
 $Form.ClientSize                 = New-Object System.Drawing.Point(633,590)
 $Form.text                       = "Windows New Loads Utility - Created by Mike Ivison"
-$form.StartPosition              = "manual"
-#$form.StartPosition              = "CenterScreen"
-$form.Location                   = New-Object System.Drawing.Size(1400, 300)
+#$form.StartPosition              = "manual"
+$form.StartPosition              = "CenterScreen"
+#$form.Location                   = New-Object System.Drawing.Size(1400, 300)
 $Form.TopMost                    = $true
 $Form.BackColor                  = [System.Drawing.ColorTranslator]::FromHtml("#4b4b4b")
 #$Form.AutoScaleDimensions        = '192, 192'
