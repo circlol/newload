@@ -867,17 +867,17 @@ $LightMode.Add_Click{
 
 $DarkMode.Add_Click{
     If ($BuildNumber -gt $WantedBuild) {
-        write-Host "Applying Dark mode for Windows 11"
+        write-Host " Applying Dark mode for Windows 11"
         Start-BitsTransfer -Source "https://github.com/circlol/newload/raw/main/win11-dark.deskthemepack" -Destination win11-dark.deskthemepack
         Start-Sleep 3
         Start-Process "win11-dark.deskthemepack"
         Start-Sleep 3
         Remove-Item "win11-dark.deskthemepack" -Force -Recurse
         taskkill /F /IM systemsettings.exe 2> $NULL
-        Write-Host "Applied Dark Theme for Windows 11"           
+        Write-Host " Applied Dark Theme for Windows 11"           
     } else {
         If ($BuildNumber -lt $WantedBuild) {
-            #write-Host "Applying Dark Mode for Windows 10"
+            #write-Host " Applying Dark Mode for Windows 10"
             #Start-BitsTransfer -Source "https://github.com/circlol/newload/raw/main/win10-purple.deskthemepack" -Destination win10-purple.deskthemepack
             #Start-Sleep 3
             #Start-Process "win10-purple.deskthemepack"
@@ -886,7 +886,7 @@ $DarkMode.Add_Click{
             #taskkill /F /IM systemsettings.exe 2> $NULL               
             Set-ItemProperty -Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Themes\Personalize" -Name "AppsUseLightTheme" -Type DWord -Value 0
             Set-ItemProperty -Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Themes\Personalize" -Name "SystemUsesLightTheme" -Type DWord -Value 0
-            Write-Host "Applied Dark Theme for Winodws 10"
+            Write-Host " Applied Dark Theme for Winodws 10"
         }
     }    
 }
