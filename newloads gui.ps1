@@ -749,6 +749,20 @@ Function Cleanup {
     If ($ctemp) { 
         Remove-Item $ctemp -Force -Recurse -Confirm:$false -ErrorAction SilentlyContinue 2> $NULL
     }
+    
+    $mocotheme1 = "win11-light.deskthemepack"
+    $mocotheme2 = "win11-dark.deskthemepack"
+    $mocotheme3 = "win10-purple.deskthemepack"
+    If ($mocotheme1) { 
+        Remove-Item $mocotheme1 -Force -Recurse -Confirm:$false -ErrorAction SilentlyContinue 2> $NULL
+    }
+    If ($mocotheme2) { 
+        Remove-Item $mocotheme2 -Force -Recurse -Confirm:$false -ErrorAction SilentlyContinue 2> $NULL
+    }
+    If ($mocotheme3) { 
+        Remove-Item $mocotheme3 -Force -Recurse -Confirm:$false -ErrorAction SilentlyContinue 2> $NULL
+    }
+
 }
 $powerplanbutton.Add_Click{
     Start-Process powercfg.cpl
