@@ -899,12 +899,12 @@ OneDrive
 Debloat
 Registry
 Cleanup
-Write-Host "`n `n ================================================================================================ `n `n `n `n `n `n `n `n `n `n `n `n `n `n `nRequested Action Completed `n `n `n `n `n `n `n `n `n `n `n `n `n `n `n ================================================================================================ `n `n"
+Write-Host "`n `n ================================================================================================ `n `n `n `n `n `n `n `n `n `n `n `n `nRequested Action Completed `n `n `n `n `n `n `n `n `n `n `n `n `n================================================================================================ `n `n"
 Stop-Transcript
 }
 
 $RunNoOEM.Add_Click{
-Write-Host "$frmt Running Script without Branding $frmt"
+Write-Host "$frmt Running Script without Branding`n `nGUI will be unusable whilst script is running. Please Standby `n$frmt"
 WinG
 Programs
 StartMenu
@@ -912,12 +912,12 @@ OneDrive
 Debloat
 Registry
 Cleanup
-Write-Host "`n `n ================================================================================================ `n `n `n `n `n `n `n `n `n `n `n `n `n `n `nRequested Action Completed `n `n `n `n `n `n `n `n `n `n `n `n `n `n `n ================================================================================================ `n `n"
+Write-Host "`n `n ================================================================================================ `n `n `n `n `n `n `n `n `n `n `n `n `nRequested Action Completed `n `n `n `n `n `n `n `n `n `n `n `n `n================================================================================================ `n `n"
 Stop-Transcript
 }
 
 $UndoScript.Add_Click{
-Write-Host "$frmt Undoing Changes made by Script $frmt "
+Write-Host "$frmt Undoing Changes made by Script `n `nGUI will be unusable whilst script is running. Please Standby `n$frmt"
 Start-Sleep 2
 UndoOEMInfo
 #Write-Host "$frmt Reinstalling Bloatware $frmt"
@@ -926,7 +926,7 @@ Write-Host "$frmt Reinstalling OneDrive $frmt"
 UndoOneDrive
 Write-Host "$frmt Undoing Registry Changes $frmt"
 UndoRegistry
-Write-Host "`n `n ================================================================================================ `n `n `n `n `n `n `n `n `n `n `n `n `n `n `nScript Actions Undone `n `n `n `n `n `n `n `n `n `n `n `n `n `n `n ================================================================================================ `n `n"
+Write-Host "`n `n ================================================================================================  `n `n `n `n `n `n `n `n `n `n `n `n `nScript Actions Undone `n `n `n `n `n `n `n `n `n `n `n `n `n================================================================================================ `n `n"
 Stop-Transcript
 }
 

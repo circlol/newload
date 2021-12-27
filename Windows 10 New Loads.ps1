@@ -2,7 +2,7 @@ If (!([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]:
 	Start-Process powershell.exe "-NoProfile -ExecutionPolicy Bypass -File `"$PSCommandPath`"" -Verb RunAs
 	Exit
 }
-$Title = "Windows New Loads Utility - Created by Mike Ivison"
+$Title = "Windows New Loads Utility Unattended - Created by Mike Ivison"
 $host.UI.RawUI.WindowTitle = $Title
 Import-Module BitsTransfer
 $Folder = Get-Location
@@ -482,7 +482,7 @@ Function Cleanup {
 
 checkme
 Start-Transcript -OutputDirectory "$env:USERPROFILE\Desktop" > $NULL
-Write-Host "`n `n `n `n `n `n `n `n `n `n `n `n `n `n================================================================================================ `n `n `n `n `n `n `n `n `n `n `n `n `n Fresh Loads Utility For Windows 10 & 11 `n `n Created by Mike Ivison `n `n `n `n Ideally run updates before this script. `n `n `n `n `n `n `n `n `n `n `n `n `n================================================================================================ `n `n"
+Write-Host "`n `n `n `n `n `n `n `n `n `n `n `n `n `n================================================================================================ `n `n `n `n `n `n `n `n `n `n `n `n `nNew Loads Utility For Windows 10 & 11 `n `nCreated by Mike Ivison `n `nScript Version - Unattended`n `nIdeally run updates before this script. `n `n `n `n `n `n `n `n `n `n `n `n `n================================================================================================ `n `n"
 Start-Sleep 5
 WinGInstallation 
 Write-Host "`n `n======================================== `n `n Installing Apps `n Please be patient as the programs install in the background. `n `n============================================================= `n `n"
