@@ -258,7 +258,7 @@ $License = 20220330
         }
 Start-Transcript -OutputDirectory "$env:USERPROFILE\Desktop" > $NULL
 Clear-Host
-Write-Host "`n `n `n `n `n `n `n `n `n `n `n `n `n `n================================================================================================ `n `n `n `n `n `n `n `n `n `n `n `n `n Fresh Loads Utility For Windows 10 & 11 `n `n Created by Mike Ivison `n `n `n `n Ideally run updates before this script. `n `n `n `n `n `n `n `n `n `n `n `n `n================================================================================================ `n `n"
+Write-Host "`n `n `n `n `n `n `n `n `n `n `n `n `n `n================================================================================================ `n `n `n `n `n `n `n `n `n `n `n `n `n Fresh Loads Utility For Windows 10 & 11 `n `n Created by Mike Ivison `n `n `n `n Ideally run updates before continuing with this script. `n `n `n `n `n `n `n `n `n `n `n `n `n================================================================================================ `n `n"
 Function WinG{
 if (Test-Path ~\AppData\Local\Microsoft\WindowsApps\winget.exe){
     'Winget was found'
@@ -842,7 +842,7 @@ $LightMode.Add_Click{
         #Start-BitsTransfer -Source "https://www40.zippyshare.com/d/ITnX1PTu/920358/win11-light.deskthemepack" -Destination win11-light.deskthemepack
         Start-Sleep 3
         Start-Process "win11-light.deskthemepack"
-        Remove-Item "*.deskthemepack" -Force -Recurse -ErrorAction SilentlyContinue  
+        Remove-Item "*.deskthemepack" -Force -Recurse 
     } else {
         If ($BuildNumber -lt $WantedBuild) {
             write-Host "Applying Light Mode for Windows 10"
@@ -851,7 +851,7 @@ $LightMode.Add_Click{
             Start-Process "win10-purple.deskthemepack"
             REG ADD "HKCU\Software\Microsoft\Windows\CurrentVersion\Themes\Personalize" /v "AppsUseLightTheme" /d "1" /t REG_DWORD
             REG ADD "HKCU\Software\Microsoft\Windows\CurrentVersion\Themes\Personalize" /v "SystemUseLightTheme" /d "1" /t REG_DWORD
-            Remove-Item "*.deskthemepack" -Force -Recurse -ErrorAction SilentlyContinue
+            Remove-Item "*.deskthemepack" -Force -Recurse
         }
     }
 }
@@ -863,7 +863,7 @@ $DarkMode.Add_Click{
         #Start-BitsTransfer -Source "https://www40.zippyshare.com/d/ITnX1PTu/920358/win11-light.deskthemepack" -Destination win11-light.deskthemepack
         Start-Sleep 3
         Start-Process "win11-dark.deskthemepack"        
-        Remove-Item "*.deskthemepack" -Force -Recurse -ErrorAction SilentlyContinue  
+        Remove-Item "*.deskthemepack" -Force -Recurse
     } else {
         If ($BuildNumber -lt $WantedBuild) {
             write-Host "Applying Dark Mode for Windows 10"
@@ -872,7 +872,7 @@ $DarkMode.Add_Click{
             Start-Process "win10-purple.deskthemepack"
             REG ADD "HKCU\Software\Microsoft\Windows\CurrentVersion\Themes\Personalize" /v "AppsUseLightTheme" /d "0" /t REG_DWORD
             REG ADD "HKCU\Software\Microsoft\Windows\CurrentVersion\Themes\Personalize" /v "SystemUseLightTheme" /d "0" /t REG_DWORD
-            Remove-Item "*.deskthemepack" -Force -Recurse -ErrorAction SilentlyContinue            
+            Remove-Item "*.deskthemepack" -Force -Recurse        
         }
     }    
 }
