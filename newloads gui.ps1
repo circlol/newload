@@ -386,7 +386,7 @@ Function OneDrive {
     Write-Host "Restarted Explorer"
 }
 Function UndoDebloat{
-    Get-AppxPackage -AllUsers| Foreach {Add-AppxPackage -DisableDevelopmentMode -Register “$($_.InstallLocation)\AppXManifest.xml”} 2< $NULL
+    Get-AppxPackage -AllUsers| ForEach-Object {Add-AppxPackage -DisableDevelopmentMode -Register “$($_.InstallLocation)\AppXManifest.xml”} 2< $NULL
     Write-Host "Attempted to reinstall bloatware"
     }
 Function Debloat {
