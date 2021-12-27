@@ -918,9 +918,9 @@ $UndoScript.Add_Click{
 Write-Host "$frmt Undoing Changes made by Script `n `nGUI will be unusable whilst script is running. Please Standby `n$frmt"
 Start-Sleep 2
 UndoOEMInfo
-Write-Host "$frmt Reinstalling Bloatware $frmt "
-UndoDebloat
-Write-Host " Finished Reinstalling Bloatware Apps"
+#Write-Host "$frmt Reinstalling Bloatware $frmt "
+#UndoDebloat
+#Write-Host " Finished Reinstalling Bloatware Apps"
 Taskkill /F /IM Explorer.exe
 UndoOneDrive
 UndoRegistry
