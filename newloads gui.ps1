@@ -4,12 +4,12 @@ Add-Type -AssemblyName System.Windows.Forms
 $Form                            = New-Object system.Windows.Forms.Form
 $Form.ClientSize                 = New-Object System.Drawing.Point(633,590)
 $Form.text                       = "Windows New Loads Utility - Created by Mike Ivison"
-#$form.StartPosition              = "manual"
-$form.StartPosition              = "CenterScreen"
-#$form.Location                   = New-Object System.Drawing.Size(1400, 300)
 $Form.TopMost                    = $false
 $Form.BackColor                  = [System.Drawing.ColorTranslator]::FromHtml("#4b4b4b")
-$#Form.AutoScaleDimensions        = '192, 192'
+$form.StartPosition              = "CenterScreen"
+#$form.StartPosition              = "manual"
+#$form.Location                   = New-Object System.Drawing.Size(1400, 300)
+#$Form.AutoScaleDimensions        = '192, 192'
 #$Form.AutoScaleMode              = "Dpi"
 #$Form.AutoSize                   = $True
 #$Form.AutoScroll                 = $True
@@ -212,6 +212,7 @@ $License = 20220330
         Exit
         } else {
             If ($Time -gt $minimum) {
+                Clear-Host
                 } else {
                 Clear-Host
                 Write-Host $lie
@@ -220,6 +221,7 @@ $License = 20220330
             }
         }
 Start-Transcript -OutputDirectory "$env:USERPROFILE\Desktop" > $NULL
+Clear-Host
 Write-Host "`n `n `n `n `n `n `n `n `n `n `n `n `n `n================================================================================================ `n `n `n `n `n `n `n `n `n `n `n `n `n Fresh Loads Utility For Windows 10 & 11 `n `n Created by Mike Ivison `n `n `n `n Ideally run updates before this script. `n `n `n `n `n `n `n `n `n `n `n `n `n================================================================================================ `n `n"
 Function WinG{
 if (Test-Path ~\AppData\Local\Microsoft\WindowsApps\winget.exe){
