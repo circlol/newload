@@ -298,6 +298,7 @@ Function Visuals {
     REG ADD "HKCU\Control Panel\Desktop" /v WallpaperStyle /f /t REG_SZ /d "2"
 	Start-Sleep 1
 	taskkill /F /IM systemsettings.exe 2> $NULL
+    taskkill /F /IM explorer.exe 2> $NULL
 }
 
 Function StartMenu {
@@ -352,7 +353,7 @@ Function StartMenu {
     Remove-Item $layoutFile
 }
 Function UndoOneDrive{
-    Start-Process "$env:SystemRoot\SysWOW64\OneDriveSetup.exe"
+    Start-Process "$env:SystemRoot\SysWOW64\OneDriveSetup.exe" /Silent /AllUsers
     Write-Host "`n `nOneDrive has been Reinstalled"
 }
 Function OneDrive {
@@ -706,7 +707,7 @@ Function Registry {
     Set-ItemProperty -Path "HKLM:\Software\Microsoft\Windows\Windows Error Reporting" -Name "Disabled" -Type DWord -Value 1 -Verbose
         
 
-    Write-Host "$frmt Registry Modifications Complete $frmt"
+    Write-Host "Registry Modifications Complete $frmt"
 } 
 Function UndoOEMInfo{
     Write-Host "$frmt Undoing OEM Information $frmt "
@@ -749,12 +750,12 @@ Function Cleanup {
     If ($ctemp) { 
         Remove-Item $ctemp -Force -Recurse -Confirm:$false -ErrorAction SilentlyContinue 2> $NULL
     }
-    
-    $mocotheme1 = "win11-light.deskthemepack"
-    $mocotheme2 = "win11-dark.deskthemepack"
-    $mocotheme3 = "win10-purple.deskthemepack"
+
+    $mocotheme1 = "$Env:USERPROFILE\win11-light.deskthemepack"
+    $mocotheme2 = "$Env:USERPROFILE\win11-dark.deskthemepack"
+    $mocotheme3 = "$Env:USERPROFILE\win10-purple.deskthemepack"
     If ($mocotheme1) { 
-        Remove-Item $mocotheme1 -Force -Recurse -Confirm:$false -ErrorAction SilentlyContinue 2> $NULL
+        Remove-Item "$mocotheme1" -Force -Recurse -Confirm:$false -ErrorAction SilentlyContinue 2> $NULL
     }
     If ($mocotheme2) { 
         Remove-Item $mocotheme2 -Force -Recurse -Confirm:$false -ErrorAction SilentlyContinue 2> $NULL
