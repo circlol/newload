@@ -36,24 +36,24 @@ $UndoScript                      = New-Object system.Windows.Forms.Button
 $UndoScript.text                 = "Undo Changes"
 $UndoScript.width                = 118
 $UndoScript.height               = 34
-$UndoScript.location             = New-Object System.Drawing.Point(355,535)
+$UndoScript.location             = New-Object System.Drawing.Point(356,535)
 $UndoScript.Font                 = New-Object System.Drawing.Font('Microsoft Sans Serif',10)
 $UndoScript.ForeColor            = [System.Drawing.ColorTranslator]::FromHtml("#000000")
 $UndoScript.BackColor            = [System.Drawing.ColorTranslator]::FromHtml("#f8e71c")
 
 $ExitButton                      = New-Object system.Windows.Forms.Button
 $ExitButton.text                 = "Exit"
-$ExitButton.width                = 118
+$ExitButton.width                = 122
 $ExitButton.height               = 34
-$ExitButton.location             = New-Object System.Drawing.Point(478,535)
+$ExitButton.location             = New-Object System.Drawing.Point(475,535)
 $ExitButton.Font                 = New-Object System.Drawing.Font('Microsoft Sans Serif',10,[System.Drawing.FontStyle]([System.Drawing.FontStyle]::Bold))
 $ExitButton.ForeColor            = [System.Drawing.ColorTranslator]::FromHtml("#000000")
 $ExitButton.BackColor            = [System.Drawing.ColorTranslator]::FromHtml("#9b9b9b")
 
 $mocologo                        = New-Object system.Windows.Forms.PictureBox
-$mocologo.width                  = 303
-$mocologo.height                 = 211
-$mocologo.location               = New-Object System.Drawing.Point(-47,370)
+$mocologo.width                  = 221
+$mocologo.height                 = 206
+$mocologo.location               = New-Object System.Drawing.Point(-5,373)
 $mocologo.imageLocation          = "https://github.com/circlol/newload/blob/main/logo.png?raw=true"
 $mocologo.SizeMode               = [System.Windows.Forms.PictureBoxSizeMode]::zoom
 $nvidiashortcut                  = New-Object system.Windows.Forms.Button
@@ -202,7 +202,7 @@ $Reboot                          = New-Object system.Windows.Forms.Button
 $Reboot.text                     = "REBOOT"
 $Reboot.width                    = 100
 $Reboot.height                   = 89
-$Reboot.location                 = New-Object System.Drawing.Point(230,480)
+$Reboot.location                 = New-Object System.Drawing.Point(247,480)
 $Reboot.Font                     = New-Object System.Drawing.Font('Microsoft Sans Serif',10,[System.Drawing.FontStyle]([System.Drawing.FontStyle]::Bold))
 $Reboot.BackColor                = [System.Drawing.ColorTranslator]::FromHtml("#ff0000")
 
