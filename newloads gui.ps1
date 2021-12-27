@@ -570,7 +570,7 @@ $Programs = @(
 )
 Function Debloat {
     Write-Host "$frmt Removing Bloatware $frmt "
-    foreach ($App in $Programs) {
+    foreach ($Program in $Programs) {
     Get-AppxPackage -Name $Program| Remove-AppxPackage
     Get-AppxProvisionedPackage -Online | Where-Object DisplayName -like $Program | Remove-AppxProvisionedPackage -Online
     Write-Host " Trying to remove $Program."
