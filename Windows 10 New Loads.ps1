@@ -2,7 +2,7 @@ If (!([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]:
 	Start-Process powershell.exe "-NoProfile -ExecutionPolicy Bypass -File `"$PSCommandPath`"" -Verb RunAs
 	Exit
 }
-$Title = "Windows New Loads Utility Unattended - Created by Mike Ivison"
+$Title = "Windows New Loads Utility Automated - Created by Mike Ivison"
 $host.UI.RawUI.WindowTitle = $Title
 Import-Module BitsTransfer
 $Folder = Get-Location
