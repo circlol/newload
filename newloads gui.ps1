@@ -291,9 +291,9 @@ Function Programs {
     )
 
 foreach ($Package in $Packages) {
-    Write-Host "`n `nInstalling $Package `n" 
+    Write-Host "`n `n Installing $Package `n" 
     winget install $package -e -h -s winget
-    Write-Host "`n `n$Package has been Installed"
+    Write-Host "`n `n $Package has been Installed"
     }
 
 
@@ -301,35 +301,35 @@ Write-Host "$frmt Double Checking App Installs $frmt"
 If (!(Test-Path $Location1)) {
     winget install Google.Chrome -s winget -e -h --force
     } else {
-    Write-Host "Verified Chrome Install"
+    Write-Host " Verified Chrome Install"
     }
 If (!(Test-Path $Location2)) {
     winget install Adobe.Acrobat.Reader.64-bit -s winget -e -h --force 
     } else {
-    Write-Host "Verified Acrobat Reader Install"
+    Write-Host " Verified Acrobat Reader Install"
     }    
 If (!(Test-Path $Location3)) {
     winget install VideoLAN.VLC -s winget -e -h --force 
     } else {
-    Write-Host "Verified VLC Install"
+    Write-Host " Verified VLC Install"
     }
 }            
 Function Visuals {
     If ($BuildNumber -gt $WantedBuild) {
-        write-Host "I have detected that you are on Windows 11 `n `nApplying appropriate theme"
+        write-Host " I have detected that you are on Windows 11 `n `nApplying appropriate theme"
         Start-BitsTransfer -Source "https://github.com/circlol/newload/raw/main/win11-light.deskthemepack" -Destination win11-light.deskthemepack
         #Start-BitsTransfer -Source "https://www40.zippyshare.com/d/ITnX1PTu/920358/win11-light.deskthemepack" -Destination win11-light.deskthemepack
         Start-Sleep 3
         Start-Process "win11-light.deskthemepack"
     } else {
         If ($BuildNumber -lt $WantedBuild) {
-            write-Host "I have detected that you are on Windows 10 `n `nApplying appropriate Theme"
+            write-Host " I have detected that you are on Windows 10 `n `nApplying appropriate Theme"
             Start-BitsTransfer -Source "https://github.com/circlol/newload/raw/main/win10-purple.deskthemepack" -Destination win10-purple.deskthemepack
             Start-Sleep 3
             Start-Process "win10-purple.deskthemepack"
         }
     }
-    Write-Host "`nSetting Wallpaper to Stretch `n"
+    Write-Host "`n Setting Wallpaper to Stretch `n"
     REG ADD "HKCU\Control Panel\Desktop" /v WallpaperStyle /f /t REG_SZ /d "2"
 	Start-Sleep 1
 	taskkill /F /IM systemsettings.exe 2> $NULL
@@ -389,15 +389,15 @@ Function StartMenu {
 }
 Function UndoOneDrive{
     Start-Process "$env:SystemRoot\SysWOW64\OneDriveSetup.exe" /Silent /AllUsers
-    Write-Host "`n `nOneDrive has been Reinstalled"
+    Write-Host "`n `n OneDrive has been Reinstalled"
 }
 Function OneDrive {
-    Write-Host "Disabling OneDrive..."
+    Write-Host " Disabling OneDrive..."
     If (!(Test-Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\OneDrive")) {
         New-Item -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\OneDrive" | Out-Null
     }
     Set-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\OneDrive" -Name "DisableFileSyncNGSC" -Type DWord -Value 1
-    Write-Host "Uninstalling OneDrive..."
+    Write-Host " Uninstalling OneDrive..."
     Stop-Process -Name "OneDrive" -ErrorAction SilentlyContinue
     Start-Sleep -s 2
     $onedrive = "$env:SYSTEMROOT\SysWOW64\OneDriveSetup.exe"
@@ -417,171 +417,174 @@ Function OneDrive {
     }
     Remove-Item -Path "HKCR:\CLSID\{018D5C66-4533-4307-9B53-224DE2ED1FE6}" -Recurse -ErrorAction SilentlyContinue
     Remove-Item -Path "HKCR:\Wow6432Node\CLSID\{018D5C66-4533-4307-9B53-224DE2ED1FE6}" -Recurse -ErrorAction SilentlyContinue
-    Write-Host "Disabled OneDrive"
+    Write-Host " Disabled OneDrive"
+}
+$Programs = @(
+#Unnecessary Windows 10 AppX Apps
+"Microsoft.3DBuilder"
+"Microsoft.Microsoft3DViewer"
+"Microsoft.AppConnector"
+"Microsoft.BingFinance"
+"Microsoft.BingNews"
+"Microsoft.BingSports"
+"Microsoft.BingTranslator"
+"Microsoft.BingWeather"
+"Microsoft.BingFoodAndDrink"
+"Microsoft.BingHealthAndFitness"
+"Microsoft.BingTravel"
+"Microsoft.MinecraftUWP"
+"Microsoft.GamingServices"
+"Microsoft.GetHelp"
+"Microsoft.Getstarted"
+"Microsoft.Messaging"
+"Microsoft.Microsoft3DViewer"
+"Microsoft.MicrosoftSolitaireCollection"
+"Microsoft.NetworkSpeedTest"
+"Microsoft.News"
+"Microsoft.Office.Lens"
+"Microsoft.Office.Sway"
+"Microsoft.Office.OneNote"
+"Microsoft.OneConnect"
+"Microsoft.People"
+"Microsoft.Print3D"
+"Microsoft.SkypeApp"
+"MicrosoftTeams"
+"Microsoft.Wallet"
+"Microsoft.Whiteboard"
+"Microsoft.WindowsAlarms"
+"Microsoft.WindowsFeedbackHub"
+"Microsoft.WindowsMaps"
+"Microsoft.WindowsPhone"
+"Microsoft.WindowsSoundRecorder"
+"Microsoft.XboxApp"
+"Microsoft.ConnectivityStore"
+"Microsoft.CommsPhone"
+"Microsoft.Xbox.TCUI"
+"Microsoft.XboxSpeechToTextOverlay"
+"Microsoft.MixedReality.Portal"
+"Microsoft.XboxIdentityProvider"
+"Microsoft.YourPhone"
+"Microsoft.Getstarted"
+"Microsoft.MicrosoftOfficeHub"
+# Realtek Audio
+#"RealtekSemiconductorCorp.RealtekAudioControl"
+#"Microsoft.ScreenSketch"
+#"Microsoft.WindowsCommunicationsApps"
+#"Microsoft.XboxGameOverlay"
+#"Microsoft.XboxGameCallableUI"
+#"Microsoft.ZuneMusic"
+#"Microsoft.ZuneVideo"
+        
+# non-Microsoft
+"26720RandomSaladGamesLLC.HeartsDeluxe"
+"26720RandomSaladGamesLLC.SimpleSolitaire"
+"26720RandomSaladGamesLLC.SimpleMahjong "
+"26720RandomSaladGamesLLC.Spades"
+"Disney.37853FC22B2CE"
+"2FE3CB00.PicsArt-PhotoStudio"
+"5319275A.WhatsAppDesktop"
+"AdobeSystemsIncorporated.AdobeLightroom"
+"WikimediaFoundation.Wikipedia"
+"CorelCorporation.PaintShopPro"
+"2FE3CB00.PicsArt-PhotoStudio"
+"NAVER.LINEwin8"
+"2FE3CB00.PicsArt-PhotoStudio"
+"613EBCEA.PolarrPhotoEditorAcademicEdition"
+"89006A2E.AutodeskSketchBook"
+"A278AB0D.DisneyMagicKingdoms"
+"A278AB0D.MarchofEmpires"
+"CAF9E577.Plex"  
+"ClearChannelRadioDigital.iHeartRadio"
+"D52A8D61.FarmVille2CountryEscape"
+"DB6EA5DB.CyberLinkMediaSuiteEssentials"
+"DolbyLaboratories.DolbyAccess"
+"DolbyLaboratories.DolbyAccess"
+"Drawboard.DrawboardPDF"
+"Fitbit.FitbitCoach"
+"GAMELOFTSA.Asphalt8Airborne"
+"KeeperSecurityInc.Keeper"
+"NORDCURRENT.COOKINGFEVER"
+"Playtika.CaesarsSlotsFreeCasino"
+"ShazamEntertainmentLtd.Shazam"
+"SlingTVLLC.SlingTV"
+"SpotifyAB.SpotifyMusic"
+"ThumbmunkeysLtd.PhototasticCollage"
+"TuneIn.TuneInRadio"
+"WinZipComputing.WinZipUniversal"
+"XINGAG.XING"
+"flaregamesGmbH.RoyalRevolt2"
+"Evernote.Evernote"
+"4DF9E0F8.Netflix"
+"C27EB4BA.DropboxOEM"
+"MirametrixInc.GlancebyMirametrix"
+"7EE7776C.LinkedInforWindows"
+"DolbyLaboratories.DolbyAudio"
+"*EclipseManager*"
+"*ActiproSoftwareLLC*"
+"*Duolingo-LearnLanguagesforFree*"
+"*PandoraMediaInc*"
+"*CandyCrush*"
+"*BubbleWitch3Saga*"
+"*Wunderlist*"
+"*Flipboard*"
+"*Royal Revolt*"
+"*Sway*"
+"*Speed Test*"
+"*Viber*"
+"*ACGMediaPlayer*"
+"*OneCalendar*"
+"*LinkedInforWindows*"
+"*HiddenCityMysteryofShadows*"
+"*Hulu*"
+"*HiddenCity*"
+"*AdobePhotoshopExpress*"
+
+#Social Networking
+"57540AMZNMobileLLC.AmazonAlexa"
+"*TikTok*"
+"*Twitter*"
+"Facebook*"
+
+#AntiVirus
+"5A894077.McAfeeSecurity"
+
+# Removes Acer Apps
+"AcerIncorporated.AcerRegistration"
+"AcerIncorporated.QuickAccess"
+"AcerIncorporated.UserExperienceImprovementProgram"
+"AcerIncorporated.AcerCareCe nterS"
+"AcerIncorporated.AcerCollectionS"
+"CyberLinkCorp.ac.PowerDirectorforacerDesktop"
+"CyberLinkCorp.ac.PhotoDirectorforacerDesktop"
+    
+# Removes HP Apps
+"AD2F1837.HPSupportAssistant"
+"AD2F1837.HPPrinterControl"
+"AD2F1837.HPQuickDrop"
+"AD2F1837.HPSystemEventUtility"
+"AD2F1837.HPPrivacySettings"
+"AD2F1837.HPInc.EnergyStar"
+"AD2F1837.HPAudioCenter"
+# Removes Lenovo Apps
+"E0469640.LenovoUtility"
+)
+Function Debloat {
+    Write-Host "$frmt Removing Bloatware $frmt "
+    foreach ($App in $Programs) {
+    Get-AppxPackage -Name $Program| Remove-AppxPackage
+    Get-AppxProvisionedPackage -Online | Where-Object DisplayName -like $Program | Remove-AppxProvisionedPackage -Online
+    Write-Host " Trying to remove $Program."
+    }
 }
 Function UndoDebloat{
-    Get-AppxPackage -AllUsers| ForEach-Object {Add-AppxPackage -DisableDevelopmentMode -Register “$($_.InstallLocation)\AppXManifest.xml”} 2< $NULL
-    Write-Host "Attempted to reinstall bloatware"
+    Write-Host " Reinstalling Bloatware"
+
+    foreach ($Program in $Programs) {
+        Write-Output "Trying to add $Program"
+        Add-AppxPackage -DisableDevelopmentMode -Register "$($(Get-AppxPackage -AllUsers $Program).InstallLocation)\AppXManifest.xml"
     }
-Function Debloat {
-    $Programs = @(
-        #Unnecessary Windows 10 AppX Apps
-        "Microsoft.3DBuilder"
-        "Microsoft.Microsoft3DViewer"
-        "Microsoft.AppConnector"
-        "Microsoft.BingFinance"
-        "Microsoft.BingNews"
-        "Microsoft.BingSports"
-        "Microsoft.BingTranslator"
-        "Microsoft.BingWeather"
-        "Microsoft.BingFoodAndDrink"
-        "Microsoft.BingHealthAndFitness"
-        "Microsoft.BingTravel"
-        "Microsoft.MinecraftUWP"
-        "Microsoft.GamingServices"
-        "Microsoft.GetHelp"
-        "Microsoft.Getstarted"
-        "Microsoft.Messaging"
-        "Microsoft.Microsoft3DViewer"
-        "Microsoft.MicrosoftSolitaireCollection"
-        "Microsoft.NetworkSpeedTest"
-        "Microsoft.News"
-        "Microsoft.Office.Lens"
-        "Microsoft.Office.Sway"
-        "Microsoft.Office.OneNote"
-        "Microsoft.OneConnect"
-        "Microsoft.People"
-        "Microsoft.Print3D"
-        "Microsoft.SkypeApp"
-        "MicrosoftTeams"
-        "Microsoft.Wallet"
-        "Microsoft.Whiteboard"
-        "Microsoft.WindowsAlarms"
-        #"Microsoft.WindowsCommunicationsApps"
-        "Microsoft.WindowsFeedbackHub"
-        "Microsoft.WindowsMaps"
-        "Microsoft.WindowsPhone"
-        "Microsoft.WindowsSoundRecorder"
-        "Microsoft.XboxApp"
-        "Microsoft.ConnectivityStore"
-        "Microsoft.CommsPhone"
-        #"Microsoft.ScreenSketch"
-        "Microsoft.Xbox.TCUI"
-        #"Microsoft.XboxGameOverlay"
-        #"Microsoft.XboxGameCallableUI"
-        "Microsoft.XboxSpeechToTextOverlay"
-        "Microsoft.MixedReality.Portal"
-        "Microsoft.XboxIdentityProvider"
-        #"Microsoft.ZuneMusic"
-        #"Microsoft.ZuneVideo"
-        "Microsoft.YourPhone"
-        "Microsoft.Getstarted"
-        "Microsoft.MicrosoftOfficeHub"
-        # Realtek Audio
-        #"RealtekSemiconductorCorp.RealtekAudioControl"
-        
-        # non-Microsoft
-        "26720RandomSaladGamesLLC.HeartsDeluxe"
-        "26720RandomSaladGamesLLC.SimpleSolitaire"
-        "26720RandomSaladGamesLLC.SimpleMahjong "
-        "26720RandomSaladGamesLLC.Spades"
-        "Disney.37853FC22B2CE"
-        "2FE3CB00.PicsArt-PhotoStudio"
-        "5319275A.WhatsAppDesktop"
-        "AdobeSystemsIncorporated.AdobeLightroom"
-        "WikimediaFoundation.Wikipedia"
-        "CorelCorporation.PaintShopPro"
-        "2FE3CB00.PicsArt-PhotoStudio"
-        "NAVER.LINEwin8"
-        "2FE3CB00.PicsArt-PhotoStudio"
-        "613EBCEA.PolarrPhotoEditorAcademicEdition"
-        "89006A2E.AutodeskSketchBook"
-        "A278AB0D.DisneyMagicKingdoms"
-        "A278AB0D.MarchofEmpires"
-        "CAF9E577.Plex"  
-        "ClearChannelRadioDigital.iHeartRadio"
-        "D52A8D61.FarmVille2CountryEscape"
-        "DB6EA5DB.CyberLinkMediaSuiteEssentials"
-        "DolbyLaboratories.DolbyAccess"
-        "DolbyLaboratories.DolbyAccess"
-        "Drawboard.DrawboardPDF"
-        "Fitbit.FitbitCoach"
-        "GAMELOFTSA.Asphalt8Airborne"
-        "KeeperSecurityInc.Keeper"
-        "NORDCURRENT.COOKINGFEVER"
-        "Playtika.CaesarsSlotsFreeCasino"
-        "ShazamEntertainmentLtd.Shazam"
-        "SlingTVLLC.SlingTV"
-        "SpotifyAB.SpotifyMusic"
-        "ThumbmunkeysLtd.PhototasticCollage"
-        "TuneIn.TuneInRadio"
-        "WinZipComputing.WinZipUniversal"
-        "XINGAG.XING"
-        "flaregamesGmbH.RoyalRevolt2"
-        "Evernote.Evernote"
-        "4DF9E0F8.Netflix"
-        "C27EB4BA.DropboxOEM"
-        "MirametrixInc.GlancebyMirametrix"
-        "7EE7776C.LinkedInforWindows"
-        "DolbyLaboratories.DolbyAudio"
-        "*EclipseManager*"
-        "*ActiproSoftwareLLC*"
-        "*Duolingo-LearnLanguagesforFree*"
-        "*PandoraMediaInc*"
-        "*CandyCrush*"
-        "*BubbleWitch3Saga*"
-        "*Wunderlist*"
-        "*Flipboard*"
-        "*Royal Revolt*"
-        "*Sway*"
-        "*Speed Test*"
-        "*Viber*"
-        "*ACGMediaPlayer*"
-        "*OneCalendar*"
-        "*LinkedInforWindows*"
-        "*HiddenCityMysteryofShadows*"
-        "*Hulu*"
-        "*HiddenCity*"
-        "*AdobePhotoshopExpress*"
-        
-    
-        #Social Networking
-        "57540AMZNMobileLLC.AmazonAlexa"
-        "*TikTok*"
-        "*Twitter*"
-        "*Facebook*"
-    
-        #AntiVirus
-        "5A894077.McAfeeSecurity"
-    
-        # Removes Acer Apps
-        "AcerIncorporated.AcerRegistration"
-        "AcerIncorporated.QuickAccess"
-        "AcerIncorporated.UserExperienceImprovementProgram"
-        "AcerIncorporated.AcerCareCe nterS"
-        "AcerIncorporated.AcerCollectionS"
-        "CyberLinkCorp.ac.PowerDirectorforacerDesktop"
-        "CyberLinkCorp.ac.PhotoDirectorforacerDesktop"
-    
-        # Removes HP Apps
-        "AD2F1837.HPSupportAssistant"
-        "AD2F1837.HPPrinterControl"
-        "AD2F1837.HPQuickDrop"
-        "AD2F1837.HPSystemEventUtility"
-        "AD2F1837.HPPrivacySettings"
-        "AD2F1837.HPInc.EnergyStar"
-        "AD2F1837.HPAudioCenter"
-    
-        # Removes Lenovo Apps
-        "E0469640.LenovoUtility"
-    )
-            Write-Host "$frmt Removing Bloatware from PC $frmt "
-            foreach ($Program in $Programs) {
-            Get-AppxPackage -Name $Program| Remove-AppxPackage
-            Get-AppxProvisionedPackage -Online | Where-Object DisplayName -like $Program | Remove-AppxProvisionedPackage -Online
-            Write-Host "Trying to remove $Program."
-        }
-    
+
+    Write-Host " Finished Reinstalling Bloatware Apps"
 }
 Function UndoRegistry {
     REG ADD "HKCU\Software\Microsoft\Windows\CurrentVersion\ContentDeliveryManager\Subscriptions" /f | Out-Null
@@ -760,9 +763,9 @@ Function OEMInfo{
     Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\OEMInformation" -Name "SupportPhone" -Type String -Value "Mother Computers - (250) 479-8561" -Verbose
 }
 Function Cleanup {
-    Write-Host "$frmt Finishing Up $frmt "
+    Write-Host "$frmt Finishing Up$frmt"
     Start-Process Explorer
-    Write-Host "Restarted Explorer"
+    Write-Host " Restarted Explorer"
     Start-Process https://chrome.google.com/webstore/detail/ublock-origin/cjpalhdlnbpafiamejdnhcphjbkeiagm
     Remove-Item "$Env:Temp\*.*" -Force -Recurse -Confirm:$false -ErrorAction SilentlyContinue 2> $NULL
     $EdgeShortcut = "$Env:USERPROFILE\Desktop\Microsoft Edge.lnk"
@@ -836,17 +839,17 @@ $Reboot.Add_Click{
 }
 $LightMode.Add_Click{
     If ($BuildNumber -gt $WantedBuild) {
-        write-Host "Applying Light mode for Windows 11"
+        write-Host " Applying Light mode for Windows 11"
         Start-BitsTransfer -Source "https://github.com/circlol/newload/raw/main/win11-light.deskthemepack" -Destination win11-light.deskthemepack
         Start-Sleep 3
         Start-Process "win11-light.deskthemepack"
         Start-Sleep 3
         Remove-Item "win11-light.deskthemepack" -Force -Recurse 
         taskkill /F /IM systemsettings.exe 2> $NULL
-        Write-Host "Applied Light Theme for Windows 11"
+        Write-Host " Applied Light Theme for Windows 11"
     } else {
         If ($BuildNumber -lt $WantedBuild) {
-            write-Host "Applying Light Mode for Windows 10"
+            write-Host " Applying Light Mode for Windows 10"
             #Start-BitsTransfer -Source "https://github.com/circlol/newload/raw/main/win10-purple.deskthemepack" -Destination win10-purple.deskthemepack
             #Start-Sleep 3
             #Start-Process "win10-purple.deskthemepack"
@@ -855,7 +858,7 @@ $LightMode.Add_Click{
             #taskkill /F /IM systemsettings.exe 2> $NULL
             Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Themes\Personalize" -Name "AppsUseLightTheme" -Type DWord -Value 1 -Verbose
             Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Themes\Personalize" -Name "SystemUsesLightTheme" -Type DWord -Value 1 -Verbose
-            Write-Host "Applied Light Theme for Windows 10"
+            Write-Host " Applied Light Theme for Windows 10"
         }
     }
 }    
@@ -920,8 +923,8 @@ $UndoScript.Add_Click{
 Write-Host "$frmt Undoing Changes made by Script `n `nGUI will be unusable whilst script is running. Please Standby `n$frmt"
 Start-Sleep 2
 UndoOEMInfo
-#Write-Host "$frmt Reinstalling Bloatware $frmt"
-#UndoDebloat
+Write-Host "$frmt Reinstalling Bloatware $frmt"
+UndoDebloat
 Write-Host "$frmt Reinstalling OneDrive $frmt"
 UndoOneDrive
 Write-Host "$frmt Undoing Registry Changes $frmt"
