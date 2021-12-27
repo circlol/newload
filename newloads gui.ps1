@@ -578,11 +578,10 @@ Function Debloat {
     }
 }
 Function UndoDebloat {
-    Write-Host "$frmt Reinstalling Bloatware $frmt "
     foreach ($Program in $Programs) {
+    Write-Host "Trying to Reinstall $Program"
     Get-AppxPackage -Name $Program| Add-AppxPackage
     Get-AppxProvisionedPackage -Online | Where-Object DisplayName -like $Program | Add-AppxProvisionedPackage -Online
-    Write-Host " Finished Reinstalling Bloatware Apps"
     }
 }
 Function Registry {
@@ -919,8 +918,9 @@ $UndoScript.Add_Click{
 Write-Host "$frmt Undoing Changes made by Script `n `nGUI will be unusable whilst script is running. Please Standby `n$frmt"
 Start-Sleep 2
 UndoOEMInfo
-Write-Host "$frmt Reinstalling Bloatware $frmt"
+Write-Host "$frmt Reinstalling Bloatware $frmt "
 UndoDebloat
+Write-Host " Finished Reinstalling Bloatware Apps"
 Taskkill /F /IM Explorer.exe
 UndoOneDrive
 UndoRegistry
