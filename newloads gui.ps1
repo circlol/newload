@@ -577,16 +577,13 @@ Function Debloat {
     Write-Host " Trying to remove $Program."
     }
 }
-Function UndoDebloat{
-    Write-Host " Reinstalling Bloatware"
-
-    foreach ($app in $Programs) {
-        Write-Output "Trying to add $app"
-        $ResultText.text = "`r`n" +"`r`n" + "Trying to add $app"
-        Add-AppxPackage -DisableDevelopmentMode -Register "$($(Get-AppxPackage -AllUsers $app).InstallLocation)\AppXManifest.xml"
-    }
-
+Function UndoDebloat {
+    Write-Host "$frmt Reinstalling Bloatware $frmt "
+    foreach ($Program in $Programs) {
+    Get-AppxPackage -Name $Program| Add-AppxPackage
+    Get-AppxProvisionedPackage -Online | Where-Object DisplayName -like $Program | Add-AppxProvisionedPackage -Online
     Write-Host " Finished Reinstalling Bloatware Apps"
+    }
 }
 Function Registry {
     #On Charger
