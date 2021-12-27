@@ -4,10 +4,15 @@ Add-Type -AssemblyName System.Windows.Forms
 $Form                            = New-Object system.Windows.Forms.Form
 $Form.ClientSize                 = New-Object System.Drawing.Point(633,590)
 $Form.text                       = "Windows New Loads Utility - Created by Mike Ivison"
-$form.StartPosition             = "manual"
-$form.Location                  = New-Object System.Drawing.Size(1900, 300)
+$form.StartPosition              = "manual"
+$form.Location                   = New-Object System.Drawing.Size(1900, 300)
 $Form.TopMost                    = $true
 $Form.BackColor                  = [System.Drawing.ColorTranslator]::FromHtml("#4b4b4b")
+$Form.AutoScaleDimensions        = '192, 192'
+$Form.AutoScaleMode              = "Dpi"
+$Form.AutoSize                   = $True
+$Form.AutoScroll                 = $True
+$Form.FormBorderStyle            = 'FixedSingle'
 
 $RunScript                       = New-Object system.Windows.Forms.Button
 $RunScript.text                  = "Run Script"
@@ -564,7 +569,8 @@ Function UndoRegistry {
     Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "EnableSnapAssistFlyout" -Value 0 -Verbose
     Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "HideFileExt" -Value 1 -Verbose
     Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "LaunchTo" -Value 1 -Verbose
-    Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "ShowTaskViewButton" -Value 1 -Verbose
+    Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "ShowCortanaButton" -Value 0 -Verbose    
+    Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "ShowTaskViewButton" -Value 0 -Verbose
     Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "TaskBarDa" -Value 1 -Verbose
     Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "TaskBarMn" -Value 1 -Verbose
     Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\HideDesktopIcons\NewStartPanel" -Name "{59031a47-3f72-44a7-89c5-5595fe6b30ee}" -Value 1 -Verbose
