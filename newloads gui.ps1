@@ -352,7 +352,7 @@ Function StartMenu {
     Remove-Item $layoutFile
 }
 Function UndoOneDrive{
-    %systemroot%\SysWOW64\OneDriveSetup.exe
+    Start-Process "$env:SystemRoot\SysWOW64\OneDriveSetup.exe"
     Write-Host "`n `nOneDrive has been Reinstalled"
 }
 Function OneDrive {
