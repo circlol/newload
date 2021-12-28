@@ -224,7 +224,15 @@ $DeviceManager.Font              = New-Object System.Drawing.Font('Microsoft San
 $DeviceManager.ForeColor         = [System.Drawing.ColorTranslator]::FromHtml("#ffffff")
 $DeviceManager.BackColor         = [System.Drawing.ColorTranslator]::FromHtml("#857777")
 
-$Form.controls.AddRange(@($RunScript,$RunNoOEM,$UndoScript,$ExitButton,$mocologo,$nvidiashortcut,$amdshortcut,$DriverWebsites,$asusshortcut,$msishortcut,$Shortcuts,$activationbutton,$programsbutton,$updatesbutton,$ThemeButton,$powerplanbutton,$Label3,$intelshortcut,$Label4,$LightMode,$DarkMode,$Reboot,$DeviceManager))
+$Explorer                        = New-Object system.Windows.Forms.Button
+$Explorer.text                   = "Explorer"
+$Explorer.width                  = 100
+$Explorer.height                 = 37
+$Explorer.location               = New-Object System.Drawing.Point(246,434)
+$Explorer.Font                   = New-Object System.Drawing.Font('Microsoft Sans Serif',10)
+$Explorer.BackColor              = [System.Drawing.ColorTranslator]::FromHtml("#857777")
+
+$Form.controls.AddRange(@($RunScript,$RunNoOEM,$UndoScript,$ExitButton,$mocologo,$nvidiashortcut,$amdshortcut,$DriverWebsites,$asusshortcut,$msishortcut,$Shortcuts,$activationbutton,$programsbutton,$updatesbutton,$ThemeButton,$powerplanbutton,$Label3,$intelshortcut,$Label4,$LightMode,$DarkMode,$Reboot,$DeviceManager,$Explorer))
 
 #region Logic 
 If (!([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole]'Administrator')) {
@@ -767,11 +775,11 @@ Function UndoOEMInfo{
 }
 Function OEMInfo{
     Write-Host "$frmt Applying OEM Information $frmt "
-    Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\OEMInformation" -Name "Manufacturer" -Type String -Value "Mother Computers" -Verbose
-    Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\OEMInformation" -Name "Model" -Type String -Value "(250) 479-8561" -Verbose
-    Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\OEMInformation" -Name "SupportHours" -Type String -Value "Monday - Saturday 9AM-5PM | Sunday - Closed" -Verbose
-    Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\OEMInformation" -Name "SupportURL" -Type String -Value "https://www.mothercomputers.com" -Verbose
-    Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\OEMInformation" -Name "SupportPhone" -Type String -Value "Mother Computers - (250) 479-8561" -Verbose
+    Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\OEMInformation" -Name "Manufacturer" -Type String -Value "Mother Computers"
+    Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\OEMInformation" -Name "Model" -Type String -Value "(250) 479-8561"
+    Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\OEMInformation" -Name "SupportHours" -Type String -Value "Monday - Saturday 9AM-5PM | Sunday - Closed"
+    Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\OEMInformation" -Name "SupportURL" -Type String -Value "https://www.mothercomputers.com"
+    Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\OEMInformation" -Name "SupportPhone" -Type String -Value "Mother Computers - (250) 479-8561"
 }
 Function Cleanup {
     Write-Host "$frmt Finishing Up$frmt"
@@ -855,6 +863,9 @@ $intelshortcut.Add_Click{
 }
 $DeviceManager.Add_Click{
     Start-Process devmgmt.msc
+}
+$Explorer.Add_Click{
+    Start-Process Explorer .\
 }
 $Reboot.Add_Click{
     shutdown -r -t 0
