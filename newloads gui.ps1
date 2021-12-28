@@ -223,8 +223,6 @@ If (!([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]:
 	Exit
 }
 Import-Module BitsTransfer
-Write-Host "`n `n================================================================================================ `n `n `n `n `n `n `n `n `n `n `n `n `n New Loads Utility For Windows 10 & 11 `n `n Created by Mike Ivison `n `n Script will run in : GUI Mode`n `n Ideally run updates before continuing with this script. `n `n `n `n `n `n `n `n `n `n `n `n `n================================================================================================ `n `n"
-
 $tslrd = 20211211
 $Location1 = "$env:PROGRAMFILES\Google\Chrome\Application\chrome.exe"
 $Location2 = "$env:PROGRAMFILES\VideoLAN\VLC\vlc.exe"
@@ -237,9 +235,6 @@ $Time = (Get-Date -UFormat %Y%m%d)
 $dtime = (Get-Date -UFormat %H.%M-%Y.%m.%d)
 $License = 20220330
 $Lie = "License has Expired. Please Contact Mike for a New License"
-
-
-
 net start w32time 2> $NULL
 reg export HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\services\w32time\Config "$folder\exported_w32time.reg" /y | Out-Null 2> $NULL
 reg add HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\services\w32time\Config /v MaxNegPhaseCorrection /d 0xFFFFFFFF /t REG_DWORD /f | Out-Null 2> $NULL
@@ -268,6 +263,8 @@ If ($Time -gt $License) {
             Exit
         }
     }
+Write-Host "`n `n================================================================================================ `n `n `n `n `n `n `n `n `n `n `n `n `n New Loads Utility For Windows 10 & 11 `n `n Created by Mike Ivison `n `n Script will run in : GUI Mode`n `n Ideally run updates before continuing with this script. `n `n `n `n `n `n `n `n `n `n `n `n `n================================================================================================ `n `n"
+
 Function WinG{
 if (Test-Path ~\AppData\Local\Microsoft\WindowsApps\winget.exe){
     'Winget was found'
