@@ -971,7 +971,6 @@ Stop-Transcript
 }
 
 $ExitButton.Add_Click{
-    Stop-Transcript
     $Form.Close()
 }
 #endregion
