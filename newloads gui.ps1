@@ -214,50 +214,49 @@ If (!([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]:
 	Exit
 }
 Import-Module BitsTransfer
+$tslrd = 20211211
 $Location1 = "$env:PROGRAMFILES\Google\Chrome\Application\chrome.exe"
 $Location2 = "$env:PROGRAMFILES\VideoLAN\VLC\vlc.exe"
 $Location3 = "$env:PROGRAMFILES\Adobe\Acrobat DC\Acrobat\Acrobat.exe"
 $Folder = Get-Location
 $frmt = "`n `n======================================== `n `n"
-$Lie = "License has Expired. Please Contact Mike for a New License"
 $BuildNumber = (Get-ItemProperty -Path c:\windows\system32\hal.dll).VersionInfo.ProductVersion
 $WantedBuild = "10.0.22000"
-$Minimum = 20211211
 $Time = (Get-Date -UFormat %Y%m%d)
+$dtime = (Get-Date -UFormat %H.%M-%Y.%m.%d)
 $License = 20220330
+$Lie = "License has Expired. Please Contact Mike for a New License"
 
-    net start w32time 2> $NULL
-    reg export HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\services\w32time\Config "$folder\exported_w32time.reg" /y | Out-Null 2> $NULL
-    reg add HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\services\w32time\Config /v MaxNegPhaseCorrection /d 0xFFFFFFFF /t REG_DWORD /f | Out-Null 2> $NULL
-    reg add HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\services\w32time\Config /v MaxPosPhaseCorrection /d 0xFFFFFFFF /t REG_DWORD /f | Out-Null 2> $NULL
-    # w32tm /config /manualpeerlist:time.windows.com,0x1 /syncfromflags:manual /reliable:yes /update
-    w32tm /config /manualpeerlist:time.windows.com,0x1 /syncfromflags:manual /reliable:yes /update | Out-Null 2> $NULL
-    # w32tm /config /update
-    w32tm /config /update | Out-Null 2> $NULL
-    # w32tm /resync /rediscover 
-    w32tm /resync /rediscover | Out-Null 2> $NULL
-    #Restore registry w32time\Config
-    reg import "$folder\exported_w32time.reg" | Out-Null 2> $NULL
-    Remove-Item "$folder\exported_w32time.reg" | Out-Null 2> $NULL
 
-    If ($Time -gt $License) {
-        Clear-Host
-        Write-Host $lie
-        Start-Sleep 2
-        Exit
-        } else {
-            If ($Time -gt $minimum) {
-                Clear-Host
-                } else {
-                Clear-Host
-                Write-Host $lie
-                Start-Sleep 2
-                Exit
-            }
+
+net start w32time 2> $NULL
+reg export HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\services\w32time\Config "$folder\exported_w32time.reg" /y | Out-Null 2> $NULL
+reg add HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\services\w32time\Config /v MaxNegPhaseCorrection /d 0xFFFFFFFF /t REG_DWORD /f | Out-Null 2> $NULL
+reg add HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\services\w32time\Config /v MaxPosPhaseCorrection /d 0xFFFFFFFF /t REG_DWORD /f | Out-Null 2> $NULL
+# w32tm /config /manualpeerlist:time.windows.com,0x1 /syncfromflags:manual /reliable:yes /update
+w32tm /config /manualpeerlist:time.windows.com,0x1 /syncfromflags:manual /reliable:yes /update | Out-Null 2> $NULL
+# w32tm /config /update
+w32tm /config /update | Out-Null 2> $NULL
+# w32tm /resync /rediscover 
+w32tm /resync /rediscover | Out-Null 2> $NULL
+#Restore registry w32time\Config
+reg import "$folder\exported_w32time.reg" | Out-Null 2> $NULL
+Remove-Item "$folder\exported_w32time.reg" | Out-Null 2> $NULL
+If ($Time -gt $License) {
+    Clear-Host
+    Write-Host $lie
+    Start-Sleep 2
+    Exit
+    } else {
+        If ($Time -gt $tslrd) {
+            Clear-Host
+            } else {
+            Clear-Host
+            Write-Host $lie
+            Start-Sleep 2
+            Exit
         }
-Start-Transcript -OutputDirectory "$env:USERPROFILE\Desktop" > $NULL
-Clear-Host
-Write-Host "`n `n `n `n `n `n `n `n `n `n `n `n `n `n================================================================================================ `n `n `n `n `n `n `n `n `n `n `n `n `n New Loads Utility For Windows 10 & 11 `n `n Created by Mike Ivison `n `n Script will run in : GUI Mode`n `n Ideally run updates before continuing with this script. `n `n `n `n `n `n `n `n `n `n `n `n `n================================================================================================ `n `n"
+    }
 Function WinG{
 if (Test-Path ~\AppData\Local\Microsoft\WindowsApps\winget.exe){
     'Winget was found'
@@ -887,6 +886,7 @@ $DarkMode.Add_Click{
 }
 
 $RunScript.Add_Click{
+Start-Transcript -LiteralPath "$env:USERPROFILE\Desktop\Script Run - $dtime.txt"
 Write-Host "$frmt Running Script `n `nGUI will be unusable whilst script is running. Please Standby `n$frmt"
 WinG
 Programs
@@ -902,6 +902,7 @@ Stop-Transcript
 }
 
 $RunNoOEM.Add_Click{
+Start-Transcript -LiteralPath "$env:USERPROFILE\Desktop\Script Run - No OEM - $dtime.txt"
 Write-Host "$frmt Running Script without Branding`n `nGUI will be unusable whilst script is running. Please Standby `n$frmt"
 WinG
 Programs
@@ -915,6 +916,7 @@ Stop-Transcript
 }
 
 $UndoScript.Add_Click{
+Start-Transcript -LiteralPath "$env:USERPROFILE\Desktop\Script Run - Undo - $dtime.txt"
 Write-Host "$frmt Undoing Changes made by Script `n `nGUI will be unusable whilst script is running. Please Standby `n$frmt"
 Start-Sleep 2
 UndoOEMInfo
@@ -930,6 +932,7 @@ Stop-Transcript
 }
 
 $ExitButton.Add_Click{
+    Stop-Transcript
     $Form.Close()
 }
 #endregion
