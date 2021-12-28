@@ -214,6 +214,8 @@ If (!([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]:
 	Exit
 }
 Import-Module BitsTransfer
+Write-Host "`n `n================================================================================================ `n `n `n `n `n `n `n `n `n `n `n `n `n New Loads Utility For Windows 10 & 11 `n `n Created by Mike Ivison `n `n Script will run in : GUI Mode`n `n Ideally run updates before continuing with this script. `n `n `n `n `n `n `n `n `n `n `n `n `n================================================================================================ `n `n"
+
 $tslrd = 20211211
 $Location1 = "$env:PROGRAMFILES\Google\Chrome\Application\chrome.exe"
 $Location2 = "$env:PROGRAMFILES\VideoLAN\VLC\vlc.exe"
@@ -863,9 +865,9 @@ $DarkMode.Add_Click{
     If ($BuildNumber -gt $WantedBuild) {
         write-Host " Applying Dark mode for Windows 11"
         Start-BitsTransfer -Source "https://github.com/circlol/newload/raw/main/win11-dark.deskthemepack" -Destination win11-dark.deskthemepack
-        Start-Sleep 3
+        Start-Sleep 2
         Start-Process "win11-dark.deskthemepack"
-        Start-Sleep 3
+        Start-Sleep 2
         Remove-Item "win11-dark.deskthemepack" -Force -Recurse
         taskkill /F /IM systemsettings.exe 2> $NULL
         Write-Host " Applied Dark Theme for Windows 11"           
