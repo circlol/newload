@@ -6,7 +6,7 @@ $iconBase64                      = 'AAABAAYAAAAAAAEAIAC5RAEAZgAAAICAAAABACAAKAgB
 $Form                            = New-Object system.Windows.Forms.Form
 $Form.ClientSize                 = New-Object System.Drawing.Point(633,590)
 $Form.text                       = "New Loads Utility GUI- Created by Mike Ivison"
-$Form.TopMost                    = $false
+$Form.TopMost                    = $True
 $Form.BackColor                  = [System.Drawing.ColorTranslator]::FromHtml("#4b4b4b")
 $Form.StartPosition              = "CenterScreen"
 $Form.FormBorderStyle            = 'FixedSingle'
@@ -29,15 +29,15 @@ $RunScript.text                  = "Run Script"
 $RunScript.width                 = 240
 $RunScript.height                = 90
 $RunScript.location              = New-Object System.Drawing.Point(356,434)
-$RunScript.Font                  = New-Object System.Drawing.Font('Microsoft Sans Serif',13,[System.Drawing.FontStyle]([System.Drawing.FontStyle]::Bold))
+$RunScript.Font                  = New-Object System.Drawing.Font('Microsoft Sans Serif',15,[System.Drawing.FontStyle]([System.Drawing.FontStyle]::Bold))
 $RunScript.BackColor             = [System.Drawing.ColorTranslator]::FromHtml("#9b9b9b")
 
 $RunNoOEM                        = New-Object system.Windows.Forms.Button
 $RunNoOEM.text                   = "Run without Branding"
 $RunNoOEM.width                  = 240
 $RunNoOEM.height                 = 36
-$RunNoOEM.location               = New-Object System.Drawing.Point(356,385)
-$RunNoOEM.Font                   = New-Object System.Drawing.Font('Microsoft Sans Serif',9)
+$RunNoOEM.location               = New-Object System.Drawing.Point(356,387)
+$RunNoOEM.Font                   = New-Object System.Drawing.Font('Microsoft Sans Serif',10)
 $RunNoOEM.ForeColor              = [System.Drawing.ColorTranslator]::FromHtml("")
 $RunNoOEM.BackColor              = [System.Drawing.ColorTranslator]::FromHtml("#9b9b9b")
 
@@ -68,8 +68,8 @@ $mocologo.SizeMode               = [System.Windows.Forms.PictureBoxSizeMode]::zo
 $nvidiashortcut                  = New-Object system.Windows.Forms.Button
 $nvidiashortcut.text             = "NVIDIA"
 $nvidiashortcut.width            = 102
-$nvidiashortcut.height           = 53
-$nvidiashortcut.location         = New-Object System.Drawing.Point(379,63)
+$nvidiashortcut.height           = 58
+$nvidiashortcut.location         = New-Object System.Drawing.Point(492,200)
 $nvidiashortcut.Font             = New-Object System.Drawing.Font('Microsoft Sans Serif',10)
 $nvidiashortcut.ForeColor        = [System.Drawing.ColorTranslator]::FromHtml("#ffffff")
 $nvidiashortcut.BackColor        = [System.Drawing.ColorTranslator]::FromHtml("#7ed321")
@@ -77,8 +77,8 @@ $nvidiashortcut.BackColor        = [System.Drawing.ColorTranslator]::FromHtml("#
 $amdshortcut                     = New-Object system.Windows.Forms.Button
 $amdshortcut.text                = "AMD"
 $amdshortcut.width               = 102
-$amdshortcut.height              = 53
-$amdshortcut.location            = New-Object System.Drawing.Point(494,63)
+$amdshortcut.height              = 58
+$amdshortcut.location            = New-Object System.Drawing.Point(492,60)
 $amdshortcut.Font                = New-Object System.Drawing.Font('Microsoft Sans Serif',10)
 $amdshortcut.ForeColor           = [System.Drawing.ColorTranslator]::FromHtml("#ffffff")
 $amdshortcut.BackColor           = [System.Drawing.ColorTranslator]::FromHtml("#d0021b")
@@ -87,97 +87,97 @@ $DriverWebsites                  = New-Object system.Windows.Forms.Label
 $DriverWebsites.text             = "Driver Websites"
 $DriverWebsites.AutoSize         = $true
 $DriverWebsites.width            = 25
-$DriverWebsites.height           = 10
-$DriverWebsites.location         = New-Object System.Drawing.Point(442,38)
-$DriverWebsites.Font             = New-Object System.Drawing.Font('Microsoft Sans Serif',10,[System.Drawing.FontStyle]([System.Drawing.FontStyle]::Bold))
+$DriverWebsites.height           = 34
+$DriverWebsites.location         = New-Object System.Drawing.Point(423,38)
+$DriverWebsites.Font             = New-Object System.Drawing.Font('Microsoft Sans Serif',13,[System.Drawing.FontStyle]([System.Drawing.FontStyle]::Bold))
 $DriverWebsites.ForeColor        = [System.Drawing.ColorTranslator]::FromHtml("#ff0000")
 
 $asusshortcut                    = New-Object system.Windows.Forms.Button
 $asusshortcut.text               = "ASUS"
 $asusshortcut.width              = 102
-$asusshortcut.height             = 53
-$asusshortcut.location           = New-Object System.Drawing.Point(379,189)
+$asusshortcut.height             = 58
+$asusshortcut.location           = New-Object System.Drawing.Point(383,151)
 $asusshortcut.Font               = New-Object System.Drawing.Font('Microsoft Sans Serif',10)
 $asusshortcut.ForeColor          = [System.Drawing.ColorTranslator]::FromHtml("#ffffff")
-$asusshortcut.BackColor          = [System.Drawing.ColorTranslator]::FromHtml("#9b9b9b")
+$asusshortcut.BackColor          = [System.Drawing.ColorTranslator]::FromHtml("#857777")
 
 $msishortcut                     = New-Object system.Windows.Forms.Button
 $msishortcut.text                = "MSI"
 $msishortcut.width               = 102
-$msishortcut.height              = 53
-$msishortcut.location            = New-Object System.Drawing.Point(494,189)
+$msishortcut.height              = 58
+$msishortcut.location            = New-Object System.Drawing.Point(383,84)
 $msishortcut.Font                = New-Object System.Drawing.Font('Microsoft Sans Serif',10)
 $msishortcut.ForeColor           = [System.Drawing.ColorTranslator]::FromHtml("#ffffff")
-$msishortcut.BackColor           = [System.Drawing.ColorTranslator]::FromHtml("#9b9b9b")
+$msishortcut.BackColor           = [System.Drawing.ColorTranslator]::FromHtml("#857777")
 
 $Shortcuts                       = New-Object system.Windows.Forms.Label
 $Shortcuts.text                  = "Shortcuts"
 $Shortcuts.AutoSize              = $true
 $Shortcuts.width                 = 25
-$Shortcuts.height                = 10
-$Shortcuts.location              = New-Object System.Drawing.Point(116,38)
-$Shortcuts.Font                  = New-Object System.Drawing.Font('Microsoft Sans Serif',10,[System.Drawing.FontStyle]([System.Drawing.FontStyle]::Bold))
+$Shortcuts.height                = 34
+$Shortcuts.location              = New-Object System.Drawing.Point(104,37)
+$Shortcuts.Font                  = New-Object System.Drawing.Font('Microsoft Sans Serif',13,[System.Drawing.FontStyle]([System.Drawing.FontStyle]::Bold))
 $Shortcuts.ForeColor             = [System.Drawing.ColorTranslator]::FromHtml("#ff0000")
 
 $activationbutton                = New-Object system.Windows.Forms.Button
 $activationbutton.text           = "Activation"
 $activationbutton.width          = 102
-$activationbutton.height         = 53
+$activationbutton.height         = 58
 $activationbutton.location       = New-Object System.Drawing.Point(149,66)
-$activationbutton.Font           = New-Object System.Drawing.Font('Microsoft Sans Serif',10)
+$activationbutton.Font           = New-Object System.Drawing.Font('Microsoft Sans Serif',11)
 $activationbutton.ForeColor      = [System.Drawing.ColorTranslator]::FromHtml("#ffffff")
-$activationbutton.BackColor      = [System.Drawing.ColorTranslator]::FromHtml("#9b9b9b")
+$activationbutton.BackColor      = [System.Drawing.ColorTranslator]::FromHtml("#857777")
 
 $programsbutton                  = New-Object system.Windows.Forms.Button
 $programsbutton.text             = "Programs"
 $programsbutton.width            = 102
-$programsbutton.height           = 53
-$programsbutton.location         = New-Object System.Drawing.Point(36,132)
+$programsbutton.height           = 58
+$programsbutton.location         = New-Object System.Drawing.Point(149,135)
 $programsbutton.Font             = New-Object System.Drawing.Font('Microsoft Sans Serif',10)
 $programsbutton.ForeColor        = [System.Drawing.ColorTranslator]::FromHtml("#ffffff")
-$programsbutton.BackColor        = [System.Drawing.ColorTranslator]::FromHtml("#9b9b9b")
+$programsbutton.BackColor        = [System.Drawing.ColorTranslator]::FromHtml("#857777")
 
 $updatesbutton                   = New-Object system.Windows.Forms.Button
 $updatesbutton.text              = "Updates"
 $updatesbutton.width             = 102
-$updatesbutton.height            = 53
-$updatesbutton.location          = New-Object System.Drawing.Point(36,66)
-$updatesbutton.Font              = New-Object System.Drawing.Font('Microsoft Sans Serif',10)
+$updatesbutton.height            = 58
+$updatesbutton.location          = New-Object System.Drawing.Point(35,66)
+$updatesbutton.Font              = New-Object System.Drawing.Font('Microsoft Sans Serif',11)
 $updatesbutton.ForeColor         = [System.Drawing.ColorTranslator]::FromHtml("#ffffff")
-$updatesbutton.BackColor         = [System.Drawing.ColorTranslator]::FromHtml("#9b9b9b")
+$updatesbutton.BackColor         = [System.Drawing.ColorTranslator]::FromHtml("#857777")
 
 $ThemeButton                     = New-Object system.Windows.Forms.Button
 $ThemeButton.text                = "Themes"
 $ThemeButton.width               = 102
-$ThemeButton.height              = 53
-$ThemeButton.location            = New-Object System.Drawing.Point(149,132)
+$ThemeButton.height              = 58
+$ThemeButton.location            = New-Object System.Drawing.Point(35,135)
 $ThemeButton.Font                = New-Object System.Drawing.Font('Microsoft Sans Serif',10)
 $ThemeButton.ForeColor           = [System.Drawing.ColorTranslator]::FromHtml("#ffffff")
-$ThemeButton.BackColor           = [System.Drawing.ColorTranslator]::FromHtml("#9b9b9b")
+$ThemeButton.BackColor           = [System.Drawing.ColorTranslator]::FromHtml("#857777")
 
 $powerplanbutton                 = New-Object system.Windows.Forms.Button
 $powerplanbutton.text            = "Power Plan"
 $powerplanbutton.width           = 102
-$powerplanbutton.height          = 53
-$powerplanbutton.location        = New-Object System.Drawing.Point(93,196)
+$powerplanbutton.height          = 58
+$powerplanbutton.location        = New-Object System.Drawing.Point(36,207)
 $powerplanbutton.Font            = New-Object System.Drawing.Font('Microsoft Sans Serif',10)
 $powerplanbutton.ForeColor       = [System.Drawing.ColorTranslator]::FromHtml("#ffffff")
-$powerplanbutton.BackColor       = [System.Drawing.ColorTranslator]::FromHtml("#9b9b9b")
+$powerplanbutton.BackColor       = [System.Drawing.ColorTranslator]::FromHtml("#857777")
 
 $Label3                          = New-Object system.Windows.Forms.Label
 $Label3.text                     = "Program owned by Mike Ivison"
 $Label3.AutoSize                 = $true
 $Label3.width                    = 25
 $Label3.height                   = 10
-$Label3.location                 = New-Object System.Drawing.Point(6,575)
+$Label3.location                 = New-Object System.Drawing.Point(7,571)
 $Label3.Font                     = New-Object System.Drawing.Font('Microsoft Sans Serif',10)
-$Label3.ForeColor                = [System.Drawing.ColorTranslator]::FromHtml("#555555")
+$Label3.ForeColor                = [System.Drawing.ColorTranslator]::FromHtml("#4f4f4f")
 
 $intelshortcut                   = New-Object system.Windows.Forms.Button
 $intelshortcut.text              = "Intel"
 $intelshortcut.width             = 102
-$intelshortcut.height            = 53
-$intelshortcut.location          = New-Object System.Drawing.Point(435,127)
+$intelshortcut.height            = 58
+$intelshortcut.location          = New-Object System.Drawing.Point(492,130)
 $intelshortcut.Font              = New-Object System.Drawing.Font('Microsoft Sans Serif',10)
 $intelshortcut.ForeColor         = [System.Drawing.ColorTranslator]::FromHtml("#ffffff")
 $intelshortcut.BackColor         = [System.Drawing.ColorTranslator]::FromHtml("#4a90e2")
@@ -191,31 +191,40 @@ $Label4.Font                     = New-Object System.Drawing.Font('Microsoft San
 
 $LightMode                       = New-Object system.Windows.Forms.Button
 $LightMode.text                  = "Light Mode"
-$LightMode.width                 = 131
+$LightMode.width                 = 102
 $LightMode.height                = 35
-$LightMode.location              = New-Object System.Drawing.Point(36,316)
+$LightMode.location              = New-Object System.Drawing.Point(149,293)
 $LightMode.Font                  = New-Object System.Drawing.Font('Microsoft Sans Serif',10)
 $LightMode.ForeColor             = [System.Drawing.ColorTranslator]::FromHtml("#ffffff")
-$LightMode.BackColor             = [System.Drawing.ColorTranslator]::FromHtml("#9b9b9b")
+$LightMode.BackColor             = [System.Drawing.ColorTranslator]::FromHtml("#857777")
 
 $DarkMode                        = New-Object system.Windows.Forms.Button
 $DarkMode.text                   = "Dark Mode"
-$DarkMode.width                  = 131
+$DarkMode.width                  = 102
 $DarkMode.height                 = 35
-$DarkMode.location               = New-Object System.Drawing.Point(36,270)
+$DarkMode.location               = New-Object System.Drawing.Point(35,293)
 $DarkMode.Font                   = New-Object System.Drawing.Font('Microsoft Sans Serif',10)
 $DarkMode.ForeColor              = [System.Drawing.ColorTranslator]::FromHtml("#ffffff")
-$DarkMode.BackColor              = [System.Drawing.ColorTranslator]::FromHtml("#9b9b9b")
+$DarkMode.BackColor              = [System.Drawing.ColorTranslator]::FromHtml("#857777")
 
 $Reboot                          = New-Object system.Windows.Forms.Button
 $Reboot.text                     = "REBOOT"
 $Reboot.width                    = 100
 $Reboot.height                   = 89
-$Reboot.location                 = New-Object System.Drawing.Point(247,480)
+$Reboot.location                 = New-Object System.Drawing.Point(247,479)
 $Reboot.Font                     = New-Object System.Drawing.Font('Microsoft Sans Serif',10,[System.Drawing.FontStyle]([System.Drawing.FontStyle]::Bold))
 $Reboot.BackColor                = [System.Drawing.ColorTranslator]::FromHtml("#ff0000")
 
-$Form.controls.AddRange(@($RunScript,$RunNoOEM,$UndoScript,$ExitButton,$mocologo,$nvidiashortcut,$amdshortcut,$DriverWebsites,$asusshortcut,$msishortcut,$Shortcuts,$activationbutton,$programsbutton,$updatesbutton,$ThemeButton,$powerplanbutton,$Label3,$intelshortcut,$Label4,$LightMode,$DarkMode,$Reboot))
+$DeviceManager                   = New-Object system.Windows.Forms.Button
+$DeviceManager.text              = "Device Manager"
+$DeviceManager.width             = 102
+$DeviceManager.height            = 58
+$DeviceManager.location          = New-Object System.Drawing.Point(149,207)
+$DeviceManager.Font              = New-Object System.Drawing.Font('Microsoft Sans Serif',10)
+$DeviceManager.ForeColor         = [System.Drawing.ColorTranslator]::FromHtml("#ffffff")
+$DeviceManager.BackColor         = [System.Drawing.ColorTranslator]::FromHtml("#857777")
+
+$Form.controls.AddRange(@($RunScript,$RunNoOEM,$UndoScript,$ExitButton,$mocologo,$nvidiashortcut,$amdshortcut,$DriverWebsites,$asusshortcut,$msishortcut,$Shortcuts,$activationbutton,$programsbutton,$updatesbutton,$ThemeButton,$powerplanbutton,$Label3,$intelshortcut,$Label4,$LightMode,$DarkMode,$Reboot,$DeviceManager))
 
 #region Logic 
 If (!([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole]'Administrator')) {
@@ -843,6 +852,9 @@ $amdshortcut.Add_Click{
 }
 $intelshortcut.Add_Click{
     Start-Process "https://www.intel.com/content/www/us/en/download-center/home.html"
+}
+$DeviceManager.Add_Click{
+    Start-Process devmgmt.msc
 }
 $Reboot.Add_Click{
     shutdown -r -t 0
