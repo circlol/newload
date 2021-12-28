@@ -889,7 +889,7 @@ $DarkMode.Add_Click{
 
 $RunScript.Add_Click{
 Start-Transcript -LiteralPath "$env:USERPROFILE\Desktop\Script Run - $dtime.txt"
-Write-Host "$frmt Running Script `n `nGUI will be unusable whilst script is running. Please Standby `n$frmt"
+Write-Host "$frmt Running Script `n `n GUI will be unusable whilst script is running. Please Standby `n$frmt"
 WinG
 Programs
 StartMenu
