@@ -451,29 +451,51 @@ Function checkme {
         }
 }
 Function Cleanup {
+    Write-Host "$frmt Finishing Up$frmt"
+    Write-Host " Restarting Explorer"
+    Start-Sleep 1
     Start-Process Explorer
-    Write-Host "Restarted Explorer"
+
     Start-Process https://chrome.google.com/webstore/detail/ublock-origin/cjpalhdlnbpafiamejdnhcphjbkeiagm
+
     Remove-Item "$Env:Temp\*.*" -Force -Recurse -Confirm:$false -ErrorAction SilentlyContinue 2> $NULL
     $EdgeShortcut = "$Env:USERPROFILE\Desktop\Microsoft Edge.lnk"
     If ($EdgeShortcut) { 
+        Write-Host " Removing Edge Icon"
         Remove-Item $EdgeShortcut -Force -Recurse -Confirm:$false -ErrorAction SilentlyContinue 2> $NULL
     }
     $edgescpub = "$Env:PUBLIC\Desktop\Microsoft Edge.lnk"
     If ($edgescpub) { 
+        Write-Host " Removing Edge Icon"
         Remove-Item $edgescpub -Force -Recurse -Confirm:$false -ErrorAction SilentlyContinue 2> $NULL
     }
     $vlcsc = "$Env:PUBLIC\Desktop\VLC Media Player.lnk"
     If ($vlcsc) { 
+        Write-Host " Removing VLC Media Player Icon"
         Remove-Item $vlcsc -Force -Recurse -Confirm:$false -ErrorAction SilentlyContinue 2> $NULL
     }
     $acrosc = "$Env:PUBLIC\Desktop\Adobe Acrobat DC.lnk"
     If ($acrosc) { 
+        Write-Host " Removing Adobe Acrobat Icon"
         Remove-Item $acrosc -Force -Recurse -Confirm:$false -ErrorAction SilentlyContinue 2> $NULL
     }
     $ctemp = "C:\Temp"
     If ($ctemp) { 
+        Write-Host " Removing temp folder in C Root"
         Remove-Item $ctemp -Force -Recurse -Confirm:$false -ErrorAction SilentlyContinue 2> $NULL
+    }
+
+    $mocotheme1 = "$Env:USERPROFILE\desktop\win11-light.deskthemepack"
+    $mocotheme2 = "$Env:USERPROFILE\desktop\win11-dark.deskthemepack"
+    $mocotheme3 = "$Env:USERPROFILE\desktop\win10-purple.deskthemepack"
+    If ($mocotheme1) { 
+        Remove-Item "$mocotheme1" -Force -Recurse -Confirm:$false -ErrorAction SilentlyContinue 2> $NULL
+    }
+    If ($mocotheme2) { 
+        Remove-Item $mocotheme2 -Force -Recurse -Confirm:$false -ErrorAction SilentlyContinue 2> $NULL
+    }
+    If ($mocotheme3) { 
+        Remove-Item $mocotheme3 -Force -Recurse -Confirm:$false -ErrorAction SilentlyContinue 2> $NULL
     }
 
 }
