@@ -47,13 +47,13 @@ If (!(Test-Path $Location1)) {
     Write-Host "`n `n Installing $Package1 `n" 
     winget install $package1 -s winget -e -h
     } else {
-    Write-Host " Verified $package1 is already Installed. Moving "
+    Write-Host " Verified $package1 is already Installed. Moving on."
     }
 If (!(Test-Path $Location2)) {
     Write-Host "`n `n Installing $Package2 `n" 
     winget install $package2 -s winget -e -h
     } else {
-    Write-Host " Verified $package2 is already Installed. Moving "
+    Write-Host " Verified $package2 is already Installed. Moving on."
     }    
 If (!(Test-Path $Location3)) {
     Write-Host "`n `n Installing $Package3 `n" 
