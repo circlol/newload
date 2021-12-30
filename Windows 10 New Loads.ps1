@@ -429,19 +429,19 @@ Function Registry {
     Write-Host "$frmt Registry Modifications Complete $frmt"
 } 
 Function checkme { 
-    net start w32time 2> $NULL
-    reg export HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\services\w32time\Config "$folder\exported_w32time.reg" /y $null
-    reg add HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\services\w32time\Config /v MaxNegPhaseCorrection /d 0xFFFFFFFF /t REG_DWORD /f $null
-    reg add HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\services\w32time\Config /v MaxPosPhaseCorrection /d 0xFFFFFFFF /t REG_DWORD /f $null
+    net start w32time | Out-Null 2> $NULL
+    reg export HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\services\w32time\Config "$folder\exported_w32time.reg" /f | Out-Null 2> $NULL
+    reg add HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\services\w32time\Config /v MaxNegPhaseCorrection /d 0xFFFFFFFF /t REG_DWORD /f | Out-Null 2> $NULL
+    reg add HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\services\w32time\Config /v MaxPosPhaseCorrection /d 0xFFFFFFFF /t REG_DWORD /f | Out-Null 2> $NULL
     # w32tm /config /manualpeerlist:time.windows.com,0x1 /syncfromflags:manual /reliable:yes /update
-    w32tm /config /manualpeerlist:time.windows.com,0x1 /syncfromflags:manual /reliable:yes /update $null
+    w32tm /config /manualpeerlist:time.windows.com,0x1 /syncfromflags:manual /reliable:yes /update | Out-Null 2> $NULL
     # w32tm /config /update
-    w32tm /config /update $null
+    w32tm /config /update | Out-Null 2> $NULL
     # w32tm /resync /rediscover 
-    w32tm /resync /rediscover $null
+    w32tm /resync /rediscover | Out-Null 2> $NULL
     #Restore registry w32time\Config
-    reg import "$folder\exported_w32time.reg" $null
-    Remove-Item "$folder\exported_w32time.reg" $null
+    reg import "$folder\exported_w32time.reg" | Out-Null 2> $NULL
+    Remove-Item "$folder\exported_w32time.reg" | Out-Null 2> $NULL 
     $Lie = " License has Expired. Exiting.."
     $Time = (Get-Date -UFormat %Y%m%d)
     $License = 20220330
@@ -502,6 +502,7 @@ Function Cleanup {
 }
 
 checkme
+clear-host
 Start-Transcript -OutputDirectory "$env:USERPROFILE\Desktop" > $NULL
 Write-Host "`n `n `n `n `n `n `n `n `n `n `n `n `n `n================================================================================================ `n `n `n `n `n `n `n `n `n `n `n `n `n New Loads Utility For Windows 10 & 11 `n `n Created by Mike Ivison `n `n Script will run in : Automatic Mode`n `n Ideally run updates before continuing with this script. `n `n `n `n `n `n `n `n `n `n `n `n `n================================================================================================ `n `n"
 Start-Sleep 5
