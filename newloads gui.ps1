@@ -308,36 +308,31 @@ Function Programs {
         Start-Sleep 4
         Stop-Process -Name AppInstaller -Force
     }
-    $packages = @(
-    "Google.Chrome"
-    "Adobe.Acrobat.Reader.64-bit"
-    "VideoLAN.VLC"
-    )
-
-foreach ($Package in $Packages) {
-    Write-Host "`n Installing $Package `n" 
-    winget install $package -e -h -s winget
-    Write-Host " $Package has been Installed `n `n "
-    }
-
-
-Write-Host "$frmt Double Checking App Installs $frmt"
+$package1  = "Google.Chrome"
+$package2  = "Adobe.Acrobat.Reader.64-bit"
+$package3  = "VideoLAN.VLC"
+$Location1 = "$env:PROGRAMFILES\Google\Chrome\Application\chrome.exe"
+$Location2 = "$env:PROGRAMFILES\Adobe\Acrobat DC\Acrobat\Acrobat.exe"
+$Location3 = "$env:PROGRAMFILES\VideoLAN\VLC\vlc.exe"
 If (!(Test-Path $Location1)) {
-    winget install Google.Chrome -s winget -e -h --force
+    Write-Host "`n `nInstalling $Package1 `n" 
+    winget install $package1 -s winget -e -h
     } else {
-    Write-Host " Verified Chrome Install"
+    Write-Host "Verified $package2 is already Installed. Moving "
     }
 If (!(Test-Path $Location2)) {
-    winget install Adobe.Acrobat.Reader.64-bit -s winget -e -h --force 
+    Write-Host "`n `nInstalling $Package2 `n" 
+    winget install $package2 -s winget -e -h
     } else {
-    Write-Host " Verified Acrobat Reader Install"
+    Write-Host "Verified $package2 is already Installed. Moving "
     }    
 If (!(Test-Path $Location3)) {
-    winget install VideoLAN.VLC -s winget -e -h --force 
+    Write-Host "`n `nInstalling $Package3 `n" 
+    winget install $package3 -s winget -e -h
     } else {
-    Write-Host " Verified VLC Install"
+    Write-Host "Verified $package3 is already Installed."
     }
-}            
+}             
 Function Visuals {
     If ($BuildNumber -gt $WantedBuild) {
         write-Host " I have detected that you are on Windows 11 `n `n Applying appropriate theme"
