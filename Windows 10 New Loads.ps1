@@ -9,7 +9,7 @@ $Folder = Get-Location
 
 Function WinGInstallation { 
     if (Test-Path ~\AppData\Local\Microsoft\WindowsApps\winget.exe){
-        'Winget was found'
+        Write-Host " Winget was found"
     }  
     else{
         #Installs winget from the Microsoft Store
@@ -44,22 +44,22 @@ $Location1 = "$env:PROGRAMFILES\Google\Chrome\Application\chrome.exe"
 $Location2 = "$env:PROGRAMFILES\Adobe\Acrobat DC\Acrobat\Acrobat.exe"
 $Location3 = "$env:PROGRAMFILES\VideoLAN\VLC\vlc.exe"
 If (!(Test-Path $Location1)) {
-    Write-Host "`n `nInstalling $Package1 `n" 
+    Write-Host "`n `n Installing $Package1 `n" 
     winget install $package1 -s winget -e -h
     } else {
-    Write-Host "Verified $package2 is already Installed. Moving "
+    Write-Host " Verified $package1 is already Installed. Moving "
     }
 If (!(Test-Path $Location2)) {
-    Write-Host "`n `nInstalling $Package2 `n" 
+    Write-Host "`n `n Installing $Package2 `n" 
     winget install $package2 -s winget -e -h
     } else {
-    Write-Host "Verified $package2 is already Installed. Moving "
+    Write-Host " Verified $package2 is already Installed. Moving "
     }    
 If (!(Test-Path $Location3)) {
-    Write-Host "`n `nInstalling $Package3 `n" 
+    Write-Host "`n `n Installing $Package3 `n" 
     winget install $package3 -s winget -e -h
     } else {
-    Write-Host "Verified $package3 is already Installed."
+    Write-Host " Verified $package3 is already Installed."
     }
 }            
 Function Visuals {
@@ -81,6 +81,9 @@ Function Visuals {
     }
 
     Write-Host "`n Setting Wallpaper to Stretch `n"
+}
+Function StartMenu {
+    Write-host "$frmt Applying Start Menu & Pinning Taskbar Layout $frmt"
     REG ADD "HKCU\Control Panel\Desktop" /v WallpaperStyle /f /t REG_SZ /d "2"
 	Start-Sleep 1
 	taskkill /F /IM systemsettings.exe 2> $NULL
