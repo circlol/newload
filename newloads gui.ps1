@@ -234,6 +234,11 @@ $Explorer.BackColor              = [System.Drawing.ColorTranslator]::FromHtml("#
 
 $Form.controls.AddRange(@($RunScript,$RunNoOEM,$UndoScript,$ExitButton,$mocologo,$nvidiashortcut,$amdshortcut,$DriverWebsites,$asusshortcut,$msishortcut,$Shortcuts,$activationbutton,$programsbutton,$updatesbutton,$ThemeButton,$powerplanbutton,$Label3,$intelshortcut,$Label4,$LightMode,$DarkMode,$Reboot,$DeviceManager,$Explorer))
 
+#region Logic 
+#If (!([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole]'Administrator')) {
+#	Start-Process powershell.exe "-NoProfile -ExecutionPolicy Bypass -File `"$PSCommandPath`"" -Verb RunAs
+	#Exit
+#}
 Import-Module BitsTransfer
 $package1  = "Google.Chrome"
 $package2  = "Adobe.Acrobat.Reader.64-bit"
@@ -250,19 +255,22 @@ $Time = (Get-Date -UFormat %Y%m%d)
 $dtime = (Get-Date -UFormat %H.%M-%Y.%m.%d)
 $License = 20220330
 $Lie = "License has Expired. Please Contact Mike for a New License"
-net start w32time
-reg export HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\services\w32time\Config "$folder\exported_w32time.reg" /y | Out-Null
-reg add HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\services\w32time\Config /v MaxNegPhaseCorrection /d 0xFFFFFFFF /t REG_DWORD /f | Out-Null
-reg add HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\services\w32time\Config /v MaxPosPhaseCorrection /d 0xFFFFFFFF /t REG_DWORD /f | Out-Null
+
+
+net start w32time | Out-Null 2>$NULL
+reg export "HKLM\SYSTEM\CurrentControlSet\services\w32time\Config" "$folder\exported_w32time.reg" /y | Out-Null 2>$NULL
+reg add "HKLM\SYSTEM\CurrentControlSet\services\w32time\Config" /v MaxNegPhaseCorrection /d 0xFFFFFFFF /t REG_DWORD /f | Out-Null 2>$NULL
+reg add "HKLM\SYSTEM\CurrentControlSet\services\w32time\Config" /v MaxPosPhaseCorrection /d 0xFFFFFFFF /t REG_DWORD /f | Out-Null 2>$NULL
 # w32tm /config /manualpeerlist:time.windows.com,0x1 /syncfromflags:manual /reliable:yes /update
-w32tm /config /manualpeerlist:time.windows.com,0x1 /syncfromflags:manual /reliable:yes /update | Out-Null
+w32tm /config /manualpeerlist:time.windows.com,0x1 /syncfromflags:manual /reliable:yes /update | Out-Null 2>$NULL
 # w32tm /config /update
-w32tm /config /update | Out-Null
+w32tm /config /update | Out-Null 2>$NULL
 # w32tm /resync /rediscover 
-w32tm /resync /rediscover | Out-Null
+w32tm /resync /rediscover | Out-Null 2>$NULL
 #Restore registry w32time\Config
-reg import "$folder\exported_w32time.reg" | Out-Null
-Remove-Item "$folder\exported_w32time.reg" | Out-Null
+reg import "$folder\exported_w32time.reg" | Out-Null 2>$NULL
+Remove-Item "$folder\exported_w32time.reg" | Out-Null 2>$NULL
+Clear-Host
 If ($Time -gt $License) {
     Clear-Host
     Write-Host $lie
@@ -346,8 +354,8 @@ Function Visuals {
     Write-Host "`n Setting Wallpaper to Stretch `n"
     REG ADD "HKCU\Control Panel\Desktop" /v WallpaperStyle /f /t REG_SZ /d "2"
 	Start-Sleep 1
-	taskkill /F /IM systemsettings.exe 2> $NULL
-    taskkill /F /IM explorer.exe 2> $NULL
+	taskkill /F /IM systemsettings.exe 2>$NULL
+    taskkill /F /IM explorer.exe 2>$NULL
 }
 
 Function StartMenu {
@@ -390,7 +398,7 @@ Function StartMenu {
         Set-ItemProperty -Path $keyPath -Name "StartLayoutFile" -Value $layoutFile
     }
     Write-Host " Restarting Explorer Service"
-    Stop-Process -name explorer -force | Out-Null
+    Stop-Process -name explorer -force | Out-Null 2>$NULL
     Start-Sleep -s 5
     $wshell = New-Object -ComObject wscript.shell; $wshell.SendKeys('^{ESCAPE}')
     Start-Sleep -s 5
@@ -401,13 +409,13 @@ Function StartMenu {
         Set-ItemProperty -Path $keyPath -Name "LockedStartLayout" -Value 0
     }
     Write-Host " Clearing Pinned Start Icons"
-    Stop-Process -name explorer -force | Out-Null
+    Stop-Process -name explorer -force | Out-Null 2>$NULL
     Write-Host " Applying Taskbar Icons"
     Import-StartLayout -LayoutPath $layoutFile -MountPath $env:SystemDrive\
     Write-Host " Applied Taskbar Icons"
     Write-Host " Removing layout.xml files "
     Remove-Item $layoutFile
-    taskkill /F /IM explorer.exe | Out-Null
+    taskkill /F /IM explorer.exe | Out-Null 2>$NULL
 }
 Function UndoOneDrive{
     Write-Host "$frmt Reinstalling OneDrive $frmt"
@@ -417,7 +425,7 @@ Function UndoOneDrive{
 Function OneDrive {
     Write-Host "`n $frmt `n Disabling OneDrive..."
     If (!(Test-Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\OneDrive")) {
-        New-Item -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\OneDrive" | Out-Null
+        New-Item -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\OneDrive" | Out-Null 2>$NULL
     }
     Set-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\OneDrive" -Name "DisableFileSyncNGSC" -Type DWord -Value 1
     Stop-Process -Name "OneDrive" -ErrorAction SilentlyContinue
@@ -436,7 +444,7 @@ Function OneDrive {
     Remove-Item -Path "$env:PROGRAMDATA\Microsoft OneDrive" -Force -Recurse -ErrorAction SilentlyContinue
     Remove-Item -Path "$env:SYSTEMDRIVE\OneDriveTemp" -Force -Recurse -ErrorAction SilentlyContinue
     If (!(Test-Path "HKCR:")) {
-        New-PSDrive -Name HKCR -PSProvider Registry -Root HKEY_CLASSES_ROOT | Out-Null
+        New-PSDrive -Name HKCR -PSProvider Registry -Root HKEY_CLASSES_ROOT | Out-Null 2>$NULL
     }
     Remove-Item -Path "HKCR:\CLSID\{018D5C66-4533-4307-9B53-224DE2ED1FE6}" -Recurse -ErrorAction SilentlyContinue
     Remove-Item -Path "HKCR:\Wow6432Node\CLSID\{018D5C66-4533-4307-9B53-224DE2ED1FE6}" -Recurse -ErrorAction SilentlyContinue
@@ -617,21 +625,21 @@ Function Registry {
     powercfg -change -standby-timeout-dc "15"
     powercfg -change -monitor-timeout-dc "10"
     
-    REG DELETE "HKCU\Software\Microsoft\Windows\CurrentVersion\ContentDeliveryManager\Subscriptions" /f 2> $NULL
-    REG DELETE "HKCU\Software\Microsoft\Windows\CurrentVersion\ContentDeliveryManager\SuggestedApps" /f 2> $NULL
-    REG DELETE "HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\MultiTaskingView\AllUpView" /v Enabled /f  2> $NULL
-    REG ADD "HKCU\Software\Policies\Microsoft\Windows\EdgeUI" /v "DisableMFUTracking" /t REG_DWORD /d "1" /f 2> $NULL
-    REG ADD "HKCU\Software\Microsoft\Siuf\Rules" /v "NumberOfSIUFInPeriod" /t REG_DWORD /d "0" /f 2> $NULL
-    REG ADD "HKCU\Software\Microsoft\Siuf\Rules" /v "PeriodInNanoSeconds" /t REG_QWORD /d "0" /f 2> $NULL
-    REG ADD "HKLM\SOFTWARE\Policies\Microsoft\Windows\Windows Search" /v "AllowCortana" /T REG_DWORD /d "0" /f 2> $NULL
-    REG ADD "HKLM\Software\Microsoft\WindowsUpdate\UX\Settings" /v "UxOption" /t REG_DWORD /d "1" /f 2> $NULL
-    REG ADD "HKCU\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\Ribbon" /v "MinimizedStateTabletModeOff" /t REG_DWORD /d "0" /f 2> $NULL
-    REG ADD "HKCU\SOFTWARE\Microsoft\Windows\CurrentVersion\UserProfileEngagement" /v "ScoobeSystemSettingEnabled" /t REG_DWORD /d "0" /f 2> $NULL
-    REG ADD "HKCU\SOFTWARE\Microsoft\Windows\CurrentVersion\Search" /v "SearchboxTaskbarMode" /t REG_DWORD /d "1" /f 2> $NULL
-    REG ADD "HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" /V "ShowTaskViewButton" /t REG_DWORD /d "0" /f 2> $NULL
-    REG ADD "HKCU\Software\Microsoft\Windows\CurrentVersion\AdvertisingInfo" /f 2> $NULL
-    REG ADD "HKCU\Software\Microsoft\Windows\CurrentVersion\AdvertisingInfo" /v "Enabled" /t REG_DWORD /d "0" /f 2> $NULL
-    REG ADD "HKCU\Software\Microsoft\Windows\CurrentVersion\AdvertisingInfo" /v "DisabledByGroupPolicy" /t REG_DWORD /d "1" /f 2> $NULL
+    REG DELETE "HKCU\Software\Microsoft\Windows\CurrentVersion\ContentDeliveryManager\Subscriptions" /f 2>$NULL
+    REG DELETE "HKCU\Software\Microsoft\Windows\CurrentVersion\ContentDeliveryManager\SuggestedApps" /f 2>$NULL
+    REG DELETE "HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\MultiTaskingView\AllUpView" /v Enabled /f  2>$NULL
+    REG ADD "HKCU\Software\Policies\Microsoft\Windows\EdgeUI" /v "DisableMFUTracking" /t REG_DWORD /d "1" /f 2>$NULL
+    REG ADD "HKCU\Software\Microsoft\Siuf\Rules" /v "NumberOfSIUFInPeriod" /t REG_DWORD /d "0" /f 2>$NULL
+    REG ADD "HKCU\Software\Microsoft\Siuf\Rules" /v "PeriodInNanoSeconds" /t REG_QWORD /d "0" /f 2>$NULL
+    REG ADD "HKLM\SOFTWARE\Policies\Microsoft\Windows\Windows Search" /v "AllowCortana" /T REG_DWORD /d "0" /f 2>$NULL
+    REG ADD "HKLM\Software\Microsoft\WindowsUpdate\UX\Settings" /v "UxOption" /t REG_DWORD /d "1" /f 2>$NULL
+    REG ADD "HKCU\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\Ribbon" /v "MinimizedStateTabletModeOff" /t REG_DWORD /d "0" /f 2>$NULL
+    REG ADD "HKCU\SOFTWARE\Microsoft\Windows\CurrentVersion\UserProfileEngagement" /v "ScoobeSystemSettingEnabled" /t REG_DWORD /d "0" /f 2>$NULL
+    REG ADD "HKCU\SOFTWARE\Microsoft\Windows\CurrentVersion\Search" /v "SearchboxTaskbarMode" /t REG_DWORD /d "1" /f 2>$NULL
+    REG ADD "HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" /V "ShowTaskViewButton" /t REG_DWORD /d "0" /f 2>$NULL
+    REG ADD "HKCU\Software\Microsoft\Windows\CurrentVersion\AdvertisingInfo" /f 2>$NULL
+    REG ADD "HKCU\Software\Microsoft\Windows\CurrentVersion\AdvertisingInfo" /v "Enabled" /t REG_DWORD /d "0" /f 2>$NULL
+    REG ADD "HKCU\Software\Microsoft\Windows\CurrentVersion\AdvertisingInfo" /v "DisabledByGroupPolicy" /t REG_DWORD /d "1" /f 2>$NULL
     
     #Explorer Related Settings    
     Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer" -Name "EnableAutoTray" -Value 0 -Verbose
@@ -689,8 +697,8 @@ Function Registry {
     Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\SearchSettings" -Name "IsAADCloudSearchEnabled" -Value 0 
     
     Set-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\DataCollection" -Name "DoNotShowFeedbackNotifications" -Type DWord -Value 1 
-    Disable-ScheduledTask -TaskName "Microsoft\Windows\Feedback\Siuf\DmClient" -ErrorAction SilentlyContinue | Out-Null
-    Disable-ScheduledTask -TaskName "Microsoft\Windows\Feedback\Siuf\DmClientOnScenarioDownload" -ErrorAction SilentlyContinue | Out-Null
+    Disable-ScheduledTask -TaskName "Microsoft\Windows\Feedback\Siuf\DmClient" -ErrorAction SilentlyContinue | Out-Null 2>$NULL
+    Disable-ScheduledTask -TaskName "Microsoft\Windows\Feedback\Siuf\DmClientOnScenarioDownload" -ErrorAction SilentlyContinue | Out-Null 2>$NULL
     
 
     Set-ItemProperty -Path "HKLM:\Software\Microsoft\Windows\Windows Error Reporting" -Name "Disabled" -Type DWord -Value 1 
@@ -784,47 +792,51 @@ Function Cleanup {
     Write-Host " Restarting Explorer"
     Start-Sleep 1
     Start-Process Explorer
-
+    Write-Host " Adding UBlock Origin to Google Chrome"
+    reg add HKLM\SOFTWARE\Policies\Google\Chrome\ExtensionInstallForcelist /v 1 /t REG_SZ /d cjpalhdlnbpafiamejdnhcphjbkeiagm /f
+    Write-Host " Added"
+    Start-Sleep 4
+    Start-Process Chrome
     Start-Process https://chrome.google.com/webstore/detail/ublock-origin/cjpalhdlnbpafiamejdnhcphjbkeiagm
 
-    Remove-Item "$Env:Temp\*.*" -Force -Recurse -Confirm:$false -ErrorAction SilentlyContinue -Verbose 2> $NULL
+    Remove-Item "$Env:Temp\*.*" -Force -Recurse -Confirm:$false -ErrorAction SilentlyContinue -Verbose 2>$NULL
     $EdgeShortcut = "$Env:USERPROFILE\Desktop\Microsoft Edge.lnk"
     If ($EdgeShortcut) { 
         Write-Host " Removing Edge Icon"
-        Remove-Item $EdgeShortcut -Force -Recurse -Confirm:$false -ErrorAction SilentlyContinue -Verbose 2> $NULL
+        Remove-Item $EdgeShortcut -Force -Recurse -Confirm:$false -ErrorAction SilentlyContinue -Verbose 2>$NULL
     }
     $edgescpub = "$Env:PUBLIC\Desktop\Microsoft Edge.lnk"
     If ($edgescpub) { 
         Write-Host " Removing Edge Icon"
-        Remove-Item $edgescpub -Force -Recurse -Confirm:$false -ErrorAction SilentlyContinue -Verbose 2> $NULL
+        Remove-Item $edgescpub -Force -Recurse -Confirm:$false -ErrorAction SilentlyContinue -Verbose 2>$NULL
     }
     $vlcsc = "$Env:PUBLIC\Desktop\VLC Media Player.lnk"
     If ($vlcsc) { 
         Write-Host " Removing VLC Media Player Icon"
-        Remove-Item $vlcsc -Force -Recurse -Confirm:$false -ErrorAction SilentlyContinue -Verbose 2> $NULL
+        Remove-Item $vlcsc -Force -Recurse -Confirm:$false -ErrorAction SilentlyContinue -Verbose 2>$NULL
     }
     $acrosc = "$Env:PUBLIC\Desktop\Adobe Acrobat DC.lnk"
     If ($acrosc) { 
         Write-Host " Removing Adobe Acrobat Icon"
-        Remove-Item $acrosc -Force -Recurse -Confirm:$false -ErrorAction SilentlyContinue -Verbose 2> $NULL
+        Remove-Item $acrosc -Force -Recurse -Confirm:$false -ErrorAction SilentlyContinue -Verbose 2>$NULL
     }
     $ctemp = "C:\Temp"
     If ($ctemp) { 
         Write-Host " Removing temp folder in C Root"
-        Remove-Item $ctemp -Force -Recurse -Confirm:$false -ErrorAction SilentlyContinue -Verbose 2> $NULL
+        Remove-Item $ctemp -Force -Recurse -Confirm:$false -ErrorAction SilentlyContinue -Verbose 2>$NULL
     }
 
     $mocotheme1 = "$Env:USERPROFILE\desktop\win11-light.deskthemepack"
     $mocotheme2 = "$Env:USERPROFILE\desktop\win11-dark.deskthemepack"
     $mocotheme3 = "$Env:USERPROFILE\desktop\win10-purple.deskthemepack"
     If ($mocotheme1) { 
-        Remove-Item "$mocotheme1" -Force -Recurse -Confirm:$false -ErrorAction SilentlyContinue -Verbose 2> $NULL
+        Remove-Item "$mocotheme1" -Force -Recurse -Confirm:$false -ErrorAction SilentlyContinue -Verbose 2>$NULL
     }
     If ($mocotheme2) { 
-        Remove-Item $mocotheme2 -Force -Recurse -Confirm:$false -ErrorAction SilentlyContinue -Verbose 2> $NULL
+        Remove-Item $mocotheme2 -Force -Recurse -Confirm:$false -ErrorAction SilentlyContinue -Verbose 2>$NULL
     }
     If ($mocotheme3) { 
-        Remove-Item $mocotheme3 -Force -Recurse -Confirm:$false -ErrorAction SilentlyContinue -Verbose 2> $NULL
+        Remove-Item $mocotheme3 -Force -Recurse -Confirm:$false -ErrorAction SilentlyContinue -Verbose 2>$NULL
     }
 
 }
@@ -876,7 +888,7 @@ $LightMode.Add_Click{
         Start-Process "win11-light.deskthemepack"
         Start-Sleep 3
         Remove-Item "win11-light.deskthemepack" -Force -Recurse 
-        taskkill /F /IM systemsettings.exe 2> $NULL
+        taskkill /F /IM systemsettings.exe 2>$NULL
         Write-Host " Applied Light Theme for Windows 11"
     } else {
         If ($BuildNumber -lt $WantedBuild) {
@@ -886,7 +898,7 @@ $LightMode.Add_Click{
             #Start-Process "win10-purple.deskthemepack"
             #Start-Sleep 3
             #Remove-Item "win10-purple.deskthemepack" -Force -Recurse
-            #taskkill /F /IM systemsettings.exe 2> $NULL
+            #taskkill /F /IM systemsettings.exe 2>$NULL
             Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Themes\Personalize" -Name "AppsUseLightTheme" -Type DWord -Value 1
             Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Themes\Personalize" -Name "SystemUsesLightTheme" -Type DWord -Value 1
             Write-Host " Applied Light Theme for Windows 10"
@@ -904,7 +916,7 @@ $DarkMode.Add_Click{
         Start-Process "win11-dark.deskthemepack"
         Start-Sleep 2
         Remove-Item "win11-dark.deskthemepack" -Force -Recurse
-        taskkill /F /IM systemsettings.exe 2> $NULL
+        taskkill /F /IM systemsettings.exe 2>$NULL
         Write-Host " Applied Dark Theme for Windows 11"           
     } else {
         If ($BuildNumber -lt $WantedBuild) {
@@ -914,7 +926,7 @@ $DarkMode.Add_Click{
             #Start-Process "win10-purple.deskthemepack"
             #Start-Sleep 3
             #Remove-Item "win10-purple.deskthemepack" -Force -Recurse  
-            #taskkill /F /IM systemsettings.exe 2> $NULL               
+            #taskkill /F /IM systemsettings.exe 2>$NULL               
             Set-ItemProperty -Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Themes\Personalize" -Name "AppsUseLightTheme" -Type DWord -Value 0
             Set-ItemProperty -Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Themes\Personalize" -Name "SystemUsesLightTheme" -Type DWord -Value 0
             Write-Host " Applied Dark Theme for Winodws 10"
