@@ -63,6 +63,9 @@ If (!(Test-Path $Location3)) {
     }
 }            
 Function Visuals {
+    Write-Host " `n Creating Restore Point incase something bad happens"
+    Enable-ComputerRestore -Drive "C:\"
+    Checkpoint-Computer -Description "RestorePoint1" -RestorePointType "MODIFY_SETTINGS"
     $BuildNumber = (Get-ItemProperty -Path c:\windows\system32\hal.dll).VersionInfo.ProductVersion
     $WantedBuild = "10.0.22000"
     If ($BuildNumber -gt $WantedBuild) {
@@ -145,7 +148,7 @@ Function StartMenu {
     taskkill /F /IM explorer.exe | Out-Null 2>$NULL
 }
 Function OneDrive {
-    Write-Host " Disabling OneDrive..."
+    Write-Host "`n $frmt `n Disabling OneDrive..."
     If (!(Test-Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\OneDrive")) {
         New-Item -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\OneDrive" | Out-Null 2>$NULL
     }
@@ -171,7 +174,6 @@ Function OneDrive {
     Remove-Item -Path "HKCR:\CLSID\{018D5C66-4533-4307-9B53-224DE2ED1FE6}" -Recurse -ErrorAction SilentlyContinue
     Remove-Item -Path "HKCR:\Wow6432Node\CLSID\{018D5C66-4533-4307-9B53-224DE2ED1FE6}" -Recurse -ErrorAction SilentlyContinue
     Write-Host " Disabled OneDrive"
-
 }
 Function Debloat {
     $Programs = @(

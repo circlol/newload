@@ -337,6 +337,10 @@ If (!(Test-Path $Location3)) {
     } 
 }             
 Function Visuals {
+    Write-Host " `n Creating Restore Point incase something bad happens"
+    Enable-ComputerRestore -Drive "C:\"
+    Checkpoint-Computer -Description "RestorePoint1" -RestorePointType "MODIFY_SETTINGS"
+
     If ($BuildNumber -gt $WantedBuild) {
         write-Host " I have detected that you are on Windows 11 `n `n Applying appropriate theme"
         Start-BitsTransfer -Source "https://github.com/circlol/newload/raw/main/win11-light.deskthemepack" -Destination win11-light.deskthemepack
@@ -939,12 +943,12 @@ Start-Transcript -LiteralPath "$env:USERPROFILE\Desktop\Script Run - $dtime.txt"
 Write-Host "$frmt Running Script `n `n GUI will be unusable whilst script is running. Please Standby `n$frmt"
 WinG
 Programs
-StartMenu
 Visuals
-OEMInfo
+StartMenu
 Debloat
-OneDrive
+OEMInfo
 Registry
+OneDrive
 Cleanup
 Write-Host "`n `n================================================================================================ `n `n `n `n `n `n `n `n `n `n `n `n `n Requested Action Completed `n `n `n `n `n `n `n `n `n `n `n `n `n================================================================================================ `n `n"
 Stop-Transcript
@@ -957,8 +961,8 @@ WinG
 Programs
 StartMenu
 Debloat
-OneDrive
 Registry
+OneDrive
 Cleanup
 Write-Host "`n `n================================================================================================ `n `n `n `n `n `n `n `n `n `n `n `n `n Requested Action Completed `n `n `n `n `n `n `n `n `n `n `n `n `n================================================================================================ `n `n"
 Stop-Transcript
