@@ -63,9 +63,6 @@ If (!(Test-Path $Location3)) {
     }
 }            
 Function Visuals {
-    Write-Host " `n Creating Restore Point incase something bad happens"
-    Enable-ComputerRestore -Drive "C:\"
-    Checkpoint-Computer -Description "RestorePoint1" -RestorePointType "MODIFY_SETTINGS"
     $BuildNumber = (Get-ItemProperty -Path c:\windows\system32\hal.dll).VersionInfo.ProductVersion
     $WantedBuild = "10.0.22000"
     If ($BuildNumber -gt $WantedBuild) {
@@ -453,6 +450,11 @@ Function checkme {
         Exit
         } else {
             If ($Time -gt $tslrd) {
+                Clear-Host
+                Write-Host " `n Creating Restore Point incase something bad happens"
+                Enable-ComputerRestore -Drive "C:\"
+                Checkpoint-Computer -Description "RestorePoint1" -RestorePointType "MODIFY_SETTINGS"
+                Start-Sleep 2
                 Clear-Host
                 } else {
                 Clear-Host
