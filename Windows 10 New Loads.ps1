@@ -464,7 +464,14 @@ Function Cleanup {
     Write-Host "$frmt Finishing Up $frmt"
     Write-Host " Explorer Restarted"
     Start-Process Explorer
-
+    #Write-Host "`n Adding UBlock Origin Policy to Google Chrome"
+    #reg add HKLM\SOFTWARE\Policies\Google\Chrome\ExtensionInstallForcelist /v 1 /t REG_SZ /d cjpalhdlnbpafiamejdnhcphjbkeiagm /f
+    #Start-Sleep 4
+    #Write-Host " Added"
+    #Write-Host " Launch Chrome"
+    #Start-Process Chrome -WindowStyle Minimized | Out-NULL 2>$NULL
+    #Write-Host " Downloading UBlock"
+    #Write-Host " Succeeded"
     Start-Process https://chrome.google.com/webstore/detail/ublock-origin/cjpalhdlnbpafiamejdnhcphjbkeiagm
 
     Remove-Item "$Env:Temp\*.*" -Force -Recurse -Confirm:$false -ErrorAction SilentlyContinue -Verbose 2>$NULL
@@ -506,7 +513,8 @@ Function Cleanup {
     If ($mocotheme3) { 
         Remove-Item $mocotheme3 -Force -Recurse -Confirm:$false -ErrorAction SilentlyContinue 2>$NULL
     }
-
+    #Start-Sleep 10
+    #taskkill /f /im Chrome.exe | Out-NULL 2>$NULL
 }
 
 checkme

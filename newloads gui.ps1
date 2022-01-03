@@ -355,7 +355,7 @@ Function Visuals {
     REG ADD "HKCU\Control Panel\Desktop" /v WallpaperStyle /f /t REG_SZ /d "2"
 	Start-Sleep 1
 	taskkill /F /IM systemsettings.exe 2>$NULL
-    taskkill /F /IM explorer.exe 2>$NULL
+    #taskkill /F /IM explorer.exe 2>$NULL
 }
 
 Function StartMenu {
@@ -792,13 +792,13 @@ Function Cleanup {
     Write-Host " Restarting Explorer"
     Start-Sleep 1
     Start-Process Explorer
-    Write-Host " Adding UBlock Origin to Google Chrome"
-    reg add HKLM\SOFTWARE\Policies\Google\Chrome\ExtensionInstallForcelist /v 1 /t REG_SZ /d cjpalhdlnbpafiamejdnhcphjbkeiagm /f
-    Write-Host " Added"
-    Start-Sleep 4
-    Start-Process Chrome
+    #Write-Host " Adding UBlock Origin to Google Chrome"
+    #reg add HKLM\SOFTWARE\Policies\Google\Chrome\ExtensionInstallForcelist /v 1 /t REG_SZ /d cjpalhdlnbpafiamejdnhcphjbkeiagm /f
+    #Start-Sleep 4
+    #Write-Host " Added"
+    #Start-Process Chrome -WindowStyle Minimized
     Start-Process https://chrome.google.com/webstore/detail/ublock-origin/cjpalhdlnbpafiamejdnhcphjbkeiagm
-
+    
     Remove-Item "$Env:Temp\*.*" -Force -Recurse -Confirm:$false -ErrorAction SilentlyContinue -Verbose 2>$NULL
     $EdgeShortcut = "$Env:USERPROFILE\Desktop\Microsoft Edge.lnk"
     If ($EdgeShortcut) { 
@@ -825,7 +825,7 @@ Function Cleanup {
         Write-Host " Removing temp folder in C Root"
         Remove-Item $ctemp -Force -Recurse -Confirm:$false -ErrorAction SilentlyContinue -Verbose 2>$NULL
     }
-
+    
     $mocotheme1 = "$Env:USERPROFILE\desktop\win11-light.deskthemepack"
     $mocotheme2 = "$Env:USERPROFILE\desktop\win11-dark.deskthemepack"
     $mocotheme3 = "$Env:USERPROFILE\desktop\win10-purple.deskthemepack"
@@ -838,7 +838,7 @@ Function Cleanup {
     If ($mocotheme3) { 
         Remove-Item $mocotheme3 -Force -Recurse -Confirm:$false -ErrorAction SilentlyContinue -Verbose 2>$NULL
     }
-
+    #Start-Sleep 10    
 }
 $powerplanbutton.Add_Click{
     Start-Process powercfg.cpl
