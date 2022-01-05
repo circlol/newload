@@ -253,22 +253,28 @@ $Time = (Get-Date -UFormat %Y%m%d)
 $dtime = (Get-Date -UFormat %H.%M-%Y.%m.%d)
 $License = 20220330
 $Lie = "License has Expired. Please Contact Mike for a New License"
+$10 = "Win10"
+$11 = "Win11"
+$win10path = "$folder\win10-purple.deskthemepack"
+$win11path = "$folder\win11-light.deskthemepack"
+#$win11pathdark = "$folder\win11-dark.deskthemepack"
 
 
-net start w32time | Out-Null 2>$NULL
-reg export "HKLM\SYSTEM\CurrentControlSet\services\w32time\Config" "$folder\exported_w32time.reg" /y | Out-Null 2>$NULL
-reg add "HKLM\SYSTEM\CurrentControlSet\services\w32time\Config" /v MaxNegPhaseCorrection /d 0xFFFFFFFF /t REG_DWORD /f | Out-Null 2>$NULL
-reg add "HKLM\SYSTEM\CurrentControlSet\services\w32time\Config" /v MaxPosPhaseCorrection /d 0xFFFFFFFF /t REG_DWORD /f | Out-Null 2>$NULL
-# w32tm /config /manualpeerlist:time.windows.com,0x1 /syncfromflags:manual /reliable:yes /update
-w32tm /config /manualpeerlist:time.windows.com,0x1 /syncfromflags:manual /reliable:yes /update | Out-Null 2>$NULL
-# w32tm /config /update
-w32tm /config /update | Out-Null 2>$NULL
-# w32tm /resync /rediscover 
-w32tm /resync /rediscover | Out-Null 2>$NULL
-#Restore registry w32time\Config
-reg import "$folder\exported_w32time.reg" | Out-Null 2>$NULL
-Remove-Item "$folder\exported_w32time.reg" | Out-Null 2>$NULL
-Clear-Host
+w32tm /resync | Out-Null 2>$NULL
+#net start w32time | Out-Null 2>$NULL
+#reg export "HKLM\SYSTEM\CurrentControlSet\services\w32time\Config" "$folder\exported_w32time.reg" /y | Out-Null 2>$NULL
+#reg add "HKLM\SYSTEM\CurrentControlSet\services\w32time\Config" /v MaxNegPhaseCorrection /d 0xFFFFFFFF /t REG_DWORD /f | Out-Null 2>$NULL
+#reg add "HKLM\SYSTEM\CurrentControlSet\services\w32time\Config" /v MaxPosPhaseCorrection /d 0xFFFFFFFF /t REG_DWORD /f | Out-Null 2>$NULL
+## w32tm /config /manualpeerlist:time.windows.com,0x1 /syncfromflags:manual /reliable:yes /update
+#w32tm /config /manualpeerlist:time.windows.com,0x1 /syncfromflags:manual /reliable:yes /update | Out-Null 2>$NULL
+## w32tm /config /update
+#w32tm /config /update | Out-Null 2>$NULL
+## w32tm /resync /rediscover 
+#w32tm /resync /rediscover | Out-Null 2>$NULL
+##Restore registry w32time\Config
+#reg import "$folder\exported_w32time.reg" | Out-Null 2>$NULL
+#Remove-Item "$folder\exported_w32time.reg" | Out-Null 2>$NULL
+#Clear-Host
 If ($Time -gt $License) {
     Clear-Host
     Write-Host $lie
@@ -340,24 +346,41 @@ If (!(Test-Path $Location3)) {
     } 
 }             
 Function Visuals {
+
+    $
     If ($BuildNumber -gt $WantedBuild) {
         write-Host " I have detected that you are on Windows 11 `n `n Applying appropriate theme"
-        Start-BitsTransfer -Source "https://github.com/circlol/newload/raw/main/win11-light.deskthemepack" -Destination win11-light.deskthemepack
+        Start-BitsTransfer -Source "https://github.com/circlol/newload/raw/main/win11-light.deskthemepack" -Destination "$folder\win11-light.deskthemepack"
         #Start-BitsTransfer -Source "https://www40.zippyshare.com/d/ITnX1PTu/920358/win11-light.deskthemepack" -Destination win11-light.deskthemepack
         Start-Sleep 3
-        Start-Process "win11-light.deskthemepack"
+        Start-Process "$folder\win11-light.deskthemepack"
+        $VISUALRUN = "Win11"
     } else {
         If ($BuildNumber -lt $WantedBuild) {
             write-Host " I have detected that you are on Windows 10 `n `nApplying appropriate Theme"
-            Start-BitsTransfer -Source "https://github.com/circlol/newload/raw/main/win10-purple.deskthemepack" -Destination win10-purple.deskthemepack
+            Start-BitsTransfer -Source "https://github.com/circlol/newload/raw/main/win10-purple.deskthemepack" -Destination "$folder\win10-purple.deskthemepack"
             Start-Sleep 3
-            Start-Process "win10-purple.deskthemepack"
+
+            #Start-Process "$folder\win10-purple.deskthemepack"
+            Start-Process $win10path
+            $VISUALRUN = "Win10"
         }
     }
     Write-Host "`n Setting Wallpaper to Stretch `n"
     REG ADD "HKCU\Control Panel\Desktop" /v WallpaperStyle /f /t REG_SZ /d "2"
 	Start-Sleep 1
 	taskkill /F /IM systemsettings.exe 2>$NULL
+
+
+    If ($VISUALRUN -eq $10){
+        Remove-Item -Path "$win10path" -Force -Recurse -ErrorAction SilentlyContinue
+    } Else {
+        If ($VISUALRUN -eq $11){
+            Remove-Item -Path "$win11path" -Force -Recurse -ErrorAction SilentlyContinue            
+        } Else {
+            Write-Host Did not find Path Specifed
+        }
+    }
     #taskkill /F /IM explorer.exe 2>$NULL
 }
 
