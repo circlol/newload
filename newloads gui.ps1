@@ -61,7 +61,7 @@ $mocologo                        = New-Object system.Windows.Forms.PictureBox
 $mocologo.width                  = 221
 $mocologo.height                 = 206
 $mocologo.location               = New-Object System.Drawing.Point(-5,373)
-$mocologo.imageLocation          = "https://github.com/circlol/newload/blob/main/logo.png?raw=true"
+$mocologo.imageLocation          = "https://github.com/circlol/newload/blob/main/Assets/logo.png?raw=true"
 $mocologo.SizeMode               = [System.Windows.Forms.PictureBoxSizeMode]::zoom
 $nvidiashortcut                  = New-Object system.Windows.Forms.Button
 $nvidiashortcut.text             = "NVIDIA"
