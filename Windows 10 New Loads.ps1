@@ -67,14 +67,14 @@ Function Visuals {
     $WantedBuild = "10.0.22000"
     If ($BuildNumber -gt $WantedBuild) {
         write-Host "I have detected that you are on Windows 11 `n `nApplying appropriate theme"
-        Start-BitsTransfer -Source "https://github.com/circlol/newload/raw/main/win11-light.deskthemepack" -Destination "$env:temp\win11-light.deskthemepack"
+        Start-BitsTransfer -Source "https://github.com/circlol/newload/raw/main/Assets/win11-light.deskthemepack" -Destination "$env:temp\win11-light.deskthemepack"
         #Start-BitsTransfer -Source "https://www40.zippyshare.com/d/ITnX1PTu/920358/win11-light.deskthemepack" -Destination win11-light.deskthemepack
         Start-Sleep 3
         Start-Process "$env:temp\win11-light.deskthemepack"
     } else {
         If ($BuildNumber -lt $WantedBuild) {
             write-Host "I have detected that you are on Windows 10 `n `nApplying appropriate Theme"
-            Start-BitsTransfer -Source "https://github.com/circlol/newload/raw/main/win10-purple.deskthemepack" -Destination "$env:temp\win10-purple.deskthemepack"
+            Start-BitsTransfer -Source "https://github.com/circlol/newload/raw/main/Assets/win10-purple.deskthemepack" -Destination "$env:temp\win10-purple.deskthemepack"
             Start-Sleep 3
             Start-Process "$env:temp\win10-purple.deskthemepack"
         }

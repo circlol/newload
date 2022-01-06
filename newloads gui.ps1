@@ -350,7 +350,7 @@ Function Visuals {
     $
     If ($BuildNumber -gt $WantedBuild) {
         write-Host " I have detected that you are on Windows 11 `n `n Applying appropriate theme"
-        Start-BitsTransfer -Source "https://github.com/circlol/newload/raw/main/win11-light.deskthemepack" -Destination "$folder\win11-light.deskthemepack"
+        Start-BitsTransfer -Source "https://github.com/circlol/newload/raw/main/Assets/win11-light.deskthemepack" -Destination "$folder\win11-light.deskthemepack"
         #Start-BitsTransfer -Source "https://www40.zippyshare.com/d/ITnX1PTu/920358/win11-light.deskthemepack" -Destination win11-light.deskthemepack
         Start-Sleep 3
         Start-Process "$folder\win11-light.deskthemepack"
@@ -358,7 +358,7 @@ Function Visuals {
     } else {
         If ($BuildNumber -lt $WantedBuild) {
             write-Host " I have detected that you are on Windows 10 `n `nApplying appropriate Theme"
-            Start-BitsTransfer -Source "https://github.com/circlol/newload/raw/main/win10-purple.deskthemepack" -Destination "$folder\win10-purple.deskthemepack"
+            Start-BitsTransfer -Source "https://github.com/circlol/newload/raw/main/Assets/win10-purple.deskthemepack" -Destination "$folder\win10-purple.deskthemepack"
             Start-Sleep 3
 
             #Start-Process "$folder\win10-purple.deskthemepack"
@@ -910,7 +910,7 @@ $Reboot.Add_Click{
 $LightMode.Add_Click{
     If ($BuildNumber -gt $WantedBuild) {
         write-Host " Applying Light mode for Windows 11"
-        Start-BitsTransfer -Source "https://github.com/circlol/newload/raw/main/win11-light.deskthemepack" -Destination win11-light.deskthemepack
+        Start-BitsTransfer -Source "https://github.com/circlol/newload/raw/main/Assets/win11-light.deskthemepack" -Destination win11-light.deskthemepack
         Start-Sleep 3
         Start-Process "win11-light.deskthemepack"
         Start-Sleep 3
@@ -920,7 +920,7 @@ $LightMode.Add_Click{
     } else {
         If ($BuildNumber -lt $WantedBuild) {
             #write-Host " Applying Light Mode for Windows 10"
-            #Start-BitsTransfer -Source "https://github.com/circlol/newload/raw/main/win10-purple.deskthemepack" -Destination win10-purple.deskthemepack
+            #Start-BitsTransfer -Source "https://github.com/circlol/newload/raw/main/Assets/win10-purple.deskthemepack" -Destination win10-purple.deskthemepack
             #Start-Sleep 3
             #Start-Process "win10-purple.deskthemepack"
             #Start-Sleep 3
@@ -938,7 +938,7 @@ $LightMode.Add_Click{
 $DarkMode.Add_Click{
     If ($BuildNumber -gt $WantedBuild) {
         write-Host " Applying Dark mode for Windows 11"
-        Start-BitsTransfer -Source "https://github.com/circlol/newload/raw/main/win11-dark.deskthemepack" -Destination win11-dark.deskthemepack
+        Start-BitsTransfer -Source "https://github.com/circlol/newload/raw/main/Assets/win11-dark.deskthemepack" -Destination win11-dark.deskthemepack
         Start-Sleep 2
         Start-Process "win11-dark.deskthemepack"
         Start-Sleep 2
@@ -948,7 +948,7 @@ $DarkMode.Add_Click{
     } else {
         If ($BuildNumber -lt $WantedBuild) {
             #write-Host " Applying Dark Mode for Windows 10"
-            #Start-BitsTransfer -Source "https://github.com/circlol/newload/raw/main/win10-purple.deskthemepack" -Destination win10-purple.deskthemepack
+            #Start-BitsTransfer -Source "https://github.com/circlol/newload/raw/main/Assets/win10-purple.deskthemepack" -Destination win10-purple.deskthemepack
             #Start-Sleep 3
             #Start-Process "win10-purple.deskthemepack"
             #Start-Sleep 3
