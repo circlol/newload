@@ -450,7 +450,7 @@ Function UndoOneDrive{
     Write-Host "$frmt OneDrive has been Reinstalled $frmt"
 }
 Function OneDrive {
-    Write-Host "`n $frmt `n Disabling OneDrive..."
+    Write-Host "`n$frmt `n Disabling OneDrive..."
     If (!(Test-Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\OneDrive")) {
         New-Item -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\OneDrive" | Out-Null 2>$NULL
     }
@@ -509,19 +509,19 @@ $Programs = @(
 "MicrosoftTeams"
 "Microsoft.Wallet"
 "Microsoft.Whiteboard"
-"Microsoft.WindowsAlarms"
+ "Microsoft.WindowsAlarms"
 "Microsoft.WindowsFeedbackHub"
 "Microsoft.WindowsMaps"
-"Microsoft.WindowsPhone"
+#"Microsoft.WindowsPhone"
 "Microsoft.WindowsSoundRecorder"
 "Microsoft.XboxApp"
 "Microsoft.ConnectivityStore"
-"Microsoft.CommsPhone"
-"Microsoft.Xbox.TCUI"
-"Microsoft.XboxSpeechToTextOverlay"
+#"Microsoft.CommsPhone"
+#"Microsoft.Xbox.TCUI"
+#"Microsoft.XboxSpeechToTextOverlay"
 "Microsoft.MixedReality.Portal"
 "Microsoft.XboxIdentityProvider"
-"Microsoft.YourPhone"
+#"Microsoft.YourPhone"
 "Microsoft.Getstarted"
 "Microsoft.MicrosoftOfficeHub"
 # Realtek Audio
@@ -635,8 +635,9 @@ Function Debloat {
     }
 }
 Function UndoDebloat {
+    Write-Host "`n$frmt `n Reinstalling bloatware for this specific machine `n `n$frmt "
     foreach ($Program in $Programs) {
-    Write-Host "Trying to Reinstall $Program"
+    Write-Host "Attempting to Reinstall $Program"
     Get-AppxPackage -Name $Program| Get-AppxPackage
     Get-AppxProvisionedPackage -Online | Where-Object DisplayName -like $Program | Get-AppxProvisionedPackage -Online
     }
