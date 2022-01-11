@@ -458,10 +458,10 @@ Function UndoOneDrive{
     $onedrivelocation = "$env:SystemRoot\SysWOW64\OneDriveSetup.exe"
     Write-Host " Starting $onedrivelocation"
     Start-Process $onedrivelocation /Silent -Wait
-    #If (!(Test-Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\OneDrive")) {
-    #    New-Item -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\OneDrive" | Out-Null 2>$NULL
-    #}
-    #Set-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\OneDrive" -Name "DisableFileSyncNGSC" -Type DWord -Value 0
+    If (!(Test-Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\OneDrive")) {
+        New-Item -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\OneDrive" | Out-Null 2>$NULL
+    }
+    Set-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\OneDrive" -Name "DisableFileSyncNGSC" -Type DWord -Value 0
     Write-Host "`n `n OneDrive reinstalled."
 }
 Function OneDrive {
