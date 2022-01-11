@@ -146,10 +146,10 @@ Function StartMenu {
 }
 Function OneDrive {
     Write-Host "`n $frmt `n Disabling OneDrive..."
-    #If (!(Test-Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\OneDrive")) {
-    #    New-Item -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\OneDrive" | Out-Null 2>$NULL
-    #}
-    #Set-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\OneDrive" -Name "DisableFileSyncNGSC" -Type DWord -Value 1
+    If (!(Test-Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\OneDrive")) {
+        New-Item -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\OneDrive" | Out-Null 2>$NULL
+    }
+    Set-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\OneDrive" -Name "DisableFileSyncNGSC" -Type DWord -Value 1
     Stop-Process -Name "OneDrive" -ErrorAction SilentlyContinue
     Start-Sleep -s 2
     Write-Host " Uninstalling OneDrive..."
@@ -165,11 +165,11 @@ Function OneDrive {
     Remove-Item -Path "$env:LOCALAPPDATA\Microsoft\OneDrive" -Force -Recurse -ErrorAction SilentlyContinue
     Remove-Item -Path "$env:PROGRAMDATA\Microsoft OneDrive" -Force -Recurse -ErrorAction SilentlyContinue
     Remove-Item -Path "$env:SYSTEMDRIVE\OneDriveTemp" -Force -Recurse -ErrorAction SilentlyContinue
-    #If (!(Test-Path "HKCR:")) {
-    #    New-PSDrive -Name HKCR -PSProvider Registry -Root HKEY_CLASSES_ROOT | Out-Null 2>$NULL
-    #}
-    #Remove-Item -Path "HKCR:\CLSID\{018D5C66-4533-4307-9B53-224DE2ED1FE6}" -Recurse -ErrorAction SilentlyContinue
-    #Remove-Item -Path "HKCR:\Wow6432Node\CLSID\{018D5C66-4533-4307-9B53-224DE2ED1FE6}" -Recurse -ErrorAction SilentlyContinue
+    If (!(Test-Path "HKCR:")) {
+        New-PSDrive -Name HKCR -PSProvider Registry -Root HKEY_CLASSES_ROOT | Out-Null 2>$NULL
+    }
+    Remove-Item -Path "HKCR:\CLSID\{018D5C66-4533-4307-9B53-224DE2ED1FE6}" -Recurse -ErrorAction SilentlyContinue
+    Remove-Item -Path "HKCR:\Wow6432Node\CLSID\{018D5C66-4533-4307-9B53-224DE2ED1FE6}" -Recurse -ErrorAction SilentlyContinue
     Write-Host " Disabled OneDrive"
 }
 Function Debloat {
@@ -428,18 +428,18 @@ Function Registry {
 } 
 Function checkme {
     net start w32time | Out-Null 2>$NULL
-    #reg export "HKLM\SYSTEM\CurrentControlSet\services\w32time\Config" "$folder\exported_w32time.reg" /y | Out-Null 2>$NULL
-    #reg add "HKLM\SYSTEM\CurrentControlSet\services\w32time\Config" /v MaxNegPhaseCorrection /d 0xFFFFFFFF /t REG_DWORD /f | Out-Null 2>$NULL
-    #reg add "HKLM\SYSTEM\CurrentControlSet\services\w32time\Config" /v MaxPosPhaseCorrection /d 0xFFFFFFFF /t REG_DWORD /f | Out-Null 2>$NULL
+    reg export "HKLM\SYSTEM\CurrentControlSet\services\w32time\Config" "$folder\exported_w32time.reg" /y | Out-Null 2>$NULL
+    reg add "HKLM\SYSTEM\CurrentControlSet\services\w32time\Config" /v MaxNegPhaseCorrection /d 0xFFFFFFFF /t REG_DWORD /f | Out-Null 2>$NULL
+    reg add "HKLM\SYSTEM\CurrentControlSet\services\w32time\Config" /v MaxPosPhaseCorrection /d 0xFFFFFFFF /t REG_DWORD /f | Out-Null 2>$NULL
     # w32tm /config /manualpeerlist:time.windows.com,0x1 /syncfromflags:manual /reliable:yes /update
-    #w32tm /config /manualpeerlist:time.windows.com,0x1 /syncfromflags:manual /reliable:yes /update | Out-Null 2>$NULL
+    w32tm /config /manualpeerlist:time.windows.com,0x1 /syncfromflags:manual /reliable:yes /update | Out-Null 2>$NULL
     # w32tm /config /update
-    #w32tm /config /update | Out-Null 2>$NULL
+    w32tm /config /update | Out-Null 2>$NULL
     # w32tm /resync /rediscover 
-    #w32tm /resync /rediscover | Out-Null 2>$NULL
+    w32tm /resync /rediscover | Out-Null 2>$NULL
     #Restore registry w32time\Config
-    #reg import "$folder\exported_w32time.reg" | Out-Null 2>$NULL
-    #Remove-Item "$folder\exported_w32time.reg" | Out-Null 2>$NULL
+    reg import "$folder\exported_w32time.reg" | Out-Null 2>$NULL
+    Remove-Item "$folder\exported_w32time.reg" | Out-Null 2>$NULL
     $Lie = " License has Expired. Exiting.."
     $Time = (Get-Date -UFormat %Y%m%d)
     $License = 20220330
@@ -506,9 +506,9 @@ Function Cleanup {
         Remove-Item $ctemp -Force -Recurse -Confirm:$false -ErrorAction SilentlyContinue -Verbose 2>$NULL
     }
 
-    $mocotheme1 = "$Folder\win11-light.deskthemepack"
-    $mocotheme2 = "$Folder\win11-dark.deskthemepack"
-    $mocotheme3 = "$Folder\win10-purple.deskthemepack"
+    $mocotheme1 = "$Env:USERPROFILE\desktop\win11-light.deskthemepack"
+    $mocotheme2 = "$Env:USERPROFILE\desktop\win11-dark.deskthemepack"
+    $mocotheme3 = "$Env:USERPROFILE\desktop\win10-purple.deskthemepack"
     If ($mocotheme1) { 
         Remove-Item "$mocotheme1" -Force -Recurse -Confirm:$false -ErrorAction SilentlyContinue 2>$NULL
     }

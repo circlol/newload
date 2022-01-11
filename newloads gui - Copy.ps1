@@ -232,16 +232,7 @@ $Explorer.location               = New-Object System.Drawing.Point(246,434)
 $Explorer.Font                   = New-Object System.Drawing.Font('Microsoft Sans Serif',10)
 $Explorer.BackColor              = [System.Drawing.ColorTranslator]::FromHtml("#857777")
 
-$ReinstallOneDrive               = New-Object system.Windows.Forms.Button
-$ReinstallOneDrive.text          = "Reinstall OneDrive"
-$ReinstallOneDrive.width         = 210
-$ReinstallOneDrive.height        = 35
-$ReinstallOneDrive.location      = New-Object System.Drawing.Point(383,293)
-$ReinstallOneDrive.Font          = New-Object System.Drawing.Font('Microsoft Sans Serif',10)
-$ReinstallOneDrive.ForeColor     = [System.Drawing.ColorTranslator]::FromHtml("#ffffff")
-$ReinstallOneDrive.BackColor     = [System.Drawing.ColorTranslator]::FromHtml("#857777")
-
-$Form.controls.AddRange(@($RunScript,$RunNoOEM,$UndoScript,$ExitButton,$mocologo,$nvidiashortcut,$amdshortcut,$DriverWebsites,$asusshortcut,$msishortcut,$Shortcuts,$activationbutton,$programsbutton,$updatesbutton,$ReinstallOneDrive,$ThemeButton,$powerplanbutton,$Label3,$intelshortcut,$Label4,$LightMode,$DarkMode,$Reboot,$DeviceManager,$Explorer))
+$Form.controls.AddRange(@($RunScript,$RunNoOEM,$UndoScript,$ExitButton,$mocologo,$nvidiashortcut,$amdshortcut,$DriverWebsites,$asusshortcut,$msishortcut,$Shortcuts,$activationbutton,$programsbutton,$updatesbutton,$ThemeButton,$powerplanbutton,$Label3,$intelshortcut,$Label4,$LightMode,$DarkMode,$Reboot,$DeviceManager,$Explorer))
 
 #region Logic 
 #If (!([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole]'Administrator')) {
@@ -254,8 +245,8 @@ $package2  = "Adobe.Acrobat.Reader.64-bit"
 $package3  = "VideoLAN.VLC"
 $tslrd = 20211211
 $Location1 = "$env:PROGRAMFILES\Google\Chrome\Application\chrome.exe"
-$Location3 = "$env:PROGRAMFILES\VideoLAN\VLC\vlc.exe"
-$Location2 = "$env:PROGRAMFILES\Adobe\Acrobat DC\Acrobat\Acrobat.exe"
+$Location2 = "$env:PROGRAMFILES\VideoLAN\VLC\vlc.exe"
+$Location3 = "$env:PROGRAMFILES\Adobe\Acrobat DC\Acrobat\Acrobat.exe"
 $Folder = Get-Location
 $frmt = "`n `n======================================== `n `n"
 $BuildNumber = (Get-ItemProperty -Path c:\windows\system32\hal.dll).VersionInfo.ProductVersion
@@ -263,7 +254,7 @@ $WantedBuild = "10.0.22000"
 $Time = (Get-Date -UFormat %Y%m%d)
 $dtime = (Get-Date -UFormat %H.%M-%Y.%m.%d)
 $License = 20220330
-$Lie = "License has Expired. Please Contact Mike for a New License `n `n Exiting.."
+$Lie = "License has Expired. Please Contact Mike for a New License"
 $10 = "Win10"
 $11 = "Win11"
 $win10path = "$folder\win10-purple.deskthemepack"
@@ -353,7 +344,7 @@ If (!(Test-Path $Location3)) {
     winget install $package3 -s winget -e -h
     Write-Host "$package3 Installed."
     } else {
-    Write-Host "`n Verified $package3 is already Installed.`n `n"
+    Write-Host "`n Verified $package3 is already Installed."
     } 
 }             
 Function Visuals {
@@ -454,22 +445,16 @@ Function StartMenu {
     taskkill /F /IM explorer.exe | Out-Null 2>$NULL
 }
 Function UndoOneDrive{
-    Write-Host "$frmt Starting OneDriveSetup.exe $frmt"
-    $onedrivelocation = "$env:SystemRoot\SysWOW64\OneDriveSetup.exe"
-    Write-Host " Starting $onedrivelocation"
-    Start-Process $onedrivelocation /Silent -Wait
-    #If (!(Test-Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\OneDrive")) {
-    #    New-Item -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\OneDrive" | Out-Null 2>$NULL
-    #}
-    #Set-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\OneDrive" -Name "DisableFileSyncNGSC" -Type DWord -Value 0
-    Write-Host "`n `n OneDrive reinstalled."
+    Write-Host "$frmt Reinstalling OneDrive $frmt"
+    Start-Process "$env:SystemRoot\SysWOW64\OneDriveSetup.exe" /Silent
+    Write-Host "$frmt OneDrive has been Reinstalled $frmt"
 }
 Function OneDrive {
     Write-Host "`n$frmt `n Disabling OneDrive..."
-    #If (!(Test-Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\OneDrive")) {
-    #    New-Item -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\OneDrive" | Out-Null 2>$NULL
-    #}
-    #Set-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\OneDrive" -Name "DisableFileSyncNGSC" -Type DWord -Value 1
+    If (!(Test-Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\OneDrive")) {
+        New-Item -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\OneDrive" | Out-Null 2>$NULL
+    }
+    Set-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\OneDrive" -Name "DisableFileSyncNGSC" -Type DWord -Value 1
     Stop-Process -Name "OneDrive" -ErrorAction SilentlyContinue
     Start-Sleep -s 2
     Write-Host " Uninstalling OneDrive..."
@@ -485,11 +470,11 @@ Function OneDrive {
     Remove-Item -Path "$env:LOCALAPPDATA\Microsoft\OneDrive" -Force -Recurse -ErrorAction SilentlyContinue
     Remove-Item -Path "$env:PROGRAMDATA\Microsoft OneDrive" -Force -Recurse -ErrorAction SilentlyContinue
     Remove-Item -Path "$env:SYSTEMDRIVE\OneDriveTemp" -Force -Recurse -ErrorAction SilentlyContinue
-    #If (!(Test-Path "HKCR:")) {
-    #    New-PSDrive -Name HKCR -PSProvider Registry -Root HKEY_CLASSES_ROOT | Out-Null 2>$NULL
-    #}
-    #Remove-Item -Path "HKCR:\CLSID\{018D5C66-4533-4307-9B53-224DE2ED1FE6}" -Recurse -ErrorAction SilentlyContinue
-    #Remove-Item -Path "HKCR:\Wow6432Node\CLSID\{018D5C66-4533-4307-9B53-224DE2ED1FE6}" -Recurse -ErrorAction SilentlyContinue
+    If (!(Test-Path "HKCR:")) {
+        New-PSDrive -Name HKCR -PSProvider Registry -Root HKEY_CLASSES_ROOT | Out-Null 2>$NULL
+    }
+    Remove-Item -Path "HKCR:\CLSID\{018D5C66-4533-4307-9B53-224DE2ED1FE6}" -Recurse -ErrorAction SilentlyContinue
+    Remove-Item -Path "HKCR:\Wow6432Node\CLSID\{018D5C66-4533-4307-9B53-224DE2ED1FE6}" -Recurse -ErrorAction SilentlyContinue
     Write-Host " Disabled OneDrive"
 }
 $Programs = @(
@@ -917,9 +902,6 @@ $intelshortcut.Add_Click{
 }
 $DeviceManager.Add_Click{
     Start-Process devmgmt.msc
-}
-$ReinstallOneDrive.Add_Click{
-    UndoOneDrive
 }
 $Explorer.Add_Click{
     Start-Process Explorer .\ 
