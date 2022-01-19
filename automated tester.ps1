@@ -2,7 +2,7 @@
 #	Start-Process powershell.exe "-NoProfile -ExecutionPolicy Bypass -File `"$PSCommandPath`"" -Verb RunAs
 	#Exit
 #}
-$Title = "Windows New Loads Utility Automated - Created by Mike Ivison"
+$Title = "Windows New Loads Utility Created by Mike Ivison - Automated Edition"
 $host.UI.RawUI.WindowTitle = $Title
 Import-Module BitsTransfer
 $Folder = Get-Location
@@ -63,17 +63,19 @@ If (!(Test-Path $Location3)) {
     }
 }            
 Function Visuals {
+    Write-Host "Checking your OS.."
+    Start-Sleep 2
     $BuildNumber = (Get-ItemProperty -Path c:\windows\system32\hal.dll).VersionInfo.ProductVersion
     $WantedBuild = "10.0.22000"
     If ($BuildNumber -gt $WantedBuild) {
-        write-Host "I have detected that you are on Windows 11 `n `nApplying appropriate theme"
+        write-Host "I have detected that you are on Windows 11 `n `nApplying Appropriate Theme & Flagging Required Settings"
         Start-BitsTransfer -Source "https://github.com/circlol/newload/raw/main/Assets/win11-light.deskthemepack" -Destination "$env:temp\win11-light.deskthemepack"
         #Start-BitsTransfer -Source "https://www40.zippyshare.com/d/ITnX1PTu/920358/win11-light.deskthemepack" -Destination win11-light.deskthemepack
         Start-Sleep 3
         Start-Process "$env:temp\win11-light.deskthemepack"
     } else {
         If ($BuildNumber -lt $WantedBuild) {
-            write-Host "I have detected that you are on Windows 10 `n `nApplying appropriate Theme"
+            write-Host "I have detected that you are on Windows 10 `n `nApplying Appropriate Theme & Flagging Required Settings"
             Start-BitsTransfer -Source "https://github.com/circlol/newload/raw/main/Assets/win10-purple.deskthemepack" -Destination "$env:temp\win10-purple.deskthemepack"
             Start-Sleep 3
             Start-Process "$env:temp\win10-purple.deskthemepack"
@@ -362,28 +364,28 @@ Function Registry {
     
     #Explorer Related Settings    
     # Removes notification tray
-    #Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer" -Name "EnableAutoTray" -Value 0 -Verbose
-    Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer" -Name "ShowRecent" -Value 0 -Verbose
-    Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer" -Name "ShowFrequent" -Value 0 -Verbose
-    Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "EnableSnapAssistFlyout" -Value 1 -Verbose
-    Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "HideFileExt" -Value 0 -Verbose
-    Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "LaunchTo" -Value 1 -Verbose
-    Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "ShowCortanaButton" -Value 0     -Verbose
-    Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "ShowTaskViewButton" -Value 0 -Verbose
-    Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "TaskBarDa" -Value 0 -Verbose
-    Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "TaskBarMn" -Value 0 -Verbose
-    Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\HideDesktopIcons\NewStartPanel" -Name "{59031a47-3f72-44a7-89c5-5595fe6b30ee}" -Value 0 -Verbose
-    Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\HideDesktopIcons\NewStartPanel" -Name "{20D04FE0-3AEA-1069-A2D8-08e02B30309D}" -Value 0 -Verbose
-    Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\HideDesktopIcons\NewStartPanel" -Name "{20D04FE0-3AEA-1069-A2D8-08002B30309D}" -Value 0 -Verbose
+    #Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer" -Name "EnableAutoTray" -Value 0
+    Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer" -Name "ShowRecent" -Value 0
+    Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer" -Name "ShowFrequent" -Value 0
+    Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "EnableSnapAssistFlyout" -Value 1
+    Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "HideFileExt" -Value 0
+    Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "LaunchTo" -Value 1
+    Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "ShowCortanaButton" -Value 0    
+    Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "ShowTaskViewButton" -Value 0
+    Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "TaskBarDa" -Value 0
+    Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "TaskBarMn" -Value 0
+    Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\HideDesktopIcons\NewStartPanel" -Name "{59031a47-3f72-44a7-89c5-5595fe6b30ee}" -Value 0
+    Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\HideDesktopIcons\NewStartPanel" -Name "{20D04FE0-3AEA-1069-A2D8-08e02B30309D}" -Value 0
+    Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\HideDesktopIcons\NewStartPanel" -Name "{20D04FE0-3AEA-1069-A2D8-08002B30309D}" -Value 0
     
-    Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Feeds" -Name "ShellFeedsTaskbarOpenOnHover" -Value 0 -Verbose
-    Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Search" -Name "SearchboxTaskbarMode" -Value 1 -Verbose
+    Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Feeds" -Name "ShellFeedsTaskbarOpenOnHover" -Value 0
+    Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Search" -Name "SearchboxTaskbarMode" -Value 1
     
     
     Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\OEMInformation" -Name "Manufacturer" -Type String -Value "Mother Computers"
-    Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\OEMInformation" -Name "SupportPhone" -Type String -Value "(250) 479-8561" -Verbose
-    Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\OEMInformation" -Name "SupportHours" -Type String -Value "Monday - Saturday 9AM-5PM | Sunday - Closed" -Verbose
-    Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\OEMInformation" -Name "SupportURL" -Type String -Value "https://www.mothercomputers.com" -Verbose
+    Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\OEMInformation" -Name "SupportPhone" -Type String -Value "(250) 479-8561"
+    Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\OEMInformation" -Name "SupportHours" -Type String -Value "Monday - Saturday 9AM-5PM | Sunday - Closed"
+    Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\OEMInformation" -Name "SupportURL" -Type String -Value "https://www.mothercomputers.com"
     Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\OEMInformation" -Name "Model" -Type String -Value "Mother Computers - (250) 479-8561"
     Write-Host " `n Applying Special Sauce `n"
     Set-ItemProperty -Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\ContentDeliveryManager" -Name "ContentDeliveryAllowed" -Type DWord -Value 0 
@@ -427,19 +429,20 @@ Function Registry {
     Write-Host "$frmt Registry Modifications Complete $frmt"
 } 
 Function checkme {
-    net start w32time | Out-Null 2>$NULL
-    reg export "HKLM\SYSTEM\CurrentControlSet\services\w32time\Config" "$folder\exported_w32time.reg" /y | Out-Null 2>$NULL
-    reg add "HKLM\SYSTEM\CurrentControlSet\services\w32time\Config" /v MaxNegPhaseCorrection /d 0xFFFFFFFF /t REG_DWORD /f | Out-Null 2>$NULL
-    reg add "HKLM\SYSTEM\CurrentControlSet\services\w32time\Config" /v MaxPosPhaseCorrection /d 0xFFFFFFFF /t REG_DWORD /f | Out-Null 2>$NULL
-    # w32tm /config /manualpeerlist:time.windows.com,0x1 /syncfromflags:manual /reliable:yes /update
-    w32tm /config /manualpeerlist:time.windows.com,0x1 /syncfromflags:manual /reliable:yes /update | Out-Null 2>$NULL
-    # w32tm /config /update
-    w32tm /config /update | Out-Null 2>$NULL
-    # w32tm /resync /rediscover 
-    w32tm /resync /rediscover | Out-Null 2>$NULL
-    #Restore registry w32time\Config
-    reg import "$folder\exported_w32time.reg" | Out-Null 2>$NULL
-    Remove-Item "$folder\exported_w32time.reg" | Out-Null 2>$NULL
+    W32tm /resync /force | Out-Null 2>$NULL
+    #net start w32time | Out-Null 2>$NULL
+    #reg export "HKLM\SYSTEM\CurrentControlSet\services\w32time\Config" "$folder\exported_w32time.reg" /y | Out-Null 2>$NULL
+    #reg add "HKLM\SYSTEM\CurrentControlSet\services\w32time\Config" /v MaxNegPhaseCorrection /d 0xFFFFFFFF /t REG_DWORD /f | Out-Null 2>$NULL
+    #reg add "HKLM\SYSTEM\CurrentControlSet\services\w32time\Config" /v MaxPosPhaseCorrection /d 0xFFFFFFFF /t REG_DWORD /f | Out-Null 2>$NULL
+    ## w32tm /config /manualpeerlist:time.windows.com,0x1 /syncfromflags:manual /reliable:yes /update
+    #w32tm /config /manualpeerlist:time.windows.com,0x1 /syncfromflags:manual /reliable:yes /update | Out-Null 2>$NULL
+    ## w32tm /config /update
+    #w32tm /config /update | Out-Null 2>$NULL
+    ## w32tm /resync /rediscover 
+    #w32tm /resync /rediscover | Out-Null 2>$NULL
+    ##Restore registry w32time\Config
+    #reg import "$folder\exported_w32time.reg" | Out-Null 2>$NULL
+    #Remove-Item "$folder\exported_w32time.reg" | Out-Null 2>$NULL
     $Lie = " License has Expired. Exiting.."
     $Time = (Get-Date -UFormat %Y%m%d)
     $License = 20220330
@@ -452,9 +455,9 @@ Function checkme {
         } else {
             If ($Time -gt $tslrd) {
                 Clear-Host
-                Write-Host " `n Creating Restore Point incase something bad happens"
+                Write-Host " `n Creating Restore Point in case something bad happens"
                 Enable-ComputerRestore -Drive "C:\"
-                Checkpoint-Computer -Description "RestorePoint1" -RestorePointType "MODIFY_SETTINGS"
+                Checkpoint-Computer -Description "OOBE Fresh Load" -RestorePointType "MODIFY_SETTINGS"
                 Start-Sleep 2
                 Clear-Host
                 } else {
@@ -479,31 +482,31 @@ Function Cleanup {
     #Write-Host " Succeeded"
     Start-Process https://chrome.google.com/webstore/detail/ublock-origin/cjpalhdlnbpafiamejdnhcphjbkeiagm
 
-    Remove-Item "$Env:Temp\*.*" -Force -Recurse -Confirm:$false -ErrorAction SilentlyContinue -Verbose 2>$NULL
+    Remove-Item "$Env:Temp\*.*" -Force -Recurse -Confirm:$false -ErrorAction SilentlyContinue 2>$NULL
     $EdgeShortcut = "$Env:USERPROFILE\Desktop\Microsoft Edge.lnk"
     If ($EdgeShortcut) { 
         Write-Host " Removing Edge Icon"
-        Remove-Item $EdgeShortcut -Force -Recurse -Confirm:$false -ErrorAction SilentlyContinue -Verbose 2>$NULL
+        Remove-Item $EdgeShortcut -Force -Recurse -Confirm:$false -ErrorAction SilentlyContinue 2>$NULL
     }
     $edgescpub = "$Env:PUBLIC\Desktop\Microsoft Edge.lnk"
     If ($edgescpub) { 
         Write-Host " Removing Edge Icon"
-        Remove-Item $edgescpub -Force -Recurse -Confirm:$false -ErrorAction SilentlyContinue -Verbose 2>$NULL
+        Remove-Item $edgescpub -Force -Recurse -Confirm:$false -ErrorAction SilentlyContinue 2>$NULL
     }
     $vlcsc = "$Env:PUBLIC\Desktop\VLC Media Player.lnk"
     If ($vlcsc) { 
         Write-Host " Removing VLC Media Player Icon"
-        Remove-Item $vlcsc -Force -Recurse -Confirm:$false -ErrorAction SilentlyContinue -Verbose 2>$NULL
+        Remove-Item $vlcsc -Force -Recurse -Confirm:$false -ErrorAction SilentlyContinue 2>$NULL
     }
     $acrosc = "$Env:PUBLIC\Desktop\Adobe Acrobat DC.lnk"
     If ($acrosc) { 
         Write-Host " Removing Adobe Acrobat Icon"
-        Remove-Item $acrosc -Force -Recurse -Confirm:$false -ErrorAction SilentlyContinue -Verbose 2>$NULL
+        Remove-Item $acrosc -Force -Recurse -Confirm:$false -ErrorAction SilentlyContinue 2>$NULL
     }
     $ctemp = "C:\Temp"
     If ($ctemp) { 
         Write-Host " Removing temp folder in C Root"
-        Remove-Item $ctemp -Force -Recurse -Confirm:$false -ErrorAction SilentlyContinue -Verbose 2>$NULL
+        Remove-Item $ctemp -Force -Recurse -Confirm:$false -ErrorAction SilentlyContinue 2>$NULL
     }
 
     $mocotheme1 = "$Env:USERPROFILE\desktop\win11-light.deskthemepack"
