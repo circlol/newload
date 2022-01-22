@@ -250,7 +250,7 @@ $Form.controls.AddRange(@($RunScript,$RunNoOEM,$UndoScript,$ExitButton,$mocologo
 #}
 Import-Module BitsTransfer
 
-$programversion = "121.21.4"
+$programversion = "121.21.5"
 
 $package1  = "Google.Chrome"
 $package2  = "Adobe.Acrobat.Reader.64-bit"
@@ -685,6 +685,9 @@ Function Registry {
     Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "LaunchTo" -Value 1
     
     Write-Host " Setting Start Tab in task manager to Performance"
+    If (!(HKCU:\Software\Microsoft\Windows\CurrentVersion\TaskManager)){
+        New-Item -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion" -Name "TaskManager"
+    }
     Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\TaskManager" -Name "StartUpTab" -Value 1 -Type DWord
 
     If ($BuildNumber -lt $WantedBuild) {

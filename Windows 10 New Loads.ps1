@@ -7,7 +7,7 @@ $host.UI.RawUI.WindowTitle = $Title
 Import-Module BitsTransfer
 #$Folder = Get-Location
 $dtime = (Get-Date -UFormat %H.%M-%Y.%m.%d)
-$programversion = "121.21.4"
+$programversion = "121.21.5"
 
 Function WinGInstallation { 
     if (Test-Path ~\AppData\Local\Microsoft\WindowsApps\winget.exe){
@@ -374,6 +374,9 @@ Function Registry {
     Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "LaunchTo" -Value 1
     
     Write-Host " Setting Start Tab in task manager to Performance"
+    If (!(HKCU:\Software\Microsoft\Windows\CurrentVersion\TaskManager)){
+        New-Item -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion" -Name "TaskManager"
+    }
     Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\TaskManager" -Name "StartUpTab" -Value 1 -Type DWord
 
     If ($BuildNumber -lt $WantedBuild) {
