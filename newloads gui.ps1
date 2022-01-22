@@ -650,7 +650,7 @@ Function Registry {
     Write-Host "$frmt Applying Registry Changes $frmt"
 
     Write-Host " Changing how often Windows asks for feedback to never"
-    Set-ItemProperty "HKCU:\Software\Microsoft\Siuf\Rules" -Name "NumberOfSIUFInPeriod" -Type DWORD -Value 0 2>$NULL
+    Set-ItemProperty "HKCU:\Software\Microsoft\Siuf\Rules" -Name "NumberOfSiufInPeriod" -Type DWORD -Value 0 2>$NULL
     Set-ItemProperty "HKCU:\Software\Microsoft\Siuf\Rules" -Name "PeriodInNanoSeconds" -Type QWORD -Value 0 2>$NULL
 
     Write-Host " Setting Windows Updates to Check for updates but let me choose whether to download and install them"
@@ -661,6 +661,9 @@ Function Registry {
     
     
     Write-Host " Disabling Windows Pop-Ups on Start-Up ex. Let's finish setting up your device - Get Even More Out of Windows - Upgrade to Windows 11 Popup"
+    If (!(Test-Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\UserProfileEngagement")){
+        New-Item -Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion" -Name "UserProfileEngagement"
+    }
     Set-ItemProperty "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\UserProfileEngagement" -Name "ScoobeSystemSettingEnabled" -Type DWORD -Value 0
 
     Write-Host " Expanding Explorer Ribbon"
@@ -749,6 +752,9 @@ Function Registry {
     Set-ItemProperty -Path "HKCU:\Software\Microsoft\Personalization\Settings" -Name "AcceptedPrivacyPolicy" -Value 0 
     
     Write-Host " Disabling App Launch Tracking"
+    If (!(Test-Path "HKCU:\Software\Policies\Microsoft\Windows\EdgeUI")){
+        New-Item -Path "HKCU:\Software\Policies\Microsoft\Windows" -Name "EdgeUI"
+    }
     Set-ItemProperty -Path "HKCU:\Software\Policies\Microsoft\Windows\EdgeUI" -Name DisableMFUTracking -Value 1 -Type DWord 2>$NULL
 
     Write-Host " Disabling Advertiser ID"

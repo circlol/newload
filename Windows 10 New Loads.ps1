@@ -6,7 +6,7 @@ $Title = "Windows New Loads Utility Created by Mike Ivison - Automated Edition"
 $host.UI.RawUI.WindowTitle = $Title
 Import-Module BitsTransfer
 #$Folder = Get-Location
-
+$dtime = (Get-Date -UFormat %H.%M-%Y.%m.%d)
 $programversion = "121.21.2"
 
 Function WinGInstallation { 
@@ -332,7 +332,14 @@ Function Registry {
     Write-Host "$frmt Applying Registry Changes $frmt"
 
     Write-Host " Changing how often Windows asks for feedback to never"
-    Set-ItemProperty "HKCU:\Software\Microsoft\Siuf\Rules" -Name "NumberOfSIUFInPeriod" -Type DWORD -Value 0 2>$NULL
+    If (!(Test-Path "HKCU:\Software\Microsoft\Siuf")) { 
+        New-Item -Path "HKCU:\Software\Microsoft" -Name "Siuf"
+    }
+
+    If (!(Test-Path "HKCU:\Software\Microsoft\Siuf\Rules")) {
+    New-Item -Path "HKCU:\Software\Microsoft\Siuf" -Name "Rules"
+    }
+    Set-ItemProperty "HKCU:\Software\Microsoft\Siuf\Rules" -Name "NumberOfSiufInPeriod" -Type DWORD -Value 0 2>$NULL
     Set-ItemProperty "HKCU:\Software\Microsoft\Siuf\Rules" -Name "PeriodInNanoSeconds" -Type QWORD -Value 0 2>$NULL
 
     Write-Host " Setting Windows Updates to Check for updates but let me choose whether to download and install them"
@@ -343,6 +350,9 @@ Function Registry {
     
     
     Write-Host " Disabling Windows Pop-Ups on Start-Up ex. Let's finish setting up your device - Get Even More Out of Windows - Upgrade to Windows 11 Popup"
+    If (!(Test-Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\UserProfileEngagement")){
+        New-Item -Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion" -Name "UserProfileEngagement"
+    }
     Set-ItemProperty "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\UserProfileEngagement" -Name "ScoobeSystemSettingEnabled" -Type DWORD -Value 0
 
     Write-Host " Expanding Explorer Ribbon"
@@ -431,6 +441,9 @@ Function Registry {
     Set-ItemProperty -Path "HKCU:\Software\Microsoft\Personalization\Settings" -Name "AcceptedPrivacyPolicy" -Value 0 
     
     Write-Host " Disabling App Launch Tracking"
+    If (!(Test-Path "HKCU:\Software\Policies\Microsoft\Windows\EdgeUI")){
+        New-Item -Path "HKCU:\Software\Policies\Microsoft\Windows" -Name "EdgeUI"
+    }
     Set-ItemProperty -Path "HKCU:\Software\Policies\Microsoft\Windows\EdgeUI" -Name DisableMFUTracking -Value 1 -Type DWord 2>$NULL
 
     Write-Host " Disabling Advertiser ID"
@@ -548,7 +561,7 @@ Function Cleanup {
 
 checkme
 clear-host
-Start-Transcript -OutputDirectory "~\Desktop" >$NULL
+Start-Transcript -LiteralPath "$env:USERPROFILE\Desktop\Automated Script Run - $dtime.txt"
 Write-Host "`n `n================================================================================================ `n `n `n `n `n `n `n `n New Loads Utility For Windows 10 & 11 `n Created by Mike Ivison `n Script Version : $programversion `n `n Script will run in : Automatic Mode `n `n Ideally run updates before continuing with this script. `n `n `n `n `n `n `n `n================================================================================================ `n `n"
 Start-Sleep 5
 WinGInstallation 
