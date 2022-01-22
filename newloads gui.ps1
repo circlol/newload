@@ -6,7 +6,7 @@ $iconBase64 = 'iVBORw0KGgoAAAANSUhEUgAABTYAAAU+CAYAAABDeWtVAAAABGdBTUEAALGPC/xhB
 $Form                            = New-Object system.Windows.Forms.Form
 $Form.ClientSize                 = New-Object System.Drawing.Point(633,590)
 $Form.text                       = "New Loads Utility GUI- Created by Mike Ivison"
-$Form.TopMost                    = $True
+$Form.TopMost                    = $False
 $Form.BackColor                  = [System.Drawing.ColorTranslator]::FromHtml("#4b4b4b")
 $Form.StartPosition              = "CenterScreen"
 $Form.FormBorderStyle            = 'FixedSingle'
@@ -340,9 +340,9 @@ Function Programs {
 If (!(Test-Path $Location1)) {
     Write-Host "`n `n Installing $Package1 `n" 
     winget install $package1 -s winget -e -h
-    Write-Host "$package1 Installed."
-    Write-Host "`n Verified $package1 is already Installed. Moving On."
-    Write-Host " Adding UBlock Origin to Google Chrome"
+    Write-Host " $package1 Installed."
+    Write-Host "`n Verified $package1 is already Installed. Moving On. "
+    Write-Host " Adding Extension Flag for UBlock Origin. When Chrome launches later, make sure to hit the accept button."
     REG ADD "HKEY_LOCAL_MACHINE\Software\Wow6432Node\Google\Chrome\Extensions\cjpalhdlnbpafiamejdnhcphjbkeiagm" /v update_url /t REG_SZ /d https://clients2.google.com/service/update2/crx
     } else {
     }
