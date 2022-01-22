@@ -7,6 +7,8 @@ $host.UI.RawUI.WindowTitle = $Title
 Import-Module BitsTransfer
 #$Folder = Get-Location
 
+$programversion = "121.21"
+
 Function WinGInstallation { 
     if (Test-Path ~\AppData\Local\Microsoft\WindowsApps\winget.exe){
         Write-Host " Winget was found"
@@ -655,7 +657,7 @@ Function Cleanup {
 checkme
 clear-host
 Start-Transcript -OutputDirectory "$env:USERPROFILE\Desktop" >$NULL
-Write-Host "`n `n `n `n `n `n `n `n `n `n `n `n `n `n================================================================================================ `n `n `n `n `n `n `n `n `n `n `n `n `n New Loads Utility For Windows 10 & 11 `n `n Created by Mike Ivison `n `n Script will run in : Automatic Mode`n `n Ideally run updates before continuing with this script. `n `n `n `n `n `n `n `n `n `n `n `n `n================================================================================================ `n `n"
+Write-Host "`n `n `n `n `n `n `n `n `n `n `n `n `n `n================================================================================================ `n `n `n `n `n `n `n `n `n `n `n `n `n New Loads Utility For Windows 10 & 11 `n `n Created by Mike Ivison `n `n Script will run in : Automatic Mode`n `n $programversion `n Ideally run updates before continuing with this script. `n `n `n `n `n `n `n `n `n `n `n `n `n================================================================================================ `n `n"
 Start-Sleep 5
 WinGInstallation 
 Write-Host "`n `n======================================== `n `n Installing Apps `n Please be patient as the programs install in the background. `n `n============================================================= `n `n"
