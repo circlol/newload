@@ -76,20 +76,27 @@ Function Visuals {
         write-Host "I have detected that you are on Windows 11 `n `nApplying Appropriate Theme & Flagging Required Settings"
         Start-BitsTransfer -Source "https://github.com/circlol/newload/raw/main/Assets/win11-light.deskthemepack" -Destination "$env:temp\win11-light.deskthemepack"
         #Start-BitsTransfer -Source "https://www40.zippyshare.com/d/ITnX1PTu/920358/win11-light.deskthemepack" -Destination win11-light.deskthemepack
-        Start-Sleep 3
         Start-Process "$env:temp\win11-light.deskthemepack"
+        Start-Sleep 3
+        taskkill /F /IM systemsettings.exe 2>$NULL
     } else {
         If ($BuildNumber -lt $WantedBuild) {
             write-Host "I have detected that you are on Windows 10 `n `nApplying Appropriate Theme & Flagging Required Settings"
             Start-BitsTransfer -Source "https://github.com/circlol/newload/raw/main/Assets/win10-purple.deskthemepack" -Destination "$env:temp\win10-purple.deskthemepack"
-            Start-Sleep 3
             Start-Process "$env:temp\win10-purple.deskthemepack"
+            Start-Sleep 3
+            taskkill /F /IM systemsettings.exe 2>$NULL
         }
     }
 
     Write-Host "`n Setting Wallpaper to Stretch `n"
+    Stop-Process -Name Explorer
+    If(!(Test-Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Policies\System")){
+        New-Item -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Policies" -Name "System"
+    }
+    Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Policies\System" -Name "WallpaperStyle" -Type String -Value 2 -ErrorAction SilentlyContinue
     Start-Sleep 1
-	taskkill /F /IM systemsettings.exe 2>$NULL
+    Start-Process Explorer -Wait
     #taskkill /F /IM explorer.exe 2>$NULL
 }
 Function StartMenu {
@@ -356,6 +363,9 @@ Function Registry {
     Set-ItemProperty "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\UserProfileEngagement" -Name "ScoobeSystemSettingEnabled" -Type DWORD -Value 0
 
     Write-Host " Expanding Explorer Ribbon"
+    If (!(Test-Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\Ribbon")){
+        New-Item -Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer" -Name "Ribbon"
+    }
     Set-ItemProperty -Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\Ribbon" -Name "MinimizedStateTabletModeOff" -Value 1 2>$NULL
     
     Write-Host " Disabling Show Recent in Explorer Menu"

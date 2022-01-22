@@ -362,37 +362,35 @@ If (!(Test-Path $Location3)) {
     } 
 }             
 Function Visuals {
- 
+    Write-Host "Checking your OS.."
+    Start-Sleep 2
+    $BuildNumber = (Get-ItemProperty -Path c:\windows\system32\hal.dll).VersionInfo.ProductVersion
+    $WantedBuild = "10.0.22000"
     If ($BuildNumber -gt $WantedBuild) {
-        write-Host " I have detected that you are on Windows 11 `n `n Applying appropriate theme"
-        Start-BitsTransfer -Source "https://github.com/circlol/newload/raw/main/Assets/win11-light.deskthemepack" -Destination "$folder\win11-light.deskthemepack"
+        write-Host "I have detected that you are on Windows 11 `n `nApplying Appropriate Theme & Flagging Required Settings"
+        Start-BitsTransfer -Source "https://github.com/circlol/newload/raw/main/Assets/win11-light.deskthemepack" -Destination "$env:temp\win11-light.deskthemepack"
         #Start-BitsTransfer -Source "https://www40.zippyshare.com/d/ITnX1PTu/920358/win11-light.deskthemepack" -Destination win11-light.deskthemepack
-        Start-Process "$folder\win11-light.deskthemepack"
+        Start-Process "$env:temp\win11-light.deskthemepack"
         Start-Sleep 3
-        $VISUALRUN = "Win11"
+        taskkill /F /IM systemsettings.exe 2>$NULL
     } else {
         If ($BuildNumber -lt $WantedBuild) {
-            write-Host " I have detected that you are on Windows 10 `n `nApplying appropriate Theme"
-            Start-BitsTransfer -Source "https://github.com/circlol/newload/raw/main/Assets/win10-purple.deskthemepack" -Destination "$folder\win10-purple.deskthemepack"
+            write-Host "I have detected that you are on Windows 10 `n `nApplying Appropriate Theme & Flagging Required Settings"
+            Start-BitsTransfer -Source "https://github.com/circlol/newload/raw/main/Assets/win10-purple.deskthemepack" -Destination "$env:temp\win10-purple.deskthemepack"
+            Start-Process "$env:temp\win10-purple.deskthemepack"
             Start-Sleep 3
-
-            #Start-Process "$folder\win10-purple.deskthemepack"
-            Start-Process $win10path
-            $VISUALRUN = "Win10"
+            taskkill /F /IM systemsettings.exe 2>$NULL
         }
     }
 
-
-    If ($VISUALRUN -eq $10){
-        Remove-Item -Path "$win10path" -Force -Recurse -ErrorAction SilentlyContinue
-    } Else {
-        If ($VISUALRUN -eq $11){
-            Remove-Item -Path "$win11path" -Force -Recurse -ErrorAction SilentlyContinue            
-        } Else {
-            Write-Host Did not find the path specifed.
-        }
+    Write-Host "`n Setting Wallpaper to Stretch `n"
+    Stop-Process -Name Explorer
+    If(!(Test-Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Policies\System")){
+        New-Item -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Policies" -Name "System"
     }
-    #taskkill /F /IM explorer.exe 2>$NULL
+    Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Policies\System" -Name "WallpaperStyle" -Type String -Value 2 -ErrorAction SilentlyContinue
+    Start-Sleep 1
+    Start-Process Explorer -Wait
 }
 
 Function StartMenu {
@@ -667,6 +665,9 @@ Function Registry {
     Set-ItemProperty "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\UserProfileEngagement" -Name "ScoobeSystemSettingEnabled" -Type DWORD -Value 0
 
     Write-Host " Expanding Explorer Ribbon"
+    If (!(Test-Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\Ribbon")){
+        New-Item -Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer" -Name "Ribbon"
+    }
     Set-ItemProperty -Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\Ribbon" -Name "MinimizedStateTabletModeOff" -Value 1 2>$NULL
     
     Write-Host " Disabling Show Recent in Explorer Menu"
