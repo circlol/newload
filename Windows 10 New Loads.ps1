@@ -364,7 +364,6 @@ Function Registry {
     Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "LaunchTo" -Value 1
     
     Write-Host " Setting Start Tab in task manager to Performance"
-    Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\TaskManager" -Name StartUpTab -Value 1 -Type DWord
     Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\TaskManager" -Name "StartUpTab" -Value 1 -Type DWord
 
     If ($BuildNumber -lt $WantedBuild) {
