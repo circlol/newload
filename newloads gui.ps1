@@ -276,7 +276,7 @@ w32tm /resync | Out-Null 2>$NULL
 #reg export "HKLM\SYSTEM\CurrentControlSet\services\w32time\Config" "$folder\exported_w32time.reg" /y | Out-Null 2>$NULL
 #reg add "HKLM\SYSTEM\CurrentControlSet\services\w32time\Config" /v MaxNegPhaseCorrection /d 0xFFFFFFFF /t REG_DWORD /f | Out-Null 2>$NULL
 #reg add "HKLM\SYSTEM\CurrentControlSet\services\w32time\Config" /v MaxPosPhaseCorrection /d 0xFFFFFFFF /t REG_DWORD /f | Out-Null 2>$NULL
-## w32tm /config /manualpeerlist:time.windows.com,0x1 /syncfromflags:manual /reliable:yes /update
+## w32tm /config /manualpeerlist:time.windows.com,0x1 /syncfromflags:manual /regreliable:yes /update
 #w32tm /config /manualpeerlist:time.windows.com,0x1 /syncfromflags:manual /reliable:yes /update | Out-Null 2>$NULL
 ## w32tm /config /update
 #w32tm /config /update | Out-Null 2>$NULL
@@ -325,6 +325,7 @@ if (Test-Path ~\AppData\Local\Microsoft\WindowsApps\winget.exe){
 
 Function Programs {
     Write-Host "$frmt Installing Apps `n Please be patient as the programs install in the background.$frmt"
+    Write-Host " Double Checking Winget is installed"
     If (!(Test-Path ~\AppData\Local\Microsoft\WindowsApps\winget.exe)){
         Write-Host " Winget not found, installing it now."
         Start-Process "ms-appinstaller:?source=https://aka.ms/getwinget"
@@ -362,8 +363,8 @@ Function Visuals {
         write-Host " I have detected that you are on Windows 11 `n `n Applying appropriate theme"
         Start-BitsTransfer -Source "https://github.com/circlol/newload/raw/main/Assets/win11-light.deskthemepack" -Destination "$folder\win11-light.deskthemepack"
         #Start-BitsTransfer -Source "https://www40.zippyshare.com/d/ITnX1PTu/920358/win11-light.deskthemepack" -Destination win11-light.deskthemepack
-        Start-Sleep 3
         Start-Process "$folder\win11-light.deskthemepack"
+        Start-Sleep 3
         $VISUALRUN = "Win11"
     } else {
         If ($BuildNumber -lt $WantedBuild) {
@@ -376,10 +377,6 @@ Function Visuals {
             $VISUALRUN = "Win10"
         }
     }
-    Write-Host "`n Setting Wallpaper to Stretch `n"
-    REG ADD "HKCU\Control Panel\Desktop" /v WallpaperStyle /f /t REG_SZ /d "2"
-	Start-Sleep 1
-	taskkill /F /IM systemsettings.exe 2>$NULL
 
 
     If ($VISUALRUN -eq $10){
@@ -415,8 +412,10 @@ Function StartMenu {
     </CustomTaskbarLayoutCollection>
 </LayoutModificationTemplate>
 "@
-    
-    $layoutFile="C:\Windows\StartMenuLayout.Xml"
+$layoutFile="C:\Windows\StartMenuLayout.Xml"
+Write-Host " Clearing Pinned Start Icons"
+Write-Host " Applying Taskbar Icons"
+Write-Host " Applied Taskbar Icons"
     If(Test-Path $layoutFile)
     {
         Remove-Item $layoutFile
@@ -429,7 +428,6 @@ Function StartMenu {
         IF(!(Test-Path -Path $keyPath)) { 
             New-Item -Path $basePath -Name "Explorer"
         }
-        Set-ItemProperty -Path $keyPath -Name "LockedStartLayout" -Value 1
         Set-ItemProperty -Path $keyPath -Name "LockedStartLayout" -Value 1
         Set-ItemProperty -Path $keyPath -Name "StartLayoutFile" -Value $layoutFile
     }
@@ -444,11 +442,8 @@ Function StartMenu {
         $keyPath = $basePath + "\Explorer" 
         Set-ItemProperty -Path $keyPath -Name "LockedStartLayout" -Value 0
     }
-    Write-Host " Clearing Pinned Start Icons"
     Stop-Process -name explorer -force | Out-Null 2>$NULL
-    Write-Host " Applying Taskbar Icons"
     Import-StartLayout -LayoutPath $layoutFile -MountPath $env:SystemDrive\
-    Write-Host " Applied Taskbar Icons"
     Write-Host " Removing layout.xml files "
     Remove-Item $layoutFile
     taskkill /F /IM explorer.exe | Out-Null 2>$NULL
@@ -458,19 +453,12 @@ Function UndoOneDrive{
     $onedrivelocation = "$env:SystemRoot\SysWOW64\OneDriveSetup.exe"
     Write-Host " Starting $onedrivelocation"
     Start-Process $onedrivelocation /Silent -Wait
-    If (!(Test-Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\OneDrive")) {
-        New-Item -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\OneDrive" | Out-Null 2>$NULL
-    }
-    Set-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\OneDrive" -Name "DisableFileSyncNGSC" -Type DWord -Value 0
     Write-Host "`n `n OneDrive reinstalled."
 }
 Function OneDrive {
-    Write-Host "`n$frmt `n Disabling OneDrive..."
-    #If (!(Test-Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\OneDrive")) {
-    #    New-Item -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\OneDrive" | Out-Null 2>$NULL
-    #}
-    #Set-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\OneDrive" -Name "DisableFileSyncNGSC" -Type DWord -Value 1
+    Write-Host " Stopping OneDrive"
     Stop-Process -Name "OneDrive" -ErrorAction SilentlyContinue
+    Start-Sleep -Milliseconds 500
     Start-Sleep -s 2
     Write-Host " Uninstalling OneDrive..."
     $onedrive = "$env:SYSTEMROOT\SysWOW64\OneDriveSetup.exe"
@@ -485,12 +473,6 @@ Function OneDrive {
     Remove-Item -Path "$env:LOCALAPPDATA\Microsoft\OneDrive" -Force -Recurse -ErrorAction SilentlyContinue
     Remove-Item -Path "$env:PROGRAMDATA\Microsoft OneDrive" -Force -Recurse -ErrorAction SilentlyContinue
     Remove-Item -Path "$env:SYSTEMDRIVE\OneDriveTemp" -Force -Recurse -ErrorAction SilentlyContinue
-    #If (!(Test-Path "HKCR:")) {
-    #    New-PSDrive -Name HKCR -PSProvider Registry -Root HKEY_CLASSES_ROOT | Out-Null 2>$NULL
-    #}
-    #Remove-Item -Path "HKCR:\CLSID\{018D5C66-4533-4307-9B53-224DE2ED1FE6}" -Recurse -ErrorAction SilentlyContinue
-    #Remove-Item -Path "HKCR:\Wow6432Node\CLSID\{018D5C66-4533-4307-9B53-224DE2ED1FE6}" -Recurse -ErrorAction SilentlyContinue
-    Write-Host " Disabled OneDrive"
 }
 $Programs = @(
 #Unnecessary Windows 10 AppX Apps
@@ -524,7 +506,7 @@ $Programs = @(
 "MicrosoftTeams"
 "Microsoft.Wallet"
 "Microsoft.Whiteboard"
- "Microsoft.WindowsAlarms"
+"Microsoft.WindowsAlarms"
 "Microsoft.WindowsFeedbackHub"
 "Microsoft.WindowsMaps"
 #"Microsoft.WindowsPhone"
@@ -611,7 +593,7 @@ $Programs = @(
 "*Hulu*"
 "*HiddenCity*"
 "*AdobePhotoshopExpress*"
-
+ 
 #Social Networking
 "57540AMZNMobileLLC.AmazonAlexa"
 "*TikTok*"
@@ -650,46 +632,53 @@ Function Debloat {
     }
 }
 Function UndoDebloat {
-    Write-Host "`n$frmt `n Reinstalling bloatware for this specific machine `n `n$frmt "
-    foreach ($Program in $Programs) {
-    Write-Host "Attempting to Reinstall $Program"
-    Get-AppxPackage -Name $Program| Get-AppxPackage
-    Get-AppxProvisionedPackage -Online | Where-Object DisplayName -like $Program | Get-AppxProvisionedPackage -Online
-    }
+    #Write-Host "`n$frmt `n Reinstalling bloatware for this specific machine `n `n$frmt "
+    #foreach ($Program in $Programs) {
+    #Write-Host "Attempting to Reinstall $Program"
+    #Get-AppxPackage -Name $Program| Get-AppxPackage
+    #Get-AppxProvisionedPackage -Online | Where-Object DisplayName -like $Program | Get-AppxProvisionedPackage -Online
+
+
+    Get-AppxPackage -AllUsers| Foreach {Add-AppxPackage -DisableDevelopmentMode -Register "$($_.InstallLocation)\AppXManifest.xml"}
 }
+
 Function Registry {
     Write-Host "$frmt Applying Registry Changes $frmt"
-    #On Charger
-    Write-Host " Changing On AC Sleep Settings"
-    powercfg -change -standby-timeout-ac "30"
-    powercfg -change -monitor-timeout-ac "15"
-    #On Battery
-    Write-Host " Changing On Battery Sleep Settings"
-    powercfg -change -standby-timeout-dc "15"
-    powercfg -change -monitor-timeout-dc "10"
-    
-    REG ADD "HKCU\Software\Microsoft\Siuf\Rules" /v "NumberOfSIUFInPeriod" /t REG_DWORD /d "0" /f 2>$NULL
-    REG ADD "HKCU\Software\Microsoft\Siuf\Rules" /v "PeriodInNanoSeconds" /t REG_QWORD /d "0" /f 2>$NULL
-    REG ADD "HKLM\Software\Microsoft\WindowsUpdate\UX\Settings" /v "UxOption" /t REG_DWORD /d "1" /f 2>$NULL
+
+    Write-Host " Changing how often Windows asks for feedback to never"
+    Set-ItemProperty "HKCU:\Software\Microsoft\Siuf\Rules" -Name "NumberOfSIUFInPeriod" -Type DWORD -Value 0 2>$NULL
+    Set-ItemProperty "HKCU:\Software\Microsoft\Siuf\Rules" -Name "PeriodInNanoSeconds" -Type QWORD -Value 0 2>$NULL
+
+    Write-Host " Setting Windows Updates to Check for updates but let me choose whether to download and install them"
+    Set-ItemProperty "HKLM:\Software\Microsoft\WindowsUpdate\UX\Settings" -Name UxOption -Type DWORD -Value 2 2>$NULL
+   
+    Write-Host " Disabling Windows Feedback Notifications"
+    Set-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\DataCollection" -Name "DoNotShowFeedbackNotifications" -Type DWord -Value 1 
     
     
-    REG DELETE "HKCU\Software\Microsoft\Windows\CurrentVersion\ContentDeliveryManager\Subscriptions" /f 2>$NULL
-    REG DELETE "HKCU\Software\Microsoft\Windows\CurrentVersion\ContentDeliveryManager\SuggestedApps" /f 2>$NULL
-    REG ADD "HKCU\Software\Policies\Microsoft\Windows\EdgeUI" /v "DisableMFUTracking" /t REG_DWORD /d "1" /f 2>$NULL
-    REG ADD "HKCU\SOFTWARE\Microsoft\Windows\CurrentVersion\UserProfileEngagement" /v "ScoobeSystemSettingEnabled" /t REG_DWORD /d "0" /f 2>$NULL
-    #Set-ItemProperty -Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\Ribbon" /v "MinimizedStateTabletModeOff"
+    Write-Host " Disabling Windows Pop-Ups on Start-Up ex. Let's finish setting up your device - Get Even More Out of Windows - Upgrade to Windows 11 Popup"
+    Set-ItemProperty "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\UserProfileEngagement" -Name "ScoobeSystemSettingEnabled" -Type DWORD -Value 0
+
     Write-Host " Expanding Explorer Ribbon"
-    REG ADD "HKCU\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\Ribbon" /v "MinimizedStateTabletModeOff" /t REG_DWORD /d "0" /f 2>$NULL
+    Set-ItemProperty -Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\Ribbon" -Name "MinimizedStateTabletModeOff" -Value 1 2>$NULL
+    
     Write-Host " Disabling Show Recent in Explorer Menu"
     Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer" -Name "ShowRecent" -Value 0
+    
     Write-Host " Disabling Show Frequent in Explorer Menu"
     Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer" -Name "ShowFrequent" -Value 0
+    
     Write-Host " Enabling Snap Assist Flyout"
     Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "EnableSnapAssistFlyout" -Value 1
+    
     Write-Host " Enabling File Extensions"
     Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "HideFileExt" -Value 0
+    
     Write-Host " Setting Explorer Launch to This PC"
     Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "LaunchTo" -Value 1
+    
+    Write-Host " Setting Start Tab in task manager to Performance"
+    Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\TaskManager" -Name StartUpTab -Value 1 -Type DWord
 
     If ($BuildNumber -lt $WantedBuild) {
         Write-Host " Applying Windows 10 Specific Registry Keys `n"
@@ -698,41 +687,36 @@ Function Registry {
         Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "ShowCortanaButton" -Value 0
         Write-Host " Unpinning TaskView Icon from Taskbar"
         Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "ShowTaskViewButton" -Value 0
-        REG DELETE "HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\MultiTaskingView\AllUpView" /v Enabled /f  2>$NULL
         Write-Host " Changing Searchbox to Icon Format on Taskbar"
-        REG ADD "HKCU\SOFTWARE\Microsoft\Windows\CurrentVersion\Search" /v "SearchboxTaskbarMode" /t REG_DWORD /d "1" /f 2>$NULL
-    
+        Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Search" -Name "SearchboxTaskbarMode" -Value 1
+        
     }
     #11 Specific
     if ($BuildNumber -gt $WantedBuild) {
         Write-Host " Applying Windows 11 Specific Registry Keys `n"
-        Start-Sleep 1
-        Write-Host " Unpinning Widgets and Teams from taskbar"
-        Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "TaskBarDa" -Value 0
+        #Write-Host " Unpinning Widgets and Teams from taskbar"
+        Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "ShowTaskViewButton" -Value 0
+        #Taskbarda is Widgets - Currently Widgets shows temperature bottom left
+        #Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "TaskBarDa" -Value 0
         Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "TaskBarMn" -Value 0
+        Start-Sleep 10
     } 
-
+    
+    Write-Host " Adding User Files to desktop"
     Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\HideDesktopIcons\NewStartPanel" -Name "{59031a47-3f72-44a7-89c5-5595fe6b30ee}" -Value 0
-    Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\HideDesktopIcons\NewStartPanel" -Name "{20D04FE0-3AEA-1069-A2D8-08e02B30309D}" -Value 0
+    
+    Write-Host " Adding This PC icon to desktop"
     Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\HideDesktopIcons\NewStartPanel" -Name "{20D04FE0-3AEA-1069-A2D8-08002B30309D}" -Value 0
     
+    Write-Host " Disabling Feeds open on hover"
     Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Feeds" -Name "ShellFeedsTaskbarOpenOnHover" -Value 0
-    Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Search" -Name "SearchboxTaskbarMode" -Value 1
     
-    #OEM Information
-    Write-Host " Applying OEM Information"
-    Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\OEMInformation" -Name "Manufacturer" -Type String -Value "Mother Computers"
-    Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\OEMInformation" -Name "Model" -Type String -Value "Mother Computers - (250) 479-8561"
-    Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\OEMInformation" -Name "SupportHours" -Type String -Value "Monday - Saturday 9AM-5PM | Sunday - Closed"
-    Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\OEMInformation" -Name "SupportURL" -Type String -Value "https://www.mothercomputers.com" 
-    Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\OEMInformation" -Name "SupportPhone" -Type String -Value "(250) 479-8561" 
-    
+    Write-Host " Disabling Content Delivery & Content Delivery Related Setings - ContentDelivery, Pre-installed Microsoft, Pre-installed OEM Apps, Silent"
     Set-ItemProperty -Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\ContentDeliveryManager" -Name "ContentDeliveryAllowed" -Type DWord -Value 0 
     Set-ItemProperty -Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\ContentDeliveryManager" -Name "OemPreInstalledAppsEnabled" -Type DWord -Value 0 
     Set-ItemProperty -Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\ContentDeliveryManager" -Name "PreInstalledAppsEnabled" -Type DWord -Value 0 
     Set-ItemProperty -Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\ContentDeliveryManager" -Name "PreInstalledAppsEverEnabled" -Type DWord -Value 0 
     Set-ItemProperty -Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\ContentDeliveryManager" -Name "SilentInstalledAppsEnabled" -Type DWord -Value 0 
-    Set-ItemProperty -Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\ContentDeliveryManager" -Name "SoftLandingEnabled" -Type DWord -Value 0 
     Set-ItemProperty -Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\ContentDeliveryManager" -Name "SubscribedContentEnabled" -Type DWord -Value 0 
     Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\ContentDeliveryManager" -Name "SubscribedContent-310093Enabled" -Type DWord -Value 0 
     Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\ContentDeliveryManager" -Name "SubscribedContent-338387Enabled" -Type DWord -Value 0 
@@ -743,30 +727,150 @@ Function Registry {
     Set-ItemProperty -Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\ContentDeliveryManager" -Name "SubscribedContent-353696Enabled" -Type DWord -Value 0 
     Set-ItemProperty -Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\ContentDeliveryManager" -Name "SubscribedContent-353698Enabled" -Type DWord -Value 0 
     Set-ItemProperty -Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\ContentDeliveryManager" -Name "SystemPaneSuggestionsEnabled" -Type DWord -Value 0 
+    Set-ItemProperty -Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\ContentDeliveryManager" -Name "SoftLandingEnabled" -Type DWord -Value 0 
+
+    Write-Host " Removing Registry Related OEM Auto Install Program Keys"
+    Remove-Item "HKCU:\Software\Microsoft\Windows\CurrentVersion\ContentDeliveryManager\SuggestedApps"
+    Remove-Item "HKCU:\Software\Microsoft\Windows\CurrentVersion\ContentDeliveryManager\Subscriptions" 
     
-    Set-ItemProperty -Path "HKCU:\Control Panel\Mouse" -Name "MouseSpeed" -Value 0 
-    Set-ItemProperty -Path "HKCU:\Control Panel\Mouse" -Name "MouseThreshold1" -Value 0 
-    Set-ItemProperty -Path "HKCU:\Control Panel\Mouse" -Name "MouseThreshold2" -Value 0 
-    
+    #Privacy Related
+    Write-Host " Disabling Contact Harvesting"
     Set-ItemProperty -Path "HKCU:\Software\Microsoft\InputPersonalization\TrainedDataStore" -Name "HarvestContacts" -Value 0 
+    
+    Write-Host " Restricting Ink and Text Collection (Key-Logger)"
     Set-ItemProperty -Path "HKCU:\Software\Microsoft\InputPersonalization" -Name "RestrictImplicitInkCollection" -Value 1 
     Set-ItemProperty -Path "HKCU:\Software\Microsoft\InputPersonalization" -Name "RestrictImplicitTextCollection" -Value 1 
     
+    Write-Host " Declining Microsoft Privacy Policy"
     Set-ItemProperty -Path "HKCU:\Software\Microsoft\Personalization\Settings" -Name "AcceptedPrivacyPolicy" -Value 0 
     
-    REG ADD "HKCU\Software\Microsoft\Windows\CurrentVersion\AdvertisingInfo" /f 2>$NULL
-    REG ADD "HKCU\Software\Microsoft\Windows\CurrentVersion\AdvertisingInfo" /v "Enabled" /t REG_DWORD /d "0" /f 2>$NULL
-    REG ADD "HKCU\Software\Microsoft\Windows\CurrentVersion\AdvertisingInfo" /v "DisabledByGroupPolicy" /t REG_DWORD /d "1" /f 2>$NULL
+    Write-Host " Disabling App Launch Tracking"
+    Set-ItemProperty -Path "HKCU:\Software\Policies\Microsoft\Windows\EdgeUI" -Name DisableMFUTracking -Value 1 -Type DWord
+
+    Write-Host " Disabling Advertiser ID"
+    Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\AdvertisingInfo" -Name DisabledByGroupPolicy -Value 1 -Type DWord
+    Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\AdvertisingInfo" -Name Enabled -Value 0 -Type DWord
+
+    Write-Host "`n `n ======================================== `n `n Registry Modifications Complete `n `n ======================================== `n `n"
+    #Write-Host " Disabling Cloud Relating Search Content (OneDrive, SharePoint, Outlook, Bing)"
+    #Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\SearchSettings" -Name "IsMSACloudSearchEnabled" -Value 0 
+    #Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\SearchSettings" -Name "IsAADCloudSearchEnabled" -Value 0 
+
+    #Disable-ScheduledTask -TaskName "Microsoft\Windows\Feedback\Siuf\DmClient" -ErrorAction SilentlyContinue | Out-Null 2>$NULL
+    #Disable-ScheduledTask -TaskName "Microsoft\Windows\Feedback\Siuf\DmClientOnScenarioDownload" -ErrorAction SilentlyContinue | Out-Null 2>$NULL
+}  
+
+Function UndoRegistry {
+    Write-Host "$frmt Applying Registry Changes $frmt"
+
+    Write-Host " Resetting how often Windows asks for feedback to never"
+    Remove-Item "HKCU:\Software\Microsoft\Siuf"
+
+    Write-Host " Setting Windows Updates to Never Check for Updates"
+    Set-ItemProperty "HKLM:\Software\Microsoft\WindowsUpdate\UX\Settings" -Name UxOption -Type DWORD -Value 0
+   
+    Write-Host " Enabling Windows Feedback Notifications"
+    Set-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\DataCollection" -Name "DoNotShowFeedbackNotifications" -Type DWord -Value 0
     
-    Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\SearchSettings" -Name "IsMSACloudSearchEnabled" -Value 0 
-    Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\SearchSettings" -Name "IsAADCloudSearchEnabled" -Value 0 
     
-    Set-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\DataCollection" -Name "DoNotShowFeedbackNotifications" -Type DWord -Value 1 
-    Disable-ScheduledTask -TaskName "Microsoft\Windows\Feedback\Siuf\DmClient" -ErrorAction SilentlyContinue | Out-Null 2>$NULL
-    Disable-ScheduledTask -TaskName "Microsoft\Windows\Feedback\Siuf\DmClientOnScenarioDownload" -ErrorAction SilentlyContinue | Out-Null 2>$NULL
+    Write-Host " Enabling Windows Pop-Ups on Start-Up ex. Let's finish setting up your device - Get Even More Out of Windows - Upgrade to Windows 11 Popup"
+    Set-ItemProperty "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\UserProfileEngagement" -Name "ScoobeSystemSettingEnabled" -Type DWORD -Value 1
+
+    Write-Host " Enabling Show Recent in Explorer Menu"
+    Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer" -Name "ShowRecent" -Value 1
+    
+    Write-Host " Enabling Show Frequent in Explorer Menu"
+    Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer" -Name "ShowFrequent" -Value 1
+    
+    Write-Host " Hiding Snap Assist Flyout"
+    Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "EnableSnapAssistFlyout" -Value 1
+    
+    Write-Host " Hiding File Extensions"
+    Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "HideFileExt" -Value 1
+    
+    Write-Host " Setting Explorer Launch to Quick Access"
+    Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "LaunchTo" -Value 2
+    
+    Write-Host " Setting Start Tab in task manager to default"
+    Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\TaskManager" -Name StartUpTab -Value 0 -Type DWord
+
+    If ($BuildNumber -lt $WantedBuild) {
+        Write-Host " Applying Windows 10 Specific Registry Keys `n"
+        Start-Sleep 1
+        Write-Host " Re-Pinning Cortana Icon on Taskbar"
+        Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "ShowCortanaButton" -Value 1
+        Write-Host " Re-Pinning TaskView Icon from Taskbar"
+        Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "ShowTaskViewButton" -Value 1
+        Write-Host " Changing Search to Bar Format on Taskbar"
+        Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Search" -Name "SearchboxTaskbarMode" -Value 2
+        
+    }
+    #11 Specific
+    if ($BuildNumber -gt $WantedBuild) {
+        Write-Host " Applying Windows 11 Specific Registry Keys `n"
+        Write-Host " Re-Pinning Widgets and Teams to taskbar"
+        Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "ShowTaskViewButton" -Value 1
+        #Taskbarda is Widgets - Currently Widgets shows temperature bottom left
+        #Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "TaskBarDa" -Value 0
+        Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "TaskBarMn" -Value 1
+        Start-Sleep 10
+    } 
+    
+    Write-Host " Removing User Files from desktop"
+    Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\HideDesktopIcons\NewStartPanel" -Name "{59031a47-3f72-44a7-89c5-5595fe6b30ee}" -Value 1
+    
+    Write-Host " Removing This PC icon from desktop"
+    Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\HideDesktopIcons\NewStartPanel" -Name "{20D04FE0-3AEA-1069-A2D8-08002B30309D}" -Value 1
+    
+    Write-Host " Enabling Feeds open on hover"
+    Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Feeds" -Name "ShellFeedsTaskbarOpenOnHover" -Value 1
+    
+    Write-Host " Enabling Content Delivery & Content Delivery Related Setings - ContentDelivery, Pre-installed Microsoft, Pre-installed OEM Apps, Silent"
+    Set-ItemProperty -Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\ContentDeliveryManager" -Name "ContentDeliveryAllowed" -Type DWord -Value 1
+    Set-ItemProperty -Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\ContentDeliveryManager" -Name "OemPreInstalledAppsEnabled" -Type DWord -Value 1
+    Set-ItemProperty -Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\ContentDeliveryManager" -Name "PreInstalledAppsEnabled" -Type DWord -Value 1
+    Set-ItemProperty -Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\ContentDeliveryManager" -Name "PreInstalledAppsEverEnabled" -Type DWord -Value 1
+    Set-ItemProperty -Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\ContentDeliveryManager" -Name "SilentInstalledAppsEnabled" -Type DWord -Value 1
+    Set-ItemProperty -Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\ContentDeliveryManager" -Name "SubscribedContentEnabled" -Type DWord -Value 1
+    Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\ContentDeliveryManager" -Name "SubscribedContent-310093Enabled" -Type DWord -Value 1
+    Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\ContentDeliveryManager" -Name "SubscribedContent-338387Enabled" -Type DWord -Value 1 
+    Set-ItemProperty -Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\ContentDeliveryManager" -Name "SubscribedContent-338388Enabled" -Type DWord -Value 1 
+    Set-ItemProperty -Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\ContentDeliveryManager" -Name "SubscribedContent-338389Enabled" -Type DWord -Value 1 
+    Set-ItemProperty -Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\ContentDeliveryManager" -Name "SubscribedContent-338393Enabled" -Type DWord -Value 1 
+    Set-ItemProperty -Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\ContentDeliveryManager" -Name "SubscribedContent-353694Enabled" -Type DWord -Value 1 
+    Set-ItemProperty -Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\ContentDeliveryManager" -Name "SubscribedContent-353696Enabled" -Type DWord -Value 1 
+    Set-ItemProperty -Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\ContentDeliveryManager" -Name "SubscribedContent-353698Enabled" -Type DWord -Value 1 
+    Set-ItemProperty -Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\ContentDeliveryManager" -Name "SystemPaneSuggestionsEnabled" -Type DWord -Value 1 
+    Set-ItemProperty -Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\ContentDeliveryManager" -Name "SoftLandingEnabled" -Type DWord -Value 1 
+
+    #Write-Host " Removing Registry Related OEM Auto Install Program Keys"
+    #Remove-Item "HKCU:\Software\Microsoft\Windows\CurrentVersion\ContentDeliveryManager\SuggestedApps"
+    #Remove-Item "HKCU:\Software\Microsoft\Windows\CurrentVersion\ContentDeliveryManager\Subscriptions" 
+    
+    #Privacy Related
+    Write-Host " Enabling Contact Harvesting"
+    Set-ItemProperty -Path "HKCU:\Software\Microsoft\InputPersonalization\TrainedDataStore" -Name "HarvestContacts" -Value 1
+    
+    Write-Host " Allowing Ink and Text Collection (Key-Logger)"
+    Set-ItemProperty -Path "HKCU:\Software\Microsoft\InputPersonalization" -Name "RestrictImplicitInkCollection" -Value 0
+    Set-ItemProperty -Path "HKCU:\Software\Microsoft\InputPersonalization" -Name "RestrictImplicitTextCollection" -Value 0 
+    
+    Write-Host " Accepting Microsoft Privacy Policy"
+    Set-ItemProperty -Path "HKCU:\Software\Microsoft\Personalization\Settings" -Name "AcceptedPrivacyPolicy" -Value 1
+    
+    Write-Host " Enabling App Launch Tracking"
+    Set-ItemProperty -Path "HKCU:\Software\Policies\Microsoft\Windows\EdgeUI" -Name DisableMFUTracking -Value 0 -Type DWord
+
+    Write-Host " Enabling Advertiser ID"
+    Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\AdvertisingInfo" -Name DisabledByGroupPolicy -Value 1 -Type DWord
+    Remove-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\AdvertisingInfo" -Name "Enabled"
+    Remove-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\AdvertisingInfo" -Name "DisabledByGroupPolicy"
+
     Write-Host "`n `n ======================================== `n `n Registry Modifications Complete `n `n ======================================== `n `n"
 }  
-Function UndoRegistry {
+
+
+Function UndoRegistryOLDVERSION {
     Write-Host "$frmt Undoing Registry Changes $frmt"
     REG ADD "HKCU\Software\Policies\Microsoft\Windows\EdgeUI" /v "DisableMFUTracking" /t REG_DWORD /d 0 /f
     REG ADD "HKCU\Software\Microsoft\Siuf\Rules" /v "NumberOfSIUFInPeriod" /t REG_DWORD /d 1 /f
@@ -858,7 +962,15 @@ Function Cleanup {
     #Write-Host " Added"
     #Start-Process Chrome -WindowStyle Minimized
     Start-Process https://chrome.google.com/webstore/detail/ublock-origin/cjpalhdlnbpafiamejdnhcphjbkeiagm
-    
+    #On Charger
+    Write-Host " Changing On AC Sleep Settings"
+    powercfg -change -standby-timeout-ac "30"
+    powercfg -change -monitor-timeout-ac "15"        
+    #On Battery
+    Write-Host " Changing On Battery Sleep Settings"
+    powercfg -change -standby-timeout-dc "15"
+    powercfg -change -monitor-timeout-dc "10"
+
     Remove-Item "$Env:Temp\*.*" -Force -Recurse -Confirm:$false -ErrorAction SilentlyContinue -Verbose 2>$NULL
     $EdgeShortcut = "$Env:USERPROFILE\Desktop\Microsoft Edge.lnk"
     If ($EdgeShortcut) { 
@@ -909,7 +1021,6 @@ $themebutton.Add_Click{
 $programsbutton.Add_Click{
     Start-Process appwiz.cpl
 }
-
 $updatesbutton.Add_Click{
     Start-Process ms-settings:windowsupdate
 }
