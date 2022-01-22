@@ -343,6 +343,8 @@ If (!(Test-Path $Location1)) {
     Write-Host "$package1 Installed."
     } else {
     Write-Host "`n Verified $package1 is already Installed. Moving On."
+    Write-Host " Adding UBlock Origin to Google Chrome"
+    REG ADD "HKEY_LOCAL_MACHINE\Software\Wow6432Node\Google\Chrome\Extensions\cjpalhdlnbpafiamejdnhcphjbkeiagm" /v update_url /t REG_SZ /d https://clients2.google.com/service/update2/crx
     }
 If (!(Test-Path $Location2)) {
     Write-Host "`n `n Installing $Package2 `n" 
@@ -659,7 +661,7 @@ Function Registry {
     
     
     Write-Host " Disabling Windows Pop-Ups on Start-Up ex. Let's finish setting up your device - Get Even More Out of Windows - Upgrade to Windows 11 Popup"
-    Set-ItemProperty "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\UserProfileEngagement" -Name "ScoobeSystemSettingEnabled" -Type DWORD -Value 0
+    Set-ItemProperty "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\UserProfileEngagement" -Name "ScoobeSystemSettingEnabled" -Type DWORD -Value 0 2>$NULL
 
     Write-Host " Expanding Explorer Ribbon"
     Set-ItemProperty -Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\Ribbon" -Name "MinimizedStateTabletModeOff" -Value 1 2>$NULL
@@ -680,7 +682,7 @@ Function Registry {
     Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "LaunchTo" -Value 1
     
     Write-Host " Setting Start Tab in task manager to Performance"
-    Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\TaskManager" -Name StartUpTab -Value 1 -Type DWord
+    Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\TaskManager" -Name "StartUpTab" -Value 1 -Type DWord
 
     If ($BuildNumber -lt $WantedBuild) {
         Write-Host " Applying Windows 10 Specific Registry Keys `n"
@@ -732,8 +734,8 @@ Function Registry {
     Set-ItemProperty -Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\ContentDeliveryManager" -Name "SoftLandingEnabled" -Type DWord -Value 0 
 
     Write-Host " Removing Registry Related OEM Auto Install Program Keys"
-    Remove-Item "HKCU:\Software\Microsoft\Windows\CurrentVersion\ContentDeliveryManager\SuggestedApps"
-    Remove-Item "HKCU:\Software\Microsoft\Windows\CurrentVersion\ContentDeliveryManager\Subscriptions" 
+    Remove-Item "HKCU:\Software\Microsoft\Windows\CurrentVersion\ContentDeliveryManager\SuggestedApps" -Recurse -Force -ErrorAction SilentlyContinue
+    Remove-Item "HKCU:\Software\Microsoft\Windows\CurrentVersion\ContentDeliveryManager\Subscriptions" -Recurse -Force -ErrorAction SilentlyContinue
     
     #Privacy Related
     Write-Host " Disabling Contact Harvesting"
@@ -747,7 +749,7 @@ Function Registry {
     Set-ItemProperty -Path "HKCU:\Software\Microsoft\Personalization\Settings" -Name "AcceptedPrivacyPolicy" -Value 0 
     
     Write-Host " Disabling App Launch Tracking"
-    Set-ItemProperty -Path "HKCU:\Software\Policies\Microsoft\Windows\EdgeUI" -Name DisableMFUTracking -Value 1 -Type DWord
+    Set-ItemProperty -Path "HKCU:\Software\Policies\Microsoft\Windows\EdgeUI" -Name DisableMFUTracking -Value 1 -Type DWord 2>$NULL
 
     Write-Host " Disabling Advertiser ID"
     Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\AdvertisingInfo" -Name DisabledByGroupPolicy -Value 1 -Type DWord
@@ -766,7 +768,7 @@ Function UndoRegistry {
     Write-Host "$frmt Applying Registry Changes $frmt"
 
     Write-Host " Resetting how often Windows asks for feedback to never"
-    Remove-Item "HKCU:\Software\Microsoft\Siuf"
+    Remove-Item "HKCU:\Software\Microsoft\Siuf" -Force -Recurse -ErrorAction SilentlyContinue
 
     Write-Host " Setting Windows Updates to Never Check for Updates"
     Set-ItemProperty "HKLM:\Software\Microsoft\WindowsUpdate\UX\Settings" -Name UxOption -Type DWORD -Value 0
@@ -865,8 +867,8 @@ Function UndoRegistry {
 
     Write-Host " Enabling Advertiser ID"
     Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\AdvertisingInfo" -Name DisabledByGroupPolicy -Value 1 -Type DWord
-    Remove-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\AdvertisingInfo" -Name "Enabled"
-    Remove-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\AdvertisingInfo" -Name "DisabledByGroupPolicy"
+    Remove-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\AdvertisingInfo" -Name "Enabled" -Force -Recurse -ErrorAction SilentlyContinue
+    Remove-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\AdvertisingInfo" -Name "DisabledByGroupPolicy" -Force -Recurse -ErrorAction SilentlyContinue
 
     Write-Host "`n `n ======================================== `n `n Registry Modifications Complete `n `n ======================================== `n `n"
 }  
@@ -958,12 +960,6 @@ Function Cleanup {
     Write-Host " Restarting Explorer"
     Start-Sleep 1
     Start-Process Explorer
-    #Write-Host " Adding UBlock Origin to Google Chrome"
-    #reg add HKLM\SOFTWARE\Policies\Google\Chrome\ExtensionInstallForcelist /v 1 /t REG_SZ /d cjpalhdlnbpafiamejdnhcphjbkeiagm /f
-    #Start-Sleep 4
-    #Write-Host " Added"
-    #Start-Process Chrome -WindowStyle Minimized
-    Start-Process https://chrome.google.com/webstore/detail/ublock-origin/cjpalhdlnbpafiamejdnhcphjbkeiagm
     #On Charger
     Write-Host " Changing On AC Sleep Settings"
     powercfg -change -standby-timeout-ac "30"
@@ -972,7 +968,9 @@ Function Cleanup {
     Write-Host " Changing On Battery Sleep Settings"
     powercfg -change -standby-timeout-dc "15"
     powercfg -change -monitor-timeout-dc "10"
-
+    Write-Host " Launching Chrome, Please accept UBlock Origin extension popup"
+    Start-Sleep -Milliseconds 400
+    Start-Process Chrome -ErrorAction SilentlyContinue
     Remove-Item "$Env:Temp\*.*" -Force -Recurse -Confirm:$false -ErrorAction SilentlyContinue -Verbose 2>$NULL
     $EdgeShortcut = "$Env:USERPROFILE\Desktop\Microsoft Edge.lnk"
     If ($EdgeShortcut) { 
