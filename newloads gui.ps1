@@ -648,6 +648,13 @@ Function Registry {
     Write-Host "$frmt Applying Registry Changes $frmt"
 
     Write-Host " Changing how often Windows asks for feedback to never"
+    If (!(Test-Path "HKCU:\Software\Microsoft\Siuf")) { 
+        New-Item -Path "HKCU:\Software\Microsoft" -Name "Siuf"
+    }
+
+    If (!(Test-Path "HKCU:\Software\Microsoft\Siuf\Rules")) {
+    New-Item -Path "HKCU:\Software\Microsoft\Siuf" -Name "Rules"
+    }
     Set-ItemProperty "HKCU:\Software\Microsoft\Siuf\Rules" -Name "NumberOfSiufInPeriod" -Type DWORD -Value 0 2>$NULL
     Set-ItemProperty "HKCU:\Software\Microsoft\Siuf\Rules" -Name "PeriodInNanoSeconds" -Type QWORD -Value 0 2>$NULL
 
