@@ -7,7 +7,7 @@ $host.UI.RawUI.WindowTitle = $Title
 Import-Module BitsTransfer
 #$Folder = Get-Location
 $dtime = (Get-Date -UFormat %H.%M-%Y.%m.%d)
-$programversion = "121.21.5"
+$programversion = "21.122.5"
 
 Function WinGInstallation { 
     if (Test-Path ~\AppData\Local\Microsoft\WindowsApps\winget.exe){
