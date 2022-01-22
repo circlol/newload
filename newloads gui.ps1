@@ -250,7 +250,7 @@ $Form.controls.AddRange(@($RunScript,$RunNoOEM,$UndoScript,$ExitButton,$mocologo
 #}
 Import-Module BitsTransfer
 
-$programversion = "121.21"
+$programversion = "121.21.2"
 
 $package1  = "Google.Chrome"
 $package2  = "Adobe.Acrobat.Reader.64-bit"
