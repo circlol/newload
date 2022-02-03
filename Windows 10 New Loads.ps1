@@ -331,7 +331,7 @@ Function Debloat {
         foreach ($Program in $Programs) {
             Get-AppxPackage -Name $Program | Remove-AppxPackage
             Get-AppxProvisionedPackage -Online| Where-Object DisplayName -like $Program | Remove-AppxProvisionedPackage -Online
-            Write-Host " Attempting removal of $Program."
+            Write-Host " Attempting removal of $Program."   
         }
     
 }
@@ -342,6 +342,9 @@ Function Registry {
     If (!(Test-Path "HKCU:\Software\Microsoft\Siuf")) { 
         New-Item -Path "HKCU:\Software\Microsoft" -Name "Siuf"
     }
+
+    Write-Host "Setting Sounds > Communications to 'Do Nothing'"
+    Set-ItemProperty "HKCU:\Software\Microsoft\MultiMedia\Audio" -Name "UserDuckingPreference" -Value 3 -Type DWord
 
     If (!(Test-Path "HKCU:\Software\Microsoft\Siuf\Rules")) {
     New-Item -Path "HKCU:\Software\Microsoft\Siuf" -Name "Rules"
