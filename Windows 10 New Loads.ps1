@@ -20,7 +20,7 @@ Function WinGInstallation {
         $nid = (Get-Process AppInstaller).Id
         Wait-Process -Id $nid
         Write-Host " Winget Installed"
-        Start-Sleep 4
+        Start-Sleep -s 4
         Stop-Process -Name AppInstaller -Force
     }
 }
@@ -49,7 +49,7 @@ If (!(Test-Path $Location1)) {
     Write-Host "`n `n Installing $Package1 `n" 
     winget install $package1 -s winget -e -h
     Write-Host " Adding UBlock Origin to Google Chrome"
-    Start-Sleep 3
+    Start-Sleep -s 3
     REG ADD "HKEY_LOCAL_MACHINE\Software\Wow6432Node\Google\Chrome\Extensions\cjpalhdlnbpafiamejdnhcphjbkeiagm" /v update_url /t REG_SZ /d https://clients2.google.com/service/update2/crx
     } else {
     Write-Host " Verified $package1 is already Installed. Moving on."
@@ -69,7 +69,7 @@ If (!(Test-Path $Location3)) {
 }            
 Function Visuals {
     Write-Host "Checking your OS.."
-    Start-Sleep 2
+    Start-Sleep -s 2
     $BuildNumber = (Get-ItemProperty -Path c:\windows\system32\hal.dll).VersionInfo.ProductVersion
     $WantedBuild = "10.0.22000"
     If ($BuildNumber -gt $WantedBuild) {
@@ -77,14 +77,14 @@ Function Visuals {
         Start-BitsTransfer -Source "https://github.com/circlol/newload/raw/main/Assets/win11-light.deskthemepack" -Destination "$env:temp\win11-light.deskthemepack"
         #Start-BitsTransfer -Source "https://www40.zippyshare.com/d/ITnX1PTu/920358/win11-light.deskthemepack" -Destination win11-light.deskthemepack
         Start-Process "$env:temp\win11-light.deskthemepack"
-        Start-Sleep 3
+        Start-Sleep -s 3
         taskkill /F /IM systemsettings.exe 2>$NULL
     } else {
         If ($BuildNumber -lt $WantedBuild) {
             write-Host "I have detected that you are on Windows 10 `n `nApplying Appropriate Theme & Flagging Required Settings"
             Start-BitsTransfer -Source "https://github.com/circlol/newload/raw/main/Assets/win10-purple.deskthemepack" -Destination "$env:temp\win10-purple.deskthemepack"
             Start-Process "$env:temp\win10-purple.deskthemepack"
-            Start-Sleep 3
+            Start-Sleep -s 3
             taskkill /F /IM systemsettings.exe 2>$NULL
         }
     }
@@ -95,7 +95,7 @@ Function Visuals {
         New-Item -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Policies" -Name "System"
     }
     Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Policies\System" -Name "WallpaperStyle" -Type String -Value 2 -ErrorAction SilentlyContinue
-    Start-Sleep 1
+    Start-Sleep -s 1
     Start-Process Explorer -Wait
     #taskkill /F /IM explorer.exe 2>$NULL
 }
@@ -461,7 +461,7 @@ Function Registry {
     If (!(Test-Path "HKCU:\Software\Policies\Microsoft\Windows\EdgeUI")){
         New-Item -Path "HKCU:\Software\Policies\Microsoft\Windows" -Name "EdgeUI"
     }
-    Set-ItemProperty -Path "HKCU:\Software\Policies\Microsoft\Windows\EdgeUI" -Name DisableMFUTracking -Value 1 -Type DWord 2>$NULL
+    Set-ItemProperty -Path "HKCU:\Software\Policies\Microsoft\Windows\EdgeUI" -Name "DisableMFUTracking" -Value 1 -Type DWord
 
     Write-Host " Disabling Advertiser ID"
     Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\AdvertisingInfo" -Name DisabledByGroupPolicy -Value 1 -Type DWord
@@ -498,7 +498,7 @@ Function checkme {
     If ($Time -gt $License) {
         Clear-Host
         Write-Host $lie
-        Start-Sleep 2
+        Start-Sleep -s 2
         Exit
         } else {
             If ($Time -gt $tslrd) {
@@ -506,12 +506,18 @@ Function checkme {
                 Write-Host " `n Creating Restore Point in case something bad happens"
                 Enable-ComputerRestore -Drive "C:\"
                 Checkpoint-Computer -Description "OOBE Fresh Load" -RestorePointType "MODIFY_SETTINGS"
-                Start-Sleep 2
+                Start-Sleep -s 2
                 Clear-Host
+                $blstat = "on"
+                If ((Get-BitLockerVolume -MountPoint "C:").ProtectionStatus -eq $blstat){
+                    Write-Host " Bitlocker seems to be enabled. Starting the decryption process."
+                    manage-bde -off "C:"
                 } else {
+                    Write-Host " Bitlocker is not enabled on this machine."
+                }} else {
                 Clear-Host
                 Write-Host $lie
-                Start-Sleep 2
+                Start-Sleep -s 2
                 Exit
             }
         }
@@ -572,7 +578,7 @@ Function Cleanup {
     If ($mocotheme3) { 
         Remove-Item $mocotheme3 -Force -Recurse -Confirm:$false -ErrorAction SilentlyContinue 2>$NULL
     }
-    #Start-Sleep 10
+    #Start-Sleep -s 10
     #taskkill /f /im Chrome.exe | Out-NULL 2>$NULL
 }
 
@@ -580,7 +586,7 @@ checkme
 clear-host
 Start-Transcript -LiteralPath "$env:USERPROFILE\Desktop\Automated Script Run - $dtime.txt"
 Write-Host "`n `n================================================================================================ `n `n `n `n `n `n `n `n New Loads Utility For Windows 10 & 11 `n Created by Mike Ivison `n Script Version : $programversion `n `n Script will run in : Automatic Mode `n `n Ideally run updates before continuing with this script. `n `n `n `n `n `n `n `n================================================================================================ `n `n"
-Start-Sleep 5
+Start-Sleep -s 5
 WinGInstallation 
 Write-Host "`n `n======================================== `n `n Installing Apps `n Please be patient as the programs install in the background. `n `n============================================================= `n `n"
 Programs
@@ -596,5 +602,5 @@ Write-Host "`n `n======================================== `n `n Finishing Up `n 
 Cleanup
 Stop-Transcript
 Write-Host "`n `n ================================================================================================ `n `n `n `n `n `n `n `n `n `n `n `n `n `n `n Script Completed `n `n `n `n `n `n `n `n `n `n `n `n `n `n `n ================================================================================================ `n `n"
-Start-Sleep 5
+Start-Sleep -s 5
 Exit

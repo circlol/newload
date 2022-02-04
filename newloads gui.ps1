@@ -292,7 +292,7 @@ w32tm /resync | Out-Null 2>$NULL
 If ($Time -gt $License) {
     Clear-Host
     Write-Host $lie
-    Start-Sleep 2
+    Start-Sleep -s 2
     Exit
     } else {
         If ($Time -gt $tslrd) {
@@ -300,12 +300,18 @@ If ($Time -gt $License) {
             Write-Host " `n Creating Restore Point incase something bad happens"
             Enable-ComputerRestore -Drive "C:\"
             Checkpoint-Computer -Description "RestorePoint1" -RestorePointType "MODIFY_SETTINGS"
-            Start-Sleep 2
+            Start-Sleep -s 2
             Clear-Host
+            $blstat = "on"
+            If ((Get-BitLockerVolume -MountPoint "C:").ProtectionStatus -eq $blstat){
+                Write-Host " Bitlocker seems to be enabled. Starting the decryption process."
+                manage-bde -off "C:"
             } else {
+                Write-Host " Bitlocker is not enabled on this machine."
+            }} else {
             Clear-Host
             Write-Host $lie
-            Start-Sleep 2
+            Start-Sleep -s 2
             Exit
         }
     }
@@ -320,7 +326,7 @@ if (Test-Path ~\AppData\Local\Microsoft\WindowsApps\winget.exe){
     $nid = (Get-Process AppInstaller).Id
     Wait-Process -Id $nid
     Write-Host " Winget Installed"
-    Start-Sleep 4
+    Start-Sleep -s 4
     Stop-Process -Name AppInstaller -Force
     }
 }
@@ -334,7 +340,7 @@ Function Programs {
         $nid = (Get-Process AppInstaller).Id
         Wait-Process -Id $nid
         Write-Host " Winget Installed"
-        Start-Sleep 4
+        Start-Sleep -s 4
         Stop-Process -Name AppInstaller -Force
     }
 If (!(Test-Path $Location1)) {
@@ -364,7 +370,7 @@ If (!(Test-Path $Location3)) {
 }             
 Function Visuals {
     Write-Host "Checking your OS.."
-    Start-Sleep 2
+    Start-Sleep -s 2
     $BuildNumber = (Get-ItemProperty -Path c:\windows\system32\hal.dll).VersionInfo.ProductVersion
     $WantedBuild = "10.0.22000"
     If ($BuildNumber -gt $WantedBuild) {
@@ -372,14 +378,14 @@ Function Visuals {
         Start-BitsTransfer -Source "https://github.com/circlol/newload/raw/main/Assets/win11-light.deskthemepack" -Destination "$env:temp\win11-light.deskthemepack"
         #Start-BitsTransfer -Source "https://www40.zippyshare.com/d/ITnX1PTu/920358/win11-light.deskthemepack" -Destination win11-light.deskthemepack
         Start-Process "$env:temp\win11-light.deskthemepack"
-        Start-Sleep 3
+        Start-Sleep -s 3
         taskkill /F /IM systemsettings.exe 2>$NULL
     } else {
         If ($BuildNumber -lt $WantedBuild) {
             write-Host "I have detected that you are on Windows 10 `n `nApplying Appropriate Theme & Flagging Required Settings"
             Start-BitsTransfer -Source "https://github.com/circlol/newload/raw/main/Assets/win10-purple.deskthemepack" -Destination "$env:temp\win10-purple.deskthemepack"
             Start-Process "$env:temp\win10-purple.deskthemepack"
-            Start-Sleep 3
+            Start-Sleep -s 3
             taskkill /F /IM systemsettings.exe 2>$NULL
         }
     }
@@ -390,7 +396,7 @@ Function Visuals {
         New-Item -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Policies" -Name "System"
     }
     Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Policies\System" -Name "WallpaperStyle" -Type String -Value 2 -ErrorAction SilentlyContinue
-    Start-Sleep 1
+    Start-Sleep -s 1
     Start-Process Explorer -Wait
 }
 
@@ -647,7 +653,7 @@ Function UndoDebloat {
 
 Function Registry {
     Write-Host "$frmt Applying Registry Changes $frmt"
-
+    "Changing how often Windows asks for feedback."
     Write-Host " Changing how often Windows asks for feedback to never"
     If (!(Test-Path "HKCU:\Software\Microsoft\Siuf")) { 
         New-Item -Path "HKCU:\Software\Microsoft" -Name "Siuf"
@@ -703,14 +709,14 @@ Function Registry {
 
     If ($BuildNumber -lt $WantedBuild) {
         Write-Host " Applying Windows 10 Specific Registry Keys `n"
-        Start-Sleep 1
+        Start-Sleep -s 1
         Write-Host " Unpinning Cortana Icon on Taskbar"
         Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "ShowCortanaButton" -Value 0
         Write-Host " Unpinning TaskView Icon from Taskbar"
         Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "ShowTaskViewButton" -Value 0
         Write-Host " Changing Searchbox to Icon Format on Taskbar"
         Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Search" -Name "SearchboxTaskbarMode" -Value 1
-        
+        Start-Sleep -s 10        
     }
     #11 Specific
     if ($BuildNumber -gt $WantedBuild) {
@@ -720,7 +726,7 @@ Function Registry {
         #Taskbarda is Widgets - Currently Widgets shows temperature bottom left
         #Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "TaskBarDa" -Value 0
         Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "TaskBarMn" -Value 0
-        Start-Sleep 10
+        Start-Sleep -s 10
     } 
     
     Write-Host " Adding User Files to desktop"
@@ -730,6 +736,9 @@ Function Registry {
     Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\HideDesktopIcons\NewStartPanel" -Name "{20D04FE0-3AEA-1069-A2D8-08002B30309D}" -Value 0
     
     Write-Host " Disabling Feeds open on hover"
+    If (!(Test-Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Feeds")){
+        New-Item -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion" -Name "Feeds"
+    }
     Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Feeds" -Name "ShellFeedsTaskbarOpenOnHover" -Value 0
     
     Write-Host " Disabling Content Delivery & Content Delivery Related Setings - ContentDelivery, Pre-installed Microsoft, Pre-installed OEM Apps, Silent"
@@ -820,7 +829,7 @@ Function UndoRegistry {
 
     If ($BuildNumber -lt $WantedBuild) {
         Write-Host " Applying Windows 10 Specific Registry Keys `n"
-        Start-Sleep 1
+        Start-Sleep -s 1
         Write-Host " Re-Pinning Cortana Icon on Taskbar"
         Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "ShowCortanaButton" -Value 1
         Write-Host " Re-Pinning TaskView Icon from Taskbar"
@@ -837,7 +846,7 @@ Function UndoRegistry {
         #Taskbarda is Widgets - Currently Widgets shows temperature bottom left
         #Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "TaskBarDa" -Value 0
         Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "TaskBarMn" -Value 1
-        Start-Sleep 10
+        Start-Sleep -s 10
     } 
     
     Write-Host " Removing User Files from desktop"
@@ -978,7 +987,7 @@ Function OEMInfo{
 Function Cleanup {
     Write-Host "$frmt Finishing Up$frmt"
     Write-Host " Restarting Explorer"
-    Start-Sleep 1
+    Start-Sleep -s 1
     Start-Process Explorer
     #On Charger
     Write-Host " Changing On AC Sleep Settings"
@@ -1078,9 +1087,9 @@ $LightMode.Add_Click{
     If ($BuildNumber -gt $WantedBuild) {
         write-Host " Applying Light mode for Windows 11"
         Start-BitsTransfer -Source "https://github.com/circlol/newload/raw/main/Assets/win11-light.deskthemepack" -Destination win11-light.deskthemepack
-        Start-Sleep 3
+        Start-Sleep -s 3
         Start-Process "win11-light.deskthemepack"
-        Start-Sleep 3
+        Start-Sleep -s 3
         Remove-Item "win11-light.deskthemepack" -Force -Recurse 
         taskkill /F /IM systemsettings.exe 2>$NULL
         Write-Host " Applied Light Theme for Windows 11"
@@ -1106,9 +1115,9 @@ $DarkMode.Add_Click{
     If ($BuildNumber -gt $WantedBuild) {
         write-Host " Applying Dark mode for Windows 11"
         Start-BitsTransfer -Source "https://github.com/circlol/newload/raw/main/Assets/win11-dark.deskthemepack" -Destination win11-dark.deskthemepack
-        Start-Sleep 2
+        Start-Sleep -s 2
         Start-Process "win11-dark.deskthemepack"
-        Start-Sleep 2
+        Start-Sleep -s 2
         Remove-Item "win11-dark.deskthemepack" -Force -Recurse
         taskkill /F /IM systemsettings.exe 2>$NULL
         Write-Host " Applied Dark Theme for Windows 11"           
@@ -1116,9 +1125,9 @@ $DarkMode.Add_Click{
         If ($BuildNumber -lt $WantedBuild) {
             #write-Host " Applying Dark Mode for Windows 10"
             #Start-BitsTransfer -Source "https://github.com/circlol/newload/raw/main/Assets/win10-purple.deskthemepack" -Destination win10-purple.deskthemepack
-            #Start-Sleep 3
+            #Start-Sleep -s 3
             #Start-Process "win10-purple.deskthemepack"
-            #Start-Sleep 3
+            #Start-Sleep -s 3
             #Remove-Item "win10-purple.deskthemepack" -Force -Recurse  
             #taskkill /F /IM systemsettings.exe 2>$NULL               
             Set-ItemProperty -Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Themes\Personalize" -Name "AppsUseLightTheme" -Type DWord -Value 0
