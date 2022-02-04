@@ -471,7 +471,7 @@ Write-Host " Applied Taskbar Icons"
     Write-Host " Restarting Explorer Service"
     Stop-Process -name explorer -force | Out-Null 2>$NULL
     Start-Sleep -s 3
-    $wshell = New-Object -ComObject wscript.shell; $wshell.SendKeys('^{ESCAPE}')
+    $wshell = New-Object -ComObject wscript.shell; $wshell.SendKeys('^{ESC}')
     Start-Sleep -s 3
     Write-Host " Locking Start Menu Layout"
     foreach ($regAlias in $regAliases){
@@ -1078,7 +1078,7 @@ $customclean.add_click{
 
 
     Press <CTRL> if you want to select and remove mutliple apps at the        same time.')
-    Get-AppxPackage -AllUsers | Out-GridView -PassThru | Remove-AppxPackage
+    Get-AppxPackage -AllUsers | Out-GridView -PassThru | Remove-AppxPackage -Verbose -ErrorAction SilentlyContinue
 }
 $mssu.add_click{
     Write-Host " Updating Store Applications. This process will continue in the background."
@@ -1090,7 +1090,7 @@ $mssu.add_click{
 }
 
 $rda.Add_Click{
-    Get-AppxPackage -allusers | foreach {Add-AppxPackage -register "$($_.InstallLocation)\appxmanifest.xml" -DisableDevelopmentMode}
+    Get-AppxPackage -allusers | foreach {Add-AppxPackage -register "$($_.InstallLocation)\appxmanifest.xml" -DisableDevelopmentMode -Verbose -ErrorAction SilentlyContinue}
 }
 $powerplanbutton.Add_Click{
     Start-Process powercfg.cpl
