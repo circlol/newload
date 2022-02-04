@@ -303,9 +303,9 @@ Function Debloat {
     
         #Social Networking
         "57540AMZNMobileLLC.AmazonAlexa"
-        "*TikTok*"
-        "*Twitter*"
-        "*Facebook*"
+        #"*TikTok*"
+        #"*Twitter*"
+        #"*Facebook*"
     
         #AntiVirus
         "5A894077.McAfeeSecurity"

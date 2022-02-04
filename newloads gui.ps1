@@ -28,7 +28,7 @@ $RunScript                       = New-Object system.Windows.Forms.Button
 $RunScript.text                  = "Run Script"
 $RunScript.width                 = 240
 $RunScript.height                = 90
-$RunScript.location              = New-Object System.Drawing.Point(356,434)
+$RunScript.location              = New-Object System.Drawing.Point(356,440)
 $RunScript.Font                  = New-Object System.Drawing.Font('Microsoft Sans Serif',15,[System.Drawing.FontStyle]([System.Drawing.FontStyle]::Bold))
 $RunScript.BackColor             = [System.Drawing.ColorTranslator]::FromHtml("#9b9b9b")
 
@@ -36,7 +36,7 @@ $RunNoOEM                        = New-Object system.Windows.Forms.Button
 $RunNoOEM.text                   = "Run without Branding"
 $RunNoOEM.width                  = 240
 $RunNoOEM.height                 = 36
-$RunNoOEM.location               = New-Object System.Drawing.Point(356,387)
+$RunNoOEM.location               = New-Object System.Drawing.Point(356,400)
 $RunNoOEM.Font                   = New-Object System.Drawing.Font('Microsoft Sans Serif',10)
 $RunNoOEM.ForeColor              = [System.Drawing.ColorTranslator]::FromHtml("")
 $RunNoOEM.BackColor              = [System.Drawing.ColorTranslator]::FromHtml("#9b9b9b")
@@ -65,6 +65,7 @@ $mocologo.height                 = 206
 $mocologo.location               = New-Object System.Drawing.Point(-5,373)
 $mocologo.imageLocation          = "https://raw.githubusercontent.com/circlol/newload/main/Assets/logo.png"
 $mocologo.SizeMode               = [System.Windows.Forms.PictureBoxSizeMode]::zoom
+
 $nvidiashortcut                  = New-Object system.Windows.Forms.Button
 $nvidiashortcut.text             = "NVIDIA"
 $nvidiashortcut.width            = 102
@@ -234,14 +235,41 @@ $Explorer.BackColor              = [System.Drawing.ColorTranslator]::FromHtml("#
 
 $ReinstallOneDrive               = New-Object system.Windows.Forms.Button
 $ReinstallOneDrive.text          = "Reinstall OneDrive"
-$ReinstallOneDrive.width         = 210
+$ReinstallOneDrive.width         = 215
 $ReinstallOneDrive.height        = 35
-$ReinstallOneDrive.location      = New-Object System.Drawing.Point(383,293)
+$ReinstallOneDrive.location      = New-Object System.Drawing.Point(35,335)
 $ReinstallOneDrive.Font          = New-Object System.Drawing.Font('Microsoft Sans Serif',10)
 $ReinstallOneDrive.ForeColor     = [System.Drawing.ColorTranslator]::FromHtml("#ffffff")
 $ReinstallOneDrive.BackColor     = [System.Drawing.ColorTranslator]::FromHtml("#857777")
 
-$Form.controls.AddRange(@($RunScript,$RunNoOEM,$UndoScript,$ExitButton,$mocologo,$nvidiashortcut,$amdshortcut,$DriverWebsites,$asusshortcut,$msishortcut,$Shortcuts,$activationbutton,$programsbutton,$updatesbutton,$ReinstallOneDrive,$ThemeButton,$powerplanbutton,$Label3,$intelshortcut,$Label4,$LightMode,$DarkMode,$Reboot,$DeviceManager,$Explorer))
+$rda               = New-Object system.Windows.Forms.Button
+$rda.text          = "Reinstall default apps"
+$rda.width         = 210
+$rda.height        = 35
+$rda.location      = New-Object System.Drawing.Point(383,280)
+$rda.Font          = New-Object System.Drawing.Font('Microsoft Sans Serif',10)
+$rda.ForeColor     = [System.Drawing.ColorTranslator]::FromHtml("#ffffff")
+$rda.BackColor     = [System.Drawing.ColorTranslator]::FromHtml("#857777")
+
+$customclean               = New-Object system.Windows.Forms.Button
+$customclean.text          = "Custom Debloat"
+$customclean.width         = 210
+$customclean.height        = 35
+$customclean.location      = New-Object System.Drawing.Point(383,360)
+$customclean.Font          = New-Object System.Drawing.Font('Microsoft Sans Serif',10)
+$customclean.ForeColor     = [System.Drawing.ColorTranslator]::FromHtml("#ffffff")
+$customclean.BackColor     = [System.Drawing.ColorTranslator]::FromHtml("#857777")
+
+$mssu               = New-Object system.Windows.Forms.Button
+$mssu.text          = "Update all MS Store Apps"
+$mssu.width         = 210
+$mssu.height        = 35
+$mssu.location      = New-Object System.Drawing.Point(383,320)
+$mssu.Font          = New-Object System.Drawing.Font('Microsoft Sans Serif',10)
+$mssu.ForeColor     = [System.Drawing.ColorTranslator]::FromHtml("#ffffff")
+$mssu.BackColor     = [System.Drawing.ColorTranslator]::FromHtml("#857777")
+
+$Form.controls.AddRange(@($RunScript,$RunNoOEM,$UndoScript,$ExitButton,$mocologo,$nvidiashortcut,$amdshortcut,$DriverWebsites,$asusshortcut,$msishortcut,$Shortcuts,$activationbutton,$programsbutton,$updatesbutton,$ReinstallOneDrive,$customclean,$mssu,$ThemeButton,$powerplanbutton,$rda,$Label3,$intelshortcut,$Label4,$LightMode,$DarkMode,$Reboot,$DeviceManager,$Explorer))
 
 #region Logic 
 #If (!([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole]'Administrator')) {
@@ -250,7 +278,7 @@ $Form.controls.AddRange(@($RunScript,$RunNoOEM,$UndoScript,$ExitButton,$mocologo
 #}
 Import-Module BitsTransfer
 
-$programversion = "21.122.5"
+$programversion = "21.402.2"
 
 $package1  = "Google.Chrome"
 $package2  = "Adobe.Acrobat.Reader.64-bit"
@@ -607,7 +635,8 @@ $Programs = @(
 "57540AMZNMobileLLC.AmazonAlexa"
 "*TikTok*"
 "*Twitter*"
-"Facebook*"
+"FACEBOOK.*"
+"FACEBOOK.317180B0BB486"
 
 #AntiVirus
 "5A894077.McAfeeSecurity"
@@ -1040,6 +1069,28 @@ Function Cleanup {
         Remove-Item $mocotheme3 -Force -Recurse -Confirm:$false -ErrorAction SilentlyContinue -Verbose 2>$NULL
     }
     #Start-Sleep 10    
+}
+$customclean.add_click{
+    [reflection.assembly]::loadwithpartialname("System.Windows.Forms") | Out-Null 
+    [System.Windows.Forms.MessageBox]::Show('                        This Program REMOVES all SELECTED apps
+
+
+
+
+    Press <CTRL> if you want to select and remove mutliple apps at the        same time.')
+    Get-AppxPackage -AllUsers | Out-GridView -PassThru | Remove-AppxPackage
+}
+$mssu.add_click{
+    Write-Host " Updating Store Applications. This process will continue in the background."
+    Start-Sleep -s 3
+    $namespaceName = "root\cimv2\mdm\dmmap"
+    $className = "MDM_EnterpriseModernAppManagement_AppManagement01"
+    $wmiObj = Get-WmiObject -Namespace $namespaceName -Class $className
+    $result = $wmiObj.UpdateScanMethod()
+}
+
+$rda.Add_Click{
+    Get-AppxPackage -allusers | foreach {Add-AppxPackage -register "$($_.InstallLocation)\appxmanifest.xml" -DisableDevelopmentMode}
 }
 $powerplanbutton.Add_Click{
     Start-Process powercfg.cpl
