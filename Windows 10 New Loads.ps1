@@ -2,12 +2,14 @@
 #	Start-Process powershell.exe "-NoProfile -ExecutionPolicy Bypass -File `"$PSCommandPath`"" -Verb RunAs
 	#Exit
 #}
-$Title = "Windows New Loads Utility Created by Mike Ivison - Automated Edition"
-$host.UI.RawUI.WindowTitle = $Title
 Import-Module BitsTransfer
 #$Folder = Get-Location
 $dtime = (Get-Date -UFormat %H.%M-%Y.%m.%d)
-$programversion = "21.122.5"
+<<<<<<< HEAD
+$programversion = "22.10.00"
+=======
+$programversion = "21.402.2"
+>>>>>>> 039f9b29cfbc580d34f7134a7b4eed03a5e74c64
 
 Function WinGInstallation { 
     if (Test-Path ~\AppData\Local\Microsoft\WindowsApps\winget.exe){
@@ -20,7 +22,7 @@ Function WinGInstallation {
         $nid = (Get-Process AppInstaller).Id
         Wait-Process -Id $nid
         Write-Host " Winget Installed"
-        Start-Sleep 4
+        Start-Sleep -s 4
         Stop-Process -Name AppInstaller -Force
     }
 }
@@ -49,8 +51,10 @@ If (!(Test-Path $Location1)) {
     Write-Host "`n `n Installing $Package1 `n" 
     winget install $package1 -s winget -e -h
     Write-Host " Adding UBlock Origin to Google Chrome"
-    Start-Sleep 3
+    Start-Sleep -s 3
     REG ADD "HKEY_LOCAL_MACHINE\Software\Wow6432Node\Google\Chrome\Extensions\cjpalhdlnbpafiamejdnhcphjbkeiagm" /v update_url /t REG_SZ /d https://clients2.google.com/service/update2/crx
+    REG ADD "HKEY_LOCAL_MACHINE\Software\Wow6432Node\Google\Chrome\Extensions\bkbeeeffjjeopflfhgeknacdieedcoml" /v update_url /t REG_SZ /d https://clients2.google.com/service/update2/crx
+  
     } else {
     Write-Host " Verified $package1 is already Installed. Moving on."
     }
@@ -69,7 +73,7 @@ If (!(Test-Path $Location3)) {
 }            
 Function Visuals {
     Write-Host "Checking your OS.."
-    Start-Sleep 2
+    Start-Sleep -s 2
     $BuildNumber = (Get-ItemProperty -Path c:\windows\system32\hal.dll).VersionInfo.ProductVersion
     $WantedBuild = "10.0.22000"
     If ($BuildNumber -gt $WantedBuild) {
@@ -77,14 +81,14 @@ Function Visuals {
         Start-BitsTransfer -Source "https://github.com/circlol/newload/raw/main/Assets/win11-light.deskthemepack" -Destination "$env:temp\win11-light.deskthemepack"
         #Start-BitsTransfer -Source "https://www40.zippyshare.com/d/ITnX1PTu/920358/win11-light.deskthemepack" -Destination win11-light.deskthemepack
         Start-Process "$env:temp\win11-light.deskthemepack"
-        Start-Sleep 3
+        Start-Sleep -s 3
         taskkill /F /IM systemsettings.exe 2>$NULL
     } else {
         If ($BuildNumber -lt $WantedBuild) {
             write-Host "I have detected that you are on Windows 10 `n `nApplying Appropriate Theme & Flagging Required Settings"
             Start-BitsTransfer -Source "https://github.com/circlol/newload/raw/main/Assets/win10-purple.deskthemepack" -Destination "$env:temp\win10-purple.deskthemepack"
             Start-Process "$env:temp\win10-purple.deskthemepack"
-            Start-Sleep 3
+            Start-Sleep -s 3
             taskkill /F /IM systemsettings.exe 2>$NULL
         }
     }
@@ -95,7 +99,7 @@ Function Visuals {
         New-Item -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Policies" -Name "System"
     }
     Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Policies\System" -Name "WallpaperStyle" -Type String -Value 2 -ErrorAction SilentlyContinue
-    Start-Sleep 1
+    Start-Sleep -s 1
     Start-Process Explorer -Wait
     #taskkill /F /IM explorer.exe 2>$NULL
 }
@@ -331,7 +335,7 @@ Function Debloat {
         foreach ($Program in $Programs) {
             Get-AppxPackage -Name $Program | Remove-AppxPackage
             Get-AppxProvisionedPackage -Online| Where-Object DisplayName -like $Program | Remove-AppxProvisionedPackage -Online
-            Write-Host " Attempting removal of $Program."
+            Write-Host " Attempting removal of $Program."   
         }
     
 }
@@ -342,6 +346,9 @@ Function Registry {
     If (!(Test-Path "HKCU:\Software\Microsoft\Siuf")) { 
         New-Item -Path "HKCU:\Software\Microsoft" -Name "Siuf"
     }
+
+    Write-Host "Setting Sounds > Communications to 'Do Nothing'"
+    Set-ItemProperty "HKCU:\Software\Microsoft\MultiMedia\Audio" -Name "UserDuckingPreference" -Value 3 -Type DWord
 
     If (!(Test-Path "HKCU:\Software\Microsoft\Siuf\Rules")) {
     New-Item -Path "HKCU:\Software\Microsoft\Siuf" -Name "Rules"
@@ -458,7 +465,7 @@ Function Registry {
     If (!(Test-Path "HKCU:\Software\Policies\Microsoft\Windows\EdgeUI")){
         New-Item -Path "HKCU:\Software\Policies\Microsoft\Windows" -Name "EdgeUI"
     }
-    Set-ItemProperty -Path "HKCU:\Software\Policies\Microsoft\Windows\EdgeUI" -Name DisableMFUTracking -Value 1 -Type DWord 2>$NULL
+    Set-ItemProperty -Path "HKCU:\Software\Policies\Microsoft\Windows\EdgeUI" -Name "DisableMFUTracking" -Value 1 -Type DWord
 
     Write-Host " Disabling Advertiser ID"
     Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\AdvertisingInfo" -Name DisabledByGroupPolicy -Value 1 -Type DWord
@@ -473,6 +480,8 @@ Function Registry {
     #Disable-ScheduledTask -TaskName "Microsoft\Windows\Feedback\Siuf\DmClientOnScenarioDownload" -ErrorAction SilentlyContinue | Out-Null 2>$NULL
 }  
 
+<<<<<<< HEAD
+=======
 Function checkme {
     W32tm /resync /force | Out-Null 2>$NULL
     #net start w32time | Out-Null 2>$NULL
@@ -495,7 +504,7 @@ Function checkme {
     If ($Time -gt $License) {
         Clear-Host
         Write-Host $lie
-        Start-Sleep 2
+        Start-Sleep -s 2
         Exit
         } else {
             If ($Time -gt $tslrd) {
@@ -503,22 +512,28 @@ Function checkme {
                 Write-Host " `n Creating Restore Point in case something bad happens"
                 Enable-ComputerRestore -Drive "C:\"
                 Checkpoint-Computer -Description "OOBE Fresh Load" -RestorePointType "MODIFY_SETTINGS"
-                Start-Sleep 2
+                Start-Sleep -s 2
                 Clear-Host
+                $blstat = "on"
+                If ((Get-BitLockerVolume -MountPoint "C:").ProtectionStatus -eq $blstat){
+                    Write-Host " Bitlocker seems to be enabled. Starting the decryption process."
+                    manage-bde -off "C:"
                 } else {
+                    Write-Host " Bitlocker is not enabled on this machine."
+                }} else {
                 Clear-Host
                 Write-Host $lie
-                Start-Sleep 2
+                Start-Sleep -s 2
                 Exit
             }
         }
     }
+>>>>>>> 039f9b29cfbc580d34f7134a7b4eed03a5e74c64
 Function Cleanup {
-    Write-Host "$frmt Finishing Up $frmt"
-    Write-Host " Explorer Restarted"
+    Write-Host "$frmt Finishing Up$frmt"
+    Write-Host " Restarting Explorer"
+    Start-Sleep -s 1
     Start-Process Explorer
-
-    #Start-Process https://chrome.google.com/webstore/detail/ublock-origin/cjpalhdlnbpafiamejdnhcphjbkeiagm
     #On Charger
     Write-Host " Changing On AC Sleep Settings"
     powercfg -change -standby-timeout-ac "30"
@@ -530,54 +545,57 @@ Function Cleanup {
     Write-Host " Launching Chrome, Please accept UBlock Origin extension popup"
     Start-Sleep -Milliseconds 400
     Start-Process Chrome -ErrorAction SilentlyContinue
-    Remove-Item "$Env:Temp\*.*" -Force -Recurse -Confirm:$false -ErrorAction SilentlyContinue 2>$NULL
-    $EdgeShortcut = "~\Desktop\Microsoft Edge.lnk"
+    Remove-Item "$Env:Temp\*.*" -Force -Recurse -Confirm:$false -ErrorAction SilentlyContinue -Verbose 2>$NULL
+    $EdgeShortcut = "$Env:USERPROFILE\Desktop\Microsoft Edge.lnk"
     If ($EdgeShortcut) { 
         Write-Host " Removing Edge Icon"
-        Remove-Item $EdgeShortcut -Force -Recurse -Confirm:$false -ErrorAction SilentlyContinue 2>$NULL
+        Remove-Item $EdgeShortcut -Force -Recurse -Confirm:$false -ErrorAction SilentlyContinue -Verbose 2>$NULL
     }
     $edgescpub = "$Env:PUBLIC\Desktop\Microsoft Edge.lnk"
     If ($edgescpub) { 
         Write-Host " Removing Edge Icon"
-        Remove-Item $edgescpub -Force -Recurse -Confirm:$false -ErrorAction SilentlyContinue 2>$NULL
+        Remove-Item $edgescpub -Force -Recurse -Confirm:$false -ErrorAction SilentlyContinue -Verbose 2>$NULL
     }
     $vlcsc = "$Env:PUBLIC\Desktop\VLC Media Player.lnk"
     If ($vlcsc) { 
         Write-Host " Removing VLC Media Player Icon"
-        Remove-Item $vlcsc -Force -Recurse -Confirm:$false -ErrorAction SilentlyContinue 2>$NULL
+        Remove-Item $vlcsc -Force -Recurse -Confirm:$false -ErrorAction SilentlyContinue -Verbose 2>$NULL
     }
     $acrosc = "$Env:PUBLIC\Desktop\Adobe Acrobat DC.lnk"
     If ($acrosc) { 
         Write-Host " Removing Adobe Acrobat Icon"
-        Remove-Item $acrosc -Force -Recurse -Confirm:$false -ErrorAction SilentlyContinue 2>$NULL
+        Remove-Item $acrosc -Force -Recurse -Confirm:$false -ErrorAction SilentlyContinue -Verbose 2>$NULL
     }
     $ctemp = "C:\Temp"
     If ($ctemp) { 
         Write-Host " Removing temp folder in C Root"
-        Remove-Item $ctemp -Force -Recurse -Confirm:$false -ErrorAction SilentlyContinue 2>$NULL
+        Remove-Item $ctemp -Force -Recurse -Confirm:$false -ErrorAction SilentlyContinue -Verbose 2>$NULL
     }
-
-    $mocotheme1 = "~\desktop\win11-light.deskthemepack"
-    $mocotheme2 = "~\desktop\win11-dark.deskthemepack"
-    $mocotheme3 = "~\desktop\win10-purple.deskthemepack"
+    
+    $mocotheme1 = "$Env:USERPROFILE\desktop\win11-light.deskthemepack"
+    $mocotheme2 = "$Env:USERPROFILE\desktop\win11-dark.deskthemepack"
+    $mocotheme3 = "$Env:USERPROFILE\desktop\win10-purple.deskthemepack"
     If ($mocotheme1) { 
-        Remove-Item "$mocotheme1" -Force -Recurse -Confirm:$false -ErrorAction SilentlyContinue 2>$NULL
+        Remove-Item "$mocotheme1" -Force -Recurse -Confirm:$false -ErrorAction SilentlyContinue -Verbose 2>$NULL
     }
     If ($mocotheme2) { 
-        Remove-Item $mocotheme2 -Force -Recurse -Confirm:$false -ErrorAction SilentlyContinue 2>$NULL
+        Remove-Item $mocotheme2 -Force -Recurse -Confirm:$false -ErrorAction SilentlyContinue -Verbose 2>$NULL
     }
     If ($mocotheme3) { 
-        Remove-Item $mocotheme3 -Force -Recurse -Confirm:$false -ErrorAction SilentlyContinue 2>$NULL
+        Remove-Item $mocotheme3 -Force -Recurse -Confirm:$false -ErrorAction SilentlyContinue -Verbose 2>$NULL
     }
-    #Start-Sleep 10
+<<<<<<< HEAD
+=======
+    #Start-Sleep -s 10
     #taskkill /f /im Chrome.exe | Out-NULL 2>$NULL
+>>>>>>> 039f9b29cfbc580d34f7134a7b4eed03a5e74c64
 }
 
-checkme
-clear-host
+#checkme
+#clear-host
 Start-Transcript -LiteralPath "$env:USERPROFILE\Desktop\Automated Script Run - $dtime.txt"
 Write-Host "`n `n================================================================================================ `n `n `n `n `n `n `n `n New Loads Utility For Windows 10 & 11 `n Created by Mike Ivison `n Script Version : $programversion `n `n Script will run in : Automatic Mode `n `n Ideally run updates before continuing with this script. `n `n `n `n `n `n `n `n================================================================================================ `n `n"
-Start-Sleep 5
+Start-Sleep -s 5
 WinGInstallation 
 Write-Host "`n `n======================================== `n `n Installing Apps `n Please be patient as the programs install in the background. `n `n============================================================= `n `n"
 Programs
@@ -593,5 +611,5 @@ Write-Host "`n `n======================================== `n `n Finishing Up `n 
 Cleanup
 Stop-Transcript
 Write-Host "`n `n ================================================================================================ `n `n `n `n `n `n `n `n `n `n `n `n `n `n `n Script Completed `n `n `n `n `n `n `n `n `n `n `n `n `n `n `n ================================================================================================ `n `n"
-Start-Sleep 5
+Start-Sleep -s 5
 Exit
