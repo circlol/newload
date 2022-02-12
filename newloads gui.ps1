@@ -299,7 +299,7 @@ $mocotheme2 = "$Env:USERPROFILE\desktop\win11-dark.deskthemepack"
 $mocotheme3 = "$Env:USERPROFILE\desktop\win10-purple.deskthemepack"
 
 
-
+$health = $health+=20
 Function Programs {
     Write-Host "$frmt Installing Apps `n Please be patient as the programs install in the background.$frmt"
     Write-Host " Double Checking Winget is installed"
@@ -1061,7 +1061,7 @@ If(!(Test-Path ~\AppData\Local\Microsoft\WindowsApps\winget.exe)){
 } else {
     $health = $health+=40
 }
-Write-Host "`n `n================================================================================================ `n `n `n New Loads`n Script Version : $programversion`n `n Script Status: $Health%`n Ideally run updates before continuing with this script. `n `n `n `n================================================================================================ `n `n"
+Write-Host "`n `n================================================================================================ `n `n `n New Loads`n Script Version : $programversion`n `n Script Intregity: $Health%`n Ideally run updates before continuing with this script. `n `n `n `n================================================================================================ `n `n"
 
 
 $RunScript.Add_Click{

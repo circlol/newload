@@ -528,7 +528,7 @@ If(!(Test-Path ~\AppData\Local\Microsoft\WindowsApps\winget.exe)){
 }
 Start-Transcript -LiteralPath "$env:USERPROFILE\Desktop\Automated Script Run - $dtime.txt"
 $health = $health+=20
-Write-Host "`n `n================================================================================================ `n `n `n New Loads`n Script Version : $programversion`n `n Script Status: $Health%`n Ideally run updates before continuing with this script. `n `n `n `n================================================================================================ `n `n"
+Write-Host "`n `n================================================================================================ `n `n `n New Loads`n Script Version : $programversion`n `n Script Integrity: $Health%`n Ideally run updates before continuing with this script. `n `n `n `n================================================================================================ `n `n"
 #Start-Sleep -s 5
 #WinGInstallation 
 Write-Host "`n `n======================================== `n `n Installing Apps `n Please be patient as the programs install in the background. `n `n============================================================= `n `n"
