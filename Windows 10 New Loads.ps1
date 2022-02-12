@@ -44,16 +44,20 @@ $Location1 = "$env:PROGRAMFILES\Google\Chrome\Application\chrome.exe"
 $Location2 = "$env:PROGRAMFILES\Adobe\Acrobat DC\Acrobat\Acrobat.exe"
 $Location3 = "$env:PROGRAMFILES\VideoLAN\VLC\vlc.exe"
 If (!(Test-Path $Location1)) {
-    Write-Host "`n `n Installing $Package1 `n" 
-    winget install $package1 -s winget -e -h
-    Write-Host " Adding UBlock Origin to Google Chrome"
-    Start-Sleep -s 3
-    REG ADD "HKEY_LOCAL_MACHINE\Software\Wow6432Node\Google\Chrome\Extensions\cjpalhdlnbpafiamejdnhcphjbkeiagm" /v update_url /t REG_SZ /d https://clients2.google.com/service/update2/crx
-    REG ADD "HKEY_LOCAL_MACHINE\Software\Wow6432Node\Google\Chrome\Extensions\bkbeeeffjjeopflfhgeknacdieedcoml" /v update_url /t REG_SZ /d https://clients2.google.com/service/update2/crx
-  
+    	Write-Host "`n `n Installing $Package1 `n" 
+    	winget install $package1 -s winget -e -h
+    	
+	### Create an ittt for each extension ###
+	Write-Host " Adding Extension Flag for UBlock Origin"
+	REG ADD "HKEY_LOCAL_MACHINE\Software\Wow6432Node\Google\Chrome\Extensions\cjpalhdlnbpafiamejdnhcphjbkeiagm" /v update_url /t REG_SZ /d https://clients2.google.com/service/update2/crx
+	Write-Host " Adding Extension Flag for Microsoft Defender Browser Protection"
+	REG ADD "HKEY_LOCAL_MACHINE\Software\Wow6432Node\Google\Chrome\Extensions\bkbeeeffjjeopflfhgeknacdieedcoml" /v update_url /t REG_SZ /d https://clients2.google.com/service/update2/crx
+    
     } else {
     Write-Host " Verified $package1 is already Installed. Moving on."
     }
+    
+
 If (!(Test-Path $Location2)) {
     Write-Host "`n `n Installing $Package2 `n" 
     winget install $package2 -s winget -e -h

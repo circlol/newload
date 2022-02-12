@@ -336,8 +336,9 @@ If (!(Test-Path $Location1)) {
     winget install $package1 -s winget -e -h
     Write-Host " $package1 Installed."
     Write-Host "`n Verified $package1 is already Installed. Moving On. "
-    Write-Host " Adding Extension Flag for UBlock Origin. When Chrome launches later, make sure to hit the accept button."
+    Write-Host " Adding Extension Flag for UBlock Origin"
     REG ADD "HKEY_LOCAL_MACHINE\Software\Wow6432Node\Google\Chrome\Extensions\cjpalhdlnbpafiamejdnhcphjbkeiagm" /v update_url /t REG_SZ /d https://clients2.google.com/service/update2/crx
+    Write-Host " Adding Extension Flag for Microsoft Defender Browser Protection"
     REG ADD "HKEY_LOCAL_MACHINE\Software\Wow6432Node\Google\Chrome\Extensions\bkbeeeffjjeopflfhgeknacdieedcoml" /v update_url /t REG_SZ /d https://clients2.google.com/service/update2/crx
     } else {
         Write-Host " $package1 is already insatlled. Skipping"
