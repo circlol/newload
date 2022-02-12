@@ -1,27 +1,10 @@
-
 Import-Module BitsTransfer
 $health = 35
-
 #$Folder = Get-Location
 $dtime = (Get-Date -UFormat %H.%M-%Y.%m.%d)
 $programversion = "22.10.00"
-
-
 Function Programs {
 Write-Host "`n"
-#If (!(Test-Path ~\AppData\Local\Microsoft\WindowsApps\winget.exe)) { WinGInstallation }
-#    $packages = @(
-#    "Google.Chrome"
-#    "Adobe.Acrobat.Reader.64-bit"
-#    "VideoLAN.VLC"
-#    )
-
-#foreach ($Package in $Packages) {
-#    Write-Host "`n `nInstalling $Package `n" 
-#    winget install $package -e -h -s winget
-#    Write-Host "`n `n$Package has been Installed"
-#    }
-
 $package1  = "Google.Chrome"
 $package2  = "Adobe.Acrobat.Reader.64-bit"
 $package3  = "VideoLAN.VLC"
@@ -41,8 +24,6 @@ If (!(Test-Path $Location1)) {
     } else {
     Write-Host " Verified $package1 is already Installed. Moving on."
     }
-    
-
 If (!(Test-Path $Location2)) {
     Write-Host "`n `n Installing $Package2 `n" 
     winget install $package2 -s winget -e -h
@@ -77,7 +58,6 @@ Function Visuals {
             taskkill /F /IM systemsettings.exe 2>$NULL
         }
     }
-
     Write-Host "`n Setting Wallpaper to Stretch `n"
     Stop-Process -Name Explorer
     If(!(Test-Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Policies\System")){
@@ -464,7 +444,6 @@ Function Debloat {
     #Disable-ScheduledTask -TaskName "Microsoft\Windows\Feedback\Siuf\DmClient" -ErrorAction SilentlyContinue | Out-Null 2>$NULL
     #Disable-ScheduledTask -TaskName "Microsoft\Windows\Feedback\Siuf\DmClientOnScenarioDownload" -ErrorAction SilentlyContinue | Out-Null 2>$NULL
 }  
-
 Function Cleanup {
     Write-Host "$frmt Finishing Up$frmt"
     Write-Host " Restarting Explorer"

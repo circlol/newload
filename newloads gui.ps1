@@ -279,7 +279,6 @@ $programversion = "22.10.0"
 $package1  = "Google.Chrome"
 $package2  = "Adobe.Acrobat.Reader.64-bit"
 $package3  = "VideoLAN.VLC"
-
 $Location1 = "$env:PROGRAMFILES\Google\Chrome\Application\chrome.exe"
 $Location3 = "$env:PROGRAMFILES\VideoLAN\VLC\vlc.exe"
 $Location2 = "$env:PROGRAMFILES\Adobe\Acrobat DC\Acrobat\Acrobat.exe"
@@ -287,7 +286,6 @@ $Folder = Get-Location
 $frmt = "`n `n======================================== `n `n"
 $BuildNumber = (Get-ItemProperty -Path c:\windows\system32\hal.dll).VersionInfo.ProductVersion
 $WantedBuild = "10.0.22000"
-
 $dtime = (Get-Date -UFormat %H.%M-%Y.%m.%d)
 $10 = "Win10"
 $11 = "Win11"
@@ -297,8 +295,6 @@ $blstat = "on"
 $mocotheme1 = "$Env:USERPROFILE\desktop\win11-light.deskthemepack"
 $mocotheme2 = "$Env:USERPROFILE\desktop\win11-dark.deskthemepack"
 $mocotheme3 = "$Env:USERPROFILE\desktop\win10-purple.deskthemepack"
-
-
 $health = $health+=20
 Function Programs {
     Write-Host "$frmt Installing Apps `n Please be patient as the programs install in the background.$frmt"
@@ -319,6 +315,7 @@ If (!(Test-Path $Location1)) {
     Write-Host "`n Verified $package1 is already Installed. Moving On. "
     Write-Host " Adding Extension Flag for UBlock Origin. When Chrome launches later, make sure to hit the accept button."
     REG ADD "HKEY_LOCAL_MACHINE\Software\Wow6432Node\Google\Chrome\Extensions\cjpalhdlnbpafiamejdnhcphjbkeiagm" /v update_url /t REG_SZ /d https://clients2.google.com/service/update2/crx
+	Write-Host " Adding Extension Flag for Microsoft Defender Browser Protection"
     REG ADD "HKEY_LOCAL_MACHINE\Software\Wow6432Node\Google\Chrome\Extensions\bkbeeeffjjeopflfhgeknacdieedcoml" /v update_url /t REG_SZ /d https://clients2.google.com/service/update2/crx
     } else {
         Write-Host " $package1 is already insatlled. Skipping"
@@ -464,9 +461,9 @@ $Programs = @(
 "Microsoft.BingHealthAndFitness"
 "Microsoft.BingTravel"
 "Microsoft.MinecraftUWP"
-"Microsoft.GamingServices"
+#"Microsoft.GamingServices"
 "Microsoft.GetHelp"
-"Microsoft.Getstarted"
+#"Microsoft.Getstarted"
 "Microsoft.Messaging"
 "Microsoft.Microsoft3DViewer"
 "Microsoft.MicrosoftSolitaireCollection"
@@ -487,15 +484,15 @@ $Programs = @(
 "Microsoft.WindowsMaps"
 #"Microsoft.WindowsPhone"
 "Microsoft.WindowsSoundRecorder"
-"Microsoft.XboxApp"
+#"Microsoft.XboxApp"
 "Microsoft.ConnectivityStore"
 #"Microsoft.CommsPhone"
 #"Microsoft.Xbox.TCUI"
 #"Microsoft.XboxSpeechToTextOverlay"
 "Microsoft.MixedReality.Portal"
-"Microsoft.XboxIdentityProvider"
+#"Microsoft.XboxIdentityProvider"
 #"Microsoft.YourPhone"
-"Microsoft.Getstarted"
+#"Microsoft.Getstarted"
 "Microsoft.MicrosoftOfficeHub"
 # Realtek Audio
 #"RealtekSemiconductorCorp.RealtekAudioControl"
@@ -756,7 +753,7 @@ Function Registry {
 }  
 
 Function UndoRegistry {
-    Write-Host "$frmt Applying Registry Changes $frmt"
+    Write-Host "$frmt Undoing Registry Changes $frmt"
 
     Write-Host " Resetting how often Windows asks for feedback to never"
     Remove-Item "HKCU:\Software\Microsoft\Siuf" -Force -Recurse -ErrorAction SilentlyContinue
@@ -1026,8 +1023,6 @@ $LightMode.Add_Click{
     }
 }    
 
-
-
 $DarkMode.Add_Click{
     If ($BuildNumber -gt $WantedBuild) {
         write-Host " Applying Dark mode for Windows 11"
@@ -1053,8 +1048,6 @@ $DarkMode.Add_Click{
         }
     }    
 }
-
-
 
 If(!(Test-Path ~\AppData\Local\Microsoft\WindowsApps\winget.exe)){
     $health = "ERROR: WINGET NOT INSTALLED - $health"
@@ -1099,9 +1092,9 @@ Start-Transcript -LiteralPath "$env:USERPROFILE\Desktop\Script Run - Undo - $dti
 Write-Host "$frmt Undoing Changes made by Script `n `n GUI will be unusable whilst script is running. Please Standby `n$frmt"
 Start-Sleep 2
 UndoOEMInfo
-#Write-Host "$frmt Reinstalling Bloatware $frmt "
-#UndoDebloat
-#Write-Host " Finished Reinstalling Bloatware Apps"
+Write-Host "$frmt Reinstalling Bloatware $frmt "
+UndoDebloat
+Write-Host " Finished Reinstalling Bloatware Apps"
 Taskkill /F /IM Explorer.exe
 UndoOneDrive
 UndoRegistry
@@ -1112,8 +1105,6 @@ Stop-Transcript
 $ExitButton.Add_Click{
     $Form.Close()
 }
-
-#endregion
 [void]$Form.ShowDialog()
 
 
@@ -1124,8 +1115,6 @@ $ExitButton.Add_Click{
 #$TextBox1.height                 = 20
 #$TextBox1.location               = New-Object System.Drawing.Point(1053,24)
 #$TextBox1.Font                   = New-Object System.Drawing.Font('Microsoft Sans Serif',10)
-
-
 
 #powershellsubmit.add_click{ 
     #$commandresult = "$textbox1.Text" 
