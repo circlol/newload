@@ -1,27 +1,12 @@
-#If (!([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole]'Administrator')) {
-#	Start-Process powershell.exe "-NoProfile -ExecutionPolicy Bypass -File `"$PSCommandPath`"" -Verb RunAs
-	#Exit
-#}
+
 Import-Module BitsTransfer
+$health = 35
+
 #$Folder = Get-Location
 $dtime = (Get-Date -UFormat %H.%M-%Y.%m.%d)
 $programversion = "22.10.00"
 
-Function WinGInstallation { 
-    if (Test-Path ~\AppData\Local\Microsoft\WindowsApps\winget.exe){
-        Write-Host " Winget was found"
-    }  
-    else{
-        #Installs winget from the Microsoft Store
-        Write-Host " Winget not found, installing it now."
-        Start-Process "ms-appinstaller:?source=https://aka.ms/getwinget"
-        $nid = (Get-Process AppInstaller).Id
-        Wait-Process -Id $nid
-        Write-Host " Winget Installed"
-        Start-Sleep -s 4
-        Stop-Process -Name AppInstaller -Force
-    }
-}
+
 Function Programs {
 Write-Host "`n"
 #If (!(Test-Path ~\AppData\Local\Microsoft\WindowsApps\winget.exe)) { WinGInstallation }
@@ -536,13 +521,16 @@ Function Cleanup {
         Remove-Item $mocotheme3 -Force -Recurse -Confirm:$false -ErrorAction SilentlyContinue -Verbose 2>$NULL
     }
 }
-
-#checkme
-#clear-host
+If(!(Test-Path ~\AppData\Local\Microsoft\WindowsApps\winget.exe)){
+    $health = "ERROR: WINGET NOT INSTALLED - $health"
+} else {
+    $health = $health+=45
+}
 Start-Transcript -LiteralPath "$env:USERPROFILE\Desktop\Automated Script Run - $dtime.txt"
-Write-Host "`n `n================================================================================================ `n `n `n `n `n `n `n `n New Loads Utility For Windows 10 & 11 `n Created by Mike Ivison `n Script Version : $programversion `n `n Script will run in : Automatic Mode `n `n Ideally run updates before continuing with this script. `n `n `n `n `n `n `n `n================================================================================================ `n `n"
-Start-Sleep -s 5
-WinGInstallation 
+$health = $health+=20
+Write-Host "`n `n================================================================================================ `n `n `n New Loads`n Script Version : $programversion`n `n Script Status: $Health%`n Ideally run updates before continuing with this script. `n `n `n `n================================================================================================ `n `n"
+#Start-Sleep -s 5
+#WinGInstallation 
 Write-Host "`n `n======================================== `n `n Installing Apps `n Please be patient as the programs install in the background. `n `n============================================================= `n `n"
 Programs
 StartMenu
@@ -556,6 +544,5 @@ Visuals
 Write-Host "`n `n======================================== `n `n Finishing Up `n `n======================================== `n `n"
 Cleanup
 Stop-Transcript
-Write-Host "`n `n ================================================================================================ `n `n `n `n `n `n `n `n `n `n `n `n `n `n `n Script Completed `n `n `n `n `n `n `n `n `n `n `n `n `n `n `n ================================================================================================ `n `n"
-Start-Sleep -s 5
+Write-Host "Script Completed.`nExiting."
 Exit
