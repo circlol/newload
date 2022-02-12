@@ -267,7 +267,7 @@ $Form.controls.AddRange(@($RunScript,$RunNoOEM,$UndoScript,$ExitButton,$mocologo
 
 
 
-            START OF SCRIPT 
+            #START OF SCRIPT 
 
 
 
