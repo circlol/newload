@@ -326,18 +326,41 @@ Function Debloat {
     
         # Removes Lenovo Apps
         "E0469640.LenovoUtility"
-    )
-    
+        )
+        
         foreach ($Program in $Programs) {
             Get-AppxPackage -Name $Program | Remove-AppxPackage
             Get-AppxProvisionedPackage -Online| Where-Object DisplayName -like $Program | Remove-AppxProvisionedPackage -Online
             Write-Host " Attempting removal of $Program."   
         }
     
-}
-Function Registry {
-    Write-Host "$frmt Applying Registry Changes $frmt"
-
+    }
+    Function Registry {
+        Write-Host "$frmt Applying Registry Changes $frmt"
+        
+        $BuildNumber = (Get-ItemProperty -Path c:\windows\system32\hal.dll).VersionInfo.ProductVersion
+        $WantedBuild = "10.0.22000"
+        If ($BuildNumber -lt $WantedBuild) {
+            Write-Host " Applying Windows 10 Specific Registry Keys `n"
+            Start-Sleep 1
+            Write-Host " Unpinning Cortana Icon on Taskbar"
+            Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "ShowCortanaButton" -Value 0
+            Write-Host " Unpinning TaskView Icon from Taskbar"
+            Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "ShowTaskViewButton" -Value 0
+            Write-Host " Changing Searchbox to Icon Format on Taskbar"
+            Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Search" -Name "SearchboxTaskbarMode" -Value 1
+            
+        }
+        #11 Specific
+        if ($BuildNumber -gt $WantedBuild) {
+            Write-Host " Applying Windows 11 Specific Registry Keys `n"
+            #Write-Host " Unpinning Widgets and Teams from taskbar"
+            Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "ShowTaskViewButton" -Value 0
+            #Taskbarda is Widgets - Currently Widgets shows temperature bottom left
+            #Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "TaskBarDa" -Value 0
+            Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "TaskBarMn" -Value 0
+            Start-Sleep 10
+        } 
     Write-Host " Changing how often Windows asks for feedback to never"
     If (!(Test-Path "HKCU:\Software\Microsoft\Siuf")) { 
         New-Item -Path "HKCU:\Software\Microsoft" -Name "Siuf"
@@ -391,29 +414,6 @@ Function Registry {
         New-Item -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion" -Name "TaskManager"
     }
     Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\TaskManager" -Name "StartUpTab" -Value 1 -Type DWord
-    $BuildNumber = (Get-ItemProperty -Path c:\windows\system32\hal.dll).VersionInfo.ProductVersion
-    $WantedBuild = "10.0.22000"
-    If ($BuildNumber -lt $WantedBuild) {
-        Write-Host " Applying Windows 10 Specific Registry Keys `n"
-        Start-Sleep 1
-        Write-Host " Unpinning Cortana Icon on Taskbar"
-        Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "ShowCortanaButton" -Value 0
-        Write-Host " Unpinning TaskView Icon from Taskbar"
-        Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "ShowTaskViewButton" -Value 0
-        Write-Host " Changing Searchbox to Icon Format on Taskbar"
-        Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Search" -Name "SearchboxTaskbarMode" -Value 1
-        
-    }
-    #11 Specific
-    if ($BuildNumber -gt $WantedBuild) {
-        Write-Host " Applying Windows 11 Specific Registry Keys `n"
-        #Write-Host " Unpinning Widgets and Teams from taskbar"
-        Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "ShowTaskViewButton" -Value 0
-        #Taskbarda is Widgets - Currently Widgets shows temperature bottom left
-        #Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "TaskBarDa" -Value 0
-        Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "TaskBarMn" -Value 0
-        Start-Sleep 10
-    } 
     
     Write-Host " Adding User Files to desktop"
     Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\HideDesktopIcons\NewStartPanel" -Name "{59031a47-3f72-44a7-89c5-5595fe6b30ee}" -Value 0
@@ -541,14 +541,14 @@ Start-Sleep -s 5
 WinGInstallation 
 Write-Host "`n `n======================================== `n `n Installing Apps `n Please be patient as the programs install in the background. `n `n============================================================= `n `n"
 Programs
-Write-Host "`n `n======================================== `n `n Applying Visual Tweaks `n `n======================================== `n `n"
-Visuals
 StartMenu
-Write-Host "`n `n======================================== `n `n Removing Bloatware from PC `n `n======================================== `n `n"
-Debloat
-OneDrive
 Write-Host "`n `n======================================== `n `n Applying Registry Changes `n `n======================================== `n `n"
 Registry
+OneDrive
+Write-Host "`n `n======================================== `n `n Removing Bloatware from PC `n `n======================================== `n `n"
+Debloat
+Write-Host "`n `n======================================== `n `n Applying Visual Tweaks `n `n======================================== `n `n"
+Visuals
 Write-Host "`n `n======================================== `n `n Finishing Up `n `n======================================== `n `n"
 Cleanup
 Stop-Transcript

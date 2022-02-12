@@ -261,20 +261,24 @@ $mssu.ForeColor     = [System.Drawing.ColorTranslator]::FromHtml("#ffffff")
 $mssu.BackColor     = [System.Drawing.ColorTranslator]::FromHtml("#857777")
 
 $Form.controls.AddRange(@($RunScript,$RunNoOEM,$UndoScript,$ExitButton,$mocologo,$nvidiashortcut,$amdshortcut,$DriverWebsites,$asusshortcut,$msishortcut,$Shortcuts,$activationbutton,$programsbutton,$updatesbutton,$ReinstallOneDrive,$customclean,$mssu,$ThemeButton,$powerplanbutton,$Label3,$intelshortcut,$Label4,$LightMode,$DarkMode,$Reboot,$DeviceManager,$Explorer))
+###########################################################################################################################
 
-#region Logic 
-#If (!([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole]'Administrator')) {
-#	Start-Process powershell.exe "-NoProfile -ExecutionPolicy Bypass -File `"$PSCommandPath`"" -Verb RunAs
-	#Exit
-#}
+
+
+
+            START OF SCRIPT 
+
+
+
+
+###########################################################################################################################
 Import-Module BitsTransfer
-
 $programversion = "22.10.0"
 
 $package1  = "Google.Chrome"
 $package2  = "Adobe.Acrobat.Reader.64-bit"
 $package3  = "VideoLAN.VLC"
-#$tslrd = 20211211
+
 $Location1 = "$env:PROGRAMFILES\Google\Chrome\Application\chrome.exe"
 $Location3 = "$env:PROGRAMFILES\VideoLAN\VLC\vlc.exe"
 $Location2 = "$env:PROGRAMFILES\Adobe\Acrobat DC\Acrobat\Acrobat.exe"
@@ -282,62 +286,18 @@ $Folder = Get-Location
 $frmt = "`n `n======================================== `n `n"
 $BuildNumber = (Get-ItemProperty -Path c:\windows\system32\hal.dll).VersionInfo.ProductVersion
 $WantedBuild = "10.0.22000"
-#$Time = (Get-Date -UFormat %Y%m%d)
+
 $dtime = (Get-Date -UFormat %H.%M-%Y.%m.%d)
-#$License = 20220330
-#$Lie = "License has Expired. Please Contact Mike for a New License `n `n Exiting.."
+
 $10 = "Win10"
 $11 = "Win11"
 $win10path = "$folder\win10-purple.deskthemepack"
 $win11path = "$folder\win11-light.deskthemepack"
-#$win11pathdark = "$folder\win11-dark.deskthemepack"
+$blstat = "on"
+$mocotheme1 = "$Env:USERPROFILE\desktop\win11-light.deskthemepack"
+$mocotheme2 = "$Env:USERPROFILE\desktop\win11-dark.deskthemepack"
+$mocotheme3 = "$Env:USERPROFILE\desktop\win10-purple.deskthemepack"
 
-
-w32tm /resync | Out-Null 2>$NULL
-#net start w32time | Out-Null 2>$NULL
-#reg export "HKLM\SYSTEM\CurrentControlSet\services\w32time\Config" "$folder\exported_w32time.reg" /y | Out-Null 2>$NULL
-#reg add "HKLM\SYSTEM\CurrentControlSet\services\w32time\Config" /v MaxNegPhaseCorrection /d 0xFFFFFFFF /t REG_DWORD /f | Out-Null 2>$NULL
-#reg add "HKLM\SYSTEM\CurrentControlSet\services\w32time\Config" /v MaxPosPhaseCorrection /d 0xFFFFFFFF /t REG_DWORD /f | Out-Null 2>$NULL
-## w32tm /config /manualpeerlist:time.windows.com,0x1 /syncfromflags:manual /regreliable:yes /update
-#w32tm /config /manualpeerlist:time.windows.com,0x1 /syncfromflags:manual /reliable:yes /update | Out-Null 2>$NULL
-## w32tm /config /update
-#w32tm /config /update | Out-Null 2>$NULL
-## w32tm /resync /rediscover 
-#w32tm /resync /rediscover | Out-Null 2>$NULL
-##Restore registry w32time\Config
-#reg import "$folder\exported_w32time.reg" | Out-Null 2>$NULL
-#Remove-Item "$folder\exported_w32time.reg" | Out-Null 2>$NULL
-#Clear-Host
-
-
-#### LICENSE Plus BItlocker check#####
-#If ($Time -gt $License) {
-#    Clear-Host
-    #Write-Host $lie
-    #Start-Sleep -s 2
-    #Exit
-    #} else {
-        #If ($Time -gt $tslrd) {
-            #Clear-Host
-            #Write-Host " `n Creating Restore Point incase something bad happens"
-            #Enable-ComputerRestore -Drive "C:\"
-            #Checkpoint-Computer -Description "RestorePoint1" -RestorePointType "MODIFY_SETTINGS"
-            #Start-Sleep -s 2
-            #Clear-Host
-            #$blstat = "on"
-            #If ((Get-BitLockerVolume -MountPoint "C:").ProtectionStatus -eq $blstat){
-                #Write-Host " Bitlocker seems to be enabled. Starting the decryption process."
-                #manage-bde -off "C:"
-            #} else {
-                #Write-Host " Bitlocker is not enabled on this machine."
-            ##}} else {
-            #Clear-Host
-            #Write-Host $lie
-            #Start-Sleep -s 2
-            #Exit
-        #}
-    #}
-    
 Write-Host "`n `n================================================================================================ `n `n `n `n `n `n `n `n New Loads Utility For Windows 10 & 11 `n Created by Mike Ivison `n Script Version : $programversion `n `n Script will run in : UI Mode`n `n Ideally run updates before continuing with this script. `n `n `n `n `n `n `n `n================================================================================================ `n `n"
 Function WinG{
 if (Test-Path ~\AppData\Local\Microsoft\WindowsApps\winget.exe){
@@ -353,7 +313,12 @@ if (Test-Path ~\AppData\Local\Microsoft\WindowsApps\winget.exe){
     Stop-Process -Name AppInstaller -Force
     }
 }
-
+Function Wing2.0{
+If(Test-Path ~\AppData\Local\Microsoft\WindowsApps\winget.exe){
+    Invoke-WebRequest -Uri "https://github.com/microsoft/winget-cli/releases/download/v1.2.10271/Microsoft.DesktopAppInstaller_8wekyb3d8bbwe.msixbundle" OutFile "~\Appdata\Local\Temp\winget.msixbundle"
+    Add-Appxpackage "~\Appdata\Local\Temp\Winget.msixbundle"
+    }
+}
 Function Programs {
     Write-Host "$frmt Installing Apps `n Please be patient as the programs install in the background.$frmt"
     Write-Host " Double Checking Winget is installed"
@@ -395,8 +360,6 @@ If (!(Test-Path $Location3)) {
 Function Visuals {
     Write-Host "Checking your OS.."
     Start-Sleep -s 2
-    $BuildNumber = (Get-ItemProperty -Path c:\windows\system32\hal.dll).VersionInfo.ProductVersion
-    $WantedBuild = "10.0.22000"
     If ($BuildNumber -gt $WantedBuild) {
         write-Host "I have detected that you are on Windows 11 `n `nApplying Appropriate Theme & Flagging Required Settings"
         Start-BitsTransfer -Source "https://github.com/circlol/newload/raw/main/Assets/win11-light.deskthemepack" -Destination "$env:temp\win11-light.deskthemepack"
@@ -671,7 +634,29 @@ Function UndoDebloat {
 
 Function Registry {
     Write-Host "$frmt Applying Registry Changes $frmt"
-    "Changing how often Windows asks for feedback."
+
+    If ($BuildNumber -lt $WantedBuild) {
+        Write-Host " Applying Windows 10 Specific Registry Keys `n"
+        Start-Sleep -s 1
+        Write-Host " Unpinning Cortana Icon on Taskbar"
+        Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "ShowCortanaButton" -Value 0
+        Write-Host " Unpinning TaskView Icon from Taskbar"
+        Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "ShowTaskViewButton" -Value 0
+        Write-Host " Changing Searchbox to Icon Format on Taskbar"
+        Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Search" -Name "SearchboxTaskbarMode" -Value 1
+        Start-Sleep -s 10        
+    }
+    #11 Specific
+    if ($BuildNumber -gt $WantedBuild) {
+        Write-Host " Applying Windows 11 Specific Registry Keys `n"
+        #Write-Host " Unpinning Widgets and Teams from taskbar"
+        Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "ShowTaskViewButton" -Value 0
+        #Taskbarda is Widgets - Currently Widgets shows temperature bottom left
+        #Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "TaskBarDa" -Value 0
+        Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "TaskBarMn" -Value 0
+        Start-Sleep -s 10
+    }
+
     Write-Host " Changing how often Windows asks for feedback to never"
     If (!(Test-Path "HKCU:\Software\Microsoft\Siuf")) { 
         New-Item -Path "HKCU:\Software\Microsoft" -Name "Siuf"
@@ -724,29 +709,7 @@ Function Registry {
         New-Item -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion" -Name "TaskManager"
     }
     Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\TaskManager" -Name "StartUpTab" -Value 1 -Type DWord
-
-    If ($BuildNumber -lt $WantedBuild) {
-        Write-Host " Applying Windows 10 Specific Registry Keys `n"
-        Start-Sleep -s 1
-        Write-Host " Unpinning Cortana Icon on Taskbar"
-        Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "ShowCortanaButton" -Value 0
-        Write-Host " Unpinning TaskView Icon from Taskbar"
-        Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "ShowTaskViewButton" -Value 0
-        Write-Host " Changing Searchbox to Icon Format on Taskbar"
-        Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Search" -Name "SearchboxTaskbarMode" -Value 1
-        Start-Sleep -s 10        
-    }
-    #11 Specific
-    if ($BuildNumber -gt $WantedBuild) {
-        Write-Host " Applying Windows 11 Specific Registry Keys `n"
-        #Write-Host " Unpinning Widgets and Teams from taskbar"
-        Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "ShowTaskViewButton" -Value 0
-        #Taskbarda is Widgets - Currently Widgets shows temperature bottom left
-        #Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "TaskBarDa" -Value 0
-        Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "TaskBarMn" -Value 0
-        Start-Sleep -s 10
-    } 
-    
+  
     Write-Host " Adding User Files to desktop"
     Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\HideDesktopIcons\NewStartPanel" -Name "{59031a47-3f72-44a7-89c5-5595fe6b30ee}" -Value 0
     
@@ -941,6 +904,13 @@ Function Cleanup {
     Write-Host " Restarting Explorer"
     Start-Sleep -s 1
     Start-Process Explorer
+    If ((Get-BitLockerVolume -MountPoint "C:").ProtectionStatus -eq $blstat){
+        Write-Host "Bitlocker seems to be enabled. Starting the decryption process."
+        manage-bde -off "C:"
+        Write-Host "Continuing task in background."
+        } else {
+        Write-Host "Bitlocker is not enabled on this machine."
+    }
     #On Charger
     Write-Host " Changing On AC Sleep Settings"
     powercfg -change -standby-timeout-ac "30"
@@ -978,10 +948,6 @@ Function Cleanup {
         Write-Host " Removing temp folder in C Root"
         Remove-Item $ctemp -Force -Recurse -Confirm:$false -ErrorAction SilentlyContinue -Verbose 2>$NULL
     }
-    
-    $mocotheme1 = "$Env:USERPROFILE\desktop\win11-light.deskthemepack"
-    $mocotheme2 = "$Env:USERPROFILE\desktop\win11-dark.deskthemepack"
-    $mocotheme3 = "$Env:USERPROFILE\desktop\win10-purple.deskthemepack"
     If ($mocotheme1) { 
         Remove-Item "$mocotheme1" -Force -Recurse -Confirm:$false -ErrorAction SilentlyContinue -Verbose 2>$NULL
     }
@@ -1117,12 +1083,12 @@ Start-Transcript -LiteralPath "$env:USERPROFILE\Desktop\Script Run - $dtime.txt"
 Write-Host "$frmt Running Script `n `n GUI will be unusable whilst script is running. Please Standby `n$frmt"
 WinG
 Programs
-Visuals
-StartMenu
-Debloat
 OEMInfo
+StartMenu
 Registry
 OneDrive
+Debloat
+Visuals
 Cleanup
 Write-Host "`n `n================================================================================================ `n `n `n `n `n `n `n `n `n `n `n `n `n Requested Action Completed `n `n `n `n `n `n `n `n `n `n `n `n `n================================================================================================ `n `n"
 Stop-Transcript
@@ -1134,9 +1100,9 @@ Write-Host "$frmt Running Script without Branding`n `n GUI will be unusable whil
 WinG
 Programs
 StartMenu
-Debloat
 Registry
 OneDrive
+Debloat
 Cleanup
 Write-Host "`n `n================================================================================================ `n `n `n `n `n `n `n `n `n `n `n `n `n Requested Action Completed `n `n `n `n `n `n `n `n `n `n `n `n `n================================================================================================ `n `n"
 Stop-Transcript
