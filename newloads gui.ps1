@@ -298,12 +298,7 @@ $mocotheme1 = "$Env:USERPROFILE\desktop\win11-light.deskthemepack"
 $mocotheme2 = "$Env:USERPROFILE\desktop\win11-dark.deskthemepack"
 $mocotheme3 = "$Env:USERPROFILE\desktop\win10-purple.deskthemepack"
 
-$health = $health+=15
-If(!(Test-Path ~\AppData\Local\Microsoft\WindowsApps\winget.exe)){
-    $health = "ERROR: WINGET NOT INSTALLED - $health"
-} else {
-    $health = $health+=25
-}
+
 
 Function Programs {
     Write-Host "$frmt Installing Apps `n Please be patient as the programs install in the background.$frmt"
@@ -1059,8 +1054,13 @@ $DarkMode.Add_Click{
     }    
 }
 
-$health = $health+=20
 
+
+If(!(Test-Path ~\AppData\Local\Microsoft\WindowsApps\winget.exe)){
+    $health = "ERROR: WINGET NOT INSTALLED - $health"
+} else {
+    $health = $health+=40
+}
 Write-Host "`n `n================================================================================================ `n `n `n New Loads`n Script Version : $programversion`n `n Script Status: $Health%`n Ideally run updates before continuing with this script. `n `n `n `n================================================================================================ `n `n"
 
 
