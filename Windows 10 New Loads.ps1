@@ -36,12 +36,11 @@ If (!(Test-Path $Location3)) {
     } else {
     Write-Host " Verified $package3 is already Installed."
     }
-}            
+}         
+   
 Function Visuals {
     Write-Host "Checking your OS.."
     Start-Sleep -s 2
-    $BuildNumber = (Get-ItemProperty -Path c:\windows\system32\hal.dll).VersionInfo.ProductVersion
-    $WantedBuild = "10.0.22000"
     If ($BuildNumber -gt $WantedBuild) {
         write-Host "I have detected that you are on Windows 11 `n `nApplying Appropriate Theme & Flagging Required Settings"
         Start-BitsTransfer -Source "https://github.com/circlol/newload/raw/main/Assets/win11-light.deskthemepack" -Destination "$env:temp\win11-light.deskthemepack"
@@ -58,6 +57,7 @@ Function Visuals {
             taskkill /F /IM systemsettings.exe 2>$NULL
         }
     }
+
     Write-Host "`n Setting Wallpaper to Stretch `n"
     Stop-Process -Name Explorer
     If(!(Test-Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Policies\System")){
@@ -66,8 +66,8 @@ Function Visuals {
     Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Policies\System" -Name "WallpaperStyle" -Type String -Value 2 -ErrorAction SilentlyContinue
     Start-Sleep -s 1
     Start-Process Explorer -Wait
-    #taskkill /F /IM explorer.exe 2>$NULL
 }
+
 Function StartMenu {
     Write-host "$frmt Applying Start Menu & Pinning Taskbar Layout $frmt"
     Write-Host " Creating StartMenuLayout.Xml"

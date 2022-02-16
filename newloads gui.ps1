@@ -276,6 +276,7 @@ $Form.controls.AddRange(@($RunScript,$RunNoOEM,$UndoScript,$ExitButton,$mocologo
 Import-Module BitsTransfer
 $programversion = "22.10.0"
 
+
 $package1  = "Google.Chrome"
 $package2  = "Adobe.Acrobat.Reader.64-bit"
 $package3  = "VideoLAN.VLC"
@@ -289,8 +290,6 @@ $WantedBuild = "10.0.22000"
 $dtime = (Get-Date -UFormat %H.%M-%Y.%m.%d)
 $10 = "Win10"
 $11 = "Win11"
-$win10path = "$folder\win10-purple.deskthemepack"
-$win11path = "$folder\win11-light.deskthemepack"
 $blstat = "on"
 $mocotheme1 = "$Env:USERPROFILE\desktop\win11-light.deskthemepack"
 $mocotheme2 = "$Env:USERPROFILE\desktop\win11-dark.deskthemepack"
@@ -1010,14 +1009,17 @@ $LightMode.Add_Click{
     } else {
         If ($BuildNumber -lt $WantedBuild) {
             #write-Host " Applying Light Mode for Windows 10"
-            #Start-BitsTransfer -Source "https://github.com/circlol/newload/raw/main/Assets/win10-purple.deskthemepack" -Destination win10-purple.deskthemepack
-            #Start-Sleep 3
-            #Start-Process "win10-purple.deskthemepack"
-            #Start-Sleep 3
-            #Remove-Item "win10-purple.deskthemepack" -Force -Recurse
-            #taskkill /F /IM systemsettings.exe 2>$NULL
-            Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Themes\Personalize" -Name "AppsUseLightTheme" -Type DWord -Value 1
-            Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Themes\Personalize" -Name "SystemUsesLightTheme" -Type DWord -Value 1
+            #If (!(test-path ~\Appdata\Local\Temp\win10-purple.deskthemepack)){
+                #}
+                
+            Start-BitsTransfer -Source "https://github.com/circlol/newload/raw/main/Assets/win10-purple.deskthemepack" -Destination win10-purple.deskthemepack                
+            Start-Sleep 3
+            Start-Process "win10-purple.deskthemepack"
+            Start-Sleep 3
+            Remove-Item "win10-purple.deskthemepack" -Force -Recurse
+            taskkill /F /IM systemsettings.exe 2>$NULL
+            #Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Themes\Personalize" -Name "AppsUseLightTheme" -Type DWord -Value 1
+            #Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Themes\Personalize" -Name "SystemUsesLightTheme" -Type DWord -Value 1
             Write-Host " Applied Light Theme for Windows 10"
         }
     }
@@ -1036,14 +1038,14 @@ $DarkMode.Add_Click{
     } else {
         If ($BuildNumber -lt $WantedBuild) {
             #write-Host " Applying Dark Mode for Windows 10"
-            #Start-BitsTransfer -Source "https://github.com/circlol/newload/raw/main/Assets/win10-purple.deskthemepack" -Destination win10-purple.deskthemepack
-            #Start-Sleep -s 3
-            #Start-Process "win10-purple.deskthemepack"
-            #Start-Sleep -s 3
-            #Remove-Item "win10-purple.deskthemepack" -Force -Recurse  
-            #taskkill /F /IM systemsettings.exe 2>$NULL               
-            Set-ItemProperty -Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Themes\Personalize" -Name "AppsUseLightTheme" -Type DWord -Value 0
-            Set-ItemProperty -Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Themes\Personalize" -Name "SystemUsesLightTheme" -Type DWord -Value 0
+            Start-BitsTransfer -Source "https://github.com/circlol/newload/raw/main/Assets/win10-purple.deskthemepack" -Destination win10-purple.deskthemepack
+            Start-Sleep -s 3
+            Start-Process "win10-purple.deskthemepack"
+            Start-Sleep -s 3
+            Remove-Item "win10-purple.deskthemepack" -Force -Recurse  
+            taskkill /F /IM systemsettings.exe 2>$NULL               
+            #Set-ItemProperty -Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Themes\Personalize" -Name "AppsUseLightTheme" -Type DWord -Value 0
+            #Set-ItemProperty -Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Themes\Personalize" -Name "SystemUsesLightTheme" -Type DWord -Value 0
             Write-Host " Applied Dark Theme for Winodws 10"
         }
     }    
