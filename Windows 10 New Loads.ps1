@@ -40,6 +40,11 @@ If (!(Test-Path $Location3)) {
    
 Function Visuals {
     Write-Host "Checking your OS.."
+    If (!((Get-Process -name explorer).Id)){
+        Start-Process explorer
+        write-host "Explorer Started"
+        } else {
+        Write-Host Explorer is running}
     Start-Sleep -s 2
     If ($BuildNumber -gt $WantedBuild) {
         write-Host "I have detected that you are on Windows 11 `n `nApplying Appropriate Theme & Flagging Required Settings"
@@ -90,6 +95,7 @@ Function StartMenu {
 </LayoutModificationTemplate>
 "@
 $layoutFile="C:\Windows\StartMenuLayout.Xml"
+
 Write-Host " Clearing Pinned Start Icons"
 Start-Sleep -Milliseconds 300
 Write-Host " Applied Taskbar Icons"
@@ -108,7 +114,12 @@ Write-Host " Applied Taskbar Icons"
         Set-ItemProperty -Path $keyPath -Name "LockedStartLayout" -Value 1
         Set-ItemProperty -Path $keyPath -Name "StartLayoutFile" -Value $layoutFile
     }
-    Write-Host " Restarting Explorer Service"
+    If (!((Get-Process -name explorer).Id)){
+        Start-Process explorer
+        write-host "Explorer Started"
+        } else {
+            Stop-Process -name explorer -force
+        }
     Stop-Process -name explorer -force | Out-Null 2>$NULL
     Start-Sleep -s 3
     $wshell = New-Object -ComObject wscript.shell; $wshell.SendKeys('^{ESCAPE}')

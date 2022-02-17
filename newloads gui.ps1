@@ -336,6 +336,12 @@ If (!(Test-Path $Location3)) {
 }             
 Function Visuals {
     Write-Host "Checking your OS.."
+    If (!((Get-Process -name explorer).Id)){
+        Write-Host "Explorer not found."
+        Start-Process explorer -Verbose
+        write-host "Explorer Started"
+        } else {
+        Write-Host Explorer is running}
     Start-Sleep -s 2
     If ($BuildNumber -gt $WantedBuild) {
         write-Host "I have detected that you are on Windows 11 `n `nApplying Appropriate Theme & Flagging Required Settings"
