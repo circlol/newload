@@ -336,17 +336,15 @@ If (!(Test-Path $Location3)) {
 }             
 Function Visuals {
     Write-Host "Checking your OS.."
-    If (!((Get-Process -name explorer).Id)){
+    If (!((Get-Process -Name explorer -ErrorAction SilentlyContinue).Id)){
         Write-Host "Explorer not found."
         Start-Process explorer -Verbose
         write-host "Explorer Started"
-        } else {
-        Write-Host Explorer is running}
+        }
     Start-Sleep -s 2
     If ($BuildNumber -gt $WantedBuild) {
         write-Host "I have detected that you are on Windows 11 `n `nApplying Appropriate Theme & Flagging Required Settings"
         Start-BitsTransfer -Source "https://github.com/circlol/newload/raw/main/Assets/win11-light.deskthemepack" -Destination "$env:temp\win11-light.deskthemepack"
-        #Start-BitsTransfer -Source "https://www40.zippyshare.com/d/ITnX1PTu/920358/win11-light.deskthemepack" -Destination win11-light.deskthemepack
         Start-Process "$env:temp\win11-light.deskthemepack"
         Start-Sleep -s 3
         taskkill /F /IM systemsettings.exe 2>$NULL
@@ -883,18 +881,21 @@ Function OEMInfo{
     Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\OEMInformation" -Name "Model" -Type String -Value "Mother Computers - (250) 479-8561"
 }
 Function Cleanup {
+	
     Write-Host "$frmt Finishing Up$frmt"
-    Write-Host " Restarting Explorer"
-    Start-Sleep -s 1
-    Start-Process Explorer
+	If (!((Get-Process -Name explorer -ErrorAction SilentlyContinue).Id)){
+		Start-Process explorer
+		write-host "Explorer Started"
+    }
+	
+	#A112
     If ((Get-BitLockerVolume -MountPoint "C:").ProtectionStatus -eq $blstat){
         Write-Host "Bitlocker seems to be enabled. Starting the decryption process."
         manage-bde -off "C:"
         Write-Host "Continuing task in background."
         } else {
         Write-Host "Bitlocker is not enabled on this machine."
-    }
-    #On Charger
+    }    #On Charger
     Write-Host " Changing On AC Sleep Settings"
     powercfg -change -standby-timeout-ac "30"
     powercfg -change -monitor-timeout-ac "15"        
@@ -902,6 +903,9 @@ Function Cleanup {
     Write-Host " Changing On Battery Sleep Settings"
     powercfg -change -standby-timeout-dc "15"
     powercfg -change -monitor-timeout-dc "10"
+	##
+
+
     Write-Host " Launching Chrome, Please accept UBlock Origin extension popup"
     Start-Sleep -Milliseconds 400
     Start-Process Chrome -ErrorAction SilentlyContinue
@@ -913,7 +917,7 @@ Function Cleanup {
     }
     $edgescpub = "$Env:PUBLIC\Desktop\Microsoft Edge.lnk"
     If ($edgescpub) { 
-        Write-Host " Removing Edge Icon"
+        Write-Host " Removing Edge Icon in Public"
         Remove-Item $edgescpub -Force -Recurse -Confirm:$false -ErrorAction SilentlyContinue -Verbose 2>$NULL
     }
     $vlcsc = "$Env:PUBLIC\Desktop\VLC Media Player.lnk"
@@ -1071,11 +1075,11 @@ Write-Host "$frmt Running Script `n `n GUI will be unusable whilst script is run
 #WinG
 Programs
 OEMInfo
+Visuals
 StartMenu
 Registry
 OneDrive
 Debloat
-Visuals
 Cleanup
 Write-Host "`n `n================================================================================================ `n `n `n `n `n `n `n `n `n `n `n `n `n Requested Action Completed `n `n `n `n `n `n `n `n `n `n `n `n `n================================================================================================ `n `n"
 Stop-Transcript
@@ -1106,7 +1110,12 @@ Write-Host " Finished Reinstalling Bloatware Apps"
 Taskkill /F /IM Explorer.exe
 UndoOneDrive
 UndoRegistry
-Start-Process Explorer
+If (!((Get-Process -Name explorer -ErrorAction SilentlyContinue).Id)){
+	Start-Process explorer
+	write-host "Explorer Started"
+	} else {
+	Write-Host Explorer is running
+}
 Write-Host "`n `n================================================================================================  `n `n `n `n `n `n `n `n `n `n `n `n `n Script Actions Undone `n `n `n `n `n `n `n `n `n `n `n `n `n================================================================================================ `n `n"
 Stop-Transcript
 }

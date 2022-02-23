@@ -1,6 +1,5 @@
 Import-Module BitsTransfer
 $health = 35
-#$Folder = Get-Location
 $dtime = (Get-Date -UFormat %H.%M-%Y.%m.%d)
 $programversion = "22.10.00"
 Function Programs {
@@ -8,19 +7,18 @@ Write-Host "`n"
 $package1  = "Google.Chrome"
 $package2  = "Adobe.Acrobat.Reader.64-bit"
 $package3  = "VideoLAN.VLC"
-$Location1 = "$env:PROGRAMFILES\Google\Chrome\Application\chrome.exe"
-$Location2 = "$env:PROGRAMFILES\Adobe\Acrobat DC\Acrobat\Acrobat.exe"
-$Location3 = "$env:PROGRAMFILES\VideoLAN\VLC\vlc.exe"
+$pf = $env:PROGRAMFILES
+$Location1 = "$pf\Google\Chrome\Application\chrome.exe"
+$Location2 = "$pf\Adobe\Acrobat DC\Acrobat\Acrobat.exe"
+$Location3 = "$pf\VideoLAN\VLC\vlc.exe"
+
 If (!(Test-Path $Location1)) {
     	Write-Host "`n `n Installing $Package1 `n" 
     	winget install $package1 -s winget -e -h
-    	
-	### Create an ittt for each extension ###
 	Write-Host " Adding Extension Flag for UBlock Origin"
 	REG ADD "HKEY_LOCAL_MACHINE\Software\Wow6432Node\Google\Chrome\Extensions\cjpalhdlnbpafiamejdnhcphjbkeiagm" /v update_url /t REG_SZ /d https://clients2.google.com/service/update2/crx
 	Write-Host " Adding Extension Flag for Microsoft Defender Browser Protection"
 	REG ADD "HKEY_LOCAL_MACHINE\Software\Wow6432Node\Google\Chrome\Extensions\bkbeeeffjjeopflfhgeknacdieedcoml" /v update_url /t REG_SZ /d https://clients2.google.com/service/update2/crx
-    
     } else {
     Write-Host " Verified $package1 is already Installed. Moving on."
     }
@@ -40,7 +38,7 @@ If (!(Test-Path $Location3)) {
    
 Function Visuals {
     Write-Host "Checking your OS.."
-    If (!((Get-Process -name explorer).Id)){
+    If (!((Get-Process -Name explorer -ErrorAction SilentlyContinue).Id)){
         Start-Process explorer
         write-host "Explorer Started"
         } else {
@@ -49,7 +47,7 @@ Function Visuals {
     If ($BuildNumber -gt $WantedBuild) {
         write-Host "I have detected that you are on Windows 11 `n `nApplying Appropriate Theme & Flagging Required Settings"
         Start-BitsTransfer -Source "https://github.com/circlol/newload/raw/main/Assets/win11-light.deskthemepack" -Destination "$env:temp\win11-light.deskthemepack"
-        #Start-BitsTransfer -Source "https://www40.zippyshare.com/d/ITnX1PTu/920358/win11-light.deskthemepack" -Destination win11-light.deskthemepack
+        Start-Sleep -s 3
         Start-Process "$env:temp\win11-light.deskthemepack"
         Start-Sleep -s 3
         taskkill /F /IM systemsettings.exe 2>$NULL
@@ -57,6 +55,7 @@ Function Visuals {
         If ($BuildNumber -lt $WantedBuild) {
             write-Host "I have detected that you are on Windows 10 `n `nApplying Appropriate Theme & Flagging Required Settings"
             Start-BitsTransfer -Source "https://github.com/circlol/newload/raw/main/Assets/win10-purple.deskthemepack" -Destination "$env:temp\win10-purple.deskthemepack"
+            Start-Sleep -s 3
             Start-Process "$env:temp\win10-purple.deskthemepack"
             Start-Sleep -s 3
             taskkill /F /IM systemsettings.exe 2>$NULL
@@ -457,10 +456,12 @@ Function Debloat {
 }  
 Function Cleanup {
     Write-Host "$frmt Finishing Up$frmt"
-    Write-Host " Restarting Explorer"
-    Start-Sleep -s 1
-    Start-Process Explorer
-    #On Charger
+	
+	If (!((Get-Process -Name explorer -ErrorAction SilentlyContinue).Id)){
+		Start-Process explorer
+		write-host "Explorer Started"
+    }	
+	#On Charger
     Write-Host " Changing On AC Sleep Settings"
     powercfg -change -standby-timeout-ac "30"
     powercfg -change -monitor-timeout-ac "15"        
@@ -479,7 +480,7 @@ Function Cleanup {
     }
     $edgescpub = "$Env:PUBLIC\Desktop\Microsoft Edge.lnk"
     If ($edgescpub) { 
-        Write-Host " Removing Edge Icon"
+        Write-Host " Removing Edge Icon in Public"
         Remove-Item $edgescpub -Force -Recurse -Confirm:$false -ErrorAction SilentlyContinue -Verbose 2>$NULL
     }
     $vlcsc = "$Env:PUBLIC\Desktop\VLC Media Player.lnk"
@@ -524,13 +525,13 @@ Write-Host "`n `n===============================================================
 Write-Host "`n `n======================================== `n `n Installing Apps `n Please be patient as the programs install in the background. `n `n============================================================= `n `n"
 Programs
 StartMenu
+Write-Host "`n `n======================================== `n `n Applying Visual Tweaks `n `n======================================== `n `n"
+Visuals
 Write-Host "`n `n======================================== `n `n Applying Registry Changes `n `n======================================== `n `n"
 Registry
 OneDrive
 Write-Host "`n `n======================================== `n `n Removing Bloatware from PC `n `n======================================== `n `n"
 Debloat
-Write-Host "`n `n======================================== `n `n Applying Visual Tweaks `n `n======================================== `n `n"
-Visuals
 Write-Host "`n `n======================================== `n `n Finishing Up `n `n======================================== `n `n"
 Cleanup
 Stop-Transcript
