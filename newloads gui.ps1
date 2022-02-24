@@ -273,6 +273,7 @@ $Form.controls.AddRange(@($RunScript,$RunNoOEM,$UndoScript,$ExitButton,$mocologo
 
 
 ###########################################################################################################################
+
 Import-Module BitsTransfer
 $programversion = "22.10.0"
 
@@ -296,10 +297,9 @@ $mocotheme2 = "$Env:USERPROFILE\desktop\win11-dark.deskthemepack"
 $mocotheme3 = "$Env:USERPROFILE\desktop\win10-purple.deskthemepack"
 $health = $health+=20
 Function Programs {
-    Write-Host "$frmt Installing Apps `n Please be patient as the programs install in the background.$frmt"
-    Write-Host " Double Checking Winget is installed"
+    Write-Host " Double checking winget is installed"
     If (!(Test-Path ~\AppData\Local\Microsoft\WindowsApps\winget.exe)){
-        Write-Host " Winget not found, installing it now."
+        Write-Host " Winget didn't seem to get installed. Trying again."
         Start-Process "ms-appinstaller:?source=https://aka.ms/getwinget"
         $nid = (Get-Process AppInstaller).Id
         Wait-Process -Id $nid
@@ -307,6 +307,7 @@ Function Programs {
         Start-Sleep -s 4
         Stop-Process -Name AppInstaller -Force
     }
+    Write-Host "$frmt Installing Apps `n Please be patient as the programs install in the background.$frmt"
 If (!(Test-Path $Location1)) {
     Write-Host "`n `n Installing $Package1`n" 
     winget install $package1 -s winget -e -h
@@ -345,6 +346,7 @@ Function Visuals {
     If ($BuildNumber -gt $WantedBuild) {
         write-Host "I have detected that you are on Windows 11 `n `nApplying Appropriate Theme & Flagging Required Settings"
         Start-BitsTransfer -Source "https://github.com/circlol/newload/raw/main/Assets/win11-light.deskthemepack" -Destination "$env:temp\win11-light.deskthemepack"
+        Start-Sleep -s 3
         Start-Process "$env:temp\win11-light.deskthemepack"
         Start-Sleep -s 3
         taskkill /F /IM systemsettings.exe 2>$NULL
@@ -352,6 +354,7 @@ Function Visuals {
         If ($BuildNumber -lt $WantedBuild) {
             write-Host "I have detected that you are on Windows 10 `n `nApplying Appropriate Theme & Flagging Required Settings"
             Start-BitsTransfer -Source "https://github.com/circlol/newload/raw/main/Assets/win10-purple.deskthemepack" -Destination "$env:temp\win10-purple.deskthemepack"
+            Start-Sleep -s 3
             Start-Process "$env:temp\win10-purple.deskthemepack"
             Start-Sleep -s 3
             taskkill /F /IM systemsettings.exe 2>$NULL
@@ -935,7 +938,7 @@ Function Cleanup {
         Write-Host " Removing temp folder in C Root"
         Remove-Item $ctemp -Force -Recurse -Confirm:$false -ErrorAction SilentlyContinue -Verbose 2>$NULL
     }
-    If ($mocotheme1) { 
+    If (test-path $mocotheme1) { 
         Remove-Item "$mocotheme1" -Force -Recurse -Confirm:$false -ErrorAction SilentlyContinue -Verbose 2>$NULL
     }
     If ($mocotheme2) { 
