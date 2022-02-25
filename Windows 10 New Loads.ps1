@@ -1,26 +1,53 @@
-Import-Module BitsTransfer
-$health = 35
+Write-Host " Initializing Script"
+$Health = 40
+$reason = "OK"
+If (Get-Module -ListAvailable -Name BitsTransfer){
+    $health += 25
+} else {
+    Write-Host " Importing BitsTransfer"
+    Import-Module BitsTransfer
+    Start-Sleep -s 2
+    If (!(Get-Module -ListAvailable -Name BitsTransfer)){
+        Write-Host " For some reason one of the modules wasn't found. Trying again."
+        Import-Module BitsTransfer -Verbose
+        $health += 25
+        Start-Sleep -s 2
+        If (!(Get-Module -ListAvailable -Name BitsTransfer)){
+            $reason = "$reason - BitsTransfer Module NOT Found"
+        } else {
+            $health += 25
+        }
+    } else {
+        $health += 25
+    }
+}
 $dtime = (Get-Date -UFormat %H.%M-%Y.%m.%d)
-$programversion = "22.10.00"
+$programversion = "22.24.904"
 Function Programs {
 Write-Host "`n"
 $package1  = "Google.Chrome"
 $package2  = "Adobe.Acrobat.Reader.64-bit"
 $package3  = "VideoLAN.VLC"
 $pf = $env:PROGRAMFILES
+$frmt = "`n `n======================================== `n `n"
 $Location1 = "$pf\Google\Chrome\Application\chrome.exe"
 $Location2 = "$pf\Adobe\Acrobat DC\Acrobat\Acrobat.exe"
 $Location3 = "$pf\VideoLAN\VLC\vlc.exe"
-
 If (!(Test-Path $Location1)) {
-    	Write-Host "`n `n Installing $Package1 `n" 
-    	winget install $package1 -s winget -e -h
-	Write-Host " Adding Extension Flag for UBlock Origin"
-	REG ADD "HKEY_LOCAL_MACHINE\Software\Wow6432Node\Google\Chrome\Extensions\cjpalhdlnbpafiamejdnhcphjbkeiagm" /v update_url /t REG_SZ /d https://clients2.google.com/service/update2/crx
-	Write-Host " Adding Extension Flag for Microsoft Defender Browser Protection"
-	REG ADD "HKEY_LOCAL_MACHINE\Software\Wow6432Node\Google\Chrome\Extensions\bkbeeeffjjeopflfhgeknacdieedcoml" /v update_url /t REG_SZ /d https://clients2.google.com/service/update2/crx
+    Write-Host "`n `n Installing $Package1`n" 
+    winget install $package1 -s winget -e -h
+    Write-Host " $package1 Installed."
+    Write-Host "`n Verified $package1 is already Installed. Moving On. "
+    if (!(Test-Path -Path:HKLM:\Software\Wow6432Node\Google\Chrome\Extensions\cjpalhdlnbpafiamejdnhcphjbkeiagm)){
+        Write-Host " Adding Extension Flag for UBlock Origin. When Chrome launches later, make sure to hit the accept button."
+        REG ADD "HKLM\Software\Wow6432Node\Google\Chrome\Extensions\cjpalhdlnbpafiamejdnhcphjbkeiagm" /v update_url /t REG_SZ /d https://clients2.google.com/service/update2/crx
+    }
+    if (!(Test-Path -Path:HKLM:\Software\Wow6432Node\Google\Chrome\Extensions\bkbeeeffjjeopflfhgeknacdieedcoml)){
+        Write-Host " Adding Extension Flag for Microsoft Defender Browser Protection"
+        REG ADD "HKLM\Software\Wow6432Node\Google\Chrome\Extensions\bkbeeeffjjeopflfhgeknacdieedcoml" /v update_url /t REG_SZ /d https://clients2.google.com/service/update2/crx
+        }    
     } else {
-    Write-Host " Verified $package1 is already Installed. Moving on."
+        Write-Host " $package1 is already insatlled. Skipping"
     }
 If (!(Test-Path $Location2)) {
     Write-Host "`n `n Installing $Package2 `n" 
@@ -37,15 +64,15 @@ If (!(Test-Path $Location3)) {
 }         
    
 Function Visuals {
-    Write-Host "Checking your OS.."
+    Write-Host " Checking your OS.."
     If (!((Get-Process -Name explorer -ErrorAction SilentlyContinue).Id)){
         Start-Process explorer
-        write-host "Explorer Started"
+        write-host " Explorer Started"
         } else {
         Write-Host Explorer is running}
     Start-Sleep -s 2
     If ($BuildNumber -gt $WantedBuild) {
-        write-Host "I have detected that you are on Windows 11 `n `nApplying Appropriate Theme & Flagging Required Settings"
+        write-Host " I have detected that you are on Windows 11 `n `nApplying Appropriate Theme & Flagging Required Settings"
         Start-BitsTransfer -Source "https://github.com/circlol/newload/raw/main/Assets/win11-light.deskthemepack" -Destination "$env:temp\win11-light.deskthemepack"
         Start-Sleep -s 3
         Start-Process "$env:temp\win11-light.deskthemepack"
@@ -53,7 +80,7 @@ Function Visuals {
         taskkill /F /IM systemsettings.exe 2>$NULL
     } else {
         If ($BuildNumber -lt $WantedBuild) {
-            write-Host "I have detected that you are on Windows 10 `n `nApplying Appropriate Theme & Flagging Required Settings"
+            write-Host " I have detected that you are on Windows 10 `n `nApplying Appropriate Theme & Flagging Required Settings"
             Start-BitsTransfer -Source "https://github.com/circlol/newload/raw/main/Assets/win10-purple.deskthemepack" -Destination "$env:temp\win10-purple.deskthemepack"
             Start-Sleep -s 3
             Start-Process "$env:temp\win10-purple.deskthemepack"
@@ -115,7 +142,7 @@ Write-Host " Applied Taskbar Icons"
     }
     If (!((Get-Process -name explorer).Id)){
         Start-Process explorer
-        write-host "Explorer Started"
+        write-host " Explorer Started"
         } else {
             Stop-Process -name explorer -force
         }
@@ -345,7 +372,7 @@ Function Debloat {
         New-Item -Path "HKCU:\Software\Microsoft" -Name "Siuf"
     }
 
-    Write-Host "Setting Sounds > Communications to 'Do Nothing'"
+    Write-Host " Setting Sounds > Communications to 'Do Nothing'"
     Set-ItemProperty "HKCU:\Software\Microsoft\MultiMedia\Audio" -Name "UserDuckingPreference" -Value 3 -Type DWord
 
     If (!(Test-Path "HKCU:\Software\Microsoft\Siuf\Rules")) {
@@ -459,7 +486,7 @@ Function Cleanup {
 	
 	If (!((Get-Process -Name explorer -ErrorAction SilentlyContinue).Id)){
 		Start-Process explorer
-		write-host "Explorer Started"
+		write-host " Explorer Started"
     }	
 	#On Charger
     Write-Host " Changing On AC Sleep Settings"
@@ -512,28 +539,64 @@ Function Cleanup {
         Remove-Item $mocotheme3 -Force -Recurse -Confirm:$false -ErrorAction SilentlyContinue -Verbose 2>$NULL
     }
 }
-If(!(Test-Path ~\AppData\Local\Microsoft\WindowsApps\winget.exe)){
-    $health = "ERROR: WINGET NOT INSTALLED - $health"
+
+If (!(Test-Path ~\AppData\Local\Microsoft\WindowsApps\winget.exe)){
+    $reason = " Winget not found
+ 
+ What do I do?:
+ Check taskbar for an AppInstaller instance. It should have a button that says update. Click that and let the program install.
+ If however that option is not available. Relaunch the script.
+ 
+ What is Winget?:
+ https://docs.microsoft.com/en-us/windows/package-manager/winget/
+"
 } else {
-    $health = $health+=45
+    $health = $health+=30
 }
+
 Start-Transcript -LiteralPath "$env:USERPROFILE\Desktop\Automated Script Run - $dtime.txt"
-$health = $health+=20
-Write-Host "`n `n================================================================================================ `n `n `n New Loads`n Script Version : $programversion`n `n Script Integrity: $Health%`n Ideally run updates before continuing with this script. `n `n `n `n================================================================================================ `n `n"
-#Start-Sleep -s 5
-#WinGInstallation 
-Write-Host "`n `n======================================== `n `n Installing Apps `n Please be patient as the programs install in the background. `n `n============================================================= `n `n"
+Start-Sleep -s 2
+If (Test-Path "~\Desktop\Automated Script Run - *.txt"){
+    $health = $health+=5
+} else {
+    $reason = "Log not found"
+}
+
+$wantedreason = "OK"
+If ($reason -eq $wantedreason){
+    Write-Host "`n`n================================================================================================`n`n"
+    Write-Host " New Loads`n" -ForegroundColor Cyan
+    Write-Host " Script Version : $programversion"
+    Write-Host " Script Intregity: $Health%`n"
+    Write-Host " Ideally run updates before continuing with this script." -ForegroundColor Red
+    Write-Host "`n`n================================================================================================`n`n`n"
+} else {
+    Write-Host "`n`n================================================================================================`n`n"
+    Write-Host " New Loads`n" -ForegroundColor Cyan
+    Write-Host " Script Version : $programversion"
+    Write-Host " Script Intregity: $Health%`n`n"
+    Write-Host " Error Message: $reason`n`n" -ForegroundColor DarkRed
+    Write-Host " Ideally run updates before continuing with this script." -ForegroundColor Red
+    Write-Host "`n`n================================================================================================`n`n`n"
+}
+
+
+
+#Write-Host "`n`n================================================================================================ `n `n `n New Loads`n Script Version : $programversion`n `n Script Integrity: $Health%`n`n Reason: $reason`n Ideally run updates before continuing with this script. `n `n `n `n================================================================================================ `n `n"
+Write-Host "$frmt Installing Apps `n Please be patient as the programs install silently.$frmt"
 Programs
-StartMenu
-Write-Host "`n `n======================================== `n `n Applying Visual Tweaks `n `n======================================== `n `n"
+Write-Host "$frmt Applying Visual Tweaks $frmt"
 Visuals
-Write-Host "`n `n======================================== `n `n Applying Registry Changes `n `n======================================== `n `n"
+StartMenu
+Write-Host "$frmt Applying Registry Changes $frmt"
 Registry
+Write-Host "$frmt"
 OneDrive
-Write-Host "`n `n======================================== `n `n Removing Bloatware from PC `n `n======================================== `n `n"
+Write-Host "$frmt Removing Bloatware from PC $frmt"
 Debloat
-Write-Host "`n `n======================================== `n `n Finishing Up `n `n======================================== `n `n"
+Write-Host "$frmt Finishing Up $frmt"
 Cleanup
 Stop-Transcript
 Write-Host "Script Completed.`nExiting."
+Start-Sleep -s 3
 Exit
