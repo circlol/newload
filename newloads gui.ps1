@@ -1,4 +1,4 @@
-Write-Host " Initializing Script"
+Write-Host "Initializing Script"
 $reason = "OK"
 $Health = 40
 If (Get-Module -ListAvailable -Name BitsTransfer){
@@ -920,7 +920,7 @@ Function OEMInfo{
     Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\OEMInformation" -Name "SupportPhone" -Type String -Value "(250) 479-8561" -Verbose
     Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\OEMInformation" -Name "SupportHours" -Type String -Value "Monday - Saturday 9AM-5PM | Sunday - Closed" -Verbose
     Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\OEMInformation" -Name "SupportURL" -Type String -Value "https://www.mothercomputers.com" -Verbose
-    Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\OEMInformation" -Name "Model" -Type String -Value "Mother Computers - (250) 479-8561"
+    Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\OEMInformation" -Name "Model" -Type String -Value "Mother Computers : 250-479-8561"
 }
 Function Cleanup {
 	
@@ -939,13 +939,11 @@ Function Cleanup {
         Write-Host " Bitlocker is not enabled on this machine."
     }    #On Charger
     Write-Host " Changing On AC Sleep Settings"
-    powercfg -change -standby-timeout-ac "30"
-    powercfg -change -monitor-timeout-ac "15"        
-    #On Battery
+    powercfg -change -standby-timeout-ac "60"
+    powercfg -change -monitor-timeout-ac "45"        
     Write-Host " Changing On Battery Sleep Settings"
     powercfg -change -standby-timeout-dc "15"
     powercfg -change -monitor-timeout-dc "10"
-	##
 
 
     Write-Host " Launching Chrome, Please accept UBlock Origin extension popup"
@@ -1121,14 +1119,14 @@ If (!(Test-Path ~\AppData\Local\Microsoft\WindowsApps\winget.exe)){
 $wantedreason = "OK"
 If ($reason -eq $wantedreason){
     Write-Host "`n`n================================================================================================`n`n"
-    Write-Host " New Loads`n" -ForegroundColor Cyan
+    Write-Host " New Loads`n" #-ForegroundColor Cyan
     Write-Host " Script Version : $programversion"
     Write-Host " Script Intregity: $Health%`n"
     Write-Host " Ideally run updates before continuing with this script." -ForegroundColor Red
     Write-Host "`n`n================================================================================================`n`n`n"
 } else {
     Write-Host "`n`n================================================================================================`n`n"
-    Write-Host " New Loads`n" -ForegroundColor Cyan
+    Write-Host " New Loads`n" #-ForegroundColor Cyan
     Write-Host " Script Version : $programversion"
     Write-Host " Script Intregity: $Health%`n`n"
     Write-Host " Error Message: $reason`n`n" -ForegroundColor DarkRed
@@ -1154,7 +1152,7 @@ Registry
 OneDrive
 Debloat
 Cleanup
-Write-Host "`n `n================================================================================================ `n `n `n `n `n `n `n `n `n `n `n `n `n Requested Action Completed `n `n `n `n `n `n `n `n `n `n `n `n `n================================================================================================ `n `n"
+Write-Host "$frmt Script Run Completed`n`nReady for next task $frmt"
 Stop-Transcript
 }
 
@@ -1168,7 +1166,7 @@ Registry
 OneDrive
 Debloat
 Cleanup
-Write-Host "`n `n================================================================================================ `n `n `n `n `n `n `n `n `n `n `n `n `n Requested Action Completed `n `n `n `n `n `n `n `n `n `n `n `n `n================================================================================================ `n `n"
+Write-Host "$frmt Script Run`n`nReady for next task $frmt"
 Stop-Transcript
 }
 
@@ -1189,7 +1187,7 @@ If (!((Get-Process -Name explorer -ErrorAction SilentlyContinue).Id)){
 	} else {
 	Write-Host Explorer is running
 }
-Write-Host "`n `n================================================================================================  `n `n `n `n `n `n `n `n `n `n `n `n `n Script Actions Undone `n `n `n `n `n `n `n `n `n `n `n `n `n================================================================================================ `n `n"
+Write-Host "$frmt Script Actions Undone`n`nReady for next task $frmt"
 Stop-Transcript
 }
 $ExitButton.Add_Click{
@@ -1212,3 +1210,40 @@ $ExitButton.Add_Click{
     #Write-Host "Running command $textboxresult"
     #powershell -command "$textboxresult"
 #}
+# SIG # Begin signature block
+# MIIGiwYJKoZIhvcNAQcCoIIGfDCCBngCAQExCzAJBgUrDgMCGgUAMGkGCisGAQQB
+# gjcCAQSgWzBZMDQGCisGAQQBgjcCAR4wJgIDAQAABBAfzDtgWUsITrck0sYpfvNR
+# AgEAAgEAAgEAAgEAAgEAMCEwCQYFKw4DAhoFAAQUAw3ADAR3c25Bl+ML0CCjE+nH
+# uySgggPGMIIDwjCCAqqgAwIBAgIQG23ehsglIKxDyVeFlzqJzzANBgkqhkiG9w0B
+# AQsFADB5MScwJQYJKoZIhvcNAQkBFhhtaWtlQG1vdGhlcmNvbXB1dGVycy5jb20x
+# JDAiBgNVBAsMG2h0dHBzOi8vbW90aGVyY29tcHV0ZXJzLmNvbTESMBAGA1UECgwJ
+# TmV3IExvYWRzMRQwEgYDVQQDDAtNaWtlIEl2aXNvbjAeFw0yMjAyMjYwMjA4MjFa
+# Fw0yMzAxMDEwODAwMDBaMHkxJzAlBgkqhkiG9w0BCQEWGG1pa2VAbW90aGVyY29t
+# cHV0ZXJzLmNvbTEkMCIGA1UECwwbaHR0cHM6Ly9tb3RoZXJjb21wdXRlcnMuY29t
+# MRIwEAYDVQQKDAlOZXcgTG9hZHMxFDASBgNVBAMMC01pa2UgSXZpc29uMIIBIjAN
+# BgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAqfJhHWoMaoTvauUnS1yhV8oTyjqf
+# fO+OQrN8ysjIv3THM74mgPFnAYSkMxl2MCSOgZXOmeyiEZJdIyZQIEZuv/JeX6ud
+# 77m5HylKT7Y73Xqb6nL6Z1latXyR+Jj9ZeIo6omJWPHLqLRpBJUxniPuXVOYdiYu
+# Ahp3R3vX8JPmFAgDqjuYvOhQzEJ4ZkJGb+gYoaM34AaPv51aenN3EwqVKLNfCse0
+# 2qDqDHEh84I7xZU0pjFWPR2oZPodJD71wWLQ02f2sj2ggcH1kiyzt+oBCGAIf/Vg
+# 3KGhpDrWCdlv5yCeIK5N4GNmKGNkV7rh75//n8ieKD7dbEradkiEqa0PNQIDAQAB
+# o0YwRDAOBgNVHQ8BAf8EBAMCBaAwEwYDVR0lBAwwCgYIKwYBBQUHAwMwHQYDVR0O
+# BBYEFCtXFGsxQLT0r4rik3dDQ059x5dXMA0GCSqGSIb3DQEBCwUAA4IBAQAYPL43
+# 0hOONDAMC3sD2H6MfSeo+5MZgt3xpeRhGm0xQ9f6KWGWsSnM+fQsmXAquKS3dCHf
+# BzDgBYFuOdHJMq+lACZMUD2zPUlPwvUFY/40ScaO/3MzrPU1qd8TW8UdvTaBDywa
+# KAkXx2OkEw+NvMFD5Bz8fH1up2dT0BPN+4eX5lsWJcdsD4sOTOXOnWBj3x3mu11Z
+# YO25XmA9TFerTVBVszRmfchQ3T01V9/WAo0VM2inP8iBWKfMCIv3sJdtVVbInQW+
+# Sybg4NaAQV9HTFeSVI4BC/F0G2zo7WysE1K35s9uEhM4giO9ZPbAcMpfWsl/nJ27
+# VK1ykVYYVsfiBSiXMYICLzCCAisCAQEwgY0weTEnMCUGCSqGSIb3DQEJARYYbWlr
+# ZUBtb3RoZXJjb21wdXRlcnMuY29tMSQwIgYDVQQLDBtodHRwczovL21vdGhlcmNv
+# bXB1dGVycy5jb20xEjAQBgNVBAoMCU5ldyBMb2FkczEUMBIGA1UEAwwLTWlrZSBJ
+# dmlzb24CEBtt3obIJSCsQ8lXhZc6ic8wCQYFKw4DAhoFAKB4MBgGCisGAQQBgjcC
+# AQwxCjAIoAKAAKECgAAwGQYJKoZIhvcNAQkDMQwGCisGAQQBgjcCAQQwHAYKKwYB
+# BAGCNwIBCzEOMAwGCisGAQQBgjcCARUwIwYJKoZIhvcNAQkEMRYEFOVO8NEroEsV
+# hba1E+Gkp+b5jrymMA0GCSqGSIb3DQEBAQUABIIBACH8B7+0v4sdw0PM0Bpo5tZt
+# 1MW54MgnBiZx88H+LoJ8zk1BVZtj/oyxQqyjBBqcOWfsnT54kG4lpWJYYoBhPF/Q
+# HjJ9i454Zan/e935HTma3PSXzN3z+N6UTd/nYHGo8fydb2xN48013dSfU12EorHV
+# 0+Ssqmlov5cbpU8cKWw29ydR8GZBG1hwYH7pDc0QOc1sLAr40wu9R19AnSjC+HW4
+# 0U55DlvVIXspGkoWTyD+T1Hpes9/jcuOnx6R/u4NWs6KVLpVbyNfxxgT0Yy5Skw3
+# pP2AZoFn2h6yBhwH949UnaRf/PBG3qzstpMICRNhLftzmBqT/n4pAzsJ0u9wsTE=
+# SIG # End signature block

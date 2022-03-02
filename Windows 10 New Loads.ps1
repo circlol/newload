@@ -1,4 +1,4 @@
-Write-Host " Initializing Script"
+Write-Host "Initializing Script"
 $Health = 40
 $reason = "OK"
 If (Get-Module -ListAvailable -Name BitsTransfer){
@@ -23,44 +23,45 @@ If (Get-Module -ListAvailable -Name BitsTransfer){
 }
 $dtime = (Get-Date -UFormat %H.%M-%Y.%m.%d)
 $programversion = "22.24.904"
+
 Function Programs {
-Write-Host "`n"
-$package1  = "Google.Chrome"
-$package2  = "Adobe.Acrobat.Reader.64-bit"
-$package3  = "VideoLAN.VLC"
-$pf = $env:PROGRAMFILES
-$frmt = "`n `n======================================== `n `n"
-$Location1 = "$pf\Google\Chrome\Application\chrome.exe"
-$Location2 = "$pf\Adobe\Acrobat DC\Acrobat\Acrobat.exe"
-$Location3 = "$pf\VideoLAN\VLC\vlc.exe"
-If (!(Test-Path $Location1)) {
-    Write-Host "`n `n Installing $Package1`n" 
-    winget install $package1 -s winget -e -h
-    Write-Host " $package1 Installed."
-    Write-Host "`n Verified $package1 is already Installed. Moving On. "
-    if (!(Test-Path -Path:HKLM:\Software\Wow6432Node\Google\Chrome\Extensions\cjpalhdlnbpafiamejdnhcphjbkeiagm)){
-        Write-Host " Adding Extension Flag for UBlock Origin. When Chrome launches later, make sure to hit the accept button."
-        REG ADD "HKLM\Software\Wow6432Node\Google\Chrome\Extensions\cjpalhdlnbpafiamejdnhcphjbkeiagm" /v update_url /t REG_SZ /d https://clients2.google.com/service/update2/crx
-    }
-    if (!(Test-Path -Path:HKLM:\Software\Wow6432Node\Google\Chrome\Extensions\bkbeeeffjjeopflfhgeknacdieedcoml)){
-        Write-Host " Adding Extension Flag for Microsoft Defender Browser Protection"
-        REG ADD "HKLM\Software\Wow6432Node\Google\Chrome\Extensions\bkbeeeffjjeopflfhgeknacdieedcoml" /v update_url /t REG_SZ /d https://clients2.google.com/service/update2/crx
+    Write-Host "`n"
+    $package1  = "Google.Chrome"
+    $package2  = "Adobe.Acrobat.Reader.64-bit"
+    $package3  = "VideoLAN.VLC"
+    $pf = $env:PROGRAMFILES
+    $frmt = "`n `n======================================== `n `n"
+    $Location1 = "$pf\Google\Chrome\Application\chrome.exe"
+    $Location2 = "$pf\Adobe\Acrobat DC\Acrobat\Acrobat.exe"
+    $Location3 = "$pf\VideoLAN\VLC\vlc.exe"
+    If (!(Test-Path $Location1)) {
+        Write-Host "`n `n Installing $Package1`n" 
+        winget install $package1 -s winget -e -h
+        Write-Host " $package1 Installed."
+        Write-Host "`n Verified $package1 is already Installed. Moving On. "
+        if (!(Test-Path -Path:HKLM:\Software\Wow6432Node\Google\Chrome\Extensions\cjpalhdlnbpafiamejdnhcphjbkeiagm)){
+            Write-Host " Adding Extension Flag for UBlock Origin. When Chrome launches later, make sure to hit the accept button."
+            REG ADD "HKLM\Software\Wow6432Node\Google\Chrome\Extensions\cjpalhdlnbpafiamejdnhcphjbkeiagm" /v update_url /t REG_SZ /d https://clients2.google.com/service/update2/crx
+        }
+        if (!(Test-Path -Path:HKLM:\Software\Wow6432Node\Google\Chrome\Extensions\bkbeeeffjjeopflfhgeknacdieedcoml)){
+            Write-Host " Adding Extension Flag for Microsoft Defender Browser Protection"
+            REG ADD "HKLM\Software\Wow6432Node\Google\Chrome\Extensions\bkbeeeffjjeopflfhgeknacdieedcoml" /v update_url /t REG_SZ /d https://clients2.google.com/service/update2/crx
+            }    
+        } else {
+            Write-Host " $package1 is already insatlled. Skipping"
+        }
+    If (!(Test-Path $Location2)) {
+        Write-Host "`n `n Installing $Package2 `n" 
+        winget install $package2 -s winget -e -h
+        } else {
+        Write-Host " Verified $package2 is already Installed. Moving on."
         }    
-    } else {
-        Write-Host " $package1 is already insatlled. Skipping"
-    }
-If (!(Test-Path $Location2)) {
-    Write-Host "`n `n Installing $Package2 `n" 
-    winget install $package2 -s winget -e -h
-    } else {
-    Write-Host " Verified $package2 is already Installed. Moving on."
-    }    
-If (!(Test-Path $Location3)) {
-    Write-Host "`n `n Installing $Package3 `n" 
-    winget install $package3 -s winget -e -h
-    } else {
-    Write-Host " Verified $package3 is already Installed."
-    }
+    If (!(Test-Path $Location3)) {
+        Write-Host "`n `n Installing $Package3 `n" 
+        winget install $package3 -s winget -e -h
+        } else {
+        Write-Host " Verified $package3 is already Installed."
+        }
 }         
    
 Function Visuals {
@@ -122,9 +123,9 @@ Function StartMenu {
 "@
 $layoutFile="C:\Windows\StartMenuLayout.Xml"
 
-Write-Host " Clearing Pinned Start Icons"
-Start-Sleep -Milliseconds 300
-Write-Host " Applied Taskbar Icons"
+    Write-Host " Clearing Pinned Start Icons"
+    Start-Sleep -Milliseconds 300
+    Write-Host " Applied Taskbar Icons"
     If(Test-Path $layoutFile)
     {
         Remove-Item $layoutFile
@@ -341,32 +342,40 @@ Function Debloat {
         }
     
     }
-    Function Registry {
-        Write-Host "$frmt Applying Registry Changes $frmt"
+
+Function Registry {
+    Write-Host "$frmt Applying Registry Changes $frmt"
         
-        $BuildNumber = (Get-ItemProperty -Path c:\windows\system32\hal.dll).VersionInfo.ProductVersion
-        $WantedBuild = "10.0.22000"
-        If ($BuildNumber -lt $WantedBuild) {
-            Write-Host " Applying Windows 10 Specific Registry Keys `n"
-            Start-Sleep 1
-            Write-Host " Unpinning Cortana Icon on Taskbar"
-            Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "ShowCortanaButton" -Value 0
-            Write-Host " Unpinning TaskView Icon from Taskbar"
-            Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "ShowTaskViewButton" -Value 0
-            Write-Host " Changing Searchbox to Icon Format on Taskbar"
-            Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Search" -Name "SearchboxTaskbarMode" -Value 1
-            
-        }
-        #11 Specific
-        if ($BuildNumber -gt $WantedBuild) {
-            Write-Host " Applying Windows 11 Specific Registry Keys `n"
-            #Write-Host " Unpinning Widgets and Teams from taskbar"
-            Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "ShowTaskViewButton" -Value 0
-            #Taskbarda is Widgets - Currently Widgets shows temperature bottom left
-            #Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "TaskBarDa" -Value 0
-            Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "TaskBarMn" -Value 0
-            Start-Sleep 10
-        } 
+    $BuildNumber = (Get-ItemProperty -Path c:\windows\system32\hal.dll).VersionInfo.ProductVersion
+    $WantedBuild = "10.0.22000"
+    If ($BuildNumber -lt $WantedBuild) {
+        Write-Host " Applying Windows 10 Specific Registry Keys `n"
+        Start-Sleep -s 1
+        Write-Host " Unpinning Cortana Icon on Taskbar"
+        Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "ShowCortanaButton" -Value 0
+        Write-Host " Unpinning TaskView Icon from Taskbar"
+        Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "ShowTaskViewButton" -Value 0
+        Write-Host " Changing Searchbox to Icon Format on Taskbar"
+        Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Search" -Name "SearchboxTaskbarMode" -Value 1
+    }
+    #11 Specific
+    if ($BuildNumber -gt $WantedBuild) {
+        Write-Host " Applying Windows 11 Specific Registry Keys `n"
+        #Write-Host " Unpinning Widgets and Teams from taskbar"
+        Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "ShowTaskViewButton" -Value 0
+        #Taskbarda is Widgets - Next version of windows the Widgets shows temperature bottom left - This will be disabled then.
+        Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "TaskBarDa" -Value 0
+        #TaskbarMn is TaskView
+        Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "TaskBarMn" -Value 0
+        Start-Sleep 10
+    } 
+    Write-Host "Applying OEM Information"
+    Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\OEMInformation" -Name "Manufacturer" -Type String -Value "Mother Computers"
+    Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\OEMInformation" -Name "Model" -Type String -Value "Mother Computers : 250-479-8561"
+    Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\OEMInformation" -Name "SupportPhone" -Type String -Value "(250) 479-8561" -Verbose
+    Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\OEMInformation" -Name "SupportHours" -Type String -Value "Monday - Saturday 9AM-5PM | Sunday - Closed" -Verbose
+    Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\OEMInformation" -Name "SupportURL" -Type String -Value "https://www.mothercomputers.com" -Verbose
+
     Write-Host " Changing how often Windows asks for feedback to never"
     If (!(Test-Path "HKCU:\Software\Microsoft\Siuf")) { 
         New-Item -Path "HKCU:\Software\Microsoft" -Name "Siuf"
@@ -488,11 +497,9 @@ Function Cleanup {
 		Start-Process explorer
 		write-host " Explorer Started"
     }	
-	#On Charger
     Write-Host " Changing On AC Sleep Settings"
-    powercfg -change -standby-timeout-ac "30"
-    powercfg -change -monitor-timeout-ac "15"        
-    #On Battery
+    powercfg -change -standby-timeout-ac "60"
+    powercfg -change -monitor-timeout-ac "45"        
     Write-Host " Changing On Battery Sleep Settings"
     powercfg -change -standby-timeout-dc "15"
     powercfg -change -monitor-timeout-dc "10"
@@ -600,3 +607,40 @@ Stop-Transcript
 Write-Host "Script Completed.`nExiting."
 Start-Sleep -s 3
 Exit
+# SIG # Begin signature block
+# MIIGiwYJKoZIhvcNAQcCoIIGfDCCBngCAQExCzAJBgUrDgMCGgUAMGkGCisGAQQB
+# gjcCAQSgWzBZMDQGCisGAQQBgjcCAR4wJgIDAQAABBAfzDtgWUsITrck0sYpfvNR
+# AgEAAgEAAgEAAgEAAgEAMCEwCQYFKw4DAhoFAAQUDDiE/zI422alNi5vza8UnVmv
+# FBmgggPGMIIDwjCCAqqgAwIBAgIQG23ehsglIKxDyVeFlzqJzzANBgkqhkiG9w0B
+# AQsFADB5MScwJQYJKoZIhvcNAQkBFhhtaWtlQG1vdGhlcmNvbXB1dGVycy5jb20x
+# JDAiBgNVBAsMG2h0dHBzOi8vbW90aGVyY29tcHV0ZXJzLmNvbTESMBAGA1UECgwJ
+# TmV3IExvYWRzMRQwEgYDVQQDDAtNaWtlIEl2aXNvbjAeFw0yMjAyMjYwMjA4MjFa
+# Fw0yMzAxMDEwODAwMDBaMHkxJzAlBgkqhkiG9w0BCQEWGG1pa2VAbW90aGVyY29t
+# cHV0ZXJzLmNvbTEkMCIGA1UECwwbaHR0cHM6Ly9tb3RoZXJjb21wdXRlcnMuY29t
+# MRIwEAYDVQQKDAlOZXcgTG9hZHMxFDASBgNVBAMMC01pa2UgSXZpc29uMIIBIjAN
+# BgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAqfJhHWoMaoTvauUnS1yhV8oTyjqf
+# fO+OQrN8ysjIv3THM74mgPFnAYSkMxl2MCSOgZXOmeyiEZJdIyZQIEZuv/JeX6ud
+# 77m5HylKT7Y73Xqb6nL6Z1latXyR+Jj9ZeIo6omJWPHLqLRpBJUxniPuXVOYdiYu
+# Ahp3R3vX8JPmFAgDqjuYvOhQzEJ4ZkJGb+gYoaM34AaPv51aenN3EwqVKLNfCse0
+# 2qDqDHEh84I7xZU0pjFWPR2oZPodJD71wWLQ02f2sj2ggcH1kiyzt+oBCGAIf/Vg
+# 3KGhpDrWCdlv5yCeIK5N4GNmKGNkV7rh75//n8ieKD7dbEradkiEqa0PNQIDAQAB
+# o0YwRDAOBgNVHQ8BAf8EBAMCBaAwEwYDVR0lBAwwCgYIKwYBBQUHAwMwHQYDVR0O
+# BBYEFCtXFGsxQLT0r4rik3dDQ059x5dXMA0GCSqGSIb3DQEBCwUAA4IBAQAYPL43
+# 0hOONDAMC3sD2H6MfSeo+5MZgt3xpeRhGm0xQ9f6KWGWsSnM+fQsmXAquKS3dCHf
+# BzDgBYFuOdHJMq+lACZMUD2zPUlPwvUFY/40ScaO/3MzrPU1qd8TW8UdvTaBDywa
+# KAkXx2OkEw+NvMFD5Bz8fH1up2dT0BPN+4eX5lsWJcdsD4sOTOXOnWBj3x3mu11Z
+# YO25XmA9TFerTVBVszRmfchQ3T01V9/WAo0VM2inP8iBWKfMCIv3sJdtVVbInQW+
+# Sybg4NaAQV9HTFeSVI4BC/F0G2zo7WysE1K35s9uEhM4giO9ZPbAcMpfWsl/nJ27
+# VK1ykVYYVsfiBSiXMYICLzCCAisCAQEwgY0weTEnMCUGCSqGSIb3DQEJARYYbWlr
+# ZUBtb3RoZXJjb21wdXRlcnMuY29tMSQwIgYDVQQLDBtodHRwczovL21vdGhlcmNv
+# bXB1dGVycy5jb20xEjAQBgNVBAoMCU5ldyBMb2FkczEUMBIGA1UEAwwLTWlrZSBJ
+# dmlzb24CEBtt3obIJSCsQ8lXhZc6ic8wCQYFKw4DAhoFAKB4MBgGCisGAQQBgjcC
+# AQwxCjAIoAKAAKECgAAwGQYJKoZIhvcNAQkDMQwGCisGAQQBgjcCAQQwHAYKKwYB
+# BAGCNwIBCzEOMAwGCisGAQQBgjcCARUwIwYJKoZIhvcNAQkEMRYEFMe5syH+pQrA
+# M0b97qKaLBRQIvKhMA0GCSqGSIb3DQEBAQUABIIBADyjqk4XHkzEUyiIzM7+E4QI
+# 65zpvUQuxdPtrbDu+lEBSSJcrVnPeFLuBLPOF1gEgoOvrihk7oqeElsaTyIPyMPQ
+# pFEwbKLU1EWYAlyhCnnKS6F//fD8M+E7scZqj/9UOIAxM4WN07STs0f1MzxtAeY2
+# a/0g4idx74CYhuAE8p9I0bBNmJ7l+22T1RUExcqEeT3UB2hei6ZyWMvujp4vq5tC
+# VYl/IPfmbCsZpAr2U7JYgsg29z+B7yc39NBZ4W9ziyVfKm477LemW0kRlCSISYn4
+# TX6e0g3o4E/XysDKBQCN0Q6illxIe5EIIOagmw92QZ9S/FNi1vErerGCCYrii9I=
+# SIG # End signature block
