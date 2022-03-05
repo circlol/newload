@@ -1,6 +1,26 @@
 Write-Host "Initializing Script"
 $Health = 40
 $reason = "OK"
+$programversion = "22.32.603"
+$BuildNumber = (Get-ItemProperty -Path c:\windows\system32\hal.dll).VersionInfo.ProductVersion
+$WantedBuild = "10.0.22000"
+$frmt = "`n `n======================================== `n `n"
+$pf = $env:PROGRAMFILES
+$onedrive = "$env:SYSTEMROOT\SysWOW64\OneDriveSetup.exe"
+$Location1 = "$pf\Google\Chrome\Application\chrome.exe"
+$Location2 = "$pf\Adobe\Acrobat DC\Acrobat\Acrobat.exe"
+$Location3 = "$pf\VideoLAN\VLC\vlc.exe"
+$package1  = "Google.Chrome"
+$package2  = "Adobe.Acrobat.Reader.64-bit"
+$package3  = "VideoLAN.VLC"
+$dtime = (Get-Date -UFormat %H.%M-%Y.%m.%d)
+$EdgeShortcut = "$Env:USERPROFILE\Desktop\Microsoft Edge.lnk"
+$acrosc = "$Env:PUBLIC\Desktop\Adobe Acrobat DC.lnk"
+$edgescpub = "$Env:PUBLIC\Desktop\Microsoft Edge.lnk"
+$vlcsc = "$Env:PUBLIC\Desktop\VLC Media Player.lnk"
+$mocotheme1 = "$Env:USERPROFILE\desktop\win11-light.deskthemepack"
+$mocotheme2 = "$Env:USERPROFILE\desktop\win11-dark.deskthemepack"
+$mocotheme3 = "$Env:USERPROFILE\desktop\win10-purple.deskthemepack"
 If (Get-Module -ListAvailable -Name BitsTransfer){
     $health += 25
 } else {
@@ -21,19 +41,11 @@ If (Get-Module -ListAvailable -Name BitsTransfer){
         $health += 25
     }
 }
-$dtime = (Get-Date -UFormat %H.%M-%Y.%m.%d)
-$programversion = "22.24.904"
+
 
 Function Programs {
     Write-Host "`n"
-    $package1  = "Google.Chrome"
-    $package2  = "Adobe.Acrobat.Reader.64-bit"
-    $package3  = "VideoLAN.VLC"
-    $pf = $env:PROGRAMFILES
-    $frmt = "`n `n======================================== `n `n"
-    $Location1 = "$pf\Google\Chrome\Application\chrome.exe"
-    $Location2 = "$pf\Adobe\Acrobat DC\Acrobat\Acrobat.exe"
-    $Location3 = "$pf\VideoLAN\VLC\vlc.exe"
+
     If (!(Test-Path $Location1)) {
         Write-Host "`n `n Installing $Package1`n" 
         winget install $package1 -s winget -e -h
@@ -72,8 +84,8 @@ Function Visuals {
         } else {
         Write-Host Explorer is running}
     Start-Sleep -s 2
-    If ($BuildNumber -gt $WantedBuild) {
-        write-Host " I have detected that you are on Windows 11 `n `nApplying Appropriate Theme & Flagging Required Settings"
+    If ($BuildNumber -ge $WantedBuild) {
+        write-Host " I have detected that you are on Windows 11 `n `n Applying Appropriate Theme & Flagging Required Settings"
         Start-BitsTransfer -Source "https://github.com/circlol/newload/raw/main/Assets/win11-light.deskthemepack" -Destination "$env:temp\win11-light.deskthemepack"
         Start-Sleep -s 3
         Start-Process "$env:temp\win11-light.deskthemepack"
@@ -81,7 +93,7 @@ Function Visuals {
         taskkill /F /IM systemsettings.exe 2>$NULL
     } else {
         If ($BuildNumber -lt $WantedBuild) {
-            write-Host " I have detected that you are on Windows 10 `n `nApplying Appropriate Theme & Flagging Required Settings"
+            write-Host " I have detected that you are on Windows 10 `n `n Applying Appropriate Theme & Flagging Required Settings"
             Start-BitsTransfer -Source "https://github.com/circlol/newload/raw/main/Assets/win10-purple.deskthemepack" -Destination "$env:temp\win10-purple.deskthemepack"
             Start-Sleep -s 3
             Start-Process "$env:temp\win10-purple.deskthemepack"
@@ -169,7 +181,6 @@ Function OneDrive {
     Start-Sleep -Milliseconds 500
     Start-Sleep -s 2
     Write-Host " Uninstalling OneDrive..."
-    $onedrive = "$env:SYSTEMROOT\SysWOW64\OneDriveSetup.exe"
     If (!(Test-Path $onedrive)) {
         $onedrive = "$env:SYSTEMROOT\System32\OneDriveSetup.exe"
     }
@@ -346,8 +357,8 @@ Function Debloat {
 Function Registry {
     Write-Host "$frmt Applying Registry Changes $frmt"
         
-    $BuildNumber = (Get-ItemProperty -Path c:\windows\system32\hal.dll).VersionInfo.ProductVersion
-    $WantedBuild = "10.0.22000"
+    #$BuildNumber = (Get-ItemProperty -Path c:\windows\system32\hal.dll).VersionInfo.ProductVersion
+    #$WantedBuild = "10.0.22567"
     If ($BuildNumber -lt $WantedBuild) {
         Write-Host " Applying Windows 10 Specific Registry Keys `n"
         Start-Sleep -s 1
@@ -369,7 +380,7 @@ Function Registry {
         Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "TaskBarMn" -Value 0
         Start-Sleep 10
     } 
-    Write-Host "Applying OEM Information"
+    Write-Host " Applying OEM Information"
     Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\OEMInformation" -Name "Manufacturer" -Type String -Value "Mother Computers"
     Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\OEMInformation" -Name "Model" -Type String -Value "Mother Computers : 250-479-8561"
     Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\OEMInformation" -Name "SupportPhone" -Type String -Value "(250) 479-8561" -Verbose
@@ -507,22 +518,18 @@ Function Cleanup {
     Start-Sleep -Milliseconds 400
     Start-Process Chrome -ErrorAction SilentlyContinue
     Remove-Item "$Env:Temp\*.*" -Force -Recurse -Confirm:$false -ErrorAction SilentlyContinue -Verbose 2>$NULL
-    $EdgeShortcut = "$Env:USERPROFILE\Desktop\Microsoft Edge.lnk"
     If ($EdgeShortcut) { 
         Write-Host " Removing Edge Icon"
         Remove-Item $EdgeShortcut -Force -Recurse -Confirm:$false -ErrorAction SilentlyContinue -Verbose 2>$NULL
     }
-    $edgescpub = "$Env:PUBLIC\Desktop\Microsoft Edge.lnk"
     If ($edgescpub) { 
         Write-Host " Removing Edge Icon in Public"
         Remove-Item $edgescpub -Force -Recurse -Confirm:$false -ErrorAction SilentlyContinue -Verbose 2>$NULL
     }
-    $vlcsc = "$Env:PUBLIC\Desktop\VLC Media Player.lnk"
     If ($vlcsc) { 
         Write-Host " Removing VLC Media Player Icon"
         Remove-Item $vlcsc -Force -Recurse -Confirm:$false -ErrorAction SilentlyContinue -Verbose 2>$NULL
     }
-    $acrosc = "$Env:PUBLIC\Desktop\Adobe Acrobat DC.lnk"
     If ($acrosc) { 
         Write-Host " Removing Adobe Acrobat Icon"
         Remove-Item $acrosc -Force -Recurse -Confirm:$false -ErrorAction SilentlyContinue -Verbose 2>$NULL
@@ -533,9 +540,6 @@ Function Cleanup {
         Remove-Item $ctemp -Force -Recurse -Confirm:$false -ErrorAction SilentlyContinue -Verbose 2>$NULL
     }
     
-    $mocotheme1 = "$Env:USERPROFILE\desktop\win11-light.deskthemepack"
-    $mocotheme2 = "$Env:USERPROFILE\desktop\win11-dark.deskthemepack"
-    $mocotheme3 = "$Env:USERPROFILE\desktop\win10-purple.deskthemepack"
     If ($mocotheme1) { 
         Remove-Item "$mocotheme1" -Force -Recurse -Confirm:$false -ErrorAction SilentlyContinue -Verbose 2>$NULL
     }
