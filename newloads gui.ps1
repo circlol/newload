@@ -305,7 +305,7 @@ $scriptfunctions_label.Font      = New-Object System.Drawing.Font('Microsoft Jhe
 $scriptfunctions_label.ForeColor  = [System.Drawing.ColorTranslator]::FromHtml("#ffffff")
 
 $StartMenu                      = New-Object system.Windows.Forms.Button
-$StartMenu.text                 = "Apply Taskbar & Start Menu Layout"
+$StartMenu.text                 = "Apply Taskbar , Start Menu Layout"
 $StartMenu.width                = 268
 $StartMenu.height               = 35
 $StartMenu.location             = New-Object System.Drawing.Point(25,345)
