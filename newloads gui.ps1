@@ -216,7 +216,7 @@ $LightMode.text                  = "Light Mode"
 $LightMode.width                 = 131
 $LightMode.height                = 35
 $LightMode.location              = New-Object System.Drawing.Point(472,305)
-$LightMode.Font                  = New-Object System.Drawing.Font('Microsoft PhagsPa',10,[System.Drawing.FontStyle]([System.Drawing.FontStyle]::Bold))
+$LightMode.Font                  = New-Object System.Drawing.Font('Microsoft PhagsPa',11,[System.Drawing.FontStyle]([System.Drawing.FontStyle]::Bold))
 $LightMode.ForeColor             = [System.Drawing.ColorTranslator]::FromHtml("#ffffff")
 $LightMode.BackColor             = [System.Drawing.ColorTranslator]::FromHtml("#6b6767")
 
@@ -225,7 +225,7 @@ $DarkMode.text                   = "Dark Mode"
 $DarkMode.width                  = 131.5
 $DarkMode.height                 = 35
 $DarkMode.location               = New-Object System.Drawing.Point(335,305)
-$DarkMode.Font                   = New-Object System.Drawing.Font('Microsoft PhagsPa',10,[System.Drawing.FontStyle]([System.Drawing.FontStyle]::Bold))
+$DarkMode.Font                   = New-Object System.Drawing.Font('Microsoft PhagsPa',11,[System.Drawing.FontStyle]([System.Drawing.FontStyle]::Bold))
 $DarkMode.ForeColor              = [System.Drawing.ColorTranslator]::FromHtml("#ffffff")
 $DarkMode.BackColor              = [System.Drawing.ColorTranslator]::FromHtml("#6b6767")
 
@@ -543,6 +543,7 @@ $START_MENU_LAYOUT = @"
             <taskbar:DesktopApp DesktopApplicationID="Microsoft.Windows.Explorer"/>
             <taskbar:UWA AppUserModelID="windows.immersivecontrolpanel_cw5n1h2txyewy!Microsoft.Windows.ImmersiveControlPanel" />
             <taskbar:UWA AppUserModelID="Microsoft.Windows.SecHealthUI_cw5n1h2txyewy!SecHealthUI" />
+            <taskbar:UWA AppUserModelID="Microsoft.SecHealthUI_8wekyb3d8bbwe!SecHealthUI" />
             <taskbar:DesktopApp DesktopApplicationID="Chrome" />
             </taskbar:TaskbarPinList>
         </defaultlayout:TaskbarLayout>
@@ -711,10 +712,6 @@ $Programs = @(
 "AD2F1837.HPAudioCenter"
 "A278AB0D.DisneyMagicKingdoms"
 "A278AB0D.MarchofEmpires"
-"CAF9E577.Plex"  
-"D52A8D61.FarmVille2CountryEscape"
-"DB6EA5DB.CyberLinkMediaSuiteEssentials"
-"E0469640.LenovoUtility"
 "AdobeSystemsIncorporated.AdobeLightroom"
 "AcerIncorporated.AcerRegistration"
 "AcerIncorporated.QuickAccess"
@@ -727,7 +724,11 @@ $Programs = @(
 "ClearChannelRadioDigital.iHeartRadio"
 "CyberLinkCorp.ac.PowerDirectorforacerDesktop"
 "CyberLinkCorp.ac.PhotoDirectorforacerDesktop"
+"CAF9E577.Plex"  
+"D52A8D61.FarmVille2CountryEscape"
+"DB6EA5DB.CyberLinkMediaSuiteEssentials"
 "Drawboard.DrawboardPDF"
+"E0469640.LenovoUtility"
 "Evernote.Evernote"
 "FACEBOOK.*"
 "FACEBOOK.317180B0BB486"
@@ -978,13 +979,13 @@ Function UndoOEMInfo{
 
     Write-Host " Removing Mother Computers Themes"
     If (Test-Path "$mocostore\Mother Co"){
-        rmdir "$mocostore\Mother Co" -Force -Recurse -Verbose -ErrorAction SilentlyContinue
+        Remove-Item "$mocostore\Mother Co" -Force -Recurse -Verbose -ErrorAction SilentlyContinue
     }
     If (Test-Path "$mocostore\Mother Co (2)"){
-        rmdir "$mocostore\Mother Co (2)" -Force -Recurse -Verbose -ErrorAction SilentlyContinue
+        Remove-Item "$mocostore\Mother Co (2)" -Force -Recurse -Verbose -ErrorAction SilentlyContinue
     }
     If (Test-Path "$mocostore\Mother Co (3)"){
-        rmdir "$mocostore\Mother Co (3)" -Force -Recurse -Verbose -ErrorAction SilentlyContinue
+        Remove-Item "$mocostore\Mother Co (3)" -Force -Recurse -Verbose -ErrorAction SilentlyContinue
     }
     Start-Sleep -s 5
     taskkill /F /IM systemsettings.exe 2>$NULL
