@@ -1,3 +1,4 @@
+##Requires runAs
 Write-Host "Initializing Script"
 $reason = "OK"
 $Health = 40
@@ -347,11 +348,11 @@ $Customclean.ForeColor           = [System.Drawing.ColorTranslator]::FromHtml("#
 $Customclean.BackColor           = [System.Drawing.ColorTranslator]::FromHtml("#6b6767")
 
 $appwiz                          = New-Object system.Windows.Forms.Button
-$appwiz.text                     = "Programs & Features"
+$appwiz.text                     = "Programs and Features"
 $appwiz.width                    = 131
 $appwiz.height                   = 35
 $appwiz.location                 = New-Object System.Drawing.Point(472,185)
-$appwiz.Font                     = New-Object System.Drawing.Font('Microsoft PhagsPa',9,[System.Drawing.FontStyle]([System.Drawing.FontStyle]::Bold))
+$appwiz.Font                     = New-Object System.Drawing.Font('Microsoft PhagsPa',8,[System.Drawing.FontStyle]([System.Drawing.FontStyle]::Bold))
 $appwiz.ForeColor                = [System.Drawing.ColorTranslator]::FromHtml("#ffffff")
 $appwiz.BackColor                = [System.Drawing.ColorTranslator]::FromHtml("#6b6767")
 
@@ -399,14 +400,25 @@ $form.controls.AddRange(@($RunNoOEM,$RunScript,$UndoScript,$ExitButton,$nvidiash
 
 
 
-            #START OF SCRIPT 
+
+
+
+
+
+        #START OF SCRIPT 
+
+
+
+
+
+
 
 
 
 
 ###########################################################################################################################
 
-$programversion = "22.316.2240"
+$programversion = "22.321.1722"
 
 
 $package1  = "Google.Chrome"
@@ -482,7 +494,7 @@ If (!(Test-Path $Location3)) {
 Function Visuals {
     If (!((Get-Process -Name explorer -ErrorAction SilentlyContinue).Id)){
     Write-Host " Explorer not found."
-    Start-Process explorer -Verbose
+    Start-Process explorer -Verbose 
     write-host " Explorer Started"
     }
     Write-Host "$frmt Checking your OS.."
@@ -528,8 +540,10 @@ $START_MENU_LAYOUT = @"
     <CustomTaskbarLayoutCollection PinListPlacement="Replace">
         <defaultlayout:TaskbarLayout>
         <taskbar:TaskbarPinList>
+            <taskbar:UWA AppUserModelID="Microsoft.Windows.SecHealthUI_cw5n1h2txyewy!SecHealthUI" />
+            <taskbar:DesktopApp DesktopApplicationID="Microsoft.Windows.Explorer"/>
             <taskbar:DesktopApp DesktopApplicationID="Chrome" />
-            <taskbar:DesktopApp DesktopApplicationID="Microsoft.Windows.Explorer" />
+            <taskbar:UWA AppUserModelID="windows.immersivecontrolpanel_cw5n1h2txyewy!Microsoft.Windows.ImmersiveControlPanel" />
             </taskbar:TaskbarPinList>
         </defaultlayout:TaskbarLayout>
     </CustomTaskbarLayoutCollection>
@@ -565,8 +579,8 @@ foreach ($regAlias in $regAliases){
 If (!(Get-Process Explorer)){
     Start-Process Explorer
 } else {
-    Stop-Process -Name Explorer
-    Start-SLeep 3
+    Stop-Process -Name Explorer -ErrorAction SilentlyContinue
+    Start-SLeep -s 3
     Start-Process Explorer
 }
 Start-Sleep -s 5
@@ -621,6 +635,19 @@ Function OneDrive {
             Write-Host " Moving on."
     }
 }
+
+###########################################################################################################################
+
+
+
+
+            #START OF DEBLOAT
+
+
+
+
+###########################################################################################################################
+
 
 $Programs = @(
 #Unnecessary Windows 10 AppX Apps
@@ -786,6 +813,20 @@ Function UndoDebloat {
     Get-AppxPackage -allusers | ForEach-Object {Add-AppxPackage -register "$($_.InstallLocation)\appxmanifest.xml" -DisableDevelopmentMode -ErrorAction SilentlyContinue}
 }
 
+
+###########################################################################################################################
+
+
+
+
+            #START OF REGISTRY 
+
+
+
+
+###########################################################################################################################
+
+
 Function Registry {
     Write-Host "$frmt Applying Registry Changes $frmt"
 
@@ -948,7 +989,8 @@ Function UndoOEMInfo{
     If (Test-Path "$mocostore\Mother Co (3)"){
         rmdir "$mocostore\Mother Co (3)" -Force -Recurse -Verbose -ErrorAction SilentlyContinue
     }
-
+    Start-Sleep -s 5
+    taskkill /F /IM systemsettings.exe 2>$NULL
 }
 Function OEMInfo{
     Write-Host "$frmt Applying OEM Information $frmt "
@@ -1016,16 +1058,34 @@ Function Cleanup {
 }
 
 If (!(Test-Path ~\AppData\Local\Microsoft\WindowsApps\winget.exe)){
-$reason = " Uh Oh. Winget not found
+ $reason = " Winget not found.
  
  Just run the script as normal.
 
 
  WTF is Winget?:
- https://docs.microsoft.com/en-us/windows/package-manager/winget/
-"
-} else {
-        $health = $health+=35
+ https://docs.microsoft.com/en-us/windows/package-manager/winget/"
+ } else {
+ $health = $health+=35
+}
+
+
+###########################################################################################################################
+
+
+
+
+            #START OF GUI BUTTONS 
+
+
+
+
+###########################################################################################################################
+
+$StartMenu.add_click{
+Write-Host " Applying Start Menu layout"
+StartMenu
+Write-Host " Job complete. Ready for next task"
 }
 
 $customclean.add_click{
@@ -1159,8 +1219,8 @@ $Reboot.add_click{
     
     'No'{}
     
-        }
     }
+}
 $LightMode.Add_Click{
     If ($BuildNumber -gt $WantedBuild) {
         write-Host " Applying Light mode for Windows 11"
@@ -1211,14 +1271,6 @@ $DarkMode.Add_Click{
     }    
 }
 
-$StartMenu.add_click{
-Write-Host " Applying Start Menu layout"
-StartMenu
-Write-Host " Job complete. Ready for next task"
-}
-
-
-
 
 $wantedreason = "OK"
 If ($reason -eq $wantedreason){
@@ -1267,22 +1319,67 @@ Stop-Transcript
 }
 
 $UndoScript.Add_Click{
-Start-Transcript -LiteralPath "$env:USERPROFILE\Desktop\Script Run - Undo - $dtime.txt"
-Write-Host "$frmt Undoing Changes made by Script `n `n GUI will be unusable whilst script is running. Please Standby `n$frmt"
-Start-Sleep 2
-UndoOEMInfo
-Write-Host "$frmt Reinstalling Bloatware $frmt "
-UndoDebloat
-Write-Host " Finished Reinstalling Bloatware Apps"
-UndoOneDrive
-If (!((Get-Process -Name explorer -ErrorAction SilentlyContinue).Id)){
-	Start-Process explorer
-	write-host " Explorer Started"
-	} else {
-	Write-Host Explorer is running
-}
-Write-Host "$frmt Script Undone`n`n Ready for next task $frmt"
-Stop-Transcript
+    Start-Transcript -LiteralPath "$env:USERPROFILE\Desktop\Script Run - Undo - $dtime.txt"
+    Write-Host "$frmt Undoing Changes made by Script `n `n GUI will be unusable whilst script is running. Please Standby `n$frmt"
+    Start-Sleep 2
+    UndoOEMInfo
+
+    [reflection.assembly]::loadwithpartialname("System.Windows.Forms") | Out-Null 
+    $msgBoxInput = [System.Windows.Forms.MessageBox]::Show('Do you want to reinstall all default apps?','New Loads','YesNo','Question')
+    switch  ($msgBoxInput) {
+   
+        'Yes' {
+            Write-Host "$frmt Reinstalling Default Apps $frmt "
+            UndoDebloat
+            Write-Host " Finished Reinstalling Default Apps"
+        }
+    
+        'No'{
+            Write-Host " Skipping bloat reinstall"
+        }
+    
+    }
+    
+    [reflection.assembly]::loadwithpartialname("System.Windows.Forms") | Out-Null 
+    $msgBoxInput = [System.Windows.Forms.MessageBox]::Show('Do you want to reinstall OneDrive?','New Loads','YesNo','Question')
+
+    switch  ($msgBoxInput) {
+  
+        'Yes' {
+            UndoOneDrive
+        }
+    
+        'No'{
+            Write-Host " Skipping OneDrive reinstall"
+        }
+    
+    }
+
+
+    [reflection.assembly]::loadwithpartialname("System.Windows.Forms") | Out-Null 
+    $msgBoxInput = [System.Windows.Forms.MessageBox]::Show('Do you want to undo registry changes?','New Loads','YesNo','Question')
+
+    switch  ($msgBoxInput) {
+  
+        'Yes' {
+            #UndoRegistry
+            Write-Host " This feature has been temporarily disabled. Skipping.."
+        }
+    
+        'No'{
+            Write-Host " Skipping registry reversion"
+        }
+    
+    }
+
+    If (!((Get-Process -Name explorer -ErrorAction SilentlyContinue).Id)){
+    	Start-Process explorer
+    	write-host " Explorer Started"
+    	} else {
+    	Write-Host " Explorer is running"
+    }
+    Stop-Transcript
+    Write-Host "$frmt Script Undone`n`n Ready for next task $frmt"
 }
 
 
