@@ -1,32 +1,6 @@
-##Requires runAs
 Write-Host "Initializing Script"
+#requires -runasadministrator
 $reason = "OK"
-$Health = 40
-If (Get-Module -ListAvailable -Name BitsTransfer){
-    $health += 25
-} else {
-    Write-Host " Importing BitsTransfer"
-    Import-Module BitsTransfer
-    If (!(Get-Module -ListAvailable -Name BitsTransfer)){
-        Write-Host " For some reason one of the modules wasn't found. Trying again."
-        Import-Module BitsTransfer -Verbose
-        $health += 25
-        If (!(Get-Module -ListAvailable -Name BitsTransfer)){
-            $reason = " BitsTransfer not found
- 
-            What do I do?:
-            If Relaunching the script does not help
-            
-            What is Winget?:
-            https://docs.microsoft.com/en-us/windows/package-manager/winget/
-           "
-        } else {
-            $health += 25
-        }
-    } else {
-        $health += 25
-    }
-}
 Add-Type -AssemblyName System.Windows.Forms
 [System.Windows.Forms.Application]::EnableVisualStyles()
 $form                            = New-Object system.Windows.Forms.Form
@@ -418,15 +392,30 @@ $form.controls.AddRange(@($RunNoOEM,$RunScript,$UndoScript,$ExitButton,$nvidiash
 
 ###########################################################################################################################
 
-$programversion = "22.321.1722"
+$programversion = "22331.000"
 
+$oi = ".\Offline Installers\"
+$gcoi = $oi + "googlechromestandaloneenterprise64.msi"
+$aroi = $oi + "AcroRdrDCx642200120085_MUI.exe"
+$vlcoi = $oi + "vlc-3.0.17-win64.msi"
 
 $package1  = "Google.Chrome"
-$package2  = "Adobe.Acrobat.Reader.64-bit"
-$package3  = "VideoLAN.VLC"
+$package2  = "VideoLAN.VLC"
+$package3  = "Adobe.Acrobat.Reader.64-bit"
+
+$package1dl = "https://dl.google.com/dl/chrome/install/googlechromestandaloneenterprise64.msi"
+$package2dl = "https://github.com/circlol/newload/raw/main/Assets/BAF/vlc-3.0.17-win64.msi"
+$package3dl = "https://ardownload2.adobe.com/pub/adobe/acrobat/win/AcrobatDC/2200120085/AcroRdrDCx642200120085_MUI.exe"
+
+$package1lc = "$env:temp\googlechromestandaloneenterprise64.msi"
+$package2lc = "$env:temp\vlc-3.0.17-win64.msi"
+$package3lc = "$env:temp\AcroRdrDCx642200120085_MUI.exe"
+
 $Location1 = "$env:PROGRAMFILES\Google\Chrome\Application\chrome.exe"
-$Location3 = "$env:PROGRAMFILES\VideoLAN\VLC\vlc.exe"
-$Location2 = "$env:PROGRAMFILES\Adobe\Acrobat DC\Acrobat\Acrobat.exe"
+$Location2 = "$env:PROGRAMFILES\VideoLAN\VLC\vlc.exe"
+$Location3 = "$env:PROGRAMFILES\Adobe\Acrobat DC\Acrobat\Acrobat.exe"
+
+
 $onedrive = "$env:SYSTEMROOT\SysWOW64\OneDriveSetup.exe"
 $onedrivelocation = "$env:SystemRoot\SysWOW64\OneDriveSetup.exe"
 $EdgeShortcut = "$Env:USERPROFILE\Desktop\Microsoft Edge.lnk"
@@ -445,89 +434,118 @@ $mocotheme3 = "$Env:USERPROFILE\desktop\Mother Computers Win10.deskthemepack"
 $CustomTheme = "$env:LOCALAPPDATA\Microsoft\Windows\Themes\Mother Co\Mother Co.Theme"
 $CurrentTheme = (Get-ItemProperty -path HKCU:\Software\Microsoft\Windows\CurrentVersion\Themes\ -Name "CurrentTheme").CurrentTheme
 
-
-
+If (!(Get-Module -ListAvailable -Name BitsTransfer)){
+    Write-Host " Importing BitsTransfer"
+    Import-Module BitsTransfer
+    Start-Sleep -s 2
+    If (!(Get-Module -ListAvailable -Name BitsTransfer)){
+        Write-Host " For some reason one of the modules wasn't found. Trying again."
+        Import-Module BitsTransfer -Verbose
+        Start-Sleep -s 2
+        If (!(Get-Module -ListAvailable -Name BitsTransfer)){
+            $reason = "$reason - BitsTransfer Module NOT Found"
+        } 
+    }
+}
 Function Programs {
-    If ($perform_apps.checked -eq $true) {
-    Write-Host "$frmt Installing Apps `n Please be patient as the programs install in the background.$frmt"
-    Write-Host " Double Checking Winget is installed"
-    If (!(Test-Path ~\AppData\Local\Microsoft\WindowsApps\winget.exe)){
-        Write-Host " Winget was not found, installing it now."
-        Start-Process "ms-appinstaller:?source=https://aka.ms/getwinget"
-        $nid = (Get-Process AppInstaller).Id
-        Wait-Process -Id $nid
-        Write-Host " Winget Installed"
-        Start-Sleep -s 4
-        Stop-Process -Name AppInstaller -Force
+    Write-Host "$frmt Installing Apps`n Please be patient as the programs may take a while.$frmt"
+
+    #Google
+    If (!(Test-Path $Location1)){
+        If (Test-Path $gcoi){
+            Write-Host " Found Offline Installer : Google Chrome"
+            Write-Host " Starting Offline Installer : Google Chrome"
+            Start-Process $gcoi /passive -Wait
+        } else {
+            Write-Host "`n`n Downloading $Package1" 
+            Start-BitsTransfer -Source $package1dl -Destination $package1lc
+            Write-Host " Installing $Package1`n"
+            Start-Process $package1lc /passive -Wait
+            Write-Host " Flagging UBlock Origin for Installation"
+            REG ADD "HKLM\Software\Wow6432Node\Google\Chrome\Extensions\cjpalhdlnbpafiamejdnhcphjbkeiagm" /v update_url /t REG_SZ /d https://clients2.google.com/service/update2/crx
+        }
+
+        } else {
+            Write-Host "`n Verified $package1 is already Installed. Moving On. "
     }
-If (!(Test-Path $Location1)) {
-    Write-Host "`n `n Installing $Package1`n" 
-    winget install $package1 -s winget -e -h
-    Write-Host " $package1 Installed."
-    Write-Host " Adding Extension Flag for UBlock Origin & Defender SafeSearch. When Chrome launches later, make sure to open chrome://extensions and enable them."
-    REG ADD "HKEY_LOCAL_MACHINE\Software\Wow6432Node\Google\Chrome\Extensions\cjpalhdlnbpafiamejdnhcphjbkeiagm" /v update_url /t REG_SZ /d https://clients2.google.com/service/update2/crx
-	Write-Host " Adding Extension Flag for Microsoft Defender Browser Protection"
-    REG ADD "HKEY_LOCAL_MACHINE\Software\Wow6432Node\Google\Chrome\Extensions\bkbeeeffjjeopflfhgeknacdieedcoml" /v update_url /t REG_SZ /d https://clients2.google.com/service/update2/crx
+
+    #VLC
+    If (!(Test-Path $Location2)) {
+        If (Test-Path $vlcoi){
+            Write-Host " Found Offline Installer : VLC Media Player"
+            Write-Host " Starting Offline Installer : VLC Media Player"
+            Start-Process $vlcoi /quiet
+        } else {
+            Write-Host "`n`n Downloading $Package2" 
+            Start-BitsTransfer -Source $Package2dl -Destination $package2lc
+            Write-Host " Installing $Package2 in the background`n" 
+            Start-Process $package2lc /quiet
+       
+        }
     } else {
-    Write-Host "`n Verified $package1 is already Installed. Moving On. "
+            Write-Host "`n Verified $package2 is already installed. Skipping"
     }
-If (!(Test-Path $Location2)) {
-    Write-Host "`n `n Installing $Package2`n" 
-    winget install $package2 -s winget -e -h
-    Write-Host " $package2 Installed."
+
+    #Adobe
+    If (!(Test-Path $Location3)) {
+        If (Test-Path $aroi){
+            Write-Host " Found Offline Installer : Adobe Acrobat"
+            Write-Host " Starting Offline Installer : Adobe Acrobat"
+            Start-Process $aroi /sPB -Wait
+        } else {
+            Write-Host "`n`n Downloading $Package3" 
+            Start-BitsTransfer -Source $Package3dl -Destination $package3lc
+            Write-Host " Installing $Package3`n" 
+            Start-Process $package3lc /sPB -Wait
+            Write-Host " $package3 Installed."
+        }    
+    
     } else {
-    Write-Host "`n Verified $package2 is already installed. Skipping"
-    }    
-If (!(Test-Path $Location3)) {
-    Write-Host "`n `n Installing $Package3`n" 
-    winget install $package3 -s winget -e -h
-    Write-Host " $package3 Installed."
-    } else {
-    Write-Host "`n Verified $package3 is already installed.`n Moving on`n `n"
-    } 
-} else {
-    Write-Host " Technician specified skipping App Install."
-    Write-Host " Moving on."
+            Write-Host "`n Verified $package3 is already installed.`n Moving on`n`n"
+        } 
 }
 
-}
 Function Visuals {
     If (!((Get-Process -Name explorer -ErrorAction SilentlyContinue).Id)){
     Write-Host " Explorer not found."
     Start-Process explorer -Verbose 
-    write-host " Explorer Started"
+    Write-host " Explorer Started"
     }
     Write-Host "$frmt Checking your OS.."
 
 If (!($CurrentTheme -eq $CustomTheme)){
     Write-Host " Visuals will need to be applied"
+
     If ($BuildNumber -gt $WantedBuild) {
-        write-Host " I have detected that you are on Windows 11 `n `n Applying Appropriate Theme & Flagging Required Settings"
+        Write-Host " I have detected that you are on Windows 11 `n `n Applying Appropriate Theme & Flagging Required Settings"
         Start-BitsTransfer -Source "https://github.com/circlol/newload/raw/main/Assets/Mother%20Computers%20Win11.deskthemepack" -Destination "$env:temp\Mother Computers Win11.deskthemepack"
         Start-Process "$env:temp\Mother Computers Win11.deskthemepack" -Wait
         Start-Sleep -s 3
         taskkill /F /IM systemsettings.exe 2>$NULL
-    } else {
-        If ($BuildNumber -lt $WantedBuild) {
-            write-Host " I have detected that you are on Windows 10 `n `n Applying Appropriate Theme & Flagging Required Settings"
-            Start-BitsTransfer -Source "https://github.com/circlol/newload/raw/main/Assets/Mother%20Computers%20Win10.deskthemepack" -Destination "$env:temp\Mother Computers Win10.deskthemepack"
-            Start-Process "$env:temp\Mother Computers Win10.deskthemepack" -Wait
-            Start-Sleep -s 4
-            taskkill /F /IM systemsettings.exe 2>$NULL
+        } Else {
+
+            If ($BuildNumber -lt $WantedBuild) {
+                Write-Host " I have detected that you are on Windows 10 `n `n Applying Appropriate Theme & Flagging Required Settings"
+                Start-BitsTransfer -Source "https://github.com/circlol/newload/raw/main/Assets/Mother%20Computers%20Win10.deskthemepack" -Destination "$env:temp\Mother Computers Win10.deskthemepack"
+                Start-Process "$env:temp\Mother Computers Win10.deskthemepack" -Wait
+                Start-Sleep -s 4
+                Taskkill /F /IM systemsettings.exe 2>$NULL
+
+
+            }
+
         }
-    }
 
     Write-Host "`n Setting Wallpaper to Stretch `n"
     Set-ItemProperty -Path "HKCU:\Control Panel\Desktop" -Name "WallpaperStyle" -Type String -Value 2 -ErrorAction SilentlyContinue
     Stop-Process -Name Explorer -Verbose -Erroraction SilentlyContinue
-    } else {
+    } Else {
         Write-Host " Visuals have already been applied. Skipping"
     }
 }
 
 Function StartMenu {
     Write-host "$frmt Pinning Apps to taskbar , Clearing Start Menu Pins. $frmt"
-    #Requires -RunAsAdministrator
 
 $START_MENU_LAYOUT = @"
 <LayoutModificationTemplate xmlns:defaultlayout="http://schemas.microsoft.com/Start/2014/FullDefaultLayout" xmlns:start="http://schemas.microsoft.com/Start/2014/StartLayout" Version="1" xmlns:taskbar="http://schemas.microsoft.com/Start/2014/TaskbarLayout" xmlns="http://schemas.microsoft.com/Start/2014/LayoutModification">
@@ -560,7 +578,7 @@ If(Test-Path $layoutFile)
 }
 
 #Creates the blank layout file
-$START_MENU_LAYOUT | Out-File $layoutFile -Encoding ASCII
+$START_MENU_LAYOUT | out-File $layoutFile -Encoding ASCII
 
 $regAliases = @("HKLM", "HKCU")
 
@@ -568,7 +586,7 @@ $regAliases = @("HKLM", "HKCU")
 foreach ($regAlias in $regAliases){
     $basePath = $regAlias + ":\SOFTWARE\Policies\Microsoft\Windows"
     $keyPath = $basePath + "\Explorer" 
-    IF(!(Test-Path -Path $keyPath)) { 
+    If (!(Test-Path -Path $keyPath)) { 
         New-Item -Path $basePath -Name "Explorer"
     }
     Set-ItemProperty -Path $keyPath -Name "LockedStartLayout" -Value 1
@@ -579,17 +597,17 @@ foreach ($regAlias in $regAliases){
 #Restart Explorer, open the start menu (necessary to load the new layout), and give it a few seconds to process
 If (!(Get-Process Explorer)){
     Start-Process Explorer
-} else {
+} Else {
     Stop-Process -Name Explorer -ErrorAction SilentlyContinue
     Start-SLeep -s 3
     Start-Process Explorer
 }
-Start-Sleep -s 5
-$wshell = New-Object -ComObject wscript.shell; $wshell.SendKeys('^{ESCAPE}')
-Start-Sleep -s 5
+Start-Sleep -s 4
+$wshell = new-Object -ComObject wscript.shell; $wshell.SendKeys('^{ESCAPE}')
+Start-Sleep -s 4
 
 #Enable the ability to pin items again by disabling "LockedStartLayout"
-foreach ($regAlias in $regAliases){
+Foreach ($regAlias in $regAliases){
     $basePath = $regAlias + ":\SOFTWARE\Policies\Microsoft\Windows"
     $keyPath = $basePath + "\Explorer" 
     Set-ItemProperty -Path $keyPath -Name "LockedStartLayout" -Value 0
@@ -598,14 +616,13 @@ foreach ($regAlias in $regAliases){
 #Restart Explorer and delete the layout file
 Stop-Process -name explorer 
 
-# Uncomment the next line to make clean start menu default for all new users
-#Import-StartLayout -LayoutPath $layoutFile -MountPath $env:SystemDrive\
+#the next line makes clean start menu default for all new users
+Import-StartLayout -LayoutPath $layoutFile -MountPath $env:SystemDrive\
 
 Remove-Item $layoutFile -Verbose
 }
 
 Function UndoOneDrive{
-    Write-Host "$frmt Reinstalling OneDrive $frmt"
     Write-Host " Starting $onedrivelocation"
     Start-Process $onedrivelocation /Silent -Wait
     Write-Host "`n `n OneDrive reinstalled."
@@ -628,10 +645,10 @@ Function OneDrive {
             Remove-Item -Path "$env:LOCALAPPDATA\Microsoft\OneDrive" -Force -Recurse -ErrorAction SilentlyContinue
             Remove-Item -Path "$env:PROGRAMDATA\Microsoft OneDrive" -Force -Recurse -ErrorAction SilentlyContinue
             Remove-Item -Path "$env:SYSTEMDRIVE\OneDriveTemp" -Force -Recurse -ErrorAction SilentlyContinue
-            } else {
+            } Else {
             Write-Host " $frmt It appears that OneDrive isn't installed."
             }
-        } else {
+        } Else {
             Write-Host " Technician specified retaining OneDrive."
             Write-Host " Moving on."
     }
@@ -795,7 +812,7 @@ $Programs = @(
 Function Debloat {
     If ($perform_debloat.checked -eq $true){
     Write-Host "$frmt Removing Bloatware $frmt "
-    foreach ($Program in $Programs) {
+    Foreach ($Program in $Programs) {
     Get-AppxPackage -Name $Program| Remove-AppxPackage
     Get-AppxProvisionedPackage -Online | Where-Object DisplayName -like $Program | Remove-AppxProvisionedPackage -Online
     Write-Host " Attempting removal of $Program."
@@ -836,7 +853,6 @@ Function Registry {
         Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "ShowTaskViewButton" -Value 0
         Write-Host " Changing Searchbox to Icon Format on Taskbar"
         Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Search" -Name "SearchboxTaskbarMode" -Value 1
-        Write-Host " Applying secret sauce"
     }
     #11 Specific
     if ($BuildNumber -gt $WantedBuild) {
@@ -845,7 +861,6 @@ Function Registry {
         #Taskbarda is Widgets - Currently Widgets shows temperature bottom left
         #Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "TaskBarDa" -Value 0
         Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "TaskBarMn" -Value 0
-        Write-Host " Applying secret sauce"
     }
 
     Write-Host " Changing how often Windows asks for feedback to never"
@@ -942,6 +957,8 @@ Function Registry {
     Write-Host " Disabling Contact Harvesting"
     Set-ItemProperty -Path "HKCU:\Software\Microsoft\InputPersonalization\TrainedDataStore" -Name "HarvestContacts" -Value 0
     
+    Write-Host " Hey vsauce, Michael here"
+
     Write-Host " Restricting Ink and Text Collection (Key-Logger)"
     Set-ItemProperty -Path "HKCU:\Software\Microsoft\InputPersonalization" -Name "RestrictImplicitInkCollection" -Value 1
     Set-ItemProperty -Path "HKCU:\Software\Microsoft\InputPersonalization" -Name "RestrictImplicitTextCollection" -Value 1
@@ -1054,19 +1071,6 @@ Function Cleanup {
         Remove-Item "$mocotheme3" -Force -Recurse -Confirm:$false -ErrorAction SilentlyContinue -Verbose 2>$NULL
     }
 }
-
-If (!(Test-Path ~\AppData\Local\Microsoft\WindowsApps\winget.exe)){
- $reason = " Winget not found.
- 
- Just run the script as normal.
-
-
- WTF is Winget?:
- https://docs.microsoft.com/en-us/windows/package-manager/winget/"
- } else {
- $health = $health+=35
-}
-
 
 ###########################################################################################################################
 
@@ -1221,7 +1225,7 @@ $Reboot.add_click{
 }
 $LightMode.Add_Click{
     If ($BuildNumber -gt $WantedBuild) {
-        write-Host " Applying Light mode for Windows 11"
+        Write-Host " Applying Light mode for Windows 11"
         Start-BitsTransfer -Source "https://github.com/circlol/newload/raw/main/Assets/Mother%20Computers%20Win11.deskthemepack" -Destination win11-light.deskthemepack
         Start-Process "win11-light.deskthemepack" -Wait
         Remove-Item "win11-light.deskthemepack" -Force -Recurse 
@@ -1245,7 +1249,7 @@ $LightMode.Add_Click{
 }    
 $DarkMode.Add_Click{
     If ($BuildNumber -gt $WantedBuild) {
-        write-Host " Applying Dark mode for Windows 11"
+        Write-Host " Applying Dark mode for Windows 11"
         Start-BitsTransfer -Source "https://github.com/circlol/newload/raw/main/Assets/Mother%20Computers%20Win11%20Dark.deskthemepack" -Destination win11-dark.deskthemepack
         Start-Process "win11-dark.deskthemepack" -Wait
         Remove-Item "win11-dark.deskthemepack" -Force -Recurse
@@ -1255,7 +1259,7 @@ $DarkMode.Add_Click{
      
     } else {
         If ($BuildNumber -lt $WantedBuild) {
-            write-Host " Applying Dark Mode for Windows 10"
+            Write-Host " Applying Dark Mode for Windows 10"
             Start-BitsTransfer -Source "https://github.com/circlol/newload/raw/main/Assets/Mother%20Computers%20Win10.deskthemepack" -Destination win10-purple.deskthemepack
             Start-Process "win10-purple.deskthemepack" -Wait
             Remove-Item "win10-purple.deskthemepack" -Force -Recurse  
@@ -1268,8 +1272,76 @@ $DarkMode.Add_Click{
         }
     }    
 }
+$UndoScript.Add_Click{
+    Start-Transcript -LiteralPath "$env:USERPROFILE\Desktop\Script Run - Undo - $dtime.txt"
+    Write-Host "$frmt Undoing Changes made by Script `n `n GUI will be unusable whilst script is running. Please Standby `n$frmt"
+    Start-Sleep 2
+    UndoOEMInfo
+
+    [reflection.assembly]::loadwithpartialname("System.Windows.Forms") | Out-Null 
+    $msgBoxInput = [System.Windows.Forms.MessageBox]::Show('Do you want to reinstall all default apps?','New Loads','YesNo','Question')
+    switch  ($msgBoxInput) {
+   
+        'Yes' {
+            Write-Host "$frmt Reinstalling Default Apps $frmt"
+            UndoDebloat
+            Write-Host " Finished Reinstalling Default Apps"
+        }
+    
+        'No'{
+            Write-Host "$frmt Reinstalling Default Apps $frmt"
+            Write-Host " Skipping bloat reinstall"
+        }
+    
+    }
+    
+    [reflection.assembly]::loadwithpartialname("System.Windows.Forms") | Out-Null 
+    $msgBoxInput = [System.Windows.Forms.MessageBox]::Show('Do you want to reinstall OneDrive?','New Loads','YesNo','Question')
+
+    switch  ($msgBoxInput) {
+  
+        'Yes' {
+            Write-Host "$frmt Reinstalling OneDrive $frmt"
+            UndoOneDrive
+        }
+    
+        'No'{
+            Write-Host "$frmt OneDrive $frmt"
+            Write-Host "`n Skipping OneDrive reinstall"
+        }
+    
+    }
 
 
+    [reflection.assembly]::loadwithpartialname("System.Windows.Forms") | Out-Null 
+    $msgBoxInput = [System.Windows.Forms.MessageBox]::Show('Do you want to undo registry changes?','New Loads','YesNo','Question')
+
+    switch  ($msgBoxInput) {
+  
+        'Yes' {
+            Write-Host "$frmt Registry Changes $frmt"
+            #UndoRegistry
+            Write-Host "Too Bad. This feature has been temporarily disabled. Skipping.."
+        }
+    
+        'No'{
+            Write-Host "$frmt Registry Changes $frmt"
+            Write-Host " Skipping registry reversion"
+        }
+    
+    }
+
+    If (!((Get-Process -Name explorer -ErrorAction SilentlyContinue).Id)){
+    	Start-Process explorer
+    	Write-host " Explorer Started"
+    	} else {
+    	Write-Host " Explorer is running"
+    }
+    Stop-Transcript
+    Write-Host "$frmt Script Undone`n`n Ready for next task $frmt"
+}
+
+$Health = 100
 $wantedreason = "OK"
 If ($reason -eq $wantedreason){
     Write-Host "`n`n================================================================================================`n`n"
@@ -1291,6 +1363,7 @@ If ($reason -eq $wantedreason){
 $RunScript.Add_Click{
 Start-Transcript -LiteralPath "$env:USERPROFILE\Desktop\Script Run - $dtime.txt"
 Write-Host "$frmt Running Script `n `n GUI will be unusable whilst script is running. Please Standby `n$frmt"
+#Choco_programs
 Programs
 OEMInfo
 Visuals
@@ -1306,6 +1379,7 @@ Stop-Transcript
 $RunNoOEM.Add_Click{
 Start-Transcript -LiteralPath "$env:USERPROFILE\Desktop\Script Run - No OEM - $dtime.txt"
 Write-Host "$frmt Running Script without Branding`n `n GUI will be unusable whilst script is running. Please Standby `n$frmt"
+#Choco_programs
 Programs
 StartMenu
 Registry
@@ -1316,74 +1390,11 @@ Write-Host "$frmt Script Run`n`n Ready for next task $frmt"
 Stop-Transcript
 }
 
-$UndoScript.Add_Click{
-    Start-Transcript -LiteralPath "$env:USERPROFILE\Desktop\Script Run - Undo - $dtime.txt"
-    Write-Host "$frmt Undoing Changes made by Script `n `n GUI will be unusable whilst script is running. Please Standby `n$frmt"
-    Start-Sleep 2
-    UndoOEMInfo
-
-    [reflection.assembly]::loadwithpartialname("System.Windows.Forms") | Out-Null 
-    $msgBoxInput = [System.Windows.Forms.MessageBox]::Show('Do you want to reinstall all default apps?','New Loads','YesNo','Question')
-    switch  ($msgBoxInput) {
-   
-        'Yes' {
-            Write-Host "$frmt Reinstalling Default Apps $frmt "
-            UndoDebloat
-            Write-Host " Finished Reinstalling Default Apps"
-        }
-    
-        'No'{
-            Write-Host " Skipping bloat reinstall"
-        }
-    
-    }
-    
-    [reflection.assembly]::loadwithpartialname("System.Windows.Forms") | Out-Null 
-    $msgBoxInput = [System.Windows.Forms.MessageBox]::Show('Do you want to reinstall OneDrive?','New Loads','YesNo','Question')
-
-    switch  ($msgBoxInput) {
-  
-        'Yes' {
-            UndoOneDrive
-        }
-    
-        'No'{
-            Write-Host " Skipping OneDrive reinstall"
-        }
-    
-    }
-
-
-    [reflection.assembly]::loadwithpartialname("System.Windows.Forms") | Out-Null 
-    $msgBoxInput = [System.Windows.Forms.MessageBox]::Show('Do you want to undo registry changes?','New Loads','YesNo','Question')
-
-    switch  ($msgBoxInput) {
-  
-        'Yes' {
-            #UndoRegistry
-            Write-Host " This feature has been temporarily disabled. Skipping.."
-        }
-    
-        'No'{
-            Write-Host " Skipping registry reversion"
-        }
-    
-    }
-
-    If (!((Get-Process -Name explorer -ErrorAction SilentlyContinue).Id)){
-    	Start-Process explorer
-    	write-host " Explorer Started"
-    	} else {
-    	Write-Host " Explorer is running"
-    }
-    Stop-Transcript
-    Write-Host "$frmt Script Undone`n`n Ready for next task $frmt"
-}
-
 
 $ExitButton.Add_Click{
     $Form.Close()
 }
+Write-Host "Boot Completed. Ready for selection"
 [void]$Form.ShowDialog()
 $stream.Dispose()
 $Form.Dispose()
