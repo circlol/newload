@@ -1,3 +1,5 @@
+$WindowTitle = "New Loads - Initializing"
+$host.UI.RawUI.WindowTitle = $WindowTitle
 Write-Host "Initializing Script"
 #requires -runasadministrator
 
@@ -42,6 +44,8 @@ $CurrentTheme = (Get-ItemProperty -path HKCU:\Software\Microsoft\Windows\Current
 
 
 If (!(Get-Module -ListAvailable -Name BitsTransfer)){
+    $WindowTitle = "New Loads - Grabbing BitsTransfer"
+    $host.UI.RawUI.WindowTitle = $WindowTitle
     Write-Host " Importing BitsTransfer"
     Import-Module BitsTransfer
     Start-Sleep -s 2
@@ -55,8 +59,9 @@ If (!(Get-Module -ListAvailable -Name BitsTransfer)){
     }
 }
 Function Programs {
+    $WindowTitle = "New Loads - Installing Applications"
+    $host.UI.RawUI.WindowTitle = $WindowTitle
     Write-Host "$frmt Installing Apps`n Please be patient as the programs may take a while.$frmt"
-
     #Google
     If (!(Test-Path $Location1)){
         If (Test-Path $gcoi){
@@ -114,6 +119,8 @@ Function Programs {
         } 
 }
 Function Visuals {
+    $WindowTitle = "New Loads - Applying Wallpaper"
+    $host.UI.RawUI.WindowTitle = $WindowTitle
     If (!((Get-Process -Name explorer -ErrorAction SilentlyContinue).Id)){
     Write-Host " Explorer not found."
     Start-Process explorer -Verbose 
@@ -150,6 +157,8 @@ If (!($CurrentTheme -eq $CustomTheme)){
 }
 
 Function StartMenu {
+    $WindowTitle = "New Loads - Setting Taskbar Layout"
+    $host.UI.RawUI.WindowTitle = $WindowTitle
     Write-host "$frmt Pinning Apps to taskbar , Clearing Start Menu Pins. $frmt"
 
 $START_MENU_LAYOUT = @"
@@ -228,6 +237,8 @@ Remove-Item $layoutFile -Verbose
 }
 
 Function OneDrive {
+    $WindowTitle = "New Loads - Removing OneDrive"
+    $host.UI.RawUI.WindowTitle = $WindowTitle
     Write-Host " Stopping OneDrive"
     Stop-Process -Name "OneDrive" -ErrorAction SilentlyContinue
     Start-Sleep -Milliseconds 500
@@ -246,6 +257,8 @@ Function OneDrive {
     Remove-Item -Path "$env:SYSTEMDRIVE\OneDriveTemp" -Force -Recurse -ErrorAction SilentlyContinue
 }
 Function Debloat {
+    $WindowTitle = "New Loads - Debloating"
+    $host.UI.RawUI.WindowTitle = $WindowTitle
     Write-Host "$frmt Removing Bloatware $frmt "
     $Programs = @(
     #Unnecessary Windows 10 AppX Apps
@@ -376,13 +389,15 @@ Function Debloat {
     }
 
 Function Registry {
+    $WindowTitle = "New Loads - Registry"
+    $host.UI.RawUI.WindowTitle = $WindowTitle
     Write-Host "$frmt Applying Registry Changes $frmt"
 
     If ($BuildNumber -lt $WantedBuild) {
         Write-Host " Applying Windows 10 Specific Registry Keys `n"
-        Write-Host " Unpinning Cortana Icon on Taskbar"
+        Write-Host " Removing Cortana Icon from Taskbar"
         Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "ShowCortanaButton" -Value 0
-        Write-Host " Unpinning TaskView Icon from Taskbar"
+        Write-Host " Pinning Task View Icon"
         Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "ShowTaskViewButton" -Value 0
         Write-Host " Changing Searchbox to Icon Format on Taskbar"
         Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Search" -Name "SearchboxTaskbarMode" -Value 1
@@ -390,36 +405,45 @@ Function Registry {
     #11 Specific
     if ($BuildNumber -gt $WantedBuild) {
         Write-Host " Applying Windows 11 Specific Registry Keys `n"
-        Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "ShowTaskViewButton" -Value 0
-        #Taskbarda is Widgets - Currently Widgets shows temperature bottom left
+        
+        #Write-Host " Removing Task View from Taskbar"
+        #Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "ShowTaskViewButton" -Value 1
+        
+        #Write-Host " Removing Widgets from Taskbar"
         #Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "TaskBarDa" -Value 0
+        Write-Host " Removing Chat from taskbar"
         Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "TaskBarMn" -Value 0
     }
 
     Write-Host " Changing how often Windows asks for feedback to never"
     If (!(Test-Path "HKCU:\Software\Microsoft\Siuf")) { 
         New-Item -Path "HKCU:\Software\Microsoft" -Name "Siuf"
-    }
-
-    If (!(Test-Path "HKCU:\Software\Microsoft\Siuf\Rules")) {
+    } ElseIf (!(Test-Path "HKCU:\Software\Microsoft\Siuf\Rules")) {
     New-Item -Path "HKCU:\Software\Microsoft\Siuf" -Name "Rules"
     }
     Set-ItemProperty "HKCU:\Software\Microsoft\Siuf\Rules" -Name "NumberOfSiufInPeriod" -Type DWORD -Value 0
     Set-ItemProperty "HKCU:\Software\Microsoft\Siuf\Rules" -Name "PeriodInNanoSeconds" -Type QWORD -Value 0
-
-    Write-Host " Setting Windows Updates to Check for updates but let me choose whether to download and install them"
-    Set-ItemProperty "HKLM:\Software\Microsoft\WindowsUpdate\UX\Settings" -Name UxOption -Type DWORD -Value 2
     
     Write-Host " Disabling Windows Feedback Notifications"
     Set-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\DataCollection" -Name "DoNotShowFeedbackNotifications" -Type DWord -Value 1
-    
-    Write-Host " Setting Sounds > Communications to 'Do Nothing'"
-    Set-ItemProperty "HKCU:\Software\Microsoft\MultiMedia\Audio" -Name "UserDuckingPreference" -Value 3 -Type DWord
     
     Write-Host " Disabling Windows Pop-Ups on Start-Up ex. Let's finish setting up your device - Get Even More Out of Windows - Upgrade to Windows 11 Popup"
     If (!(Test-Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\UserProfileEngagement")){
         New-Item -Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion" -Name "UserProfileEngagement"
     }
+    
+    Write-Host " Disabling Show Recent in Explorer Menu"
+    Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer" -Name "ShowRecent" -Value 0
+        
+    Write-Host " Disabling Show Frequent in Explorer Menu"
+    Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer" -Name "ShowFrequent" -Value 0
+
+    Write-Host " Setting Windows Updates to Check for updates but let me choose whether to download and install them"
+    Set-ItemProperty "HKLM:\Software\Microsoft\WindowsUpdate\UX\Settings" -Name UxOption -Type DWORD -Value 2
+    Write-Host " Setting Sounds > Communications to 'Do Nothing'"
+    Set-ItemProperty "HKCU:\Software\Microsoft\MultiMedia\Audio" -Name "UserDuckingPreference" -Value 3 -Type DWord
+    
+    
     Set-ItemProperty "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\UserProfileEngagement" -Name "ScoobeSystemSettingEnabled" -Type DWORD -Value 0
 
     Write-Host " Expanding Explorer Ribbon"
@@ -427,14 +451,6 @@ Function Registry {
         New-Item -Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer" -Name "Ribbon"
     }
     Set-ItemProperty -Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\Ribbon" -Name "MinimizedStateTabletModeOff" -Value 1
-
-
-    Write-Host " Disabling Show Recent in Explorer Menu"
-    Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer" -Name "ShowRecent" -Value 0
-    
-    Write-Host " Disabling Show Frequent in Explorer Menu"
-    Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer" -Name "ShowFrequent" -Value 0
-
     
     Write-Host " Enabling Snap Assist Flyout"
     Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "EnableSnapAssistFlyout" -Value 1
@@ -512,20 +528,31 @@ Function Registry {
 
 
 Function Cleanup {
-
+    $WindowTitle = "New Loads - Cleanup"
+    $host.UI.RawUI.WindowTitle = $WindowTitle
     If (!((Get-Process -Name explorer -ErrorAction SilentlyContinue).Id)){
         Start-Process explorer
         write-host " Explorer Started"
     }
     
-    #A112
+	#A112
     If ((Get-BitLockerVolume -MountPoint "C:").ProtectionStatus -eq $blstat){
-        Write-Host " Bitlocker seems to be enabled. Starting the decryption process."
-        manage-bde -off "C:"
-        Write-Host " Continuing task in background."
-        } else {
-        Write-Host " Bitlocker is not enabled on this machine."
-    }    #On Charger
+        Write-Host " Bitlocker seems to be enabled. Would you like to start the decryption process?."
+        ###Requires -RunSilent
+    
+        [reflection.assembly]::loadwithpartialname("System.Windows.Forms") | Out-Null 
+        $msgBoxInput = [System.Windows.Forms.MessageBox]::Show('BitLocker seems to be enabled. Would you like to disable it?','New Loads','YesNo','Question')
+        switch  ($msgBoxInput) {
+        'Yes' {
+            manage-bde -off "C:"
+            Write-Host " Continuing task in background."
+        }
+        'No'{
+            Write-Host " Moving on."
+        }
+    
+        }
+    }
     Write-Host " Changing On AC Sleep Settings"
     powercfg -change -standby-timeout-ac "60"
     powercfg -change -monitor-timeout-ac "45"        
