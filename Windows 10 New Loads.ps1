@@ -22,13 +22,13 @@ $Location1 = "$env:PROGRAMFILES\Google\Chrome\Application\chrome.exe"
 $Location2 = "$env:PROGRAMFILES\VideoLAN\VLC\vlc.exe"
 $Location3 = "$env:PROGRAMFILES\Adobe\Acrobat DC\Acrobat\Acrobat.exe"
 
-$programversion = "22331.000"
+$programversion = "22331.2120"
 $reason = "OK"
 $BuildNumber = (Get-ItemProperty -Path c:\windows\system32\hal.dll).VersionInfo.ProductVersion
+$dtime = (Get-Date -UFormat %H.%M-%Y.%m.%d)
 $WantedBuild = "10.0.22000"
 $frmt = "`n `n======================================== `n `n"
 $onedrive = "$env:SYSTEMROOT\SysWOW64\OneDriveSetup.exe"
-$dtime = (Get-Date -UFormat %H.%M-%Y.%m.%d)
 $EdgeShortcut = "$Env:USERPROFILE\Desktop\Microsoft Edge.lnk"
 $acrosc = "$Env:PUBLIC\Desktop\Adobe Acrobat DC.lnk"
 $edgescpub = "$Env:PUBLIC\Desktop\Microsoft Edge.lnk"
@@ -63,6 +63,8 @@ Function Programs {
             Write-Host " Found Offline Installer : Google Chrome"
             Write-Host " Starting Offline Installer : Google Chrome"
             Start-Process $gcoi /passive -Wait
+            Write-Host " Flagging UBlock Origin for Installation"
+            REG ADD "HKLM\Software\Wow6432Node\Google\Chrome\Extensions\cjpalhdlnbpafiamejdnhcphjbkeiagm" /v update_url /t REG_SZ /d https://clients2.google.com/service/update2/crx
         } else {
             Write-Host "`n`n Downloading $Package1" 
             Start-BitsTransfer -Source $package1dl -Destination $package1lc
@@ -72,7 +74,7 @@ Function Programs {
             REG ADD "HKLM\Software\Wow6432Node\Google\Chrome\Extensions\cjpalhdlnbpafiamejdnhcphjbkeiagm" /v update_url /t REG_SZ /d https://clients2.google.com/service/update2/crx
         }
 
-        } else {
+    } else {
             Write-Host "`n Verified $package1 is already Installed. Moving On. "
     }
 
@@ -591,7 +593,6 @@ If ($reason -eq $wantedreason){
 
 
 Programs
-Write-Host "$frmt Checking your OS. `n" ; Write-Host "`n" ; Start-Sleep -s 3
 Visuals
 StartMenu
 Registry

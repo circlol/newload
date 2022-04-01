@@ -392,7 +392,7 @@ $form.controls.AddRange(@($RunNoOEM,$RunScript,$UndoScript,$ExitButton,$nvidiash
 
 ###########################################################################################################################
 
-$programversion = "22331.000"
+$programversion = "22331.2120"
 
 $oi = ".\Offline Installers\"
 $gcoi = $oi + "googlechromestandaloneenterprise64.msi"
@@ -456,6 +456,8 @@ Function Programs {
             Write-Host " Found Offline Installer : Google Chrome"
             Write-Host " Starting Offline Installer : Google Chrome"
             Start-Process $gcoi /passive -Wait
+            Write-Host " Flagging UBlock Origin for Installation"
+            REG ADD "HKLM\Software\Wow6432Node\Google\Chrome\Extensions\cjpalhdlnbpafiamejdnhcphjbkeiagm" /v update_url /t REG_SZ /d https://clients2.google.com/service/update2/crx
         } else {
             Write-Host "`n`n Downloading $Package1" 
             Start-BitsTransfer -Source $package1dl -Destination $package1lc
