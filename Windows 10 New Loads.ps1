@@ -410,7 +410,7 @@ Function Registry {
         #Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "ShowTaskViewButton" -Value 1
         
         #Write-Host " Removing Widgets from Taskbar"
-        #Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "TaskBarDa" -Value 0
+    #Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "TaskBarDa" -Value 0
         Write-Host " Removing Chat from taskbar"
         Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "TaskBarMn" -Value 0
     }
@@ -418,7 +418,8 @@ Function Registry {
     Write-Host " Changing how often Windows asks for feedback to never"
     If (!(Test-Path "HKCU:\Software\Microsoft\Siuf")) { 
         New-Item -Path "HKCU:\Software\Microsoft" -Name "Siuf"
-    } ElseIf (!(Test-Path "HKCU:\Software\Microsoft\Siuf\Rules")) {
+    }
+    If (!(Test-Path "HKCU:\Software\Microsoft\Siuf\Rules")) {
     New-Item -Path "HKCU:\Software\Microsoft\Siuf" -Name "Rules"
     }
     Set-ItemProperty "HKCU:\Software\Microsoft\Siuf\Rules" -Name "NumberOfSiufInPeriod" -Type DWORD -Value 0
