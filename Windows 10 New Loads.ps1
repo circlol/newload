@@ -1,80 +1,52 @@
-$WindowTitle = "New Loads - Initializing"
-$host.UI.RawUI.WindowTitle = $WindowTitle
 Write-Host "Initializing Script"
 #requires -runasadministrator
-
-$oi = ".\Offline Installers\"
-$gcoi = $oi + "googlechromestandaloneenterprise64.msi"
-$aroi = $oi + "AcroRdrDCx642200120085_MUI.exe"
-$vlcoi = $oi + "vlc-3.0.17-win64.msi"
-
-$package1  = "Google.Chrome"
-$package2  = "VideoLAN.VLC"
-$package3  = "Adobe.Acrobat.Reader.64-bit"
-
-$package1dl = "https://dl.google.com/dl/chrome/install/googlechromestandaloneenterprise64.msi"
-$package2dl = "https://github.com/circlol/newload/raw/main/Assets/BAF/vlc-3.0.17-win64.msi"
-$package3dl = "https://ardownload2.adobe.com/pub/adobe/acrobat/win/AcrobatDC/2200120085/AcroRdrDCx642200120085_MUI.exe"
-
-$package1lc = "$env:temp\googlechromestandaloneenterprise64.msi"
-$package2lc = "$env:temp\vlc-3.0.17-win64.msi"
-$package3lc = "$env:temp\AcroRdrDCx642200120085_MUI.exe"
-
-$Location1 = "$env:PROGRAMFILES\Google\Chrome\Application\chrome.exe"
-$Location2 = "$env:PROGRAMFILES\VideoLAN\VLC\vlc.exe"
-$Location3 = "$env:PROGRAMFILES\Adobe\Acrobat DC\Acrobat\Acrobat.exe"
-
-$programversion = "22331.2120"
+$WindowTitle = "New Loads - Initializing" ; $host.UI.RawUI.WindowTitle = $WindowTitle
 $reason = "OK"
+$programversion = "22409"
+$WantedBuild = "10.0.22000"
 $BuildNumber = (Get-ItemProperty -Path c:\windows\system32\hal.dll).VersionInfo.ProductVersion
 $dtime = (Get-Date -UFormat %H.%M-%Y.%m.%d)
-$WantedBuild = "10.0.22000"
 $frmt = "`n `n======================================== `n `n"
-$onedrive = "$env:SYSTEMROOT\SysWOW64\OneDriveSetup.exe"
-$EdgeShortcut = "$Env:USERPROFILE\Desktop\Microsoft Edge.lnk"
-$acrosc = "$Env:PUBLIC\Desktop\Adobe Acrobat DC.lnk"
-$edgescpub = "$Env:PUBLIC\Desktop\Microsoft Edge.lnk"
-$vlcsc = "$Env:PUBLIC\Desktop\VLC Media Player.lnk"
-$ctemp = "C:\Temp"
-$mocotheme1 = "$Env:USERPROFILE\desktop\win11-light.deskthemepack"
-$mocotheme2 = "$Env:USERPROFILE\desktop\win11-dark.deskthemepack"
-$mocotheme3 = "$Env:USERPROFILE\desktop\win10-purple.deskthemepack"
-$CustomTheme = "$env:LOCALAPPDATA\Microsoft\Windows\Themes\Mother Co\Mother Co.Theme"
-$CurrentTheme = (Get-ItemProperty -path HKCU:\Software\Microsoft\Windows\CurrentVersion\Themes\ -Name "CurrentTheme").CurrentTheme
-
-
-If (!(Get-Module -ListAvailable -Name BitsTransfer)){
-    $WindowTitle = "New Loads - Grabbing BitsTransfer"
-    $host.UI.RawUI.WindowTitle = $WindowTitle
-    Write-Host " Importing BitsTransfer"
-    Import-Module BitsTransfer
-    Start-Sleep -s 2
-    If (!(Get-Module -ListAvailable -Name BitsTransfer)){
-        Write-Host " For some reason one of the modules wasn't found. Trying again."
-        Import-Module BitsTransfer -Verbose
-        Start-Sleep -s 2
-        If (!(Get-Module -ListAvailable -Name BitsTransfer)){
-            $reason = "$reason - BitsTransfer Module NOT Found"
-        } 
-    }
-}
 Function Programs {
-    $WindowTitle = "New Loads - Installing Applications"
-    $host.UI.RawUI.WindowTitle = $WindowTitle
+    $oi = ".\Offline Installers\"
+    $gcoi = $oi + "googlechromestandaloneenterprise64.msi"
+    $aroi = $oi + "AcroRdrDCx642200120085_MUI.exe"
+    $vlcoi = $oi + "vlc-3.0.17-win64.msi"
+    
+    $package1  = "Google.Chrome"
+    $package2  = "VideoLAN.VLC"
+    $package3  = "Adobe.Acrobat.Reader.64-bit"
+    
+    $package1dl = "https://dl.google.com/dl/chrome/install/googlechromestandaloneenterprise64.msi"
+    $package2dl = "https://github.com/circlol/newload/raw/main/Assets/BAF/vlc-3.0.17-win64.msi"
+    $package3dl = "https://ardownload2.adobe.com/pub/adobe/acrobat/win/AcrobatDC/2200120085/AcroRdrDCx642200120085_MUI.exe"
+    
+    $package1lc = "$env:temp\googlechromestandaloneenterprise64.msi"
+    $package2lc = "$env:temp\vlc-3.0.17-win64.msi"
+    $package3lc = "$env:temp\AcroRdrDCx642200120085_MUI.exe"
+    
+    $Location1 = "$env:PROGRAMFILES\Google\Chrome\Application\chrome.exe"
+    $Location2 = "$env:PROGRAMFILES\VideoLAN\VLC\vlc.exe"
+    $Location3 = "$env:PROGRAMFILES\Adobe\Acrobat DC\Acrobat\Acrobat.exe"
+
+
+    $WindowTitle = "New Loads - Installing Applications" ; $host.UI.RawUI.WindowTitle = $WindowTitle
     Write-Host "$frmt Installing Apps`n Please be patient as the programs may take a while.$frmt"
     #Google
     If (!(Test-Path $Location1)){
         If (Test-Path $gcoi){
             Write-Host " Found Offline Installer : Google Chrome"
             Write-Host " Starting Offline Installer : Google Chrome"
-            Start-Process $gcoi /passive -Wait
+            #Start-Process $gcoi /passive -Wait
+            Start-Process -FilePath:$gcoi -ArgumentList /passive -Verbose -Wait            
             Write-Host " Flagging UBlock Origin for Installation"
             REG ADD "HKLM\Software\Wow6432Node\Google\Chrome\Extensions\cjpalhdlnbpafiamejdnhcphjbkeiagm" /v update_url /t REG_SZ /d https://clients2.google.com/service/update2/crx
         } else {
             Write-Host "`n`n Downloading $Package1" 
             Start-BitsTransfer -Source $package1dl -Destination $package1lc
             Write-Host " Installing $Package1`n"
-            Start-Process $package1lc /passive -Wait
+            Start-Process -FilePath:$package1lc -ArgumentList /passive -Verbose -Wait
+                 
             Write-Host " Flagging UBlock Origin for Installation"
             REG ADD "HKLM\Software\Wow6432Node\Google\Chrome\Extensions\cjpalhdlnbpafiamejdnhcphjbkeiagm" /v update_url /t REG_SZ /d https://clients2.google.com/service/update2/crx
         }
@@ -88,12 +60,13 @@ Function Programs {
         If (Test-Path $vlcoi){
             Write-Host " Found Offline Installer : VLC Media Player"
             Write-Host " Starting Offline Installer : VLC Media Player"
-            Start-Process $vlcoi /quiet
+            Start-Process -FilePath:$vlcoi -ArgumentList /quiet -Verbose
         } else {
             Write-Host "`n`n Downloading $Package2" 
             Start-BitsTransfer -Source $Package2dl -Destination $package2lc
-            Write-Host " Installing $Package2 in the background`n" 
-            Start-Process $package2lc /quiet
+            Write-Host " Installing $Package2 in the background`n"
+            Start-Process -FilePath:$package2lc -ArgumentList /quiet -Verbose
+            #Start-Process $package2lc /quiet
        
         }
     } else {
@@ -105,12 +78,13 @@ Function Programs {
         If (Test-Path $aroi){
             Write-Host " Found Offline Installer : Adobe Acrobat"
             Write-Host " Starting Offline Installer : Adobe Acrobat"
-            Start-Process $aroi /sPB -Wait
+            #Start-Process $aroi /sPB -Wait
+            Start-Process -FilePath:$aroi -ArgumentList /sPB -Verbose
         } else {
             Write-Host "`n`n Downloading $Package3" 
             Start-BitsTransfer -Source $Package3dl -Destination $package3lc
             Write-Host " Installing $Package3`n" 
-            Start-Process $package3lc /sPB -Wait
+            Start-Process -FilePath:$package3lc -ArgumentList /sPB -Verbose
             Write-Host " $package3 Installed."
         }    
     
@@ -118,47 +92,88 @@ Function Programs {
             Write-Host "`n Verified $package3 is already installed.`n Moving on`n`n"
         } 
 }
-Function Visuals {
-    $WindowTitle = "New Loads - Applying Wallpaper"
-    $host.UI.RawUI.WindowTitle = $WindowTitle
-    If (!((Get-Process -Name explorer -ErrorAction SilentlyContinue).Id)){
-    Write-Host " Explorer not found."
-    Start-Process explorer -Verbose 
-    Write-host " Explorer Started"
+Function Set-WallPaper {
+    param (
+        [parameter(Mandatory=$True)]
+        # Provide path to image
+        [string]$Image,
+        # Provide wallpaper style that you would like applied
+        [parameter(Mandatory=$False)] 
+        [ValidateSet('Fill', 'Fit', 'Stretch', 'Tile', 'Center', 'Span')]
+        [string]$Style
+    )
+     
+    $WallpaperStyle = Switch ($Style) {
+      
+        "Fill" {"10"}
+        "Fit" {"6"}
+        "Stretch" {"2"}
+        "Tile" {"0"}
+        "Center" {"0"}
+        "Span" {"22"}
+      
     }
-    Write-Host " Checking your OS.."
-
-If (!($CurrentTheme -eq $CustomTheme)){
-    Write-Host " Visuals will need to be applied"
-
-    If ($BuildNumber -gt $WantedBuild) {
-        Write-Host " I have detected that you are on Windows 11 `n `n Applying Appropriate Theme & Flagging Required Settings"
-        Start-BitsTransfer -Source "https://github.com/circlol/newload/raw/main/Assets/Mother%20Computers%20Win11.deskthemepack" -Destination "$env:temp\Mother Computers Win11.deskthemepack"
-        Start-Process "$env:temp\Mother Computers Win11.deskthemepack" -Wait
-        Start-Sleep -s 3
-        taskkill /F /IM systemsettings.exe 2>$NULL
-        } else {
-
-            If ($BuildNumber -lt $WantedBuild) {
-                Write-Host " I have detected that you are on Windows 10 `n `n Applying Appropriate Theme & Flagging Required Settings"
-                Start-BitsTransfer -Source "https://github.com/circlol/newload/raw/main/Assets/Mother%20Computers%20Win10.deskthemepack" -Destination "$env:temp\Mother Computers Win10.deskthemepack"
-                Start-Process "$env:temp\Mother Computers Win10.deskthemepack" -Wait
-                Start-Sleep -s 4
-                Taskkill /F /IM systemsettings.exe 2>$NULL
-            }
-        }
-
-    Write-Host "`n Setting Wallpaper to Stretch `n"
-    Set-ItemProperty -Path "HKCU:\Control Panel\Desktop" -Name "WallpaperStyle" -Type String -Value 2 -ErrorAction SilentlyContinue
-    Stop-Process -Name Explorer -Verbose -Erroraction SilentlyContinue
-    } else {
-        Write-Host " Visuals have already been applied. Skipping"
+     
+    If($Style -eq "Tile") {
+     
+        New-ItemProperty -Path "HKCU:\Control Panel\Desktop" -Name WallpaperStyle -PropertyType String -Value $WallpaperStyle -Force
+        New-ItemProperty -Path "HKCU:\Control Panel\Desktop" -Name TileWallpaper -PropertyType String -Value 1 -Force
+     
     }
+    Else {
+     
+        New-ItemProperty -Path "HKCU:\Control Panel\Desktop" -Name WallpaperStyle -PropertyType String -Value $WallpaperStyle -Force
+        New-ItemProperty -Path "HKCU:\Control Panel\Desktop" -Name TileWallpaper -PropertyType String -Value 0 -Force
+     
+    }
+     
+    Add-Type -TypeDefinition @" 
+    using System; 
+    using System.Runtime.InteropServices;
+      
+    public class Params
+    { 
+        [DllImport("User32.dll",CharSet=CharSet.Unicode)] 
+        public static extern int SystemParametersInfo (Int32 uAction, 
+                                                       Int32 uParam, 
+                                                       String lpvParam, 
+                                                       Int32 fuWinIni);
+    }   
+"@ 
+      
+        $SPI_SETDESKWALLPAPER = 0x0014
+        $UpdateIniFile = 0x01
+        $SendChangeEvent = 0x02
+      
+        $fWinIni = $UpdateIniFile -bor $SendChangeEvent
+      
+        $ret = [Params]::SystemParametersInfo($SPI_SETDESKWALLPAPER, 0, $Image, $fWinIni)
 }
 
+Function Visuals {
+    $WindowTitle = "New Loads - Applying Wallpaper" ; $host.UI.RawUI.WindowTitle = $WindowTitle
+    If (!(Get-Process explorer)){
+    Write-Host " Explorer not found. Restarting"
+    Start-Process explorer -Verbose
+    }    
+    Write-Host "$frmt Applying Visuals $frmt"
+    $wallpaper = "$env:temp\MotherComputersWallpaper.jpg"
+    If ($BuildNumber -gt $WantedBuild) {
+    Write-Host " I have detected that you are on Windows 11"
+    Start-BitsTransfer -Source "https://github.com/circlol/newload/raw/main/Assets/wallpaper/11.jpg" -Destination $wallpaper
+    } else {
+
+        If ($BuildNumber -lt $WantedBuild) {
+            Write-Host " I have detected that you are on Windows 10"
+            Start-BitsTransfer -Source "https://github.com/circlol/newload/raw/main/Assets/wallpaper/10.jpg" -Destination $wallpaper
+        }
+    }
+    Set-ItemProperty -Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Themes\Personalize" -Name "SystemUsesLightTheme" -Value 0
+    Set-ItemProperty -Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Themes\Personalize" -Name "AppsUseLightTheme" -Value 0
+    Set-WallPaper -Image $wallpaper -Style Stretch
+}
 Function StartMenu {
-    $WindowTitle = "New Loads - Setting Taskbar Layout"
-    $host.UI.RawUI.WindowTitle = $WindowTitle
+    $WindowTitle = "New Loads - Setting Taskbar Layout" ; $host.UI.RawUI.WindowTitle = $WindowTitle 
     Write-host "$frmt Pinning Apps to taskbar , Clearing Start Menu Pins. $frmt"
 
 $START_MENU_LAYOUT = @"
@@ -185,18 +200,15 @@ $START_MENU_LAYOUT = @"
 
 $layoutFile="C:\Windows\StartMenuLayout.xml"
 
-#Delete layout file if it already exists
 If(Test-Path $layoutFile)
 {
     Remove-Item $layoutFile
 }
 
-#Creates the blank layout file
 $START_MENU_LAYOUT | Out-File $layoutFile -Encoding ASCII
 
 $regAliases = @("HKLM", "HKCU")
 
-#Assign the start layout and force it to apply with "LockedStartLayout" at both the machine and user level
 foreach ($regAlias in $regAliases){
     $basePath = $regAlias + ":\SOFTWARE\Policies\Microsoft\Windows"
     $keyPath = $basePath + "\Explorer" 
@@ -206,59 +218,46 @@ foreach ($regAlias in $regAliases){
     Set-ItemProperty -Path $keyPath -Name "LockedStartLayout" -Value 1
     Set-ItemProperty -Path $keyPath -Name "StartLayoutFile" -Value $layoutFile
 }
-
-
-#Restart Explorer, open the start menu (necessary to load the new layout), and give it a few seconds to process
 If (!(Get-Process Explorer)){
     Start-Process Explorer
 } else {
     Stop-Process -Name Explorer -ErrorAction SilentlyContinue
-    Start-SLeep -s 3
+    Start-Sleep -s 3
     Start-Process Explorer
 }
-Start-Sleep -s 5
+Start-Sleep -s 3
 $wshell = New-Object -ComObject wscript.shell; $wshell.SendKeys('^{ESCAPE}')
-Start-Sleep -s 5
 
-#Enable the ability to pin items again by disabling "LockedStartLayout"
 foreach ($regAlias in $regAliases){
     $basePath = $regAlias + ":\SOFTWARE\Policies\Microsoft\Windows"
     $keyPath = $basePath + "\Explorer" 
     Set-ItemProperty -Path $keyPath -Name "LockedStartLayout" -Value 0
 }
-
-#Restart Explorer and delete the layout file
-Stop-Process -name explorer 
-
-# Uncomment the next line to make clean start menu default for all new users
-#Import-StartLayout -LayoutPath $layoutFile -MountPath $env:SystemDrive\
-
+Stop-Process -name explorer -Verbose 
+# Comment the next line to disable start menu from defaulting for all new users
+Import-StartLayout -LayoutPath $layoutFile -MountPath $env:SystemDrive\
 Remove-Item $layoutFile -Verbose
 }
 
 Function OneDrive {
-    $WindowTitle = "New Loads - Removing OneDrive"
-    $host.UI.RawUI.WindowTitle = $WindowTitle
-    Write-Host " Stopping OneDrive"
-    Stop-Process -Name "OneDrive" -ErrorAction SilentlyContinue
-    Start-Sleep -Milliseconds 500
-    Start-Sleep -s 2
-    Write-Host " Uninstalling OneDrive..."
-    If (!(Test-Path $onedrive)) {
-        $onedrive = "$env:SYSTEMROOT\System32\OneDriveSetup.exe"
-    }
-    Start-Process $onedrive "/uninstall" -NoNewWindow -Wait
-    Start-Sleep -s 2
-    Stop-Process -Name "explorer" -ErrorAction SilentlyContinue
-    Start-Sleep -s 2
+    $WindowTitle = "New Loads - Removing OneDrive" ; $host.UI.RawUI.WindowTitle = $WindowTitle
+    Stop-Process -Name "OneDrive" -Verbose -ErrorAction SilentlyContinue
+    Start-Sleep -s 3
+If (Test-Path C:\Windows\System32\OneDriveSetup.exe){
+    Write-Host " Found OneDrive in sys32, Removing"
+    Start-Process -FilePath:C:\Windows\System32\OneDriveSetup.exe -ArgumentList /uninstall -Wait -Verbose -ErrorAction SilentlyContinue
+}
+If (Test-Path C:\Windows\SysWOW64\OneDriveSetup.exe){
+    Write-Host " Found OneDrive in syswow, Removing"
+    Start-Process -FilePath:C:\Windows\SysWOW64\OneDriveSetup.exe -ArgumentList /uninstall -Verbose
+}
     Remove-Item -Path "$env:USERPROFILE\OneDrive" -Force -Recurse -ErrorAction SilentlyContinue
     Remove-Item -Path "$env:LOCALAPPDATA\Microsoft\OneDrive" -Force -Recurse -ErrorAction SilentlyContinue
     Remove-Item -Path "$env:PROGRAMDATA\Microsoft OneDrive" -Force -Recurse -ErrorAction SilentlyContinue
     Remove-Item -Path "$env:SYSTEMDRIVE\OneDriveTemp" -Force -Recurse -ErrorAction SilentlyContinue
 }
 Function Debloat {
-    $WindowTitle = "New Loads - Debloating"
-    $host.UI.RawUI.WindowTitle = $WindowTitle
+    $WindowTitle = "New Loads - Debloating" ; $host.UI.RawUI.WindowTitle = $WindowTitle
     Write-Host "$frmt Removing Bloatware $frmt "
     $Programs = @(
     #Unnecessary Windows 10 AppX Apps
@@ -310,7 +309,7 @@ Function Debloat {
     "5319275A.WhatsAppDesktop"
     "5A894077.McAfeeSecurity"
     "57540AMZNMobileLLC.AmazonAlexa"
-    "613EBCEA.PolarrPhotoEditorAcademicEdition"
+    #"613EBCEA.PolarrPhotoEditorAcademicEdition"
     "7EE7776C.LinkedInforWindows"
     "89006A2E.AutodeskSketchBook"
     "AD2F1837.HPSupportAssistant"
@@ -334,64 +333,39 @@ Function Debloat {
     "ClearChannelRadioDigital.iHeartRadio"
     "CyberLinkCorp.ac.PowerDirectorforacerDesktop"
     "CyberLinkCorp.ac.PhotoDirectorforacerDesktop"
-    "CAF9E577.Plex"  
-    "D52A8D61.FarmVille2CountryEscape"
     "DB6EA5DB.CyberLinkMediaSuiteEssentials"
-    "Drawboard.DrawboardPDF"
+    #"CAF9E577.Plex"  
+    #"D52A8D61.FarmVille2CountryEscape"
+    #"Drawboard.DrawboardPDF"
     "E0469640.LenovoUtility"
     "Evernote.Evernote"
-    "FACEBOOK.*"
     "FACEBOOK.317180B0BB486"
     "Fitbit.FitbitCoach"
-    "flaregamesGmbH.RoyalRevolt2"
-    "*Flipboard*"
-    "GAMELOFTSA.Asphalt8Airborne"
-    "KeeperSecurityInc.Keeper"
-    "MirametrixInc.GlancebyMirametrix"
-    "NAVER.LINEwin8"
-    "NORDCURRENT.COOKINGFEVER"
-    "Playtika.CaesarsSlotsFreeCasino"
-    "ShazamEntertainmentLtd.Shazam"
-    "SlingTVLLC.SlingTV"
-    "ThumbmunkeysLtd.PhototasticCollage"
-    "TuneIn.TuneInRadio"
-    "WikimediaFoundation.Wikipedia"
-    "WinZipComputing.WinZipUniversal"
-    "XINGAG.XING"
-    
-    "*ActiproSoftwareLLC*"
-    "*ACGMediaPlayer*"
-    "*AdobePhotoshopExpress*"
-    "*BubbleWitch3Saga*"
-    "*CandyCrush*"
-    "*Duolingo-LearnLanguagesforFree*"
-    "*EclipseManager*"
-    "*Hulu*"
-    "*HiddenCity*"
-    "*HiddenCityMysteryofShadows*"
-    "*OneCalendar*"
-    "*PandoraMediaInc*"
-    "*Royal Revolt*"
-    "*Sway*"
-    "*Speed Test*"
-    "*TikTok*"
-    "*Twitter*"
-    "*Viber*"
-    "*Wunderlist*"
+    #"flaregamesGmbH.RoyalRevolt2"
+    #"GAMELOFTSA.Asphalt8Airborne"
+    #"KeeperSecurityInc.Keeper"
+    #"MirametrixInc.GlancebyMirametrix"
+    #"NAVER.LINEwin8"
+    #"NORDCURRENT.COOKINGFEVER"
+    #"Playtika.CaesarsSlotsFreeCasino"
+    #"ShazamEntertainmentLtd.Shazam"
+    #"SlingTVLLC.SlingTV"
+    #"ThumbmunkeysLtd.PhototasticCollage"
+    #"TuneIn.TuneInRadio"
+    #"WikimediaFoundation.Wikipedia"
+    #"WinZipComputing.WinZipUniversal"
     )
-
         foreach ($Program in $Programs) {
             Get-AppxPackage -Name $Program | Remove-AppxPackage
             Get-AppxProvisionedPackage -Online| Where-Object DisplayName -like $Program | Remove-AppxProvisionedPackage -Online
             Write-Host " Attempting removal of $Program."   
         }
-    
-    }
+}
+
 
 Function Registry {
     $WindowTitle = "New Loads - Registry"
-    $host.UI.RawUI.WindowTitle = $WindowTitle
-    Write-Host "$frmt Applying Registry Changes $frmt"
+    $host.UI.RawUI.WindowTitle = $WindowTitle ; Write-Host "$frmt Applying Registry Changes $frmt"
 
     If ($BuildNumber -lt $WantedBuild) {
         Write-Host " Applying Windows 10 Specific Registry Keys `n"
@@ -405,7 +379,7 @@ Function Registry {
     #11 Specific
     if ($BuildNumber -gt $WantedBuild) {
         Write-Host " Applying Windows 11 Specific Registry Keys `n"
-        
+        Write-Host " "
         #Write-Host " Removing Task View from Taskbar"
         #Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "ShowTaskViewButton" -Value 1
         
@@ -459,6 +433,12 @@ Function Registry {
     Write-Host " Enabling File Extensions"
     Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "HideFileExt" -Value 0
 
+    Write-Host " Changing On AC Sleep Settings"
+    powercfg -change -standby-timeout-ac "60"
+    powercfg -change -monitor-timeout-ac "45"        
+    Write-Host " Changing On Battery Sleep Settings"
+    powercfg -change -standby-timeout-dc "15"
+    powercfg -change -monitor-timeout-dc "10"
     
     Write-Host " Setting Explorer Launch to This PC"
     Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "LaunchTo" -Value 1
@@ -529,8 +509,12 @@ Function Registry {
 
 
 Function Cleanup {
-    $WindowTitle = "New Loads - Cleanup"
-    $host.UI.RawUI.WindowTitle = $WindowTitle
+    $WindowTitle = "New Loads - Cleanup" ; $host.UI.RawUI.WindowTitle = $WindowTitle
+    $EdgeShortcut = "$Env:USERPROFILE\Desktop\Microsoft Edge.lnk"
+    $acrosc = "$Env:PUBLIC\Desktop\Adobe Acrobat DC.lnk"
+    $edgescpub = "$Env:PUBLIC\Desktop\Microsoft Edge.lnk"
+    $vlcsc = "$Env:PUBLIC\Desktop\VLC Media Player.lnk"
+    $ctemp = "C:\Temp"
     If (!((Get-Process -Name explorer -ErrorAction SilentlyContinue).Id)){
         Start-Process explorer
         write-host " Explorer Started"
@@ -538,28 +522,22 @@ Function Cleanup {
     
 	#A112
     If ((Get-BitLockerVolume -MountPoint "C:").ProtectionStatus -eq $blstat){
-        Write-Host " Bitlocker seems to be enabled. Would you like to start the decryption process?."
-        ###Requires -RunSilent
+        Write-Host " Bitlocker seems to be enabled. Would you like to disable it and start the decryption process?."
+        ##Requires -RunSilent
     
         [reflection.assembly]::loadwithpartialname("System.Windows.Forms") | Out-Null 
         $msgBoxInput = [System.Windows.Forms.MessageBox]::Show('BitLocker seems to be enabled. Would you like to disable it?','New Loads','YesNo','Question')
         switch  ($msgBoxInput) {
         'Yes' {
             manage-bde -off "C:"
-            Write-Host " Continuing task in background."
+            Write-Host " Drive will continue to decrypt in the background."
         }
         'No'{
-            Write-Host " Moving on."
+            Write-Host " Leaving bitlocker enabled."
         }
     
         }
     }
-    Write-Host " Changing On AC Sleep Settings"
-    powercfg -change -standby-timeout-ac "60"
-    powercfg -change -monitor-timeout-ac "45"        
-    Write-Host " Changing On Battery Sleep Settings"
-    powercfg -change -standby-timeout-dc "15"
-    powercfg -change -monitor-timeout-dc "10"
 
     If ($perform_apps.checked -eq $true){
         Start-Process Chrome
@@ -584,19 +562,9 @@ Function Cleanup {
         Write-Host " Removing temp folder in C Root"
         Remove-Item $ctemp -Force -Recurse -Confirm:$false -ErrorAction SilentlyContinue -Verbose 2>$NULL
     }
-    If (Test-Path $mocotheme1) { 
-        Remove-Item "$mocotheme1" -Force -Recurse -Confirm:$false -ErrorAction SilentlyContinue -Verbose 2>$NULL
-    }
-    If (Test-Path $mocotheme2) { 
-        Remove-Item "$mocotheme2" -Force -Recurse -Confirm:$false -ErrorAction SilentlyContinue -Verbose 2>$NULL
-    }
-    If (Test-Path $mocotheme3) { 
-        Remove-Item "$mocotheme3" -Force -Recurse -Confirm:$false -ErrorAction SilentlyContinue -Verbose 2>$NULL
-    }
 }
 
 Start-Transcript -LiteralPath "$env:USERPROFILE\Desktop\Automated Script Run - $dtime.txt"
-Start-Sleep -s 2
 $health = 100
 
 $wantedreason = "OK"
@@ -630,8 +598,9 @@ Write-Host "$frmt Finishing Up $frmt"
 Cleanup
 Stop-Transcript
 Write-Host "Script Completed.`nExiting."
-Start-Sleep -s 3
+Start-Sleep -s 1
 Exit
+
 # SIG # Begin signature block
 # MIIGiwYJKoZIhvcNAQcCoIIGfDCCBngCAQExCzAJBgUrDgMCGgUAMGkGCisGAQQB
 # gjcCAQSgWzBZMDQGCisGAQQBgjcCAR4wJgIDAQAABBAfzDtgWUsITrck0sYpfvNR

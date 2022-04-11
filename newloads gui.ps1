@@ -396,81 +396,63 @@ $form.controls.AddRange(@($RunNoOEM,$RunScript,$UndoScript,$ExitButton,$nvidiash
 
 ###########################################################################################################################
 
-$programversion = "22331.2120"
-
-$oi = ".\Offline Installers\"
-$gcoi = $oi + "googlechromestandaloneenterprise64.msi"
-$aroi = $oi + "AcroRdrDCx642200120085_MUI.exe"
-$vlcoi = $oi + "vlc-3.0.17-win64.msi"
-
-$package1  = "Google.Chrome"
-$package2  = "VideoLAN.VLC"
-$package3  = "Adobe.Acrobat.Reader.64-bit"
-
-$package1dl = "https://dl.google.com/dl/chrome/install/googlechromestandaloneenterprise64.msi"
-$package2dl = "https://github.com/circlol/newload/raw/main/Assets/BAF/vlc-3.0.17-win64.msi"
-$package3dl = "https://ardownload2.adobe.com/pub/adobe/acrobat/win/AcrobatDC/2200120085/AcroRdrDCx642200120085_MUI.exe"
-
-$package1lc = "$env:temp\googlechromestandaloneenterprise64.msi"
-$package2lc = "$env:temp\vlc-3.0.17-win64.msi"
-$package3lc = "$env:temp\AcroRdrDCx642200120085_MUI.exe"
-
-$Location1 = "$env:PROGRAMFILES\Google\Chrome\Application\chrome.exe"
-$Location2 = "$env:PROGRAMFILES\VideoLAN\VLC\vlc.exe"
-$Location3 = "$env:PROGRAMFILES\Adobe\Acrobat DC\Acrobat\Acrobat.exe"
+$programversion = "22409"
 
 
-$jc = "`n Task completed. Ready for next input`n"
-$onedrive = "$env:SYSTEMROOT\SysWOW64\OneDriveSetup.exe"
+#$onedrive = "$env:SYSTEMROOT\SysWOW64\OneDriveSetup.exe"
 $onedrivelocation = "$env:SystemRoot\SysWOW64\OneDriveSetup.exe"
 $EdgeShortcut = "$Env:USERPROFILE\Desktop\Microsoft Edge.lnk"
 $edgescpub = "$Env:PUBLIC\Desktop\Microsoft Edge.lnk"
 $vlcsc = "$Env:PUBLIC\Desktop\VLC Media Player.lnk"
 $acrosc = "$Env:PUBLIC\Desktop\Adobe Acrobat DC.lnk"
 $ctemp = "C:\Temp"
+$jc = "`n Task completed. Ready for next input`n"
 $frmt = "`n `n======================================== `n `n"
 $BuildNumber = (Get-ItemProperty -Path c:\windows\system32\hal.dll).VersionInfo.ProductVersion
 $WantedBuild = "10.0.22000"
 $dtime = (Get-Date -UFormat %H.%M-%Y.%m.%d)
 $blstat = "on"
-$mocotheme1 = "$Env:USERPROFILE\desktop\Mother Computers Win11.deskthemepack"
-$mocotheme2 = "$Env:USERPROFILE\desktop\Mother Computers Win11 Dark.deskthemepack"
-$mocotheme3 = "$Env:USERPROFILE\desktop\Mother Computers Win10.deskthemepack"
-$CustomTheme = "$env:LOCALAPPDATA\Microsoft\Windows\Themes\Mother Co\Mother Co.Theme"
-$CurrentTheme = (Get-ItemProperty -path HKCU:\Software\Microsoft\Windows\CurrentVersion\Themes\ -Name "CurrentTheme").CurrentTheme
 
-If (!(Get-Module -ListAvailable -Name BitsTransfer)){
-    Write-Host " Importing BitsTransfer"
-    Import-Module BitsTransfer
-    Start-Sleep -s 2
-    If (!(Get-Module -ListAvailable -Name BitsTransfer)){
-        Write-Host " For some reason one of the modules wasn't found. Trying again."
-        Import-Module BitsTransfer -Verbose
-        Start-Sleep -s 2
-        If (!(Get-Module -ListAvailable -Name BitsTransfer)){
-            $reason = "$reason - BitsTransfer Module NOT Found"
-        } 
-    }
-}
 Function Programs {
     If ($perform_apps.checked -eq $true){
-    $WindowTitle = "New Loads - Installing Applications"
-    $host.UI.RawUI.WindowTitle = $WindowTitle
-    Write-Host "$frmt Installing Apps`n Please be patient as the programs may take a while.$frmt"
+    $WindowTitle = "New Loads - Installing Applications" ; $host.UI.RawUI.WindowTitle = $WindowTitle
+    Write-Host "$frmt Installing Apps.$frmt"
+
+    $oi = ".\Offline Installers\"
+    $gcoi = $oi + "googlechromestandaloneenterprise64.msi"
+    $aroi = $oi + "AcroRdrDCx642200120085_MUI.exe"
+    $vlcoi = $oi + "vlc-3.0.17-win64.msi"
+    
+    $package1  = "Google.Chrome"
+    $package2  = "VideoLAN.VLC"
+    $package3  = "Adobe.Acrobat.Reader.64-bit"
+    
+    $package1dl = "https://dl.google.com/dl/chrome/install/googlechromestandaloneenterprise64.msi"
+    $package2dl = "https://github.com/circlol/newload/raw/main/Assets/BAF/vlc-3.0.17-win64.msi"
+    $package3dl = "https://ardownload2.adobe.com/pub/adobe/acrobat/win/AcrobatDC/2200120085/AcroRdrDCx642200120085_MUI.exe"
+    
+    $package1lc = "$env:temp\googlechromestandaloneenterprise64.msi"
+    $package2lc = "$env:temp\vlc-3.0.17-win64.msi"
+    $package3lc = "$env:temp\AcroRdrDCx642200120085_MUI.exe"
+    
+    $Location1 = "$env:PROGRAMFILES\Google\Chrome\Application\chrome.exe"
+    $Location2 = "$env:PROGRAMFILES\VideoLAN\VLC\vlc.exe"
+    $Location3 = "$env:PROGRAMFILES\Adobe\Acrobat DC\Acrobat\Acrobat.exe"
+
 
     #Google
     If (!(Test-Path $Location1)){
         If (Test-Path $gcoi){
             Write-Host " Found Offline Installer : Google Chrome"
             Write-Host " Starting Offline Installer : Google Chrome"
-            Start-Process $gcoi /passive -Wait
+            Start-Process -FilePath:$gcoi -ArgumentList /passive -Verbose -Wait      
             Write-Host " Flagging UBlock Origin for Installation"
             REG ADD "HKLM\Software\Wow6432Node\Google\Chrome\Extensions\cjpalhdlnbpafiamejdnhcphjbkeiagm" /v update_url /t REG_SZ /d https://clients2.google.com/service/update2/crx
         } Else {
             Write-Host "`n`n Downloading $Package1" 
             Start-BitsTransfer -Source $package1dl -Destination $package1lc
             Write-Host " Installing $Package1`n"
-            Start-Process $package1lc /passive -Wait
+            Start-Process -FilePath:$package1lc -ArgumentList /passive -Verbose -Wait
             Write-Host " Flagging UBlock Origin for Installation"
             REG ADD "HKLM\Software\Wow6432Node\Google\Chrome\Extensions\cjpalhdlnbpafiamejdnhcphjbkeiagm" /v update_url /t REG_SZ /d https://clients2.google.com/service/update2/crx
         }
@@ -484,12 +466,12 @@ Function Programs {
         If (Test-Path $vlcoi){
             Write-Host " Found Offline Installer : VLC Media Player"
             Write-Host " Starting Offline Installer : VLC Media Player"
-            Start-Process $vlcoi /quiet
+            Start-Process -FilePath:$vlcoi -ArgumentList /quiet -Verbose
         } Else {
             Write-Host "`n`n Downloading $Package2" 
             Start-BitsTransfer -Source $Package2dl -Destination $package2lc
             Write-Host " Installing $Package2 in the background`n" 
-            Start-Process $package2lc /quiet
+            Start-Process -FilePath:$package2lc -ArgumentList /quiet -Verbose
        
         }
     } Else {
@@ -501,12 +483,12 @@ Function Programs {
         If (Test-Path $aroi){
             Write-Host " Found Offline Installer : Adobe Acrobat"
             Write-Host " Starting Offline Installer : Adobe Acrobat"
-            Start-Process $aroi /sPB -Wait
+            Start-Process -FilePath:$aroi -ArgumentList /sPB -Verbose
         } Else {
             Write-Host "`n`n Downloading $Package3" 
             Start-BitsTransfer -Source $Package3dl -Destination $package3lc
             Write-Host " Installing $Package3`n" 
-            Start-Process $package3lc /sPB -Wait
+            Start-Process -FilePath:$package3lc -ArgumentList /sPB -Verbose
             Write-Host " $package3 Installed."
         }    
     
@@ -519,46 +501,85 @@ Function Programs {
         Write-Host " App installer has been disabled by technician.`n Moving on."
     }
 }
+Function Set-WallPaper {
+    param (
+        [parameter(Mandatory=$True)]
+        # Provide path to image
+        [string]$Image,
+        # Provide wallpaper style that you would like applied
+        [parameter(Mandatory=$False)] 
+        [ValidateSet('Fill', 'Fit', 'Stretch', 'Tile', 'Center', 'Span')]
+        [string]$Style
+    )
+     
+    $WallpaperStyle = Switch ($Style) {
+      
+        "Fill" {"10"}
+        "Fit" {"6"}
+        "Stretch" {"2"}
+        "Tile" {"0"}
+        "Center" {"0"}
+        "Span" {"22"}
+      
+    }
+     
+    If($Style -eq "Tile") {
+     
+        New-ItemProperty -Path "HKCU:\Control Panel\Desktop" -Name WallpaperStyle -PropertyType String -Value $WallpaperStyle -Force
+        New-ItemProperty -Path "HKCU:\Control Panel\Desktop" -Name TileWallpaper -PropertyType String -Value 1 -Force
+     
+    }
+    Else {
+     
+        New-ItemProperty -Path "HKCU:\Control Panel\Desktop" -Name WallpaperStyle -PropertyType String -Value $WallpaperStyle -Force
+        New-ItemProperty -Path "HKCU:\Control Panel\Desktop" -Name TileWallpaper -PropertyType String -Value 0 -Force
+     
+    }
+     
+    Add-Type -TypeDefinition @" 
+    using System; 
+    using System.Runtime.InteropServices;
+      
+    public class Params
+    { 
+        [DllImport("User32.dll",CharSet=CharSet.Unicode)] 
+        public static extern int SystemParametersInfo (Int32 uAction, 
+                                                       Int32 uParam, 
+                                                       String lpvParam, 
+                                                       Int32 fuWinIni);
+    }   
+"@ 
+      
+        $SPI_SETDESKWALLPAPER = 0x0014
+        $UpdateIniFile = 0x01
+        $SendChangeEvent = 0x02
+      
+        $fWinIni = $UpdateIniFile -bor $SendChangeEvent
+      
+        $ret = [Params]::SystemParametersInfo($SPI_SETDESKWALLPAPER, 0, $Image, $fWinIni)
+}
 
 Function Visuals {
-    $WindowTitle = "New Loads - Applying Wallpaper"
-    $host.UI.RawUI.WindowTitle = $WindowTitle
-    If (!((Get-Process -Name explorer -ErrorAction SilentlyContinue).Id)){
-    Write-Host " Explorer not found."
-    Start-Process explorer -Verbose 
-    Write-host " Explorer Started"
+    $WindowTitle = "New Loads - Applying Wallpaper" ; $host.UI.RawUI.WindowTitle = $WindowTitle
+    If (!(Get-Process explorer)){
+    Write-Host " Explorer not found. Restarting"
+    Start-Process explorer -Verbose
     }
-    Write-Host "$frmt Checking your OS.."
-
-If (!($CurrentTheme -eq $CustomTheme)){
-    Write-Host " Visuals will need to be applied"
-
+    Write-Host "$frmt Applying Visuals $frmt"
+    $wallpaper = "$env:temp\MotherComputersWallpaper.jpg"
     If ($BuildNumber -gt $WantedBuild) {
-        Write-Host " I have detected that you are on Windows 11 `n `n Applying Appropriate Theme & Flagging Required Settings"
-        Start-BitsTransfer -Source "https://github.com/circlol/newload/raw/main/Assets/Mother%20Computers%20Win11.deskthemepack" -Destination "$env:temp\Mother Computers Win11.deskthemepack"
-        Start-Process "$env:temp\Mother Computers Win11.deskthemepack" -Wait
-        Start-Sleep -s 3
-        taskkill /F /IM systemsettings.exe 2>$NULL
-        } Else {
+    Write-Host " I have detected that you are on Windows 11"
+    Start-BitsTransfer -Source "https://github.com/circlol/newload/raw/main/Assets/wallpaper/11.jpg" -Destination $wallpaper
+    } else {
 
-            If ($BuildNumber -lt $WantedBuild) {
-                Write-Host " I have detected that you are on Windows 10 `n `n Applying Appropriate Theme & Flagging Required Settings"
-                Start-BitsTransfer -Source "https://github.com/circlol/newload/raw/main/Assets/Mother%20Computers%20Win10.deskthemepack" -Destination "$env:temp\Mother Computers Win10.deskthemepack"
-                Start-Process "$env:temp\Mother Computers Win10.deskthemepack" -Wait
-                Start-Sleep -s 4
-                Taskkill /F /IM systemsettings.exe 2>$NULL
-
-
-            }
-
+        If ($BuildNumber -lt $WantedBuild) {
+            Write-Host " I have detected that you are on Windows 10"
+            Start-BitsTransfer -Source "https://github.com/circlol/newload/raw/main/Assets/wallpaper/10.jpg" -Destination $wallpaper
         }
-
-    Write-Host "`n Setting Wallpaper to Stretch `n"
-    Set-ItemProperty -Path "HKCU:\Control Panel\Desktop" -Name "WallpaperStyle" -Type String -Value 2 -ErrorAction SilentlyContinue
-    Stop-Process -Name Explorer -Verbose -Erroraction SilentlyContinue
-    } Else {
-        Write-Host " Visuals have already been applied. Skipping"
     }
+    Set-ItemProperty -Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Themes\Personalize" -Name "SystemUsesLightTheme" -Value 0
+    Set-ItemProperty -Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Themes\Personalize" -Name "AppsUseLightTheme" -Value 0
+    Set-WallPaper -Image $wallpaper -Style Stretch
 }
 
 Function StartMenu {
@@ -645,193 +666,130 @@ Write-Host "$jc"
 
 Function UndoOneDrive{
     Write-Host " Starting $onedrivelocation"
-    Start-Process $onedrivelocation /Silent -Wait
+    Start-Process -FilePath:C:\Windows\Syswow64\OneDriveSetup.exe -ArgumentList /install -Verbose -Wait 
     Write-Host "`n `n OneDrive reinstalled."
 }
-
 Function OneDrive {
-    Write-Host "`n $frmt OneDrive Removal $frmt"
-    $WindowTitle = "New Loads - OneDrive Removal"
-    $host.UI.RawUI.WindowTitle = $WindowTitle
     If ($perform_onedrive.checked -eq $true){
-        If (Test-Path "$env:LOCALAPPDATA\Microsoft\OneDrive"){
-            Write-Host "`n Stopping OneDrive"
-            Stop-Process -Name "OneDrive" -ErrorAction SilentlyContinue
-            Start-Sleep -s 2
-            Write-Host " Uninstalling OneDrive..."
-            If (!(Test-Path $onedrive)) {
-                $onedrive = "$env:SYSTEMROOT\System32\OneDriveSetup.exe"
-            }
-            Start-Process $onedrive "/uninstall" -NoNewWindow -Wait
-            Stop-Process -Name "explorer" -ErrorAction SilentlyContinue
-            Remove-Item -Path "$env:USERPROFILE\OneDrive" -Force -Recurse -ErrorAction SilentlyContinue
-            Remove-Item -Path "$env:LOCALAPPDATA\Microsoft\OneDrive" -Force -Recurse -ErrorAction SilentlyContinue
-            Remove-Item -Path "$env:PROGRAMDATA\Microsoft OneDrive" -Force -Recurse -ErrorAction SilentlyContinue
-            Remove-Item -Path "$env:SYSTEMDRIVE\OneDriveTemp" -Force -Recurse -ErrorAction SilentlyContinue
-            } Else {
-            Write-Host " $frmt It appears that OneDrive isn't installed."
-            }
-        } Else {
-            Write-Host " OneDrive removal has been disabled by technician.`n Moving on."
+    $WindowTitle = "New Loads - Removing OneDrive" ; $host.UI.RawUI.WindowTitle = $WindowTitle
+    Stop-Process -Name "OneDrive" -Verbose -ErrorAction SilentlyContinue
+    Start-Sleep -s 3
+    If (Test-Path C:\Windows\SysWOW64\OneDriveSetup.exe){
+        Write-Host " Found OneDrive in syswow, Removing"
+        Start-Process -FilePath:C:\Windows\SysWOW64\OneDriveSetup.exe -ArgumentList /uninstall -Verbose
+    }
+    If (Test-Path C:\Windows\System32\OneDriveSetup.exe){
+        Write-Host " Also found OneDrive in sys32, Removing"
+        Start-Process -FilePath:C:\Windows\System32\OneDriveSetup.exe -ArgumentList /uninstall -Verbose -ErrorAction SilentlyContinue
+    }
+    Remove-Item -Path "$env:USERPROFILE\OneDrive" -Force -Recurse -ErrorAction SilentlyContinue
+    Remove-Item -Path "$env:LOCALAPPDATA\Microsoft\OneDrive" -Force -Recurse -ErrorAction SilentlyContinue
+    Remove-Item -Path "$env:PROGRAMDATA\Microsoft OneDrive" -Force -Recurse -ErrorAction SilentlyContinue
+    Remove-Item -Path "$env:SYSTEMDRIVE\OneDriveTemp" -Force -Recurse -ErrorAction SilentlyContinue
+    } Else {
+        Write-Host " OneDrive removal has been disabled by technician.`n Moving on."
     }
 }
 
-###########################################################################################################################
-
-
-
-
-            #START OF DEBLOAT
-
-
-
-
-###########################################################################################################################
-
-
-$Programs = @(
-#Unnecessary Windows 10 AppX Apps
-"Microsoft.3DBuilder"
-"Microsoft.Microsoft3DViewer"
-"Microsoft.AppConnector"
-"Microsoft.BingFinance"
-"Microsoft.BingNews"
-"Microsoft.BingSports"
-"Microsoft.BingTranslator"
-"Microsoft.BingWeather"
-"Microsoft.BingFoodAndDrink"
-"Microsoft.BingHealthAndFitness"
-"Microsoft.BingTravel"
-"Microsoft.ConnectivityStore"
-"Microsoft.MinecraftUWP"
-"Microsoft.GetHelp"
-"Microsoft.Messaging"
-"Microsoft.MixedReality.Portal"
-"Microsoft.MicrosoftOfficeHub"
-"Microsoft.Microsoft3DViewer"
-"Microsoft.MicrosoftSolitaireCollection"
-"Microsoft.NetworkSpeedTest"
-"Microsoft.News"
-"Microsoft.Office.Lens"
-"Microsoft.Office.Sway"
-"Microsoft.Office.OneNote"
-"Microsoft.OneConnect"
-"Microsoft.People"
-"Microsoft.Print3D"
-"Microsoft.SkypeApp"
-"MicrosoftTeams"
-"Microsoft.Wallet"
-"Microsoft.Whiteboard"
-"Microsoft.WindowsMaps"
-"Microsoft.WindowsSoundRecorder"
-
-# non-Microsoft All Machines
-"Disney.37853FC22B2CE"
-"SpotifyAB.SpotifyMusic"
-"4DF9E0F8.Netflix"
-"C27EB4BA.DropboxOEM"
-
-"2FE3CB00.PicsArt-PhotoStudio"
-"26720RandomSaladGamesLLC.HeartsDeluxe"
-"26720RandomSaladGamesLLC.SimpleSolitaire"
-"26720RandomSaladGamesLLC.SimpleMahjong"
-"26720RandomSaladGamesLLC.Spades"
-"5319275A.WhatsAppDesktop"
-"5A894077.McAfeeSecurity"
-"57540AMZNMobileLLC.AmazonAlexa"
-"613EBCEA.PolarrPhotoEditorAcademicEdition"
-"7EE7776C.LinkedInforWindows"
-"89006A2E.AutodeskSketchBook"
-"AD2F1837.HPSupportAssistant"
-"AD2F1837.HPPrinterControl"
-"AD2F1837.HPQuickDrop"
-"AD2F1837.HPSystemEventUtility"
-"AD2F1837.HPPrivacySettings"
-"AD2F1837.HPInc.EnergyStar"
-"AD2F1837.HPAudioCenter"
-"A278AB0D.DisneyMagicKingdoms"
-"A278AB0D.MarchofEmpires"
-"AdobeSystemsIncorporated.AdobeLightroom"
-"AcerIncorporated.AcerRegistration"
-"AcerIncorporated.QuickAccess"
-"AcerIncorporated.UserExperienceImprovementProgram"
-"AcerIncorporated.AcerCareCe nterS"
-"AcerIncorporated.AcerCollectionS"
-"DolbyLaboratories.DolbyAudio"
-"DolbyLaboratories.DolbyAccess"
-"CorelCorporation.PaintShopPro"
-"ClearChannelRadioDigital.iHeartRadio"
-"CyberLinkCorp.ac.PowerDirectorforacerDesktop"
-"CyberLinkCorp.ac.PhotoDirectorforacerDesktop"
-"CAF9E577.Plex"  
-"D52A8D61.FarmVille2CountryEscape"
-"DB6EA5DB.CyberLinkMediaSuiteEssentials"
-"Drawboard.DrawboardPDF"
-"E0469640.LenovoUtility"
-"Evernote.Evernote"
-"FACEBOOK.*"
-"FACEBOOK.317180B0BB486"
-"Fitbit.FitbitCoach"
-"flaregamesGmbH.RoyalRevolt2"
-"*Flipboard*"
-"GAMELOFTSA.Asphalt8Airborne"
-"KeeperSecurityInc.Keeper"
-"MirametrixInc.GlancebyMirametrix"
-"NAVER.LINEwin8"
-"NORDCURRENT.COOKINGFEVER"
-"Playtika.CaesarsSlotsFreeCasino"
-"ShazamEntertainmentLtd.Shazam"
-"SlingTVLLC.SlingTV"
-"ThumbmunkeysLtd.PhototasticCollage"
-"TuneIn.TuneInRadio"
-"WikimediaFoundation.Wikipedia"
-"WinZipComputing.WinZipUniversal"
-"XINGAG.XING"
-
-"*ActiproSoftwareLLC*"
-"*ACGMediaPlayer*"
-"*AdobePhotoshopExpress*"
-"*BubbleWitch3Saga*"
-"*CandyCrush*"
-"*Duolingo-LearnLanguagesforFree*"
-"*EclipseManager*"
-"*Hulu*"
-"*HiddenCity*"
-"*HiddenCityMysteryofShadows*"
-"*OneCalendar*"
-"*PandoraMediaInc*"
-"*Royal Revolt*"
-"*Sway*"
-"*Speed Test*"
-"*TikTok*"
-"*Twitter*"
-"*Viber*"
-"*Wunderlist*"
-)
-
-#   Deactived Microsoft Apps   #
-#"Microsoft.GamingServices"
-#"Microsoft.Getstarted"
-#"Microsoft.WindowsPhone"
-#"Microsoft.XboxApp"
-#"Microsoft.CommsPhone"
-#"Microsoft.Xbox.TCUI"
-#"Microsoft.XboxSpeechToTextOverlay"
-#"Microsoft.XboxIdentityProvider"
-#"Microsoft.YourPhone"
-#"Microsoft.Getstarted"
-# Realtek Audio
-#"RealtekSemiconductorCorp.RealtekAudioControl"
-#"Microsoft.ScreenSketch"
-#"Microsoft.WindowsCommunicationsApps"
-#"Microsoft.XboxGameOverlay"
-#"Microsoft.XboxGameCallableUI"
-#"Microsoft.WindowsAlarms"
-#"Microsoft.WindowsFeedbackHub"
-#"Microsoft.ZuneMusic"
-#"Microsoft.ZuneVideo"
 
 Function Debloat {
+    $Programs = @(
+    #Unnecessary Windows 10 AppX Apps
+    "Microsoft.3DBuilder"
+    "Microsoft.Microsoft3DViewer"
+    "Microsoft.AppConnector"
+    "Microsoft.BingFinance"
+    "Microsoft.BingNews"
+    "Microsoft.BingSports"
+    "Microsoft.BingTranslator"
+    "Microsoft.BingWeather"
+    "Microsoft.BingFoodAndDrink"
+    "Microsoft.BingHealthAndFitness"
+    "Microsoft.BingTravel"
+    "Microsoft.ConnectivityStore"
+    "Microsoft.MinecraftUWP"
+    "Microsoft.GetHelp"
+    "Microsoft.Messaging"
+    "Microsoft.MixedReality.Portal"
+    "Microsoft.MicrosoftOfficeHub"
+    "Microsoft.Microsoft3DViewer"
+    "Microsoft.MicrosoftSolitaireCollection"
+    "Microsoft.NetworkSpeedTest"
+    "Microsoft.News"
+    "Microsoft.Office.Lens"
+    "Microsoft.Office.Sway"
+    "Microsoft.Office.OneNote"
+    "Microsoft.OneConnect"
+    "Microsoft.People"
+    "Microsoft.Print3D"
+    "Microsoft.SkypeApp"
+    "MicrosoftTeams"
+    "Microsoft.Wallet"
+    "Microsoft.Whiteboard"
+    "Microsoft.WindowsMaps"
+    "Microsoft.WindowsSoundRecorder"
+
+    # non-Microsoft All Machines
+    "Disney.37853FC22B2CE"
+    "SpotifyAB.SpotifyMusic"
+    "4DF9E0F8.Netflix"
+    "C27EB4BA.DropboxOEM"
+
+    "2FE3CB00.PicsArt-PhotoStudio"
+    "26720RandomSaladGamesLLC.HeartsDeluxe"
+    "26720RandomSaladGamesLLC.SimpleSolitaire"
+    "26720RandomSaladGamesLLC.SimpleMahjong"
+    "26720RandomSaladGamesLLC.Spades"
+    "5319275A.WhatsAppDesktop"
+    "5A894077.McAfeeSecurity"
+    "57540AMZNMobileLLC.AmazonAlexa"
+    #"613EBCEA.PolarrPhotoEditorAcademicEdition"
+    "7EE7776C.LinkedInforWindows"
+    "89006A2E.AutodeskSketchBook"
+    "AD2F1837.HPSupportAssistant"
+    "AD2F1837.HPPrinterControl"
+    "AD2F1837.HPQuickDrop"
+    "AD2F1837.HPSystemEventUtility"
+    "AD2F1837.HPPrivacySettings"
+    "AD2F1837.HPInc.EnergyStar"
+    "AD2F1837.HPAudioCenter"
+    "A278AB0D.DisneyMagicKingdoms"
+    "A278AB0D.MarchofEmpires"
+    "AdobeSystemsIncorporated.AdobeLightroom"
+    "AcerIncorporated.AcerRegistration"
+    "AcerIncorporated.QuickAccess"
+    "AcerIncorporated.UserExperienceImprovementProgram"
+    "AcerIncorporated.AcerCareCe nterS"
+    "AcerIncorporated.AcerCollectionS"
+    "DolbyLaboratories.DolbyAudio"
+    "DolbyLaboratories.DolbyAccess"
+    "CorelCorporation.PaintShopPro"
+    "ClearChannelRadioDigital.iHeartRadio"
+    "CyberLinkCorp.ac.PowerDirectorforacerDesktop"
+    "CyberLinkCorp.ac.PhotoDirectorforacerDesktop"
+    "DB6EA5DB.CyberLinkMediaSuiteEssentials"
+    #"CAF9E577.Plex"  
+    #"D52A8D61.FarmVille2CountryEscape"
+    #"Drawboard.DrawboardPDF"
+    "E0469640.LenovoUtility"
+    "Evernote.Evernote"
+    "FACEBOOK.317180B0BB486"
+    "Fitbit.FitbitCoach"
+    #"flaregamesGmbH.RoyalRevolt2"
+    #"GAMELOFTSA.Asphalt8Airborne"
+    #"KeeperSecurityInc.Keeper"
+    #"MirametrixInc.GlancebyMirametrix"
+    #"NAVER.LINEwin8"
+    #"NORDCURRENT.COOKINGFEVER"
+    #"Playtika.CaesarsSlotsFreeCasino"
+    #"ShazamEntertainmentLtd.Shazam"
+    #"SlingTVLLC.SlingTV"
+    #"ThumbmunkeysLtd.PhototasticCollage"
+    #"TuneIn.TuneInRadio"
+    #"WikimediaFoundation.Wikipedia"
+    #"WinZipComputing.WinZipUniversal"
+    )
+
     $WindowTitle = "New Loads - Debloating Computer"
     $host.UI.RawUI.WindowTitle = $WindowTitle
     If ($perform_debloat.checked -eq $true){
@@ -850,20 +808,6 @@ Function UndoDebloat {
     Start-Sleep -Milliseconds 1285
     Get-AppxPackage -allusers | ForEach-Object {Add-AppxPackage -register "$($_.InstallLocation)\appxmanifest.xml" -DisableDevelopmentMode -ErrorAction SilentlyContinue}
 }
-
-
-###########################################################################################################################
-
-
-
-
-            #START OF REGISTRY 
-
-
-
-
-###########################################################################################################################
-
 
 Function Registry {
     Write-Host "$frmt Applying Registry Changes $frmt"
@@ -933,6 +877,13 @@ Function Registry {
     Write-Host " Enabling File Extensions"
     Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "HideFileExt" -Value 0
 
+    Write-Host " Changing On AC Sleep Settings"
+    powercfg -change -standby-timeout-ac "60"
+    powercfg -change -monitor-timeout-ac "45"        
+    Write-Host " Changing On Battery Sleep Settings"
+    powercfg -change -standby-timeout-dc "15"
+    powercfg -change -monitor-timeout-dc "10"
+
     
     Write-Host " Setting Explorer Launch to This PC"
     Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "LaunchTo" -Value 1
@@ -981,7 +932,6 @@ Function Registry {
     Write-Host " Disabling Contact Harvesting"
     Set-ItemProperty -Path "HKCU:\Software\Microsoft\InputPersonalization\TrainedDataStore" -Name "HarvestContacts" -Value 0
     
-    Write-Host " Hey vsauce, Michael here"
 
     Write-Host " Restricting Ink and Text Collection (Key-Logger)"
     Set-ItemProperty -Path "HKCU:\Software\Microsoft\InputPersonalization" -Name "RestrictImplicitInkCollection" -Value 1
@@ -1068,12 +1018,6 @@ Function Cleanup {
     
         }
     }
-    Write-Host " Changing On AC Sleep Settings"
-    powercfg -change -standby-timeout-ac "60"
-    powercfg -change -monitor-timeout-ac "45"        
-    Write-Host " Changing On Battery Sleep Settings"
-    powercfg -change -standby-timeout-dc "15"
-    powercfg -change -monitor-timeout-dc "10"
 
     If ($perform_apps.checked -eq $true){
         Start-Process Chrome
@@ -1098,6 +1042,7 @@ Function Cleanup {
         Write-Host " Removing temp folder in C Root"
         Remove-Item $ctemp -Force -Recurse -Confirm:$false -ErrorAction SilentlyContinue -Verbose 2>$NULL
     }
+    <#
     If (Test-Path $mocotheme1) { 
         Remove-Item "$mocotheme1" -Force -Recurse -Confirm:$false -ErrorAction SilentlyContinue -Verbose 2>$NULL
     }
@@ -1107,20 +1052,31 @@ Function Cleanup {
     If (Test-Path $mocotheme3) { 
         Remove-Item "$mocotheme3" -Force -Recurse -Confirm:$false -ErrorAction SilentlyContinue -Verbose 2>$NULL
     }
+    #>
     $WindowTitle = "New Loads"
 }
-
-###########################################################################################################################
-
-
-
-
-            #START OF GUI BUTTONS 
+<#
+##########################################################################################################################
 
 
 
 
-###########################################################################################################################
+
+
+_____ _    _ _____   ____  _    _ _______ _______ ____  _   _  _____ 
+/ ____| |  | |_   _| |  _ \| |  | |__   __|__   __/ __ \| \ | |/ ____|
+| |  __| |  | | | |   | |_) | |  | |  | |     | | | |  | |  \| | (___  
+| | |_ | |  | | | |   |  _ <| |  | |  | |     | | | |  | | . ` |\___ \ 
+| |__| | |__| |_| |_  | |_) | |__| |  | |     | | | |__| | |\  |____) |
+\_____|\____/|_____| |____/ \____/   |_|     |_|  \____/|_| \_|_____/ 
+                                                                                                                                        
+
+
+
+
+
+##########################################################################################################################
+#>
 
 $StartMenu.add_click{
 Write-Host " Applying Start Menu layout"
