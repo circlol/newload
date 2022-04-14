@@ -562,7 +562,7 @@ Function Set-WallPaper {
 Function Visuals {
     $WindowTitle = "New Loads - Applying Wallpaper" ; $host.UI.RawUI.WindowTitle = $WindowTitle
 	If (!(Get-Process -Name:Explorer)){
-		Start-Process -Name:Explorer -Verbose
+		Start-Process Explorer -Verbose
 		Write-Host " Explorer Started"
     }
     Write-Host "$frmt Applying Visuals $frmt"
@@ -636,11 +636,11 @@ foreach ($regAlias in $regAliases){
 
 #Restart Explorer, open the start menu (necessary to load the new layout), and give it a few seconds to process
 If (!(Get-Process Explorer)){
-    Start-Process -Name Explorer -Verbose
+    Start-Process Explorer -Verbose
 } Else {
     Stop-Process -Name Explorer -ErrorAction SilentlyContinue
     Start-SLeep -s 3
-    Start-Process -Name Explorer -Verbose
+    Start-Process Explorer -Verbose
 }
 Start-Sleep -s 4
 $wshell = new-Object -ComObject wscript.shell; $wshell.SendKeys('^{ESCAPE}')
@@ -1060,7 +1060,7 @@ Function OEMInfo{
 Function Cleanup {
     $WindowTitle = "New Loads - Cleanup" ; $host.UI.RawUI.WindowTitle = $WindowTitle ; Write-Host "$frmt Finishing Up$frmt"
 	If (!(Get-Process -Name:Explorer)){
-		Start-Process -Name:Explorer -Verbose
+		Start-Process Explorer -Verbose
 		Write-Host " Explorer Started"
     }
 	
@@ -1251,7 +1251,7 @@ $reinstalldefault.add_click{
     Write-Host "$jc"
 }
 $restartExplorer.Add_Click{
-    Start-Process -Name:Explorer -Verbose
+    Start-Process Explorer -Verbose
 }
 $Reboot.add_click{
     ###Requires -RunSilent
@@ -1342,7 +1342,7 @@ $UndoScript.Add_Click{
     }
 
 	If (!(Get-Process -Name:Explorer)){
-		Start-Process -Name:Explorer -Verbose
+		Start-Process Explorer -Verbose
 		Write-Host " Explorer Started"
     }
     Stop-Transcript

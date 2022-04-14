@@ -153,7 +153,7 @@ Function Visuals {
     $WindowTitle = "New Loads - Applying Wallpaper" ; $host.UI.RawUI.WindowTitle = $WindowTitle
     If (!(Get-Process explorer)){
     Write-Host " Explorer not found. Restarting"
-    Start-Process -Name:Explorer -Verbose
+    Start-Process Explorer -Verbose
     }    
     Write-Host "$frmt Applying Visuals $frmt"
     $wallpaper = "$env:temp\MotherComputersWallpaper.jpg"
@@ -594,7 +594,7 @@ Function Cleanup {
     $vlcsc = "$Env:PUBLIC\Desktop\VLC Media Player.lnk"
     $ctemp = "C:\Temp"
     If (!((Get-Process -Name explorer -ErrorAction SilentlyContinue).Id)){
-        Start-Process -Name:Explorer -Verbose
+        Start-Process Explorer -Verbose
         Write-Host " Explorer Started"
     }
     
