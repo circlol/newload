@@ -1,12 +1,13 @@
 $WindowTitle = "New Loads - Initializing"
 $host.UI.RawUI.WindowTitle = $WindowTitle
-Write-Host "Initializing Script"
+Write-Host "Initializing New Loads"
 #requires -runasadministrator
 $reason = "OK"
-Add-Type -AssemblyName System.Windows.Forms, WindowsBase, PresentationFramework, System.Drawing, PresentationCore
+Add-Type -AssemblyName System.Windows.Forms
 [System.Windows.Forms.Application]::EnableVisualStyles()
+
 $form                            = New-Object system.Windows.Forms.Form
-$form.ClientSize                 = New-Object System.Drawing.Point(635,647)
+$form.ClientSize                 = New-Object System.Drawing.Point(635,645)
 $form.text                       = "New Loads by Mike Ivison"
 $form.BackColor                  = [System.Drawing.ColorTranslator]::FromHtml("#28105a")
 $Form.TopMost                    = $False
@@ -31,7 +32,6 @@ $RunNoOEM.height                 = 72
 $RunNoOEM.location               = New-Object System.Drawing.Point(404,524)
 $RunNoOEM.imageLocation          = "https://raw.githubusercontent.com/circlol/newload/main/Assets/NoBranding.png"
 $RunNoOEM.SizeMode               = [System.Windows.Forms.PictureBoxSizeMode]::zoom
-
 $RunScript                       = New-Object system.Windows.Forms.PictureBox
 $RunScript.width                 = 118
 $RunScript.height                = 121
@@ -39,13 +39,12 @@ $RunScript.visible               = $true
 $RunScript.location              = New-Object System.Drawing.Point(483,478)
 $RunScript.imageLocation         = "https://raw.githubusercontent.com/circlol/newload/main/Assets/Branding.png"
 $RunScript.SizeMode              = [System.Windows.Forms.PictureBoxSizeMode]::zoom
-
 $UndoScript                      = New-Object system.Windows.Forms.Button
-$UndoScript.text                 = "Undo Script Changes"
+$UndoScript.text                 = "Undo New Loads Changes"
 $UndoScript.width                = 268
 $UndoScript.height               = 35
-$UndoScript.visible              = $true
-$UndoScript.enabled              = $true
+$UndoScript.visible              = $false
+$UndoScript.enabled              = $false
 $UndoScript.location             = New-Object System.Drawing.Point(335,425)
 $UndoScript.Font                 = New-Object System.Drawing.Font('Microsoft Sans Serif',10,[System.Drawing.FontStyle]([System.Drawing.FontStyle]::Bold))
 $UndoScript.ForeColor            = [System.Drawing.ColorTranslator]::FromHtml("#000000")
@@ -60,41 +59,11 @@ $ExitButton.Font                 = New-Object System.Drawing.Font('Microsoft San
 $ExitButton.ForeColor            = [System.Drawing.ColorTranslator]::FromHtml("#f3e7e7")
 $ExitButton.BackColor            = [System.Drawing.ColorTranslator]::FromHtml("#3b3b3b")
 
-$perform_onedrive                = New-Object system.Windows.Forms.CheckBox
-$perform_onedrive.text           = "Remove OneDrive"
-$perform_onedrive.AutoSize       = $true
-$perform_onedrive.Checked        = $true
-$perform_onedrive.width          = 95
-$perform_onedrive.height         = 20
-$perform_onedrive.location       = New-Object System.Drawing.Point(83,494)
-$perform_onedrive.Font           = New-Object System.Drawing.Font('Microsoft Sans Serif',12,[System.Drawing.FontStyle]([System.Drawing.FontStyle]::Bold))
-$perform_onedrive.ForeColor      = [System.Drawing.ColorTranslator]::FromHtml("#ffffff")
-
-$perform_debloat                 = New-Object system.Windows.Forms.CheckBox
-$perform_debloat.text            = "Debloat Computer"
-$perform_debloat.AutoSize        = $true
-$perform_debloat.Checked         = $true
-$perform_debloat.width           = 95
-$perform_debloat.height          = 20
-$perform_debloat.location        = New-Object System.Drawing.Point(25,469)
-$perform_debloat.Font            = New-Object System.Drawing.Font('Microsoft Sans Serif',12,[System.Drawing.FontStyle]([System.Drawing.FontStyle]::Bold))
-$perform_debloat.ForeColor       = [System.Drawing.ColorTranslator]::FromHtml("#ffffff")
-
-$perform_apps                    = New-Object system.Windows.Forms.CheckBox
-$perform_apps.text               = "Install Apps"
-$perform_apps.AutoSize           = $true
-$perform_apps.Checked            = $true
-$perform_apps.width              = 95
-$perform_apps.height             = 20
-$perform_apps.location           = New-Object System.Drawing.Point(195,469)
-$perform_apps.Font               = New-Object System.Drawing.Font('Microsoft Sans Serif',12,[System.Drawing.FontStyle]([System.Drawing.FontStyle]::Bold))
-$perform_apps.ForeColor          = [System.Drawing.ColorTranslator]::FromHtml("#ffffff")
-
 $nvidiashortcut                  = New-Object system.Windows.Forms.Button
 $nvidiashortcut.text             = "NVIDIA"
 $nvidiashortcut.width            = 102
 $nvidiashortcut.height           = 35
-$nvidiashortcut.location         = New-Object System.Drawing.Point(105,103)
+$nvidiashortcut.location         = New-Object System.Drawing.Point(111,138)
 $nvidiashortcut.Font             = New-Object System.Drawing.Font('Microsoft PhagsPa',10,[System.Drawing.FontStyle]([System.Drawing.FontStyle]::Bold))
 $nvidiashortcut.ForeColor        = [System.Drawing.ColorTranslator]::FromHtml("#ffffff")
 $nvidiashortcut.BackColor        = [System.Drawing.ColorTranslator]::FromHtml("#7ed321")
@@ -103,7 +72,7 @@ $amdshortcut                     = New-Object system.Windows.Forms.Button
 $amdshortcut.text                = "AMD"
 $amdshortcut.width               = 125
 $amdshortcut.height              = 35
-$amdshortcut.location            = New-Object System.Drawing.Point(30,64)
+$amdshortcut.location            = New-Object System.Drawing.Point(36,99)
 $amdshortcut.Font                = New-Object System.Drawing.Font('Microsoft PhagsPa',10,[System.Drawing.FontStyle]([System.Drawing.FontStyle]::Bold))
 $amdshortcut.ForeColor           = [System.Drawing.ColorTranslator]::FromHtml("#ffffff")
 $amdshortcut.BackColor           = [System.Drawing.ColorTranslator]::FromHtml("#d0021b")
@@ -113,7 +82,7 @@ $DriverWebsites.text             = "Driver Websites"
 $DriverWebsites.AutoSize         = $true
 $DriverWebsites.width            = 25
 $DriverWebsites.height           = 34
-$DriverWebsites.location         = New-Object System.Drawing.Point(100,28)
+$DriverWebsites.location         = New-Object System.Drawing.Point(106,63)
 $DriverWebsites.Font             = New-Object System.Drawing.Font('Microsoft JhengHei UI',15,[System.Drawing.FontStyle]([System.Drawing.FontStyle]::Bold))
 $DriverWebsites.ForeColor        = [System.Drawing.ColorTranslator]::FromHtml("#ffffff")
 
@@ -121,7 +90,7 @@ $asusshortcut                    = New-Object system.Windows.Forms.Button
 $asusshortcut.text               = "ASUS"
 $asusshortcut.width              = 71
 $asusshortcut.height             = 35
-$asusshortcut.location           = New-Object System.Drawing.Point(30,103)
+$asusshortcut.location           = New-Object System.Drawing.Point(36,138)
 $asusshortcut.Font               = New-Object System.Drawing.Font('Microsoft PhagsPa',10,[System.Drawing.FontStyle]([System.Drawing.FontStyle]::Bold))
 $asusshortcut.ForeColor          = [System.Drawing.ColorTranslator]::FromHtml("#ffffff")
 $asusshortcut.BackColor          = [System.Drawing.ColorTranslator]::FromHtml("#6b6767")
@@ -130,7 +99,7 @@ $msishortcut                     = New-Object system.Windows.Forms.Button
 $msishortcut.text                = "MSI"
 $msishortcut.width               = 74
 $msishortcut.height              = 35
-$msishortcut.location            = New-Object System.Drawing.Point(211,103)
+$msishortcut.location            = New-Object System.Drawing.Point(217,138)
 $msishortcut.Font                = New-Object System.Drawing.Font('Microsoft PhagsPa',10,[System.Drawing.FontStyle]([System.Drawing.FontStyle]::Bold))
 $msishortcut.ForeColor           = [System.Drawing.ColorTranslator]::FromHtml("#ffffff")
 $msishortcut.BackColor           = [System.Drawing.ColorTranslator]::FromHtml("#6b6767")
@@ -175,7 +144,7 @@ $branding                        = New-Object system.Windows.Forms.Button
 $branding.text                   = "Mother Computers Branding"
 $branding.width                  = 268
 $branding.height                 = 35
-$branding.location               = New-Object System.Drawing.Point(25,185)
+$branding.location               = New-Object System.Drawing.Point(31,220)
 $branding.Font                   = New-Object System.Drawing.Font('Microsoft PhagsPa',10,[System.Drawing.FontStyle]([System.Drawing.FontStyle]::Bold))
 $branding.ForeColor              = [System.Drawing.ColorTranslator]::FromHtml("#ffffff")
 $branding.BackColor              = [System.Drawing.ColorTranslator]::FromHtml("#6b6767")
@@ -184,7 +153,7 @@ $intelshortcut                   = New-Object system.Windows.Forms.Button
 $intelshortcut.text              = "Intel"
 $intelshortcut.width             = 125
 $intelshortcut.height            = 35
-$intelshortcut.location          = New-Object System.Drawing.Point(160,64)
+$intelshortcut.location          = New-Object System.Drawing.Point(166,99)
 $intelshortcut.Font              = New-Object System.Drawing.Font('Microsoft PhagsPa',10,[System.Drawing.FontStyle]([System.Drawing.FontStyle]::Bold))
 $intelshortcut.ForeColor         = [System.Drawing.ColorTranslator]::FromHtml("#ffffff")
 $intelshortcut.BackColor         = [System.Drawing.ColorTranslator]::FromHtml("#4a90e2")
@@ -194,7 +163,7 @@ $LightMode.text                  = "Light Mode"
 $LightMode.width                 = 131
 $LightMode.height                = 35
 $LightMode.location              = New-Object System.Drawing.Point(472,305)
-$LightMode.Font                  = New-Object System.Drawing.Font('Microsoft PhagsPa',11,[System.Drawing.FontStyle]([System.Drawing.FontStyle]::Bold))
+$LightMode.Font                  = New-Object System.Drawing.Font('Microsoft PhagsPa',10,[System.Drawing.FontStyle]([System.Drawing.FontStyle]::Bold))
 $LightMode.ForeColor             = [System.Drawing.ColorTranslator]::FromHtml("#ffffff")
 $LightMode.BackColor             = [System.Drawing.ColorTranslator]::FromHtml("#6b6767")
 
@@ -203,7 +172,7 @@ $DarkMode.text                   = "Dark Mode"
 $DarkMode.width                  = 131.5
 $DarkMode.height                 = 35
 $DarkMode.location               = New-Object System.Drawing.Point(335,305)
-$DarkMode.Font                   = New-Object System.Drawing.Font('Microsoft PhagsPa',11,[System.Drawing.FontStyle]([System.Drawing.FontStyle]::Bold))
+$DarkMode.Font                   = New-Object System.Drawing.Font('Microsoft PhagsPa',10,[System.Drawing.FontStyle]([System.Drawing.FontStyle]::Bold))
 $DarkMode.ForeColor              = [System.Drawing.ColorTranslator]::FromHtml("#ffffff")
 $DarkMode.BackColor              = [System.Drawing.ColorTranslator]::FromHtml("#6b6767")
 
@@ -237,7 +206,7 @@ $oldscpanel.BackColor            = [System.Drawing.ColorTranslator]::FromHtml("#
 $Drivericon                      = New-Object system.Windows.Forms.PictureBox
 $Drivericon.width                = 60
 $Drivericon.height               = 30
-$Drivericon.location             = New-Object System.Drawing.Point(46,21)
+$Drivericon.location             = New-Object System.Drawing.Point(55,57)
 $Drivericon.imageLocation        = "https://github.com/circlol/newload/raw/main/Assets/diskette.png"
 $Drivericon.SizeMode             = [System.Windows.Forms.PictureBoxSizeMode]::zoom
 $quicklink                       = New-Object system.Windows.Forms.Label
@@ -255,12 +224,11 @@ $microsoftlogo.height            = 35
 $microsoftlogo.location          = New-Object System.Drawing.Point(388,18)
 $microsoftlogo.imageLocation     = "https://github.com/circlol/newload/raw/main/Assets/microsoft.png"
 $microsoftlogo.SizeMode          = [System.Windows.Forms.PictureBoxSizeMode]::zoom
-
 $install_apps                    = New-Object system.Windows.Forms.Button
 $install_apps.text               = "Install Apps (Chrome,VLC, Ado..)"
 $install_apps.width              = 268
 $install_apps.height             = 35
-$install_apps.location           = New-Object System.Drawing.Point(25,225)
+$install_apps.location           = New-Object System.Drawing.Point(31,260)
 $install_apps.Font               = New-Object System.Drawing.Font('Microsoft PhagsPa',10,[System.Drawing.FontStyle]([System.Drawing.FontStyle]::Bold))
 $install_apps.ForeColor          = [System.Drawing.ColorTranslator]::FromHtml("#ffffff")
 $install_apps.BackColor          = [System.Drawing.ColorTranslator]::FromHtml("#6b6767")
@@ -269,34 +237,34 @@ $debloat_button                  = New-Object system.Windows.Forms.Button
 $debloat_button.text             = "Run Debloater"
 $debloat_button.width            = 268
 $debloat_button.height           = 35
-$debloat_button.location         = New-Object System.Drawing.Point(25,265)
+$debloat_button.location         = New-Object System.Drawing.Point(31,300)
 $debloat_button.Font             = New-Object System.Drawing.Font('Microsoft PhagsPa',10,[System.Drawing.FontStyle]([System.Drawing.FontStyle]::Bold))
 $debloat_button.ForeColor        = [System.Drawing.ColorTranslator]::FromHtml("#ffffff")
 $debloat_button.BackColor        = [System.Drawing.ColorTranslator]::FromHtml("#6b6767")
 
 $scriptfunctions_label           = New-Object system.Windows.Forms.Label
-$scriptfunctions_label.text      = "Script Functions"
+$scriptfunctions_label.text      = "Program Functions"
 $scriptfunctions_label.AutoSize  = $true
 $scriptfunctions_label.width     = 25
 $scriptfunctions_label.height    = 34
-$scriptfunctions_label.location  = New-Object System.Drawing.Point(100,156)
+$scriptfunctions_label.location  = New-Object System.Drawing.Point(106,191)
 $scriptfunctions_label.Font      = New-Object System.Drawing.Font('Microsoft JhengHei UI',15,[System.Drawing.FontStyle]([System.Drawing.FontStyle]::Bold))
 $scriptfunctions_label.ForeColor  = [System.Drawing.ColorTranslator]::FromHtml("#ffffff")
 
-$StartMenu                      = New-Object system.Windows.Forms.Button
-$StartMenu.text                 = "Apply Taskbar , Start Menu Layout"
-$StartMenu.width                = 268
-$StartMenu.height               = 35
-$StartMenu.location             = New-Object System.Drawing.Point(25,345)
-$StartMenu.Font                 = New-Object System.Drawing.Font('Microsoft PhagsPa',10,[System.Drawing.FontStyle]([System.Drawing.FontStyle]::Bold))
-$StartMenu.ForeColor            = [System.Drawing.ColorTranslator]::FromHtml("#ffffff")
-$StartMenu.BackColor            = [System.Drawing.ColorTranslator]::FromHtml("#6b6767")
+$StartMenu                       = New-Object system.Windows.Forms.Button
+$StartMenu.text                  = "Apply Taskbar & Start Menu Layout"
+$StartMenu.width                 = 268
+$StartMenu.height                = 35
+$StartMenu.location              = New-Object System.Drawing.Point(31,380)
+$StartMenu.Font                  = New-Object System.Drawing.Font('Microsoft PhagsPa',10,[System.Drawing.FontStyle]([System.Drawing.FontStyle]::Bold))
+$StartMenu.ForeColor             = [System.Drawing.ColorTranslator]::FromHtml("#ffffff")
+$StartMenu.BackColor             = [System.Drawing.ColorTranslator]::FromHtml("#6b6767")
 
 $uninstallonedrive               = New-Object system.Windows.Forms.Button
 $uninstallonedrive.text          = "Uninstall OneDrive"
 $uninstallonedrive.width         = 268
 $uninstallonedrive.height        = 35
-$uninstallonedrive.location      = New-Object System.Drawing.Point(25,385)
+$uninstallonedrive.location      = New-Object System.Drawing.Point(31,420)
 $uninstallonedrive.Font          = New-Object System.Drawing.Font('Microsoft PhagsPa',11,[System.Drawing.FontStyle]([System.Drawing.FontStyle]::Bold))
 $uninstallonedrive.ForeColor     = [System.Drawing.ColorTranslator]::FromHtml("#ffffff")
 $uninstallonedrive.BackColor     = [System.Drawing.ColorTranslator]::FromHtml("#6b6767")
@@ -304,7 +272,7 @@ $uninstallonedrive.BackColor     = [System.Drawing.ColorTranslator]::FromHtml("#
 $functionlogo                    = New-Object system.Windows.Forms.PictureBox
 $functionlogo.width              = 30
 $functionlogo.height             = 30
-$functionlogo.location           = New-Object System.Drawing.Point(61,148)
+$functionlogo.location           = New-Object System.Drawing.Point(67,183)
 $functionlogo.imageLocation      = "https://github.com/circlol/newload/raw/main/Assets/toolbox.png"
 $functionlogo.SizeMode           = [System.Windows.Forms.PictureBoxSizeMode]::zoom
 $mssu                            = New-Object system.Windows.Forms.Button
@@ -326,49 +294,98 @@ $Customclean.ForeColor           = [System.Drawing.ColorTranslator]::FromHtml("#
 $Customclean.BackColor           = [System.Drawing.ColorTranslator]::FromHtml("#6b6767")
 
 $appwiz                          = New-Object system.Windows.Forms.Button
-$appwiz.text                     = "Programs and Features"
+$appwiz.text                     = "Programs & Features"
 $appwiz.width                    = 131
 $appwiz.height                   = 35
 $appwiz.location                 = New-Object System.Drawing.Point(472,185)
-$appwiz.Font                     = New-Object System.Drawing.Font('Microsoft PhagsPa',8,[System.Drawing.FontStyle]([System.Drawing.FontStyle]::Bold))
+$appwiz.Font                     = New-Object System.Drawing.Font('Microsoft PhagsPa',9,[System.Drawing.FontStyle]([System.Drawing.FontStyle]::Bold))
 $appwiz.ForeColor                = [System.Drawing.ColorTranslator]::FromHtml("#ffffff")
 $appwiz.BackColor                = [System.Drawing.ColorTranslator]::FromHtml("#6b6767")
+
+$perform_onedrive                = New-Object system.Windows.Forms.CheckBox
+$perform_onedrive.text           = "Remove OneDrive"
+$perform_onedrive.AutoSize       = $true
+$perform_onedrive.Checked        = $true
+$perform_onedrive.width          = 95
+$perform_onedrive.height         = 20
+$perform_onedrive.location       = New-Object System.Drawing.Point(89,529)
+$perform_onedrive.Font           = New-Object System.Drawing.Font('Microsoft Sans Serif',12,[System.Drawing.FontStyle]([System.Drawing.FontStyle]::Bold))
+$perform_onedrive.ForeColor      = [System.Drawing.ColorTranslator]::FromHtml("#ffffff")
 
 $ReinstallOneDrive               = New-Object system.Windows.Forms.Button
 $ReinstallOneDrive.text          = "Reinstall OneDrive"
 $ReinstallOneDrive.width         = 268
 $ReinstallOneDrive.height        = 35
-$ReinstallOneDrive.location      = New-Object System.Drawing.Point(25,425)
+$ReinstallOneDrive.location      = New-Object System.Drawing.Point(31,460)
 $ReinstallOneDrive.Font          = New-Object System.Drawing.Font('Microsoft PhagsPa',11,[System.Drawing.FontStyle]([System.Drawing.FontStyle]::Bold))
 $ReinstallOneDrive.ForeColor     = [System.Drawing.ColorTranslator]::FromHtml("#ffffff")
 $ReinstallOneDrive.BackColor     = [System.Drawing.ColorTranslator]::FromHtml("#6b6767")
+
+$perform_debloat                 = New-Object system.Windows.Forms.CheckBox
+$perform_debloat.text            = "Debloat Computer"
+$perform_debloat.AutoSize        = $true
+$perform_debloat.Checked         = $true
+$perform_debloat.width           = 95
+$perform_debloat.height          = 20
+$perform_debloat.location        = New-Object System.Drawing.Point(31,504)
+$perform_debloat.Font            = New-Object System.Drawing.Font('Microsoft Sans Serif',12,[System.Drawing.FontStyle]([System.Drawing.FontStyle]::Bold))
+$perform_debloat.ForeColor       = [System.Drawing.ColorTranslator]::FromHtml("#ffffff")
+
+$perform_apps                    = New-Object system.Windows.Forms.CheckBox
+$perform_apps.text               = "Install Apps"
+$perform_apps.AutoSize           = $true
+$perform_apps.Checked            = $true
+$perform_apps.width              = 95
+$perform_apps.height             = 20
+$perform_apps.location           = New-Object System.Drawing.Point(196,504)
+$perform_apps.Font               = New-Object System.Drawing.Font('Microsoft Sans Serif',12,[System.Drawing.FontStyle]([System.Drawing.FontStyle]::Bold))
+$perform_apps.ForeColor          = [System.Drawing.ColorTranslator]::FromHtml("#ffffff")
 
 $reinstalldefault                = New-Object system.Windows.Forms.Button
 $reinstalldefault.text           = "Reinstall Default Apps"
 $reinstalldefault.width          = 268
 $reinstalldefault.height         = 35
-$reinstalldefault.location       = New-Object System.Drawing.Point(25,305)
+$reinstalldefault.location       = New-Object System.Drawing.Point(31,340)
 $reinstalldefault.Font           = New-Object System.Drawing.Font('Microsoft PhagsPa',10,[System.Drawing.FontStyle]([System.Drawing.FontStyle]::Bold))
 $reinstalldefault.ForeColor      = [System.Drawing.ColorTranslator]::FromHtml("#ffffff")
 $reinstalldefault.BackColor      = [System.Drawing.ColorTranslator]::FromHtml("#6b6767")
 
-$restartExplorer                 = New-Object system.Windows.Forms.PictureBox
-$restartExplorer.width           = 32
-$restartExplorer.height          = 32
-$restartExplorer.location        = New-Object System.Drawing.Point(9,608)
-$restartExplorer.imageLocation   = "https://filestore.community.support.microsoft.com/api/images/097670f5-ede5-4260-86c9-1189c9e8aa2b"
-$restartExplorer.SizeMode        = [System.Windows.Forms.PictureBoxSizeMode]::zoom
-$form.controls.AddRange(@($RunNoOEM,$RunScript,$UndoScript,$ExitButton,$nvidiashortcut,$amdshortcut,$DriverWebsites,$asusshortcut,$msishortcut,$activationbutton,$installedapps,$updatesbutton,$ThemeButton,$branding,$intelshortcut,$LightMode,$DarkMode,$Reboot,$DeviceManager,$oldscpanel,$Drivericon,$quicklink,$microsoftlogo,$install_apps,$debloat_button,$scriptfunctions_label,$StartMenu,$uninstallonedrive,$functionlogo,$mssu,$Customclean,$appwiz,$perform_onedrive,$ReinstallOneDrive,$perform_debloat,$perform_apps,$reinstalldefault,$restartExplorer))
+$restartexplorer                 = New-Object system.Windows.Forms.PictureBox
+$restartexplorer.width           = 32
+$restartexplorer.height          = 32
+$restartexplorer.location        = New-Object System.Drawing.Point(9,608)
+$restartexplorer.imageLocation   = "https://filestore.community.support.microsoft.com/api/images/097670f5-ede5-4260-86c9-1189c9e8aa2b"
+$restartexplorer.SizeMode        = [System.Windows.Forms.PictureBoxSizeMode]::zoom
 
+$display_board                   = New-Object system.Windows.Forms.TextBox
+$display_board.text              = (Get-WmiObject win32_baseboard).Product
+$display_board.multiline         = $false
+$display_board.ReadOnly          = $true
+$display_board.TextAlign         = 'Center'
+$display_board.width             = 255
+$display_board.height            = 20
+$display_board.location          = New-Object System.Drawing.Point(36,23)
+$display_board.Font              = New-Object System.Drawing.Font('Microsoft PhagsPa',10,[System.Drawing.FontStyle]([System.Drawing.FontStyle]::Bold))
+$display_board.ForeColor         = [System.Drawing.ColorTranslator]::FromHtml("#ffffff")
+$display_board.BackColor         = [System.Drawing.ColorTranslator]::FromHtml("#6b6767")
+
+$mobo_label                      = New-Object system.Windows.Forms.Label
+$mobo_label.text                 = "Motherboard Model"
+$mobo_label.AutoSize             = $true
+$mobo_label.width                = 25
+$mobo_label.height               = 34
+$mobo_label.location             = New-Object System.Drawing.Point(100,3)
+$mobo_label.Font                 = New-Object System.Drawing.Font('Microsoft JhengHei UI',10,[System.Drawing.FontStyle]([System.Drawing.FontStyle]::Bold))
+$mobo_label.ForeColor            = [System.Drawing.ColorTranslator]::FromHtml("#ffffff")
+
+$form.controls.AddRange(@($RunNoOEM,$RunScript,$UndoScript,$ExitButton,$nvidiashortcut,$amdshortcut,$DriverWebsites,$asusshortcut,$msishortcut,$activationbutton,$installedapps,$updatesbutton,$ThemeButton,$branding,$intelshortcut,$LightMode,$DarkMode,$Reboot,$DeviceManager,$oldscpanel,$Drivericon,$quicklink,$microsoftlogo,$install_apps,$debloat_button,$scriptfunctions_label,$StartMenu,$uninstallonedrive,$functionlogo,$mssu,$Customclean,$appwiz,$perform_onedrive,$ReinstallOneDrive,$perform_debloat,$perform_apps,$reinstalldefault,$restartexplorer,$display_board,$mobo_label))
 <#
 #####
 
+
+
 # MANUALLY ENTERED LINES 
-#$Form.AutoScaleDimensions        = '192, 192'
-#$Form.AutoScaleMode              = "Dpi"
-#$Form.AutoSize                   = $True
-#$Form.StartPosition              = "CenterScreen"
-#$Form.FormBorderStyle            = 'FixedSingle'
+#$form --- Grab it all, including icon.
 #$perform_apps.Checked            = $true
 #$perform_debloat.Checked         = $true
 #$perform_onedrive.Checked        = $true
@@ -398,7 +415,7 @@ $form.controls.AddRange(@($RunNoOEM,$RunScript,$UndoScript,$ExitButton,$nvidiash
 #>
 
 
-$programversion = "22414.1"
+$programversion = "22427.0.100"
 
 
 $onedrivelocation = "$env:SystemRoot\SysWOW64\OneDriveSetup.exe"
@@ -1293,8 +1310,8 @@ $DarkMode.Add_Click{
     Write-Host "$jc"  
 }
 $UndoScript.Add_Click{
-    Start-Transcript -LiteralPath "$env:USERPROFILE\Desktop\Script Run - Undo - $dtime.txt"
-    Write-Host "$frmt Undoing Changes made by Script `n `n GUI will be unusable whilst script is running. Please Standby `n$frmt"
+    Start-Transcript -LiteralPath "$env:USERPROFILE\Desktop\New Loads log - Undo Script - $dtime.txt"
+    Write-Host "$frmt Undoing Changes made by New Loads `n `n GUI will be unusable whilst an action is in sequence.`n$frmt"
     Start-Sleep 2
     UndoOEMInfo
 
@@ -1356,31 +1373,49 @@ $UndoScript.Add_Click{
 		Write-Host " Explorer Started"
     }
     Stop-Transcript
-    Write-Host "$frmt Script Undone`n`n Ready for next task $frmt"
+    Notify("New Loads has finished undoing changes.")
+    Write-Host "$frmt New Loads Undone`n`n Ready for next task $frmt"
 }
 $Health = 100
 $wantedreason = "OK"
 If ($reason -eq $wantedreason){
     Write-Host "`n`n================================================================================================`n`n"
     Write-Host " New Loads`n" #-ForegroundColor Cyan
-    Write-Host " Script Version : $programversion"
+    Write-Host " New Loads Version : $programversion"
     Write-Host " Script Intregity: $Health%`n"
-    Write-Host " Ideally run updates before continuing with this script." -ForegroundColor Red
+    Write-Host " Ideally run updates before continuing with this program." -ForegroundColor Red
     Write-Host "`n`n================================================================================================`n`n`n"
 } else {
     Write-Host "`n`n================================================================================================`n`n"
     Write-Host " New Loads`n" #-ForegroundColor Cyan
-    Write-Host " Script Version : $programversion"
+    Write-Host " New Loads Version : $programversion"
     Write-Host " Script Intregity: $Health%`n`n"
     Write-Host " Error Message: $reason`n`n" -ForegroundColor DarkRed
-    Write-Host " Ideally run updates before continuing with this script." -ForegroundColor Red
+    Write-Host " Ideally run updates before continuing with this program." -ForegroundColor Red
     Write-Host "`n`n================================================================================================`n`n`n"
+}
+
+Function Notify([string]$arg) {
+    $Miliseconds=50000
+    $Text=$arg
+    $Title="Attention Technician"
+    
+    Add-Type -AssemblyName System.Windows.Forms 
+    $global:balloon = New-Object System.Windows.Forms.NotifyIcon
+    $path = (Get-Process -id $pid).Path
+    $balloon.Icon = [System.Drawing.Icon]::ExtractAssociatedIcon($path) 
+    $balloon.BalloonTipIcon = [System.Windows.Forms.ToolTipIcon]::Info 
+    $balloon.BalloonTipText = "$Text"
+    $balloon.BalloonTipTitle = "$Title" 
+    $balloon.Visible = $true 
+    $balloon.ShowBalloonTip($Miliseconds)
+    
 }
 
 #==================#
 $RunScript.Add_Click{
-Start-Transcript -LiteralPath "$env:USERPROFILE\Desktop\Script Run - $dtime.txt"
-Write-Host "$frmt Running Script `n `n GUI will be unusable whilst script is running. Please Standby `n$frmt"
+Start-Transcript -LiteralPath "$env:USERPROFILE\Desktop\New Loads log - Standard - $dtime.txt"
+Write-Host "$frmt Running New Loads `n `n GUI will be unusable whilst an action is in sequence.`n$frmt"
 #Choco_programs
 Programs
 OEMInfo
@@ -1390,12 +1425,13 @@ Registry
 OneDrive
 Debloat
 Cleanup
-Write-Host "$frmt Script Run Completed`n`n Ready for next task $frmt"
 Stop-Transcript
+Write-Host "$frmt New Loads Completed`n`n Ready for next task $frmt"
+Notify("New Loads Completed. Please Restart Computer.")
 }
 $RunNoOEM.Add_Click{
-Start-Transcript -LiteralPath "$env:USERPROFILE\Desktop\Script Run - No OEM - $dtime.txt"
-Write-Host "$frmt Running Script without Branding`n`n GUI will be unusable whilst script is running. Please Standby`n$frmt"
+Start-Transcript -LiteralPath "$env:USERPROFILE\Desktop\New Loads log - No Branding - $dtime.txt"
+Write-Host "$frmt Running New Loads without Branding`n`n GUI will be unusable whilst an action is in sequence.`n$frmt"
 #Choco_programs
 Programs
 StartMenu
@@ -1403,14 +1439,19 @@ Registry
 OneDrive
 Debloat
 Cleanup
-Write-Host "$frmt Script Run`n`n Ready for next task $frmt"
+Write-Host "$frmt New Loads Run Completed`n`n Ready for next task $frmt"
 Stop-Transcript
+Notify("New Loads Completed. Please Restart Computer.")
 }
 $ExitButton.Add_Click{
     $Form.Close()
 }
 
 Write-Host "Boot Completed. Ready for selection"
+
+
+
+Notify('New Loads UI Ready for Selection.')
 [void]$Form.ShowDialog()
 $stream.Dispose()
 $Form.Dispose()

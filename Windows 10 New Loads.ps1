@@ -1,11 +1,8 @@
 #requires -runasadministrator
-Write-Host "Initializing Script"
-If (!(Test-Path $env:Temp\newloads)) {
-    New-Item -Path "$env:temp\New Loads\" -Force -Verbose
-}
+Write-Host "Initializing New Loads"
 $WindowTitle = "New Loads - Initializing" ; $host.UI.RawUI.WindowTitle = $WindowTitle
 $reason = "OK"
-$programversion = "22414.1"
+$programversion = "22427"
 $WantedBuild = "10.0.22000"
 $BuildNumber = (Get-ItemProperty -Path c:\windows\system32\hal.dll).VersionInfo.ProductVersion
 $dtime = (Get-Date -UFormat %H.%M-%Y.%m.%d)
@@ -596,6 +593,22 @@ Function REGISTRY {
         
     Write-Host "$frmt Registry changes applied $frmt"
 }
+Function Notify([string]$arg) {
+    $Miliseconds=50000
+    $Text=$arg
+    $Title="Attention Technician"
+    
+    Add-Type -AssemblyName System.Windows.Forms 
+    $global:balloon = New-Object System.Windows.Forms.NotifyIcon
+    $path = (Get-Process -id $pid).Path
+    $balloon.Icon = [System.Drawing.Icon]::ExtractAssociatedIcon($path) 
+    $balloon.BalloonTipIcon = [System.Windows.Forms.ToolTipIcon]::Info 
+    $balloon.BalloonTipText = "$Text"
+    $balloon.BalloonTipTitle = "$Title" 
+    $balloon.Visible = $true 
+    $balloon.ShowBalloonTip($Miliseconds)
+    
+}
 Function Cleanup {
     $WindowTitle = "New Loads - Cleanup" ; $host.UI.RawUI.WindowTitle = $WindowTitle ; Write-Host "$frmt Finishing Up $frmt"
     $EdgeShortcut = "$Env:USERPROFILE\Desktop\Microsoft Edge.lnk"
@@ -652,25 +665,24 @@ Function Cleanup {
     }
 }
 
-Start-Transcript -LiteralPath "$env:USERPROFILE\Desktop\Automated Script Run - $dtime.txt"
+Start-Transcript -LiteralPath "$env:USERPROFILE\Desktop\New Loads log- $dtime.txt"
 $health = 100
 
 $wantedreason = "OK"
 If ($reason -eq $wantedreason){
     Write-Host "`n`n================================================================================================`n`n"
-    Write-Host " New Loads`n" -ForegroundColor Cyan
-    Write-Host " Script Version : $programversion"
+    Write-Host " New Loads`n" #-ForegroundColor Cyan
+    Write-Host " New Loads Version : $programversion"
     Write-Host " Script Intregity: $Health%`n"
-    Write-Host " Ideally run updates before continuing with this script." -ForegroundColor Red
+    Write-Host " Ideally run updates before continuing with this program." -ForegroundColor Red
     Write-Host "`n`n================================================================================================`n`n`n"
 } else {
-    $health = $health - 30
     Write-Host "`n`n================================================================================================`n`n"
-    Write-Host " New Loads`n" -ForegroundColor Cyan
-    Write-Host " Script Version : $programversion"
+    Write-Host " New Loads`n" #-ForegroundColor Cyan
+    Write-Host " New Loads Version : $programversion"
     Write-Host " Script Intregity: $Health%`n`n"
     Write-Host " Error Message: $reason`n`n" -ForegroundColor DarkRed
-    Write-Host " Ideally run updates before continuing with this script." -ForegroundColor Red
+    Write-Host " Ideally run updates before continuing with this program." -ForegroundColor Red
     Write-Host "`n`n================================================================================================`n`n`n"
 }
 
@@ -683,7 +695,8 @@ OneDrive
 Debloat
 Cleanup
 Stop-Transcript
-Write-Host "Script Completed.`nExiting."
+Notify("New Loads Completed. Please Restart Computer.")
+Write-Host "New Loads Completed.`nExiting."
 Start-Sleep -s 1
 Exit
 
