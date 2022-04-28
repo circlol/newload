@@ -1,5 +1,8 @@
-Write-Host "Initializing Script"
 #requires -runasadministrator
+Write-Host "Initializing Script"
+If (!(Test-Path $env:Temp\newloads)) {
+    New-Item -Path "$env:temp\New Loads\" -Force -Verbose
+}
 $WindowTitle = "New Loads - Initializing" ; $host.UI.RawUI.WindowTitle = $WindowTitle
 $reason = "OK"
 $programversion = "22414.1"
@@ -167,9 +170,12 @@ Function Visuals {
             Start-BitsTransfer -Source:https://github.com/circlol/newload/raw/main/Assets/wallpaper/10.jpg -Destination $wallpaper
         }
     }
+    $storage = "$env:appdata\Microsoft\Windows\Themes"
+    $storage = "$storage\MotherComputersWallpaper.jpg"
+    Copy-Item -Path $wallpaper -Destination $storage -Verbose -Force
     Set-ItemProperty -Path:HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Themes\Personalize -Name "SystemUsesLightTheme" -Value 0
     Set-ItemProperty -Path:HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Themes\Personalize -Name "AppsUseLightTheme" -Value 0
-    Set-WallPaper -Image $wallpaper -Style Stretch
+    Set-WallPaper -Image $storage -Style Stretch
 }
 Function OEMInfo{
     Set-ItemProperty -Path:HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\OEMInformation -Name "Manufacturer" -Type String -Value "Mother Computers" -Verbose
@@ -626,7 +632,7 @@ Function Cleanup {
             Remove-Item -Path:$acrosc -Force -Recurse -Confirm:$false -ErrorAction SilentlyContinue -Verbose 2>$NULL
         }
     }
-    Remove-Item "$Env:Temp\*.*" -Force -Recurse -Confirm:$false -ErrorAction SilentlyContinue -Verbose 2>$NULL
+    Remove-Item "$Env:Temp\*.*" -Force -Recurse -Confirm:$false -ErrorAction SilentlyContinue -Verbose -Exclude "New Loads" 2>$NULL
     If (Test-Path -Path:$EdgeShortcut) { 
         Write-Host " Removing Edge Icon"
         Remove-Item -Path:$EdgeShortcut -Force -Recurse -Confirm:$false -ErrorAction SilentlyContinue -Verbose 2>$NULL
