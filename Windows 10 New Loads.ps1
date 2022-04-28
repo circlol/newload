@@ -161,19 +161,23 @@ Function Visuals {
     Write-Host "$frmt Applying Visuals $frmt"
     $wallpaper = "$env:temp\MotherComputersWallpaper.jpg"
     If ($BuildNumber -gt $WantedBuild) {
-    Write-Host " I have detected that you are on Windows 11"
-    Start-BitsTransfer -Source:https://github.com/circlol/newload/raw/main/Assets/wallpaper/11.jpg -Destination $wallpaper
+        Write-Host " Downloading Wallpaper"
+        Write-Host " I have detected that you are on Windows 11"
+        Start-BitsTransfer -Source "https://github.com/circlol/newload/raw/main/Assets/wallpaper/11.jpg" -Destination $wallpaper -Verbose
     } else {
 
         If ($BuildNumber -lt $WantedBuild) {
             Write-Host " I have detected that you are on Windows 10"
-            Start-BitsTransfer -Source:https://github.com/circlol/newload/raw/main/Assets/wallpaper/10.jpg -Destination $wallpaper
+            Write-Host " Downloading Wallpaper"
+            Start-BitsTransfer -Source "https://github.com/circlol/newload/raw/main/Assets/wallpaper/10.jpg" -Destination $wallpaper -Verbose
         }
     }
     $storage = "$env:appdata\Microsoft\Windows\Themes"
     $storage = "$storage\MotherComputersWallpaper.jpg"
     Copy-Item -Path $wallpaper -Destination $storage -Verbose -Force
+    Write-Host " Setting System Theme to Dark Mode"
     Set-ItemProperty -Path:HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Themes\Personalize -Name "SystemUsesLightTheme" -Value 0
+    Write-Host " Setting App Theme to Dark Mode"
     Set-ItemProperty -Path:HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Themes\Personalize -Name "AppsUseLightTheme" -Value 0
     Set-WallPaper -Image $storage -Style Stretch
 }
