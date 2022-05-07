@@ -2,33 +2,72 @@
 Write-Host "Initializing New Loads"
 $WindowTitle = "New Loads - Initializing" ; $host.UI.RawUI.WindowTitle = $WindowTitle
 $reason = "OK"
-$programversion = "22427"
+$programversion = "22506"
 $WantedBuild = "10.0.22000"
 $BuildNumber = (Get-ItemProperty -Path c:\windows\system32\hal.dll).VersionInfo.ProductVersion
 $dtime = (Get-Date -UFormat %H.%M-%Y.%m.%d)
 $frmt = "`n`n========================================`n`n"
 $22h2 = 22593
+$newloads = $env:temp + "\New Loads\"
+
+If (!(Test-Path -Path:"$newloads")){
+    New-Item -Path:"$Env:Temp" -Name:"New Loads" -ItemType:Directory -Force -Verbose
+}
+
+Function Check {
+    If(!($?)){
+        Write-Host " Failed"
+    } else {
+        Write-Host " Success"
+    }
+}
 Function Programs {
     $oi = ".\Offline Installers\"
-    $gcoi = $oi + "googlechromestandaloneenterprise64.msi"
-    $aroi = $oi + "AcroRdrDCx642200120085_MUI.exe"
-    $vlcoi = $oi + "vlc-3.0.17-win64.msi"
     
-    $package1  = "Google.Chrome"
-    $package2  = "VideoLAN.VLC"
-    $package3  = "Adobe.Acrobat.Reader.64-bit"
-    
+    #Google Chrome
+    $package1  = "googlechromestandaloneenterprise64.msi"
     $package1dl = "https://dl.google.com/dl/chrome/install/googlechromestandaloneenterprise64.msi"
+    $package1lc = $newloads + $package1
+    $location1 = $env:PROGRAMFILES + "\Google\Chrome\Application\chrome.exe"
+    $gcoi = $oi + $package1
+
+    #VLC Media Player
+    $package2  = "vlc-3.0.17-win64.msi"
     $package2dl = "https://github.com/circlol/newload/raw/main/Assets/BAF/vlc-3.0.17-win64.msi"
+    $package2lc = $newloads + $package2
+    $location2 = $env:PROGRAMFILES + "\VideoLAN\VLC\vlc.exe"
+    $vlcoi = $oi + $package2
+
+    #Adobe Acrobat Reader DC 64GB
+    $package3  = "AcroRdrDCx642200120085_MUI.exe"
     $package3dl = "https://ardownload2.adobe.com/pub/adobe/acrobat/win/AcrobatDC/2200120085/AcroRdrDCx642200120085_MUI.exe"
-    
-    $package1lc = "$env:temp\googlechromestandaloneenterprise64.msi"
-    $package2lc = "$env:temp\vlc-3.0.17-win64.msi"
-    $package3lc = "$env:temp\AcroRdrDCx642200120085_MUI.exe"
-    
-    $Location1 = "$env:PROGRAMFILES\Google\Chrome\Application\chrome.exe"
-    $Location2 = "$env:PROGRAMFILES\VideoLAN\VLC\vlc.exe"
-    $Location3 = "$env:PROGRAMFILES\Adobe\Acrobat DC\Acrobat\Acrobat.exe"
+    $package3lc = $newloads + $package3
+    $location3 = $env:PROGRAMFILES + "\Adobe\Acrobat DC\Acrobat\Acrobat.exe"
+    $aroi = $oi + $package3
+
+    #Zoom
+    $package4 = "ZoomInstallerFull.msi"
+    $package4dl = "https://zoom.us/client/5.10.4.5035/ZoomInstallerFull.msi?archType=x64"
+    $package4lc = $newloads + $package4
+    $location4 = $env:PROGRAMFILES + "\Zoom\bin\Zoom.exe"
+    $zoomoi = $oi + $package4
+
+    #Zoom
+    If (!(Test-Path -Path:$Location4)) {
+        If (Test-Path -Path:$zoomoi){
+            Write-Host " Found Offline Installer : Zoom"
+            Write-Host " Starting Offline Installer : Zoom"
+            msiexec.exe /package $zoomoi /quiet /qn /norestart /lex zNoDesktopShortCut="true" ZoomAutoUpdate="true" SetUseSystemDefaultMicForVoip="True" SetUseSystemDefaultSpeakerForVoip="True" AutoJoinVOIP="True"
+        } else {
+            Write-Host "`n`n Downloading $Package4" 
+            Start-BitsTransfer -Source $Package4dl -Destination $package4lc
+            check
+            Write-Host " Installing $Package4 in the background`n"
+            msiexec.exe /package $package4lc /quiet /qn /norestart /lex zNoDesktopShortCut="true" ZoomAutoUpdate="true" SetUseSystemDefaultMicForVoip="True" SetUseSystemDefaultSpeakerForVoip="True" AutoJoinVOIP="True"
+        }
+    } else {
+            Write-Host "`n Verified $package4 is already installed. Skipping"
+    }
 
 
     $WindowTitle = "New Loads - Installing Applications" ; $host.UI.RawUI.WindowTitle = $WindowTitle
@@ -39,12 +78,13 @@ Function Programs {
             Write-Host " Found Offline Installer : Google Chrome"
             Write-Host " Starting Offline Installer : Google Chrome"
             #Start-Process $gcoi /passive -Wait
-            Start-Process -FilePath:$gcoi -ArgumentList /passive -Verbose -Wait            
+            Start-Process -FilePath:$gcoi -ArgumentList /passive -Verbose -Wait
             Write-Host " Flagging UBlock Origin for Installation"
             REG ADD "HKLM\Software\Wow6432Node\Google\Chrome\Extensions\cjpalhdlnbpafiamejdnhcphjbkeiagm" /v update_url /t REG_SZ /d https://clients2.google.com/service/update2/crx
         } else {
             Write-Host "`n`n Downloading $Package1" 
             Start-BitsTransfer -Source $package1dl -Destination $package1lc
+            check
             Write-Host " Installing $Package1`n"
             Start-Process -FilePath:$package1lc -ArgumentList /passive -Verbose -Wait
             Write-Host " Flagging UBlock Origin for Installation"
@@ -64,6 +104,7 @@ Function Programs {
         } else {
             Write-Host "`n`n Downloading $Package2" 
             Start-BitsTransfer -Source $Package2dl -Destination $package2lc
+            Check
             Write-Host " Installing $Package2 in the background`n"
             Start-Process -FilePath:$package2lc -ArgumentList /quiet -Verbose
             #Start-Process $package2lc /quiet
@@ -78,11 +119,11 @@ Function Programs {
         If (Test-Path -Path:$aroi){
             Write-Host " Found Offline Installer : Adobe Acrobat"
             Write-Host " Starting Offline Installer : Adobe Acrobat"
-            #Start-Process $aroi /sPB -Wait
             Start-Process -FilePath:$aroi -ArgumentList /sPB -Verbose
         } else {
             Write-Host "`n`n Downloading $Package3" 
             Start-BitsTransfer -Source $Package3dl -Destination $package3lc
+            Check
             Write-Host " Installing $Package3`n" 
             Start-Process -FilePath:$package3lc -ArgumentList /sPB -Verbose
             Write-Host " $package3 Installed."
@@ -161,12 +202,14 @@ Function Visuals {
         Write-Host " Downloading Wallpaper"
         Write-Host " I have detected that you are on Windows 11"
         Start-BitsTransfer -Source "https://github.com/circlol/newload/raw/main/Assets/wallpaper/11.jpg" -Destination $wallpaper -Verbose
+        Check
     } else {
 
         If ($BuildNumber -lt $WantedBuild) {
             Write-Host " I have detected that you are on Windows 10"
             Write-Host " Downloading Wallpaper"
             Start-BitsTransfer -Source "https://github.com/circlol/newload/raw/main/Assets/wallpaper/10.jpg" -Destination $wallpaper -Verbose
+            Check
         }
     }
     $storage = "$env:appdata\Microsoft\Windows\Themes"
@@ -257,6 +300,7 @@ Function OneDrive {
 If (Test-Path -Path:C:\Windows\System32\OneDriveSetup.exe){
     ' Found OneDrive in sys32, Removing'
     Start-Process -FilePath:C:\Windows\System32\OneDriveSetup.exe -ArgumentList /uninstall -Wait -Verbose -ErrorAction SilentlyContinue
+    Check
 }
 If (Test-Path -Path:C:\Windows\SysWOW64\OneDriveSetup.exe){
     ' Found OneDrive in syswow, Removing'
@@ -609,6 +653,19 @@ Function Notify([string]$arg) {
     $balloon.ShowBalloonTip($Miliseconds)
     
 }
+Function RestorePoint {
+    $desc = "Mother Computers Courtesy Restore Point"
+    If ((Get-ComputerRestorePoint).Description -eq $desc){
+        Write-Host "$desc found. Skipping."
+        } else {
+        
+        Write-Host "Enabling System Restore"
+        Enable-ComputerRestore -Drive "C:\"
+        
+        Write-Host " `nCreating Courtesy Restore Point"
+        Checkpoint-Computer -Description "$desc" -RestorePointType "MODIFY_SETTINGS" -ErrorAction SilentlyContinue -WarningAction SilentlyContinue
+        }
+}
 Function Cleanup {
     $WindowTitle = "New Loads - Cleanup" ; $host.UI.RawUI.WindowTitle = $WindowTitle ; Write-Host "$frmt Finishing Up $frmt"
     $EdgeShortcut = "$Env:USERPROFILE\Desktop\Microsoft Edge.lnk"
@@ -621,11 +678,8 @@ Function Cleanup {
         Write-Host " Explorer Started"
     }
     
-	#A112
     If ((Get-BitLockerVolume -MountPoint "C:").ProtectionStatus -eq $blstat){
         Write-Host " Bitlocker seems to be enabled. Would you like to disable it and start the decryption process?."
-        ##Requires -RunSilent
-    
         [reflection.assembly]::loadwithpartialname("System.Windows.Forms") | Out-Null 
         $msgBoxInput = [System.Windows.Forms.MessageBox]::Show('BitLocker seems to be enabled. Would you like to disable it?','New Loads','YesNo','Question')
         switch  ($msgBoxInput) {
@@ -694,6 +748,7 @@ Registry
 OneDrive
 Debloat
 Cleanup
+RestorePoint
 Stop-Transcript
 Notify("New Loads Completed. Please Restart Computer.")
 Write-Host "New Loads Completed.`nExiting."
