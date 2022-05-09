@@ -452,12 +452,6 @@ $log = "$env:USERPROFILE\Desktop\New Loads GUI Log - $dtime.txt"
 
 
 
-
-
-
-
-
-
 $regoverrides = "HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Sensor\Overrides\{BFA794E4-F964-4FDB-90F6-51056BFE4B44}"
 $lfsvc = "HKLM:\SYSTEM\CurrentControlSet\Services\lfsvc\Service\Configuration"
 $wifisense = "HKLM:\Software\Microsoft\PolicyManager\default\WiFi"
@@ -465,13 +459,19 @@ $siufrules = "HKCU:\Software\Microsoft\Siuf\Rules"
 $regcam = "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\CapabilityAccessManager\ConsentStore\location"
 $regcdm = "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\ContentDeliveryManager"
 $reginp = "HKCU:\Software\Microsoft\InputPersonalization"
-$regadvertising = "HKCU:\Software\Microsoft\Windows\CurrentVersion\AdvertisingInfo"
 $regsys = "HKLM:\SOFTWARE\Policies\Microsoft\Windows\System"
+$regcv = "HKCU:\Software\Microsoft\Windows\CurrentVersion"
 $regex = "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer"
 $regexlm = "HKLM:\Software\Microsoft\Windows\CurrentVersion\Explorer"
 $regexadv = "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced"
-$regcv = "HKCU:\Software\Microsoft\Windows\CurrentVersion"
+$regadvertising = "HKCU:\Software\Microsoft\Windows\CurrentVersion\AdvertisingInfo"
 $regpersonalize = "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Themes\Personalize"
+
+
+
+
+
+
 
 
 If (!(Test-Path -Path:"$newloads")){
