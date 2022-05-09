@@ -498,14 +498,16 @@ Function Programs {
     #Google
     If (!(Test-Path -Path:$Location1)){
         If (Test-Path -Path:$gcoi){
+            $ublock = "HKLM\Software\Wow6432Node\Google\Chrome\Extensions\cjpalhdlnbpafiamejdnhcphjbkeiagm"
             Write-Host " Flagging UBlock Origin for Installation"
-            REG ADD "HKLM\Software\Wow6432Node\Google\Chrome\Extensions\cjpalhdlnbpafiamejdnhcphjbkeiagm" /v update_url /t REG_SZ /d https://clients2.google.com/service/update2/crx /f > $Null
+            REG ADD  /v update_url /t REG_SZ /d https://clients2.google.com/service/update2/crx /f > $Null
             Write-Host " Installing $Package1`n"
             #Start-Process $gcoi /passive -Wait
             Start-Process -FilePath:$gcoi -ArgumentList /passive -Verbose -Wait
         } else {
             Write-Host " Flagging UBlock Origin for Installation"
-            REG ADD "HKLM\Software\Wow6432Node\Google\Chrome\Extensions\cjpalhdlnbpafiamejdnhcphjbkeiagm" /v update_url /t REG_SZ /d https://clients2.google.com/service/update2/crx /f > $Null
+            $ublock = "HKLM\Software\Wow6432Node\Google\Chrome\Extensions\cjpalhdlnbpafiamejdnhcphjbkeiagm"
+            REG ADD $ublock /v update_url /t REG_SZ /d https://clients2.google.com/service/update2/crx /f > $Null
             Write-Host "`n`n Downloading $Package1" 
             Start-BitsTransfer -Source $package1dl -Destination $package1lc
             Check
@@ -635,16 +637,17 @@ Function Set-WallPaper {
       
     }
      
+    $regcp = "HKCU:\Control Panel\Desktop"
     If($Style -eq "Tile") {
      
-        New-ItemProperty -Path "HKCU:\Control Panel\Desktop" -Name WallpaperStyle -PropertyType String -Value $WallpaperStyle -Force
-        New-ItemProperty -Path "HKCU:\Control Panel\Desktop" -Name TileWallpaper -PropertyType String -Value 1 -Force
+        New-ItemProperty -Path "$regcp" -Name WallpaperStyle -PropertyType String -Value $WallpaperStyle -Force
+        New-ItemProperty -Path "$regcp" -Name TileWallpaper -PropertyType String -Value 1 -Force
      
     }
     Else {
      
-        New-ItemProperty -Path "HKCU:\Control Panel\Desktop" -Name WallpaperStyle -PropertyType String -Value $WallpaperStyle -Force
-        New-ItemProperty -Path "HKCU:\Control Panel\Desktop" -Name TileWallpaper -PropertyType String -Value 0 -Force
+        New-ItemProperty -Path "$regcp" -Name WallpaperStyle -PropertyType String -Value $WallpaperStyle -Force
+        New-ItemProperty -Path "$regcp" -Name TileWallpaper -PropertyType String -Value 0 -Force
      
     }
      
@@ -669,6 +672,7 @@ Function Set-WallPaper {
         $fWinIni = $UpdateIniFile -bor $SendChangeEvent
       
         $ret = [Params]::SystemParametersInfo($SPI_SETDESKWALLPAPER, 0, $Image, $fWinIni)
+        $ret
 }
 Function Visuals {
     $WindowTitle = "New Loads - Applying Wallpaper" ; $host.UI.RawUI.WindowTitle = $WindowTitle
