@@ -683,9 +683,10 @@ Function Visuals {
     Write-Host "$frmt Applying Visuals $frmt"
     $storage = "$env:appdata\Microsoft\Windows\Themes"
     $wallpaper = $storage + "\MotherComputersWallpaper.jpg"
-    $currentwallpaper = (Get-ItemProperty -Path "HKCU:\Control Panel\Desktop" -Name Wallpaper).Wallpaper
-    $sysmode = (Get-ItemProperty -Path HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Themes\Personalize -Name SystemUsesLightTheme).SystemUsesLightTheme
-    $appmode = (Get-ItemProperty -Path HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Themes\Personalize -Name AppsUseLightTheme).AppsUseLightTheme
+    $regpersonalize = "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Themes\Personalize"
+    $currentwallpaper = (Get-ItemProperty -Path $regcp -Name Wallpaper).Wallpaper
+    $sysmode = (Get-ItemProperty -Path $regpersonalize -Name SystemUsesLightTheme).SystemUsesLightTheme
+    $appmode = (Get-ItemProperty -Path $regpersonalize -Name AppsUseLightTheme).AppsUseLightTheme
 
     If (!(Test-Path -Path $Wallpaper)){
     If ($BuildNumber -gt $WantedBuild) {
@@ -719,13 +720,13 @@ Function Visuals {
 
     If (!($sysmode -eq 0)){
         Write-Host " Setting System Theme to Dark Mode"
-        Set-ItemProperty -Path HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Themes\Personalize -Name "SystemUsesLightTheme" -Value 0 -Verbose
+        Set-ItemProperty -Path $regpersonalize -Name "SystemUsesLightTheme" -Value 0 -Verbose
     } else {
         Write-Host " New Loads detected System Mode is set to Dark Theme"
     }
     If (!($appmode -eq 0)){
         Write-Host " Setting App Theme to Dark Mode"
-        Set-ItemProperty -Path HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Themes\Personalize -Name "AppsUseLightTheme" -Value 0 -Verbose
+        Set-ItemProperty -Path $regpersonalize -Name "AppsUseLightTheme" -Value 0 -Verbose
     } else {
         Write-Host " New Loads detected App Mode is set to Dark Theme"
     }
@@ -825,9 +826,10 @@ Function OneDrive {
             $onedriveyns = "$y"
         }
     }
-    If (Test-Path C:\Windows\System32\OneDriveSetup.exe){
+    $odsetuplc = "C:\Windows\System32\OneDriveSetup.exe"
+    If (Test-Path $odsetuplc){
         Write-Host " Also found OneDrive in sys32, Removing"
-        Start-Process -FilePath:C:\Windows\System32\OneDriveSetup.exe -ArgumentList /uninstall -Verbose -ErrorAction SilentlyContinue
+        Start-Process -FilePath $odsetuplc -ArgumentList /uninstall -Verbose -ErrorAction SilentlyContinue
         If($?){
             $onedriveyns = "$y"
         }
@@ -844,25 +846,29 @@ Function OneDrive {
 Function Registry {
     $WindowTitle = "New Loads - Registry" ; $host.UI.RawUI.WindowTitle = $WindowTitle ; Write-Host "$frmt Applying Registry Changes $frmt"
     
+    $regex = "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer"
+    $regexlm = "HKLM:\Software\Microsoft\Windows\CurrentVersion\Explorer"
+    $regexadv = "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced"
+    
     If ($BuildNumber -lt $WantedBuild) {            ## Windows 10
 
         Write-Host " Applying Windows 10 Specific Registry Keys`n"
         Write-Host ' Changing Searchbox to Icon Format on Taskbar'
         Set-ItemProperty -Path:HKCU:\Software\Microsoft\Windows\CurrentVersion\Search -Name "SearchboxTaskbarMode" -Value 1 -Verbose
         Write-Host ' Removing Cortana Icon from Taskbar'
-        Set-ItemProperty -Path:HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced -Name "ShowCortanaButton" -Value 0 -Verbose
+        Set-ItemProperty -Path $regexadv -Name "ShowCortanaButton" -Value 0 -Verbose
         
         Write-Host ' Pinning Task View Icon'
-        Set-ItemProperty -Path:HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced -Name "ShowTaskViewButton" -Value 0 -Verbose
+        Set-ItemProperty -Path $regexadv -Name "ShowTaskViewButton" -Value 0 -Verbose
         
-        If (Test-Path -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\MyComputer\NameSpace\{0DB7E03F-FC29-4DC6-9020-FF41B59E513A}"){
+        If (Test-Path -Path "$regexlm\MyComputer\NameSpace\{0DB7E03F-FC29-4DC6-9020-FF41B59E513A}"){
             Write-Host ' Hiding 3D Objects icon from This PC'
-            Remove-Item -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\MyComputer\NameSpace\{0DB7E03F-FC29-4DC6-9020-FF41B59E513A}" -Recurse -Verbose
+            Remove-Item -Path "$regexlm\MyComputer\NameSpace\{0DB7E03F-FC29-4DC6-9020-FF41B59E513A}" -Recurse -Verbose
         }
 
-        If ((Get-ItemProperty -Path:HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\Ribbon).MinimizedStateTabletModeOff -eq 1) { 
+        If ((Get-ItemProperty -Path $regex\Ribbon).MinimizedStateTabletModeOff -eq 1) { 
             Write-Host ' Expanding Ribbon in Explorer'
-            Set-ItemProperty -Path:HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\Ribbon -Name "MinimizedStateTabletModeOff" -Value 0 -Verbose
+            Set-ItemProperty -Path $regex\Ribbon -Name "MinimizedStateTabletModeOff" -Value 0 -Verbose
         }
 
         Write-Host ' Disabling Feeds open on hover'
@@ -880,7 +886,7 @@ Function Registry {
 
     
         Write-Host ' Removing Chat from taskbar'
-        Set-ItemProperty -Path:HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced -Name "TaskBarMn" -Value 0 -Verbose
+        Set-ItemProperty -Path $regexadv -Name "TaskBarMn" -Value 0 -Verbose
     
         Write-Host ' Removing "Meet Now" button from taskbar'
         If (!(Test-Path -Path:HKCU:\Software\Microsoft\Windows\CurrentVersion\Policies\Explorer)) {
@@ -899,31 +905,31 @@ Function Registry {
     ### Explorer related
 
     Write-Host ' Disabling Show Recent in Explorer Menu'
-    Set-ItemProperty -Path:HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer -Name "ShowRecent" -Value 0 -Verbose
+    Set-ItemProperty -Path $regex -Name "ShowRecent" -Value 0 -Verbose
         
     Write-Host ' Disabling Show Frequent in Explorer Menu'
-    Set-ItemProperty -Path:HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer -Name "ShowFrequent" -Value 0 -Verbose
+    Set-ItemProperty -Path $regex -Name "ShowFrequent" -Value 0 -Verbose
 
     Write-Host ' Enabling Snap Assist Flyout'
-    Set-ItemProperty -Path:HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced -Name "EnableSnapAssistFlyout" -Value 1 -Verbose
+    Set-ItemProperty -Path $regexadv -Name "EnableSnapAssistFlyout" -Value 1 -Verbose
 
     Write-Host ' Enabling File Extensions'
-    Set-ItemProperty -Path:HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced -Name "HideFileExt" -Value 0 -Verbose
+    Set-ItemProperty -Path $regexadv -Name "HideFileExt" -Value 0 -Verbose
 
     Write-Host ' Setting Explorer Launch to This PC'
-    Set-ItemProperty -Path:HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced -Name "LaunchTo" -Value 1 -Verbose
+    Set-ItemProperty -Path $regexadv -Name "LaunchTo" -Value 1 -Verbose
     
     Write-Host ' Adding User Files to desktop'
-    Set-ItemProperty -Path:HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\HideDesktopIcons\NewStartPanel -Name "{59031a47-3f72-44a7-89c5-5595fe6b30ee}" -Value 0 -Verbose
+    Set-ItemProperty -Path $regex\HideDesktopIcons\NewStartPanel -Name "{59031a47-3f72-44a7-89c5-5595fe6b30ee}" -Value 0 -Verbose
     
     Write-Host ' Adding This PC icon to desktop'
-    Set-ItemProperty -Path:HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\HideDesktopIcons\NewStartPanel -Name "{20D04FE0-3AEA-1069-A2D8-08002B30309D}" -Value 0 -Verbose
+    Set-ItemProperty -Path $regex\HideDesktopIcons\NewStartPanel -Name "{20D04FE0-3AEA-1069-A2D8-08002B30309D}" -Value 0 -Verbose
 
     Write-Host ' Showing file operations details'
-    If (!(Test-Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\OperationStatusManager")) {
-        New-Item -Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\OperationStatusManager" -Verbose
+    If (!(Test-Path "$regex\OperationStatusManager")) {
+        New-Item -Path "$regex\OperationStatusManager" -Verbose
     }
-    Set-ItemProperty -Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\OperationStatusManager" -Name "EnthusiastMode" -Type DWORD -Value 1 -Verbose
+    Set-ItemProperty -Path "$regex\OperationStatusManager" -Name "EnthusiastMode" -Type DWORD -Value 1 -Verbose
 
 
 
@@ -932,35 +938,37 @@ Function Registry {
 
 
     ### Privacy
-    Write-Host ' Disabling Content Delivery Related Setings - ContentDelivery, Pre-installed Microsoft, Pre-installed OEM Apps, Silent Apps'
-    If (!(Test-Path -Path:HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\ContentDeliveryManager)){
+    Write-Host ' Disabling Content Delivery Related Setings'
+    $regcdm = "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\ContentDeliveryManager"
+    If (!(Test-Path -Path $regcdm)){
         New-Item -Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion" -Name "ContentDeliveryManager" -Verbose
     }
-    Set-ItemProperty -Path:HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\ContentDeliveryManager -Name "ContentDeliveryAllowed" -Type DWORD -Value 0 -Verbose
-    Set-ItemProperty -Path:HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\ContentDeliveryManager -Name "OemPreInstalledAppsEnabled" -Type DWORD -Value 0 -Verbose
-    Set-ItemProperty -Path HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\ContentDeliveryManager -Name "PreInstalledAppsEnabled" -Type DWORD -Value 0 -Verbose
-    Set-ItemProperty -Path:HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\ContentDeliveryManager -Name "PreInstalledAppsEverEnabled" -Type DWORD -Value 0 -Verbose
-    Set-ItemProperty -Path:HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\ContentDeliveryManager -Name "SilentInstalledAppsEnabled" -Type DWORD -Value 0 -Verbose
-    Set-ItemProperty -Path:HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\ContentDeliveryManager -Name "SubscribedContentEnabled" -Type DWORD -Value 0 -Verbose
-    Set-ItemProperty -Path:HKCU:\Software\Microsoft\Windows\CurrentVersion\ContentDeliveryManager -Name "SubscribedContent-310093Enabled" -Type DWORD -Value 0 -Verbose
-    Set-ItemProperty -Path:HKCU:\Software\Microsoft\Windows\CurrentVersion\ContentDeliveryManager -Name "SubscribedContent-338387Enabled" -Type DWORD -Value 0 -Verbose
-    Set-ItemProperty -Path:HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\ContentDeliveryManager -Name "SubscribedContent-338388Enabled" -Type DWORD -Value 0 -Verbose
-    Set-ItemProperty -Path:HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\ContentDeliveryManager -Name "SubscribedContent-338389Enabled" -Type DWORD -Value 0 -Verbose
-    Set-ItemProperty -Path:HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\ContentDeliveryManager -Name "SubscribedContent-338393Enabled" -Type DWORD -Value 0 -Verbose
-    Set-ItemProperty -Path:HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\ContentDeliveryManager -Name "SubscribedContent-353694Enabled" -Type DWORD -Value 0 -Verbose
-    Set-ItemProperty -Path:HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\ContentDeliveryManager -Name "SubscribedContent-353696Enabled" -Type DWORD -Value 0 -Verbose
-    Set-ItemProperty -Path:HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\ContentDeliveryManager -Name "SubscribedContent-353698Enabled" -Type DWORD -Value 0 -Verbose
-    Set-ItemProperty -Path:HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\ContentDeliveryManager -Name "SystemPaneSuggestionsEnabled" -Type DWORD -Value 0 -Verbose
-    Set-ItemProperty -Path:HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\ContentDeliveryManager -Name "SoftLandingEnabled" -Type DWORD -Value 0 -Verbose
-    If (Test-Path -Path:HKCU:\Software\Microsoft\Windows\CurrentVersion\ContentDeliveryManager\Subscriptionn){
-        Remove-Item -Path:HKCU:\Software\Microsoft\Windows\CurrentVersion\ContentDeliveryManager\Subscriptionn -Recurse -Force -Verbose
+    Set-ItemProperty -Path $regcdm -Name "ContentDeliveryAllowed" -Type DWORD -Value 0 -Verbose
+    Set-ItemProperty -Path $regcdm -Name "OemPreInstalledAppsEnabled" -Type DWORD -Value 0 -Verbose
+    Set-ItemProperty -Path $regcdm -Name "PreInstalledAppsEnabled" -Type DWORD -Value 0 -Verbose
+    Set-ItemProperty -Path $regcdm -Name "PreInstalledAppsEverEnabled" -Type DWORD -Value 0 -Verbose
+    Set-ItemProperty -Path $regcdm -Name "SilentInstalledAppsEnabled" -Type DWORD -Value 0 -Verbose
+    Set-ItemProperty -Path $regcdm -Name "SubscribedContentEnabled" -Type DWORD -Value 0 -Verbose
+    Set-ItemProperty -Path $regcdm -Name "SubscribedContent-310093Enabled" -Type DWORD -Value 0 -Verbose
+    Set-ItemProperty -Path $regcdm -Name "SubscribedContent-338387Enabled" -Type DWORD -Value 0 -Verbose
+    Set-ItemProperty -Path $regcdm -Name "SubscribedContent-338388Enabled" -Type DWORD -Value 0 -Verbose
+    Set-ItemProperty -Path $regcdm -Name "SubscribedContent-338389Enabled" -Type DWORD -Value 0 -Verbose
+    Set-ItemProperty -Path $regcdm -Name "SubscribedContent-338393Enabled" -Type DWORD -Value 0 -Verbose
+    Set-ItemProperty -Path $regcdm -Name "SubscribedContent-353694Enabled" -Type DWORD -Value 0 -Verbose
+    Set-ItemProperty -Path $regcdm -Name "SubscribedContent-353696Enabled" -Type DWORD -Value 0 -Verbose
+    Set-ItemProperty -Path $regcdm -Name "SubscribedContent-353698Enabled" -Type DWORD -Value 0 -Verbose
+    Set-ItemProperty -Path $regcdm -Name "SystemPaneSuggestionsEnabled" -Type DWORD -Value 0 -Verbose
+    Set-ItemProperty -Path $regcdm -Name "SoftLandingEnabled" -Type DWORD -Value 0 -Verbose
+    If (Test-Path -Path $regcdm\Subscriptionn){
+        Remove-Item -Path $regcdm\Subscriptionn -Recurse -Force -Verbose
     }
-    If (Test-Path -Path:HKCU:\Software\Microsoft\Windows\CurrentVersion\ContentDeliveryManager\SuggestedApps){
-        Remove-Item -Path:HKCU:\Software\Microsoft\Windows\CurrentVersion\ContentDeliveryManager\SuggestedApps -Recurse -Force -Verbose
+    If (Test-Path -Path $regcdm\SuggestedApps){
+        Remove-Item -Path $regcdm\SuggestedApps -Recurse -Force -Verbose
     }
     Write-Host ' Disabling Advertiser ID'
-    Set-ItemProperty -Path:HKCU:\Software\Microsoft\Windows\CurrentVersion\AdvertisingInfo -Name "DisabledByGroupPolicy" -Value 1 -Type DWORD -Verbose
-    Set-ItemProperty -Path:HKCU:\Software\Microsoft\Windows\CurrentVersion\AdvertisingInfo -Name "Enabled" -Value 0 -Type DWORD -Verbose
+    $regadvertising = "HKCU:\Software\Microsoft\Windows\CurrentVersion\AdvertisingInfo"
+    Set-ItemProperty -Path $regadvertising -Name "DisabledByGroupPolicy" -Value 1 -Type DWORD -Verbose
+    Set-ItemProperty -Path $regadvertising -Name "Enabled" -Value 0 -Type DWORD -Verbose
 
     Write-Host ' Disabling App Launch Trackin'
     If (!(Test-Path -Path:HKCU:\Software\Policies\Microsoft\Windows\EdgeUI)){
@@ -969,42 +977,48 @@ Function Registry {
     Set-ItemProperty -Path:HKCU:\Software\Policies\Microsoft\Windows\EdgeUI -Name "DisableMFUTracking" -Value 1 -Type DWORD -Verbose
 
     Write-Host ' Disabling Contact Harvesting'
-    Set-ItemProperty -Path:HKCU:\Software\Microsoft\InputPersonalization\TrainedDataStore -Name "HarvestContacts" -Value 0 -Verbose
+    $reginp = "HKCU:\Software\Microsoft\InputPersonalization"
+    Set-ItemProperty -Path $reginp\TrainedDataStore -Name "HarvestContacts" -Value 0 -Verbose
 
     Write-Host ' Declining Microsoft Privacy Policy'
     Set-ItemProperty -Path:HKCU:\Software\Microsoft\Personalization\Settings -Name "AcceptedPrivacyPolicy" -Value 0 -Verbose
 
     Write-Host ' Restricting Ink and Text Collection'
-    Set-ItemProperty -Path:HKCU:\Software\Microsoft\InputPersonalization -Name "RestrictImplicitInkCollection" -Value 1 -Verbose
-    Set-ItemProperty -Path:HKCU:\Software\Microsoft\InputPersonalization -Name "RestrictImplicitTextCollection" -Value 1 -Verbose
+    Set-ItemProperty -Path $reginp -Name "RestrictImplicitInkCollection" -Value 1 -Verbose
+    Set-ItemProperty -Path $reginp -Name "RestrictImplicitTextCollection" -Value 1 -Verbose
     
     Write-Host ' Disabling Feedback'
+    $siufrules = "HKCU:\Software\Microsoft\Siuf\Rules"
     If (!(Test-Path -Path:HKCU:\Software\Microsoft\Siuf)) { 
         New-Item -Path:HKCU:\Software\Microsoft -Name "Siuf" -Verbose
     }
-    If (!(Test-Path -Path:HKCU:\Software\Microsoft\Siuf\Rules)) {
-    New-Item -Path:HKCU:\Software\Microsoft\Siuf -Name "Rules" -Verbose
+    If (!(Test-Path -Path $siufrules)) {
+    New-Item -Path HKCU:\Software\Microsoft\Siuf -Name "Rules" -Verbose
     }
     Stop-Service "DiagTrack" -WarningAction SilentlyContinue -Verbose
     Set-Service "DiagTrack" -StartupType Disabled -Verbose
-    Set-ItemProperty -Path:HKCU:\Software\Microsoft\Siuf\Rules -Name "NumberOfSiufInPeriod" -Type DWORD -Value 0 -Verbose
-    Set-ItemProperty -Path:HKCU:\Software\Microsoft\Siuf\Rules -Name "PeriodInNanoSeconds" -Type QWORD -Value 0 -Verbose
+    Set-ItemProperty -Path $siufrules -Name "NumberOfSiufInPeriod" -Type DWORD -Value 0 -Verbose
+    Set-ItemProperty -Path $siufrules -Name "PeriodInNanoSeconds" -Type QWORD -Value 0 -Verbose
 
     Write-Host ' Disabling Windows Feedback Notifications'
     Set-ItemProperty -Path:HKLM:\SOFTWARE\Policies\Microsoft\Windows\DataCollection -Name "DoNotShowFeedbackNotifications" -Type DWORD -Value 1 -Verbose
     
     Write-Host ' Disabling Activity History'
-    Set-ItemProperty -Path:HKLM:\SOFTWARE\Policies\Microsoft\Windows\System -Name "EnableActivityFeed" -Type DWORD -Value 0 -Verbose
-    Set-ItemProperty -Path:HKLM:\SOFTWARE\Policies\Microsoft\Windows\System -Name "PublishUserActivities" -Type DWORD -Value 0 -Verbose
-    Set-ItemProperty -Path:HKLM:\SOFTWARE\Policies\Microsoft\Windows\System -Name "UploadUserActivities" -Type DWORD -Value 0 -Verbose
+    $regsys = "HKLM:\SOFTWARE\Policies\Microsoft\Windows\System"
+    Set-ItemProperty -Path $regsys -Name "EnableActivityFeed" -Type DWORD -Value 0 -Verbose
+    Set-ItemProperty -Path $regsys -Name "PublishUserActivities" -Type DWORD -Value 0 -Verbose
+    Set-ItemProperty -Path $regsys -Name "UploadUserActivities" -Type DWORD -Value 0 -Verbose
 
+    $regcam = "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\CapabilityAccessManager\ConsentStore\location"
     Write-Host ' Disabling Location Tracking'
-    If (!(Test-Path -Path:HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\CapabilityAccessManager\ConsentStore\location)) {
-        New-Item -Path:HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\CapabilityAccessManager\ConsentStore\location -Force -Verbose
+    If (!(Test-Path -Path:$regcam)) {
+        New-Item -Path:$regcam -Force -Verbose
     }
-    Set-ItemProperty -Path:HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\CapabilityAccessManager\ConsentStore\location -Name "Value" -Type String -Value "Deny" -Verbose
-    Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Sensor\Overrides\{BFA794E4-F964-4FDB-90F6-51056BFE4B44}" -Name "SensorPermissionState" -Type DWORD -Value 0 -Verbose
-    Set-ItemProperty -Path:HKLM:\SYSTEM\CurrentControlSet\Services\lfsvc\Service\Configuration -Name "Status" -Type DWORD -Value 0 -Verbose
+    $overrides = "HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Sensor\Overrides\{BFA794E4-F964-4FDB-90F6-51056BFE4B44}"
+    $lfsvc = "HKLM:\SYSTEM\CurrentControlSet\Services\lfsvc\Service\Configuration"
+    Set-ItemProperty -Path "$regcam" -Name "Value" -Type String -Value "Deny" -Verbose
+    Set-ItemProperty -Path "$overrides" -Name "SensorPermissionState" -Type DWORD -Value 0 -Verbose
+    Set-ItemProperty -Path "$lfsvc" -Name "Status" -Type DWORD -Value 0 -Verbose
 
     Write-Host ' Disabling automatic Maps updates'
     Set-ItemProperty -Path:HKLM:\SYSTEM\Maps -Name "AutoUpdateEnabled" -Type DWORD -Value 0 -Verbose
@@ -1173,12 +1187,13 @@ Function Debloat {
     }
 }
 Function OEMInfo{
+    $regoeminfo = "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\OEMInformation"
     $WindowTitle = "New Loads - OEM Info" ; $host.UI.RawUI.WindowTitle = $WindowTitle ; Write-Host "$frmt Applying OEM Information $frmt "
-    Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\OEMInformation" -Name "Manufacturer" -Type String -Value "Mother Computers" -Verbose
-    Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\OEMInformation" -Name "SupportPhone" -Type String -Value "(250) 479-8561" -Verbose
-    Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\OEMInformation" -Name "SupportHours" -Type String -Value "Monday - Saturday 9AM-5PM | Sunday - Closed" -Verbose
-    Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\OEMInformation" -Name "SupportURL" -Type String -Value "https://www.mothercomputers.com" -Verbose
-    Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\OEMInformation" -Name "Model" -Type String -Value "Mother Computers - (250) 479-8561"
+    Set-ItemProperty -Path $regoeminfo -Name "Manufacturer" -Type String -Value "Mother Computers" -Verbose
+    Set-ItemProperty -Path $regoeminfo -Name "SupportPhone" -Type String -Value "(250) 479-8561" -Verbose
+    Set-ItemProperty -Path $regoeminfo -Name "SupportHours" -Type String -Value "Monday - Saturday 9AM-5PM | Sunday - Closed" -Verbose
+    Set-ItemProperty -Path $regoeminfo -Name "SupportURL" -Type String -Value "https://www.mothercomputers.com" -Verbose
+    Set-ItemProperty -Path $regoeminfo -Name "Model" -Type String -Value "Mother Computers - (250) 479-8561"
     If($?){
         $oemyn = $y
     }
@@ -1258,12 +1273,12 @@ Function UndoDebloat {
 }
 Function UndoOEMInfo{
     Write-Host "$frmt Undoing OEM Information $frmt "
-
-    Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\OEMInformation" -Name "Manufacturer" -Type String -Value ""
-    Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\OEMInformation" -Name "Model" -Type String -Value ""
-    Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\OEMInformation" -Name "SupportHours" -Type String -Value ""
-    Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\OEMInformation" -Name "SupportURL" -Type String -Value ""
-    Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\OEMInformation" -Name "SupportPhone" -Type String -Value ""
+    $regoeminfo = "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\OEMInformation"
+    Set-ItemProperty -Path $regoeminfo -Name "Manufacturer" -Type String -Value ""
+    Set-ItemProperty -Path $regoeminfo -Name "Model" -Type String -Value ""
+    Set-ItemProperty -Path $regoeminfo -Name "SupportHours" -Type String -Value ""
+    Set-ItemProperty -Path $regoeminfo -Name "SupportURL" -Type String -Value ""
+    Set-ItemProperty -Path $regoeminfo -Name "SupportPhone" -Type String -Value ""
 
     $mocostore = "$env:localappdata"
     $mocostore = $mocostore + "\Microsoft\Windows\Themes"
@@ -1271,15 +1286,9 @@ Function UndoOEMInfo{
     Write-Host " Resetting Default Theme"
     Start-Process "C:\Windows\Resources\Themes\aero.theme"
 
-    Write-Host " Removing Mother Computers Themes"
-    If (Test-Path "$mocostore\Mother Co"){
-        Remove-Item "$mocostore\Mother Co" -Force -Recurse -Verbose -ErrorAction SilentlyContinue
-    }
-    If (Test-Path "$mocostore\Mother Co (2)"){
-        Remove-Item "$mocostore\Mother Co (2)" -Force -Recurse -Verbose -ErrorAction SilentlyContinue
-    }
-    If (Test-Path "$mocostore\Mother Co (3)"){
-        Remove-Item "$mocostore\Mother Co (3)" -Force -Recurse -Verbose -ErrorAction SilentlyContinue
+    If (Test-Path -Path "$wallpaper"){
+        Remove-Item -Path "$wallpaper" -Verbose -Force
+        Write-Host " Deleting wallpaper from location $wallpaper"
     }
     Start-Sleep -s 5
     taskkill /F /IM systemsettings.exe 2>$NULL
