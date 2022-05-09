@@ -447,7 +447,7 @@ $zoomyns = $n
 $debloatyns = $n 
 $onedriveyns = $n
 $newloads = $env:temp + "\New Loads\"
-$logfile = "$env:username\Desktop\New Loads GUI Log - *.txt"
+#$logfile = "$env:username\Desktop\New Loads GUI Log - *.txt"
 $log = "$env:USERPROFILE\Desktop\New Loads GUI Log - $dtime.txt"
 
 
@@ -513,7 +513,7 @@ Function Programs {
     $package3dl = "https://zoom.us/client/5.10.4.5035/ZoomInstallerFull.msi?archType=x64"
     $package3lc = $newloads + $package3
     $location3 = $env:PROGRAMFILES + "\Zoom\bin\Zoom.exe"
-    $zoomoi = $oi + $package4
+    #$zoomoi = $oi + $package4
 
     #Adobe Acrobat Reader DC 64GB
     $package4  = "AcroRdrDCx642200120085_MUI.exe"
@@ -1377,8 +1377,6 @@ Function Reboot([string]$arg){
     #}
     #Until ($TimeNow -ge $TimeEnd)
 #}
-
-
 Function EmailLog {
     $gui = "New Loads GUI"
     $versionrun = $gui
@@ -1386,6 +1384,25 @@ Function EmailLog {
     $user = $env:USERNAME
     $compname = $env:COMPUTERNAME
 
+    $chromeyns = $y
+    $appsyns = $y
+    $vlcyns = $y
+    $zoomyns = $y
+    $visualsyn = $y
+    $oemyn = $y
+    $onedriveyns = $y
+    $debloatyns = $y
+
+
+
+    $chromeyns 
+    $appsyns
+    $vlcyns
+    $zoomyns
+    $visualsyn
+    $oemyn
+    $onedriveyns
+    $debloatyns
 
     $attachlog = (Get-ChildItem -Path:~\Desktop -Recurse -Filter "*New Loads*.txt").Name
 
