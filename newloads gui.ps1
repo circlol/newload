@@ -426,26 +426,53 @@ $acrosc = "$Env:PUBLIC\Desktop\Adobe Acrobat DC.lnk"
 $ctemp = "C:\Temp"
 $jc = "`n Task completed. Ready for next input`n"
 $frmt = "`n`n========================================`n`n"
+$storage = "$env:appdata\Microsoft\Windows\Themes"
+$wallpaper = $storage + "\MotherComputersWallpaper.jpg"
+$currentwallpaper = (Get-ItemProperty -Path $regcp -Name Wallpaper).Wallpaper
+$sysmode = (Get-ItemProperty -Path $regpersonalize -Name SystemUsesLightTheme).SystemUsesLightTheme
+$appmode = (Get-ItemProperty -Path $regpersonalize -Name AppsUseLightTheme).AppsUseLightTheme
 $BuildNumber = (Get-ItemProperty -Path c:\windows\system32\hal.dll).VersionInfo.ProductVersion
 $WantedBuild = "10.0.22000"
 $dtime = (Get-Date -UFormat %H.%M-%Y.%m.%d)
 $blstat = "on"
 $22h2 = 22593
-$y = 'Y'
-#$y = '√'
+#$y = 'Y'
+$y = '√'
 $n = 'X'
 $s = 'SKIPPED'
-<#
 $chromeyns = $n
 $adobeyns = $n
 $vlcyns = $n
 $zoomyns = $n
 $debloatyns = $n 
 $onedriveyns = $n
-#>
 $newloads = $env:temp + "\New Loads\"
 $logfile = "$env:username\Desktop\New Loads GUI Log - *.txt"
 $log = "$env:USERPROFILE\Desktop\New Loads GUI Log - $dtime.txt"
+
+
+
+
+
+
+
+
+
+$regoverrides = "HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Sensor\Overrides\{BFA794E4-F964-4FDB-90F6-51056BFE4B44}"
+$lfsvc = "HKLM:\SYSTEM\CurrentControlSet\Services\lfsvc\Service\Configuration"
+$wifisense = "HKLM:\Software\Microsoft\PolicyManager\default\WiFi"
+$siufrules = "HKCU:\Software\Microsoft\Siuf\Rules"
+$regcam = "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\CapabilityAccessManager\ConsentStore\location"
+$regcdm = "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\ContentDeliveryManager"
+$reginp = "HKCU:\Software\Microsoft\InputPersonalization"
+$regadvertising = "HKCU:\Software\Microsoft\Windows\CurrentVersion\AdvertisingInfo"
+$regsys = "HKLM:\SOFTWARE\Policies\Microsoft\Windows\System"
+$regex = "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer"
+$regexlm = "HKLM:\Software\Microsoft\Windows\CurrentVersion\Explorer"
+$regexadv = "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced"
+$regcv = "HKCU:\Software\Microsoft\Windows\CurrentVersion"
+$regpersonalize = "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Themes\Personalize"
+
 
 If (!(Test-Path -Path:"$newloads")){
     New-Item -Path:"$Env:Temp" -Name:"New Loads" -ItemType:Directory -Force | Out-Null
@@ -681,18 +708,13 @@ Function Visuals {
 		Write-Host " Explorer Started"
     }
     Write-Host "$frmt Applying Visuals $frmt"
-    $storage = "$env:appdata\Microsoft\Windows\Themes"
-    $wallpaper = $storage + "\MotherComputersWallpaper.jpg"
-    $regpersonalize = "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Themes\Personalize"
-    $currentwallpaper = (Get-ItemProperty -Path $regcp -Name Wallpaper).Wallpaper
-    $sysmode = (Get-ItemProperty -Path $regpersonalize -Name SystemUsesLightTheme).SystemUsesLightTheme
-    $appmode = (Get-ItemProperty -Path $regpersonalize -Name AppsUseLightTheme).AppsUseLightTheme
 
     If (!(Test-Path -Path $Wallpaper)){
     If ($BuildNumber -gt $WantedBuild) {
         Write-Host " Downloading Wallpaper"
         Write-Host " I have detected that you are on Windows 11"
-        Start-BitsTransfer -Source "https://github.com/circlol/newload/raw/main/Assets/wallpaper/11.jpg" -Destination $wallpaper -Verbose
+        $11link = "https://github.com/circlol/newload/raw/main/Assets/wallpaper/11.jpg"
+        Start-BitsTransfer -Source "$11link" -Destination $wallpaper -Verbose
         If($? -eq $True){
             Write-Host " Successful"
             $visualsyn = $y
@@ -701,7 +723,8 @@ Function Visuals {
         If ($BuildNumber -lt $WantedBuild) {
             Write-Host " I have detected that you are on Windows 10"
             Write-Host " Downloading Wallpaper"
-            Start-BitsTransfer -Source "https://github.com/circlol/newload/raw/main/Assets/wallpaper/10.jpg" -Destination $wallpaper -Verbose
+            $10link = "https://github.com/circlol/newload/raw/main/Assets/wallpaper/10.jpg"
+            Start-BitsTransfer -Source "$10link" -Destination $wallpaper -Verbose
             If($? -eq $True){
                 Write-Host " Successful"
                 $visualsyn = $y
@@ -844,17 +867,15 @@ Function OneDrive {
     }
 }
 Function Registry {
-    $WindowTitle = "New Loads - Registry" ; $host.UI.RawUI.WindowTitle = $WindowTitle ; Write-Host "$frmt Applying Registry Changes $frmt"
+    $WindowTitle = "New Loads - Registry" ; $host.UI.RawUI.WindowTitle = $WindowTitle ; 
+    Write-Host "$frmt Applying Registry Changes $frmt"
     
-    $regex = "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer"
-    $regexlm = "HKLM:\Software\Microsoft\Windows\CurrentVersion\Explorer"
-    $regexadv = "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced"
-    
+
     If ($BuildNumber -lt $WantedBuild) {            ## Windows 10
 
         Write-Host " Applying Windows 10 Specific Registry Keys`n"
         Write-Host ' Changing Searchbox to Icon Format on Taskbar'
-        Set-ItemProperty -Path:HKCU:\Software\Microsoft\Windows\CurrentVersion\Search -Name "SearchboxTaskbarMode" -Value 1 -Verbose
+        Set-ItemProperty -Path $regcv\Search -Name "SearchboxTaskbarMode" -Value 1 -Verbose
         Write-Host ' Removing Cortana Icon from Taskbar'
         Set-ItemProperty -Path $regexadv -Name "ShowCortanaButton" -Value 0 -Verbose
         
@@ -872,10 +893,10 @@ Function Registry {
         }
 
         Write-Host ' Disabling Feeds open on hover'
-        If (!(Test-Path -Path:HKCU:\Software\Microsoft\Windows\CurrentVersion\Feeds)){
-            New-Item -Path:HKCU:\Software\Microsoft\Windows\CurrentVersion -Name "Feeds" -Verbose
+        If (!(Test-Path -Path $regcv\Feeds)){
+            New-Item -Path $regcv -Name "Feeds" -Verbose
         }
-        Set-ItemProperty -Path:HKCU:\Software\Microsoft\Windows\CurrentVersion\Feeds -Name "ShellFeedsTaskbarOpenOnHover" -Value 0 -Verbose
+        Set-ItemProperty -Path $regcv\Feeds -Name "ShellFeedsTaskbarOpenOnHover" -Value 0 -Verbose
         
 
     }
@@ -889,10 +910,10 @@ Function Registry {
         Set-ItemProperty -Path $regexadv -Name "TaskBarMn" -Value 0 -Verbose
     
         Write-Host ' Removing "Meet Now" button from taskbar'
-        If (!(Test-Path -Path:HKCU:\Software\Microsoft\Windows\CurrentVersion\Policies\Explorer)) {
-            New-Item -Path:HKCU:\Software\Microsoft\Windows\CurrentVersion\Policies\Explorer -Force -Verbose
+        If (!(Test-Path -Path $regcv\Policies\Explorer)) {
+            New-Item -Path $regcv\Policies\Explorer -Force -Verbose
         }
-        Set-ItemProperty -Path:HKCU:\Software\Microsoft\Windows\CurrentVersion\Policies\Explorer -Name "HideSCAMeetNow" -Type DWORD -Value 1 -Verbose
+        Set-ItemProperty -Path $regcv\Policies\Explorer -Name "HideSCAMeetNow" -Type DWORD -Value 1 -Verbose
         
             
     }
@@ -939,7 +960,7 @@ Function Registry {
 
     ### Privacy
     Write-Host ' Disabling Content Delivery Related Setings'
-    $regcdm = "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\ContentDeliveryManager"
+
     If (!(Test-Path -Path $regcdm)){
         New-Item -Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion" -Name "ContentDeliveryManager" -Verbose
     }
@@ -966,7 +987,6 @@ Function Registry {
         Remove-Item -Path $regcdm\SuggestedApps -Recurse -Force -Verbose
     }
     Write-Host ' Disabling Advertiser ID'
-    $regadvertising = "HKCU:\Software\Microsoft\Windows\CurrentVersion\AdvertisingInfo"
     Set-ItemProperty -Path $regadvertising -Name "DisabledByGroupPolicy" -Value 1 -Type DWORD -Verbose
     Set-ItemProperty -Path $regadvertising -Name "Enabled" -Value 0 -Type DWORD -Verbose
 
@@ -977,7 +997,6 @@ Function Registry {
     Set-ItemProperty -Path:HKCU:\Software\Policies\Microsoft\Windows\EdgeUI -Name "DisableMFUTracking" -Value 1 -Type DWORD -Verbose
 
     Write-Host ' Disabling Contact Harvesting'
-    $reginp = "HKCU:\Software\Microsoft\InputPersonalization"
     Set-ItemProperty -Path $reginp\TrainedDataStore -Name "HarvestContacts" -Value 0 -Verbose
 
     Write-Host ' Declining Microsoft Privacy Policy'
@@ -988,7 +1007,7 @@ Function Registry {
     Set-ItemProperty -Path $reginp -Name "RestrictImplicitTextCollection" -Value 1 -Verbose
     
     Write-Host ' Disabling Feedback'
-    $siufrules = "HKCU:\Software\Microsoft\Siuf\Rules"
+
     If (!(Test-Path -Path:HKCU:\Software\Microsoft\Siuf)) { 
         New-Item -Path:HKCU:\Software\Microsoft -Name "Siuf" -Verbose
     }
@@ -1004,20 +1023,17 @@ Function Registry {
     Set-ItemProperty -Path:HKLM:\SOFTWARE\Policies\Microsoft\Windows\DataCollection -Name "DoNotShowFeedbackNotifications" -Type DWORD -Value 1 -Verbose
     
     Write-Host ' Disabling Activity History'
-    $regsys = "HKLM:\SOFTWARE\Policies\Microsoft\Windows\System"
+
     Set-ItemProperty -Path $regsys -Name "EnableActivityFeed" -Type DWORD -Value 0 -Verbose
     Set-ItemProperty -Path $regsys -Name "PublishUserActivities" -Type DWORD -Value 0 -Verbose
     Set-ItemProperty -Path $regsys -Name "UploadUserActivities" -Type DWORD -Value 0 -Verbose
 
-    $regcam = "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\CapabilityAccessManager\ConsentStore\location"
     Write-Host ' Disabling Location Tracking'
     If (!(Test-Path -Path:$regcam)) {
         New-Item -Path:$regcam -Force -Verbose
     }
-    $overrides = "HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Sensor\Overrides\{BFA794E4-F964-4FDB-90F6-51056BFE4B44}"
-    $lfsvc = "HKLM:\SYSTEM\CurrentControlSet\Services\lfsvc\Service\Configuration"
     Set-ItemProperty -Path "$regcam" -Name "Value" -Type String -Value "Deny" -Verbose
-    Set-ItemProperty -Path "$overrides" -Name "SensorPermissionState" -Type DWORD -Value 0 -Verbose
+    Set-ItemProperty -Path " $regoverrides" -Name "SensorPermissionState" -Type DWORD -Value 0 -Verbose
     Set-ItemProperty -Path "$lfsvc" -Name "Status" -Type DWORD -Value 0 -Verbose
 
     Write-Host ' Disabling automatic Maps updates'
@@ -1036,11 +1052,11 @@ Function Registry {
     Disable-ScheduledTask -TaskName "Microsoft\Windows\DiskDiagnostic\Microsoft-Windows-DiskDiagnosticDataCollector" | Out-Null
 
     Write-Host ' Disabling Wi-Fi Sense'
-    If (!(Test-Path -Path:HKLM:\Software\Microsoft\PolicyManager\default\WiFi\AllowWiFiHotSpotReporting)) {
-        New-Item -Path:HKLM:\Software\Microsoft\PolicyManager\default\WiFi\AllowWiFiHotSpotReporting -Force -Verbose
+    If (!(Test-Path -Path $wifisense\AllowWiFiHotSpotReporting)) {
+        New-Item -Path $wifisense\AllowWiFiHotSpotReporting -Force -Verbose
     }
-    Set-ItemProperty -Path:HKLM:\Software\Microsoft\PolicyManager\default\WiFi\AllowWiFiHotSpotReporting -Name "Value" -Type DWORD -Value 0 -Verbose
-    Set-ItemProperty -Path:HKLM:\Software\Microsoft\PolicyManager\default\WiFi\AllowAutoConnectToWiFiSenseHotspots -Name "Value" -Type DWORD -Value 0 -Verbose
+    Set-ItemProperty -Path $wifisense\AllowWiFiHotSpotReporting -Name "Value" -Type DWORD -Value 0 -Verbose
+    Set-ItemProperty -Path $wifisense\AllowAutoConnectToWiFiSenseHotspots -Name "Value" -Type DWORD -Value 0 -Verbose
 
 
     If (!(Test-Path -Path:HKLM:\SOFTWARE\Policies\Microsoft\Windows\CloudContent)) {
@@ -1057,13 +1073,13 @@ Function Registry {
         $taskmgr = Start-Process -WindowStyle Hidden -FilePath taskmgr.exe -PassThru -Verbose
         Do {
             Start-Sleep -Milliseconds 100
-            $preferences = Get-ItemProperty -Path:HKCU:\Software\Microsoft\Windows\CurrentVersion\TaskManager -Name "Preferences" -ErrorAction SilentlyContinue
+            $preferences = Get-ItemProperty -Path $regcv\TaskManager -Name "Preferences" -ErrorAction SilentlyContinue
         } Until ($preferences)
         Stop-Process $taskmgr
         $preferences.Preferences[28] = 0
-        Set-ItemProperty -Path:HKCU:\Software\Microsoft\Windows\CurrentVersion\TaskManager -Name "Preferences" -Type Binary -Value $preferences.Preferences -Verbose
+        Set-ItemProperty -Path $regcv\TaskManager -Name "Preferences" -Type Binary -Value $preferences.Preferences -Verbose
         Write-Host ' Setting default tab to Performance'
-        Set-ItemProperty -Path:HKCU:\Software\Microsoft\Windows\CurrentVersion\TaskManager -Name "StartUpTab" -Value 1 -Type DWORD -Verbose
+        Set-ItemProperty -Path $regcv\TaskManager -Name "StartUpTab" -Value 1 -Type DWORD -Verbose
     }
     Write-Host ' Enabling F8 boot menu options'
     bcdedit /set `{current`} bootmenupolicy Legacy | Out-Null
@@ -1555,14 +1571,14 @@ $Reboot.add_click{
 }
 $LightMode.Add_Click{
     Write-Host " Applying light mode"
-    Set-ItemProperty -Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Themes\Personalize" -Name "SystemUsesLightTheme" -Value 1
-    Set-ItemProperty -Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Themes\Personalize" -Name "AppsUseLightTheme" -Value 1
+    Set-ItemProperty -Path " $regcv\Themes\Personalize" -Name "SystemUsesLightTheme" -Value 1
+    Set-ItemProperty -Path " $regcv\Themes\Personalize" -Name "AppsUseLightTheme" -Value 1
     Write-Host "$jc"  
 }    
 $DarkMode.Add_Click{
     Write-Host " Applying dark mode"
-    Set-ItemProperty -Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Themes\Personalize" -Name "SystemUsesLightTheme" -Value 0
-    Set-ItemProperty -Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Themes\Personalize" -Name "AppsUseLightTheme" -Value 0
+    Set-ItemProperty -Path " $regcv\Themes\Personalize" -Name "SystemUsesLightTheme" -Value 0
+    Set-ItemProperty -Path " $regcv\Themes\Personalize" -Name "AppsUseLightTheme" -Value 0
     Write-Host "$jc"  
 }
 $UndoScript.Add_Click{
