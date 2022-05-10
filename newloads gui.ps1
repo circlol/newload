@@ -764,6 +764,7 @@ Function Visuals {
         Write-Host " Wallpaper already exists on this system. Checking if its set."
     }
     If (!($currentwallpaper -eq $wallpaper)){
+        Write-Host " It is not."
         Set-WallPaper -Image $wallpaper -Style Stretch
     } else {
         Write-Host " Detected wallpaper is set to New Loads"
@@ -1757,7 +1758,6 @@ If ($reason -eq $wantedreason){
 $RunScript.Add_Click{
 Start-Transcript -LiteralPath "$log"
 Write-Host "$frmt Running New Loads `n `n GUI will be unusable whilst an action is in sequence.`n$frmt"
-#Choco_programs
 Programs
 OEMInfo
 Visuals
@@ -1780,14 +1780,12 @@ Start-Transcript -LiteralPath "$log"
 $oemyns = $s
 $oemyns
 Write-Host "$frmt Running New Loads without Branding`n`n GUI will be unusable whilst an action is in sequence.`n$frmt"
-#Choco_programs
 Programs
 StartMenu
 Registry
 OneDrive
 Debloat
 Cleanup
-RestorePoint
 Stop-Transcript
 EmailLog
 Notify("Script has Completed.
