@@ -418,6 +418,9 @@ $form.controls.AddRange(@($RunNoOEM,$RunScript,$UndoScript,$ExitButton,$nvidiash
 $programversion = "22510"
 
 
+$newloads = $env:temp + "\New Loads\"
+$log = "$env:USERPROFILE\Desktop\New Loads GUI Log - $dtime.txt"
+
 $onedrivelocation = "$env:SystemRoot\SysWOW64\OneDriveSetup.exe"
 $EdgeShortcut = "$Env:USERPROFILE\Desktop\Microsoft Edge.lnk"
 $edgescpub = "$Env:PUBLIC\Desktop\Microsoft Edge.lnk"
@@ -426,33 +429,73 @@ $acrosc = "$Env:PUBLIC\Desktop\Adobe Acrobat DC.lnk"
 $ctemp = "C:\Temp"
 $jc = "`n Task completed. Ready for next input`n"
 $frmt = "`n`n========================================`n`n"
-$storage = "$env:appdata\Microsoft\Windows\Themes"
-$wallpaper = $storage + "\MotherComputersWallpaper.jpg"
-$currentwallpaper = (Get-ItemProperty -Path $regcp -Name Wallpaper).Wallpaper
-$sysmode = (Get-ItemProperty -Path $regpersonalize -Name SystemUsesLightTheme).SystemUsesLightTheme
-$appmode = (Get-ItemProperty -Path $regpersonalize -Name AppsUseLightTheme).AppsUseLightTheme
 $BuildNumber = (Get-ItemProperty -Path c:\windows\system32\hal.dll).VersionInfo.ProductVersion
 $WantedBuild = "10.0.22000"
 $dtime = (Get-Date -UFormat %H.%M-%Y.%m.%d)
 $blstat = "on"
 $22h2 = 22593
-#$y = 'Y'
-$y = '√'
+
+$oi = ".\Offline Installers\"
+
+
+#Google Chrome
+$package1  = "googlechromestandaloneenterprise64.msi"
+$package1dl = "https://dl.google.com/dl/chrome/install/googlechromestandaloneenterprise64.msi"
+$package1lc = $newloads + $package1
+$location1 = $env:PROGRAMFILES + "\Google\Chrome\Application\chrome.exe"
+$gcoi = $oi + $package1
+
+#VLC Media Player
+$package2  = "vlc-3.0.17-win64.msi"
+$package2dl = "https://github.com/circlol/newload/raw/main/Assets/BAF/vlc-3.0.17-win64.msi"
+$package2lc = $newloads + $package2
+$location2 = $env:PROGRAMFILES + "\VideoLAN\VLC\vlc.exe"
+$vlcoi = $oi + $package2
+
+#Zoom
+$package3 = "ZoomInstallerFull.msi"
+$package3dl = "https://zoom.us/client/5.10.4.5035/ZoomInstallerFull.msi?archType=x64"
+$package3lc = $newloads + $package3
+$location3 = $env:PROGRAMFILES + "\Zoom\bin\Zoom.exe"
+#$zoomoi = $oi + $package4
+
+#Adobe Acrobat Reader DC 64GB
+$package4  = "AcroRdrDCx642200120085_MUI.exe"
+$package4dl = "https://ardownload2.adobe.com/pub/adobe/acrobat/win/AcrobatDC/2200120085/AcroRdrDCx642200120085_MUI.exe"
+$package4lc = $newloads + $package4
+$location4 = $env:PROGRAMFILES + "\Adobe\Acrobat DC\Acrobat\Acrobat.exe"
+$aroi = $oi + $package4
+
+
+
+$storage = "$env:appdata\Microsoft\Windows\Themes"
+$wallpaper = $storage + "\MotherComputersWallpaper.jpg"
+$currentwallpaper = (Get-ItemProperty -Path "HKCU:\Control Panel\Desktop" -Name Wallpaper).Wallpaper
+$sysmode = (Get-ItemProperty -Path HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Themes\Personalize -Name SystemUsesLightTheme).SystemUsesLightTheme
+$appmode = (Get-ItemProperty -Path HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Themes\Personalize -Name AppsUseLightTheme).AppsUseLightTheme
+
+
+
+
+
+$y = 'Y'
+#$y = '√'
 $n = 'X'
+
 $s = 'SKIPPED'
+
 $chromeyns = $n
 $adobeyns = $n
 $vlcyns = $n
 $zoomyns = $n
 $debloatyns = $n 
 $onedriveyns = $n
-$newloads = $env:temp + "\New Loads\"
-#$logfile = "$env:username\Desktop\New Loads GUI Log - *.txt"
-$log = "$env:USERPROFILE\Desktop\New Loads GUI Log - $dtime.txt"
 
 
 
-$regoverrides = "HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Sensor\Overrides\{BFA794E4-F964-4FDB-90F6-51056BFE4B44}"
+
+
+
 $lfsvc = "HKLM:\SYSTEM\CurrentControlSet\Services\lfsvc\Service\Configuration"
 $wifisense = "HKLM:\Software\Microsoft\PolicyManager\default\WiFi"
 $siufrules = "HKCU:\Software\Microsoft\Siuf\Rules"
@@ -472,10 +515,8 @@ $regpersonalize = "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Themes\Person
 
 
 
-
-
 If (!(Test-Path -Path:"$newloads")){
-    New-Item -Path:"$Env:Temp" -Name:"New Loads" -ItemType:Directory -Force | Out-Null
+    New-Item -Path "$Env:Temp" -Name "New Loads" -ItemType:Directory -Force | Out-Null
 }
 
 Function Check {
@@ -491,50 +532,17 @@ Function Programs {
     $WindowTitle = "New Loads - Installing Applications" ; $host.UI.RawUI.WindowTitle = $WindowTitle
     Write-Host "$frmt Installing Apps.$frmt"
 
-    $oi = ".\Offline Installers\"
-
-
-    #Google Chrome
-    $package1  = "googlechromestandaloneenterprise64.msi"
-    $package1dl = "https://dl.google.com/dl/chrome/install/googlechromestandaloneenterprise64.msi"
-    $package1lc = $newloads + $package1
-    $location1 = $env:PROGRAMFILES + "\Google\Chrome\Application\chrome.exe"
-    $gcoi = $oi + $package1
-    
-    #VLC Media Player
-    $package2  = "vlc-3.0.17-win64.msi"
-    $package2dl = "https://github.com/circlol/newload/raw/main/Assets/BAF/vlc-3.0.17-win64.msi"
-    $package2lc = $newloads + $package2
-    $location2 = $env:PROGRAMFILES + "\VideoLAN\VLC\vlc.exe"
-    $vlcoi = $oi + $package2
-    
-    #Zoom
-    $package3 = "ZoomInstallerFull.msi"
-    $package3dl = "https://zoom.us/client/5.10.4.5035/ZoomInstallerFull.msi?archType=x64"
-    $package3lc = $newloads + $package3
-    $location3 = $env:PROGRAMFILES + "\Zoom\bin\Zoom.exe"
-    #$zoomoi = $oi + $package4
-
-    #Adobe Acrobat Reader DC 64GB
-    $package4  = "AcroRdrDCx642200120085_MUI.exe"
-    $package4dl = "https://ardownload2.adobe.com/pub/adobe/acrobat/win/AcrobatDC/2200120085/AcroRdrDCx642200120085_MUI.exe"
-    $package4lc = $newloads + $package4
-    $location4 = $env:PROGRAMFILES + "\Adobe\Acrobat DC\Acrobat\Acrobat.exe"
-    $aroi = $oi + $package4
-
     #Google
     If (!(Test-Path -Path:$Location1)){
         If (Test-Path -Path:$gcoi){
-            $ublock = "HKLM\Software\Wow6432Node\Google\Chrome\Extensions\cjpalhdlnbpafiamejdnhcphjbkeiagm"
             Write-Host " Flagging UBlock Origin for Installation"
-            REG ADD  /v update_url /t REG_SZ /d https://clients2.google.com/service/update2/crx /f > $Null
+            REG ADD "HKLM\Software\Wow6432Node\Google\Chrome\Extensions\cjpalhdlnbpafiamejdnhcphjbkeiagm" /v update_url /t REG_SZ /d https://clients2.google.com/service/update2/crx /f > $Null
             Write-Host " Installing $Package1`n"
             #Start-Process $gcoi /passive -Wait
             Start-Process -FilePath:$gcoi -ArgumentList /passive -Verbose -Wait
         } else {
             Write-Host " Flagging UBlock Origin for Installation"
-            $ublock = "HKLM\Software\Wow6432Node\Google\Chrome\Extensions\cjpalhdlnbpafiamejdnhcphjbkeiagm"
-            REG ADD $ublock /v update_url /t REG_SZ /d https://clients2.google.com/service/update2/crx /f > $Null
+            REG ADD "HKLM\Software\Wow6432Node\Google\Chrome\Extensions\cjpalhdlnbpafiamejdnhcphjbkeiagm" /v update_url /t REG_SZ /d https://clients2.google.com/service/update2/crx /f > $Null
             Write-Host "`n`n Downloading $Package1" 
             Start-BitsTransfer -Source $package1dl -Destination $package1lc
             Check
@@ -543,6 +551,7 @@ Function Programs {
         }
         If ($? -eq $true){
             $chromeyns = $y
+            #$chromeyns
         }
         } else {
             Write-Host "`n Verified $package1 is already Installed. Moving On. "
@@ -554,6 +563,7 @@ Function Programs {
             Write-Host " Installing $Package2`n"
             Start-Process -FilePath:$vlcoi -ArgumentList /quiet -Verbose -Wait
             $vlcyns = "$y"
+            $vlcyns
         } else {
             Write-Host "`n`n Downloading $Package2" 
             Start-BitsTransfer -Source $Package2dl -Destination $package2lc
@@ -604,6 +614,7 @@ Function Programs {
         } else {
         Write-Host "`n Verified $package3 is already installed. Skipping"
         $zoomyns = "$s"
+        $zoomyns
     }
 
     #Adobe
@@ -614,6 +625,7 @@ Function Programs {
             Start-Process -FilePath:$aroi -ArgumentList /sPB -Verbose
             If ($?){
                 $adobeyns = "$y"
+                $adobeyns
             }
 
         } else {
@@ -632,12 +644,30 @@ Function Programs {
             $adobeyns = "$s"
         } 
     
-
+        $webadvisor = "C:\Program Files\McAfee\WebAdvisor\Uninstaller.exe"
+        If (Test-Path -Path $webadvisor){
+            Write-Host " Attemping Removal of McAfee WebAdvisor Uninstall"
+            msiexec.exe /x {35ED3F83-4BDC-4c44-8EC6-6A8301C7413A} /qn
+        }
+        
+        $WildGames = "C:\Program Files (x86)\WildGames\Uninstall.exe"
+        If (Test-Path -Path $WildGames){
+            Write-Host " Attemping Removal WildTangent Games"
+            Start-Process "C:\Program Files (x86)\WildGames\Uninstall.exe" -ArgumentList /S -Force -Verbose
+        }
+        
+        $livesafe = "C:\Program Files\McAfee\MSC\mcuihost.exe"
+        If (Test-Path -Path $livesafe){
+            Write-Host " Attemping Removal of McAfee Live Safe"
+            Start-Process -Path $Livesafe -ArgumentList /body:misp://MSCJsRes.dll::uninstall.html /id:uninstall -Force
+        
+        }
 
     
     } else {
 
         $appsyns = "$s"
+        $appsyns
         Write-Host " App Install has been disabled by technician.`n Moving on."
     }
     
@@ -664,17 +694,16 @@ Function Set-WallPaper {
       
     }
      
-    $regcp = "HKCU:\Control Panel\Desktop"
     If($Style -eq "Tile") {
      
-        New-ItemProperty -Path "$regcp" -Name WallpaperStyle -PropertyType String -Value $WallpaperStyle -Force
-        New-ItemProperty -Path "$regcp" -Name TileWallpaper -PropertyType String -Value 1 -Force
+        New-ItemProperty -Path "HKCU:\Control Panel\Desktop" -Name WallpaperStyle -PropertyType String -Value $WallpaperStyle -Force
+        New-ItemProperty -Path "HKCU:\Control Panel\Desktop" -Name TileWallpaper -PropertyType String -Value 1 -Force
      
     }
     Else {
      
-        New-ItemProperty -Path "$regcp" -Name WallpaperStyle -PropertyType String -Value $WallpaperStyle -Force
-        New-ItemProperty -Path "$regcp" -Name TileWallpaper -PropertyType String -Value 0 -Force
+        New-ItemProperty -Path "HKCU:\Control Panel\Desktop" -Name WallpaperStyle -PropertyType String -Value $WallpaperStyle -Force
+        New-ItemProperty -Path "HKCU:\Control Panel\Desktop" -Name TileWallpaper -PropertyType String -Value 0 -Force
      
     }
      
@@ -708,23 +737,22 @@ Function Visuals {
 		Write-Host " Explorer Started"
     }
     Write-Host "$frmt Applying Visuals $frmt"
-
+    
     If (!(Test-Path -Path $Wallpaper)){
     If ($BuildNumber -gt $WantedBuild) {
         Write-Host " Downloading Wallpaper"
         Write-Host " I have detected that you are on Windows 11"
-        $11link = "https://github.com/circlol/newload/raw/main/Assets/wallpaper/11.jpg"
-        Start-BitsTransfer -Source "$11link" -Destination $wallpaper -Verbose
+        Start-BitsTransfer -Source "https://github.com/circlol/newload/raw/main/Assets/wallpaper/11.jpg" -Destination $wallpaper -Verbose
         If($? -eq $True){
             Write-Host " Successful"
             $visualsyn = $y
+            $visualsyn
         }
     } else {
         If ($BuildNumber -lt $WantedBuild) {
             Write-Host " I have detected that you are on Windows 10"
             Write-Host " Downloading Wallpaper"
-            $10link = "https://github.com/circlol/newload/raw/main/Assets/wallpaper/10.jpg"
-            Start-BitsTransfer -Source "$10link" -Destination $wallpaper -Verbose
+            Start-BitsTransfer -Source "https://github.com/circlol/newload/raw/main/Assets/wallpaper/10.jpg" -Destination $wallpaper -Verbose
             If($? -eq $True){
                 Write-Host " Successful"
                 $visualsyn = $y
@@ -847,12 +875,12 @@ Function OneDrive {
         Start-Process -FilePath:C:\Windows\SysWOW64\OneDriveSetup.exe -ArgumentList /uninstall -Verbose
         If($?){
             $onedriveyns = "$y"
+            $onedriveyns
         }
     }
-    $odsetuplc = "C:\Windows\System32\OneDriveSetup.exe"
-    If (Test-Path $odsetuplc){
+    If (Test-Path C:\Windows\System32\OneDriveSetup.exe){
         Write-Host " Also found OneDrive in sys32, Removing"
-        Start-Process -FilePath $odsetuplc -ArgumentList /uninstall -Verbose -ErrorAction SilentlyContinue
+        Start-Process -FilePath:C:\Windows\System32\OneDriveSetup.exe -ArgumentList /uninstall -Verbose -ErrorAction SilentlyContinue
         If($?){
             $onedriveyns = "$y"
         }
@@ -897,7 +925,7 @@ Function Registry {
             New-Item -Path $regcv -Name "Feeds" -Verbose
         }
         Set-ItemProperty -Path $regcv\Feeds -Name "ShellFeedsTaskbarOpenOnHover" -Value 0 -Verbose
-        
+    
 
     }
 
@@ -916,6 +944,18 @@ Function Registry {
         Set-ItemProperty -Path $regcv\Policies\Explorer -Name "HideSCAMeetNow" -Type DWORD -Value 1 -Verbose
         
             
+    }
+
+
+    # Checks current value for Game mode and E.
+    $key1 = "HKCU:\Software\Microsoft\GameBar"
+    $key2 = "AutoGameModeEnabled"
+    $agme = (Get-ItemProperty -Path $key1).$key2
+    If ($agme -eq 1){
+        Write-Host " Game Mode is already enabled."
+    } else {
+        Write-Host " Enabling Game Mode"
+        Set-ItemProperty -Path $key1 -Name $key2 -Value 1 -Verbose -Force
     }
     
     Write-Host " Removing Unnecessary printers"
@@ -1033,7 +1073,7 @@ Function Registry {
         New-Item -Path:$regcam -Force -Verbose
     }
     Set-ItemProperty -Path "$regcam" -Name "Value" -Type String -Value "Deny" -Verbose
-    Set-ItemProperty -Path " $regoverrides" -Name "SensorPermissionState" -Type DWORD -Value 0 -Verbose
+    Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Sensor\Overrides\{BFA794E4-F964-4FDB-90F6-51056BFE4B44}" -Name "SensorPermissionState" -Type DWORD -Value 0 -Verbose
     Set-ItemProperty -Path "$lfsvc" -Name "Status" -Type DWORD -Value 0 -Verbose
 
     Write-Host ' Disabling automatic Maps updates'
@@ -1058,11 +1098,22 @@ Function Registry {
     Set-ItemProperty -Path $wifisense\AllowWiFiHotSpotReporting -Name "Value" -Type DWORD -Value 0 -Verbose
     Set-ItemProperty -Path $wifisense\AllowAutoConnectToWiFiSenseHotspots -Name "Value" -Type DWORD -Value 0 -Verbose
 
-
-    If (!(Test-Path -Path:HKLM:\SOFTWARE\Policies\Microsoft\Windows\CloudContent)) {
-    New-Item -Path:HKLM:\SOFTWARE\Policies\Microsoft\Windows\CloudContent -Force -Verbose
+    $cloudcontent = "HKLM:\SOFTWARE\Policies\Microsoft\Windows\CloudContent"
+    If (!(Test-Path -Path $cloudcontent)) {
+    New-Item -Path $cloudcontent -Force -Verbose
     }
-    Set-ItemProperty -Path:HKLM:\SOFTWARE\Policies\Microsoft\Windows\CloudContent -Name "DisableWindowsConsumerFeatures" -Type DWORD -Value 1 -Verbose
+    Set-ItemProperty -Path $cloudcontent -Name "DisableWindowsConsumerFeatures" -Type DWORD -Value 1 -Verbose
+
+    $key1 = "HKCU:\Software\Microsoft\Windows\CurrentVersion\Privacy"
+    $key2 = "TailoredExperiencesWithDiagnosticDataEnabled"
+    $defaultvalue = (Get-ItemProperty -Path $key1).TailoredExperiencesWithDiagnosticDataEnabled
+    $wantedvalue = 0
+    If ($defaultvalue -eq $wantedvalue){
+        Write-Host " Value doesn't need to be changed"
+    } else {
+        Set-ItemProperty -Path $key1 -Name "$key2" -Value 0 -Type DWORD -Force -Verbose
+    }
+
 
     ### System
     
@@ -1111,6 +1162,8 @@ Function Registry {
     Write-Host ' Increasing stack size up to 30'
     Set-ItemProperty -Path:HKLM:\SYSTEM\CurrentControlSet\Services\LanmanServer\Parameters -Name "IRPStackSize" -Type DWORD -Value 30 -Verbose
         
+
+
     Write-Host "$frmt Registry changes applied $frmt"
 }
 Function Debloat {
@@ -1127,7 +1180,7 @@ Function Debloat {
     "26720RandomSaladGamesLLC.SimpleSolitaire"
     "26720RandomSaladGamesLLC.SimpleMahjong"
     "26720RandomSaladGamesLLC.Spades"
-    "5319275A.WhatsAppDesktop"
+    "5319275A.WhatsAppDesktop" 
     "5A894077.McAfeeSecurity"
     "57540AMZNMobileLLC.AmazonAlexa"
     "7EE7776C.LinkedInforWindows"
@@ -1192,11 +1245,12 @@ Function Debloat {
     )
     $WindowTitle = "New Loads - Debloating Computer" ; $host.UI.RawUI.WindowTitle = $WindowTitle ; Write-Host "$frmt Removing Bloatware $frmt "
     Foreach ($Program in $Programs) {
-    Get-AppxPackage -Name $Program| Remove-AppxPackage
-    Get-AppxProvisionedPackage -Online | Where-Object DisplayName -like $Program | Remove-AppxProvisionedPackage -Online
+    Get-AppxPackage -Name $Program| Remove-AppxPackage | Out-Host
+    Get-AppxProvisionedPackage -Online | Where-Object DisplayName -like $Program | Remove-AppxProvisionedPackage -Online | Out-Host
     Write-Host " Attempting removal of $Program."
     }
     $debloatyns = $y
+    $debloatyns
     } else {
     Write-Host " Debloat has been disabled by technician.`n Moving on."
     $debloatyns = $s
@@ -1275,19 +1329,16 @@ Function Cleanup {
 
 Function UndoOneDrive{
     Write-Host " Starting $onedrivelocation"
-    Start-Process -FilePath:C:\Windows\Syswow64\OneDriveSetup.exe -ArgumentList /install -Verbose -Wait 
-    If ($? -eq $true){
-    Write-Host " OneDrive Reinstalled Successfully"
-    } else {
-        Write-Host " We encountered an error and OneDrive did not successfully install."
-    }
+    Start-Process -FilePath:C:\Windows\Syswow64\OneDriveSetup.exe -ArgumentList /install -Verbose
 }
 Function UndoDebloat {
     Write-Host " Reinstalling this computers default apps"
     Start-Sleep -Milliseconds 1285
-    Get-AppxPackage -allusers | ForEach-Object {Add-AppxPackage -register "$($_.InstallLocation)\appxmanifest.xml" -DisableDevelopmentMode -ErrorAction SilentlyContinue}
+    Get-AppxPackage -allusers | ForEach-Object {Add-AppxPackage -register "$($_.InstallLocation)\appxmanifest.xml" -DisableDevelopmentMode -ErrorAction SilentlyContinue} | Out-Host 
 }
 Function UndoOEMInfo{
+    Write-Host "$frmt Undoing OEM Information $frmt "
+
     Write-Host "$frmt Undoing OEM Information $frmt "
     $regoeminfo = "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\OEMInformation"
     Set-ItemProperty -Path $regoeminfo -Name "Manufacturer" -Type String -Value ""
@@ -1295,18 +1346,19 @@ Function UndoOEMInfo{
     Set-ItemProperty -Path $regoeminfo -Name "SupportHours" -Type String -Value ""
     Set-ItemProperty -Path $regoeminfo -Name "SupportURL" -Type String -Value ""
     Set-ItemProperty -Path $regoeminfo -Name "SupportPhone" -Type String -Value ""
-
+    If (Test-Path -Path "$wallpaper"){
+        Remove-Item -Path "$wallpaper" -Verbose -Force
+        Write-Host " Deleting wallpaper from location $wallpaper"
+    }
     $mocostore = "$env:localappdata"
     $mocostore = $mocostore + "\Microsoft\Windows\Themes"
     
     Write-Host " Resetting Default Theme"
     Start-Process "C:\Windows\Resources\Themes\aero.theme"
 
-    If (Test-Path -Path "$wallpaper"){
-        Remove-Item -Path "$wallpaper" -Verbose -Force
-        Write-Host " Deleting wallpaper from location $wallpaper"
-    }
-    Start-Sleep -s 5
+
+
+    Start-Sleep -s 5 
     taskkill /F /IM systemsettings.exe 2>$NULL
 }
 
@@ -1377,33 +1429,40 @@ Function Reboot([string]$arg){
     #}
     #Until ($TimeNow -ge $TimeEnd)
 #}
+
+
 Function EmailLog {
-    $gui = "New Loads GUI"
-    $versionrun = $gui
+    $auto = "New Loads Automated"
+    $versionrun = $auto
     $dtwritten = (Get-Date)
     $user = $env:USERNAME
     $compname = $env:COMPUTERNAME
 
-    $chromeyns = $y
-    $appsyns = $y
-    $vlcyns = $y
-    $zoomyns = $y
-    $visualsyn = $y
-    $oemyn = $y
-    $onedriveyns = $y
-    $debloatyns = $y
 
-
-
-    $chromeyns 
-    $appsyns
-    $vlcyns
+    
     $zoomyns
-    $visualsyn
+    $adobeyns
+    $chromeyns
+    $vlcyns
     $oemyn
+    $visualsyn
     $onedriveyns
     $debloatyns
-
+    $appsyns
+    
+    
+    <#
+    $zoomresult = $zoomyns
+    $adoberesult = $adobeyns
+    $chromeresult = $chromeyns
+    $vlcresult = $vlcyns
+    $oeem = $oemyn
+    $visuals = $visualsyn
+    $odremoval = $onedriveyns
+    $dbremoval = $debloatyns
+    $apps = $appsyns
+    #>
+    
     $attachlog = (Get-ChildItem -Path:~\Desktop -Recurse -Filter "*New Loads*.txt").Name
 
     Send-MailMessage -From 'New Loads Log <newloadslogs@shaw.ca>' -To '<newloadslogs@shaw.ca> , <newloads@shaw.ca>' -Subject "$versionrun Log - Generated at $dtime" -Attachments $attachlog -Priority High -DeliveryNotification OnSuccess, OnFailure -SmtpServer 'smtp.shaw.ca' -Verbose -ErrorAction SilentlyContinue -Body "This script was run in $versionrun mode on $dtwritten.. The Computer it was run on was named $compname with a username $user.
@@ -1588,70 +1647,75 @@ $Reboot.add_click{
 }
 $LightMode.Add_Click{
     Write-Host " Applying light mode"
-    Set-ItemProperty -Path " $regcv\Themes\Personalize" -Name "SystemUsesLightTheme" -Value 1
-    Set-ItemProperty -Path " $regcv\Themes\Personalize" -Name "AppsUseLightTheme" -Value 1
+    Set-ItemProperty -Path "$regpersonalize" -Name "SystemUsesLightTheme" -Value 1
+    Set-ItemProperty -Path "$regpersonalize" -Name "AppsUseLightTheme" -Value 1
     Write-Host "$jc"  
 }    
 $DarkMode.Add_Click{
     Write-Host " Applying dark mode"
-    Set-ItemProperty -Path " $regcv\Themes\Personalize" -Name "SystemUsesLightTheme" -Value 0
-    Set-ItemProperty -Path " $regcv\Themes\Personalize" -Name "AppsUseLightTheme" -Value 0
+    Set-ItemProperty -Path "$regpersonalize" -Name "SystemUsesLightTheme" -Value 0
+    Set-ItemProperty -Path "$regpersonalize" -Name "AppsUseLightTheme" -Value 0
     Write-Host "$jc"  
 }
 $UndoScript.Add_Click{
     Start-Transcript -LiteralPath "$log"
+
     Write-Host "$frmt Undoing Changes made by New Loads `n `n GUI will be unusable whilst an action is in sequence.`n$frmt"
     Start-Sleep 2
+
+    Write-Host "$frmt Undoing Mother Computers Branding $frmt"
     UndoOEMInfo
 
+    Write-Host "$frmt Reinstalling Default Apps $frmt"
+    Write-Host "`n Do you want to reinstall the default apps for this windows install?`n"
     [reflection.assembly]::loadwithpartialname("System.Windows.Forms") | Out-Null 
     $msgBoxInput = [System.Windows.Forms.MessageBox]::Show('Do you want to reinstall all default apps?','New Loads','YesNo','Question')
     switch  ($msgBoxInput) {
    
         'Yes' {
-            Write-Host "$frmt Reinstalling Default Apps $frmt"
             UndoDebloat
             Write-Host " Finished Reinstalling Default Apps"
         }
     
         'No'{
-            Write-Host "$frmt Reinstalling Default Apps $frmt"
             Write-Host " Skipping bloat reinstall"
         }
     
     }
     
+
+    Write-Host "$frmt Reinstalling OneDrive $frmt"
+    Write-Host "`n Do you want to reinstall OneDrive?`n"
     [reflection.assembly]::loadwithpartialname("System.Windows.Forms") | Out-Null 
     $msgBoxInput = [System.Windows.Forms.MessageBox]::Show('Do you want to reinstall OneDrive?','New Loads','YesNo','Question')
 
     switch  ($msgBoxInput) {
-  
+
         'Yes' {
-            Write-Host "$frmt Reinstalling OneDrive $frmt"
+            Write-Host " Reinstalling OneDrive"
             UndoOneDrive
         }
     
         'No'{
-            Write-Host "$frmt OneDrive $frmt"
             Write-Host "`n Skipping OneDrive reinstall"
         }
     
     }
 
 
+    Write-Host "$frmt Registry Changes $frmt"
+    Write-Host "`n Do you want to undo registry changes made by this application?`n"
     [reflection.assembly]::loadwithpartialname("System.Windows.Forms") | Out-Null 
     $msgBoxInput = [System.Windows.Forms.MessageBox]::Show('Do you want to undo registry changes?','New Loads','YesNo','Question')
 
     switch  ($msgBoxInput) {
-  
+
         'Yes' {
-            Write-Host "$frmt Registry Changes $frmt"
             #UndoRegistry
-            Write-Host "Too Bad. This feature has been temporarily disabled. Skipping.."
+            Write-Host "This feature has been disabled by daddy"
         }
     
         'No'{
-            Write-Host "$frmt Registry Changes $frmt"
             Write-Host " Skipping registry reversion"
         }
     
@@ -1661,8 +1725,10 @@ $UndoScript.Add_Click{
 		Start-Process Explorer -Verbose
 		Write-Host " Explorer Started"
     }
+
     Stop-Transcript
-    Notify(New Loads Changes Reverted. Please Reboot Computer)
+
+    Notify("New Loads Changes Reverted. Please Reboot Computer")
     Write-Host "$frmt New Loads Changes Reverted`n`n Ready for next task $frmt"
 }
 $Health = 100
@@ -1706,12 +1772,13 @@ Notify("Script has Completed.
 Please Reboot Computer.")
 #Reboot("Script has Completed.
 #Please Reboot Computer")
-Write-Host "$frmt New Loads Completed`n`n Ready for next task $frmt"
 EmailLog
+Write-Host "$frmt New Loads Completed`n`n Ready for next task $frmt"
 }
 $RunNoOEM.Add_Click{
 Start-Transcript -LiteralPath "$log"
 $oemyns = $s
+$oemyns
 Write-Host "$frmt Running New Loads without Branding`n`n GUI will be unusable whilst an action is in sequence.`n$frmt"
 #Choco_programs
 Programs
