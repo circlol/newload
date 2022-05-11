@@ -815,6 +815,7 @@ Function Visuals {
     } else {
         Write-Host " Wallpaper already exists on this system. Checking if its set."
     }
+    Write-Host " Checking if wallpaper is applied"
     If (!($currentwallpaper -eq $wallpaper)){
         Write-Host " It is not."
         Set-WallPaper -Image $wallpaper -Style Stretch
