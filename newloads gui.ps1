@@ -51,8 +51,8 @@ $UndoScript                      = New-Object system.Windows.Forms.Button
 $UndoScript.text                 = "Undo Script Changes"
 $UndoScript.width                = 268
 $UndoScript.height               = 35
-$UndoScript.visible              = $false
-$UndoScript.enabled              = $false
+$UndoScript.visible              = $true
+$UndoScript.enabled              = $true
 $UndoScript.location             = New-Object System.Drawing.Point(335,425)
 $UndoScript.Font                 = New-Object System.Drawing.Font('Microsoft Sans Serif',10,[System.Drawing.FontStyle]([System.Drawing.FontStyle]::Bold))
 $UndoScript.ForeColor            = [System.Drawing.ColorTranslator]::FromHtml("#000000")
@@ -711,7 +711,7 @@ Function Programs {
         $livesafe = "C:\Program Files\McAfee\MSC\mcuihost.exe"
         If (Test-Path -Path $livesafe){
             Write-Host " Attemping Removal of McAfee Live Safe"
-            Start-Process -Path $Livesafe -ArgumentList /body:misp://MSCJsRes.dll::uninstall.html /id:uninstall -Force
+            Start-Process -Path "$Livesafe" -ArgumentList /body:misp://MSCJsRes.dll::uninstall.html /id:uninstall -Force
         
         }
 
