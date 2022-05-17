@@ -34,8 +34,8 @@ Do
     {
         $Balloon = new-object System.Windows.Forms.NotifyIcon
         #$balloonToolTip.Icon = [System.Drawing.SystemIcons]::Information
-        $Balloon.Icon = [System.Drawing.SystemIcons]::Warning
-        $Balloon.BalloonTipIcon = "Error"
+        $Balloon.Icon = [System.Drawing.SystemIcons]::Information
+        $Balloon.BalloonTipIcon = "Warning"
         $Balloon.BalloonTipTitle = "New Loads Completed"
         $Balloon.BalloonTipText = "Please reboot for all changes to take effect."
         $Balloon.Visible = $true;
