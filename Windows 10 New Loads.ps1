@@ -116,7 +116,44 @@ $Sexp = $newloads + "SaRA"
 If (!(Test-Path -Path:"$newloads")){
     New-Item -Path:"$Env:Temp" -Name:"New Loads" -ItemType:Directory -Force | Out-Null
 }
-
+Function ProductConfirmation {
+    $processor = (Get-ComputerInfo).CsProcessors.Name
+    $product = (Get-WmiObject win32_baseboard).Product
+    $gpuname = (Get-WmiObject win32_videocontroller).Name
+    $gpudesc = (Get-WmiObject win32_videocontroller).Description
+    systeminfo | Select-String  'BIOS Version', 
+                                'Network Card(s)', 
+                                'OS Name', 
+                                'OS Version', 
+                                'System Manufacturer', 
+                                'System Model', 
+                                'System Type', 
+                                'Time Zone'
+    
+    Write-Host "`nCPU: $processor"
+    Write-Host "Motherboard: $product`n"
+    Write-Host "GPU Name: $gpuname"
+    Write-Host "GPU Description: $gpudesc"
+    Start-Sleep -s 5
+    
+    
+    
+    Write-Host "`n RAM INFORMATION`n"
+    Get-CimInstance -Class CIM_PhysicalMemory -ErrorAction Stop | Select-Object 'Manufacturer', 
+                                                                                'DeviceLocator', 
+                                                                                'PartNumber', 
+                                                                                'ConfiguredClockSpeed'
+    ''    
+    systeminfo | Select-String  'Total Physical Memory'
+    Start-Sleep -s 4
+    Write-Host "`n Generating Hard Drive Report`n`n`n"
+    Write-Host " Double check all drives that should be with this computer are connected." -ForegroundColor RED
+    Start-Sleep -s 4
+    $size = 60GB
+    Get-Volume | Where-Object {$_.Size -gt $Size} | Sort-Object {$_.DriveLetter} | Out-Host
+    Start-Sleep -s 5
+}
+ProductConfirmation
 Function Check {
     If($?){
         Write-Host " Successful"
@@ -1571,44 +1608,7 @@ Function Office_Removal_AskUser{
     }
     
 }
-Function ProductConfirmation {
-    $processor = (Get-ComputerInfo).CsProcessors.Name
-    $product = (Get-WmiObject win32_baseboard).Product
-    $gpuname = (Get-WmiObject win32_videocontroller).Name
-    $gpudesc = (Get-WmiObject win32_videocontroller).Description
-    systeminfo | Select-String  'BIOS Version', 
-                                'Network Card(s)', 
-                                'OS Name', 
-                                'OS Version', 
-                                'System Manufacturer', 
-                                'System Model', 
-                                'System Type', 
-                                'Time Zone'
-    
-    Write-Host "`nCPU: $processor"
-    Write-Host "Motherboard: $product`n"
-    Write-Host "GPU Name: $gpuname"
-    Write-Host "GPU Description: $gpudesc"
-    Start-Sleep -s 5
-    
-    
-    
-    Write-Host "`n RAM INFORMATION`n"
-    Get-CimInstance -Class CIM_PhysicalMemory -ErrorAction Stop | Select-Object 'Manufacturer', 
-                                                                                'DeviceLocator', 
-                                                                                'PartNumber', 
-                                                                                'ConfiguredClockSpeed'
-    ''    
-    systeminfo | Select-String  'Total Physical Memory'
-    Start-Sleep -s 4
-    Write-Host "`n Generating Hard Drive Report`n`n`n"
-    Write-Host " Double check all drives that should be with this computer are connected." -ForegroundColor RED
-    Start-Sleep -s 4
-    $size = 60GB
-    Get-Volume | Where-Object {$_.Size -gt $Size} | Sort-Object {$_.DriveLetter} | Out-Host
-    Start-Sleep -s 5
-}
-ProductConfirmation
+
 Function RestorePoint {
     $desc = "Mother Computers Courtesy Restore Point"
     If ((Get-ComputerRestorePoint).Description -eq $desc){

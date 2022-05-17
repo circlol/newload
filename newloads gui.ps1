@@ -546,7 +546,6 @@ $currentwallpaper = (Get-ItemProperty -Path "HKCU:\Control Panel\Desktop" -Name 
 $sysmode = (Get-ItemProperty -Path HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Themes\Personalize -Name SystemUsesLightTheme).SystemUsesLightTheme
 $appmode = (Get-ItemProperty -Path HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Themes\Personalize -Name AppsUseLightTheme).AppsUseLightTheme
 
-
 ###################
 ## REGISTRY KEYS ##
 ###################
