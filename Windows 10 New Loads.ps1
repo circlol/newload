@@ -77,15 +77,24 @@ $siufrules = "HKCU:\Software\Microsoft\Siuf\Rules"
 $regcam = "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\CapabilityAccessManager\ConsentStore\location"
 $regcdm = "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\ContentDeliveryManager"
 $reginp = "HKCU:\Software\Microsoft\InputPersonalization"
+$regexlm = "HKLM:\Software\Microsoft\Windows\CurrentVersion\Explorer"
 $regsys = "HKLM:\SOFTWARE\Policies\Microsoft\Windows\System"
 $regcv = "HKCU:\Software\Microsoft\Windows\CurrentVersion"
 $regex = "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer"
-$regexlm = "HKLM:\Software\Microsoft\Windows\CurrentVersion\Explorer"
+$regoeminfo = "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\OEMInformation"
 $regexadv = "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced"
 $regadvertising = "HKCU:\Software\Microsoft\Windows\CurrentVersion\AdvertisingInfo"
 $regpersonalize = "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Themes\Personalize"
-$regoeminfo = "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\OEMInformation"
 $cloudcontent = "HKLM:\SOFTWARE\Policies\Microsoft\Windows\CloudContent"
+
+$regsearch = "$regcv" + "\Search"
+$regex = "$regcv" + "\Explorer"
+$regcdm = "$regcv" + "\ContentDeliveryManager"
+$regexadv = "$regcv" + "\Explorer\Advanced"
+$regadvertising = "$regcv" + "\AdvertisingInfo"
+
+$1 = 1
+$0 = 0
 
 ################
 ## WALLPAPERS ##
@@ -97,6 +106,7 @@ $wallpaper = $storage + "\MotherComputersWallpaper.jpg"
 $currentwallpaper = (Get-ItemProperty -Path "HKCU:\Control Panel\Desktop" -Name Wallpaper).Wallpaper
 $sysmode = (Get-ItemProperty -Path $regpersonalize -Name SystemUsesLightTheme).SystemUsesLightTheme
 $appmode = (Get-ItemProperty -Path $regpersonalize -Name AppsUseLightTheme).AppsUseLightTheme
+
 
 
 ###############
