@@ -167,30 +167,6 @@ Function Programs {
             Write-Host "`n Verified $package2 is already installed. Skipping"
 
     }
-
-    <#
-    Zoom Offline Installed + Online
-    If (Test-Path -Path:$zoomoi){
-        Write-Host " Installing $Package3`n"
-        Start-Process -FilePath:$zoomoi -ArgumentList /quiet -Wait
-        If ($? -eq $true){
-            $zoomyns = "$y"
-        }
-    } else {
-        Write-Host "`n`n Downloading $Package3" 
-        Start-BitsTransfer -Source $Package3dl -Destination $package3lc
-        Check
-        Write-Host " Installing $Package3`n"
-        Start-Process -FilePath:$package3lc -ArgumentList /quiet -Wait
-        If ($? -eq $true){
-            $zoomyns = "$y"
-        }
-    }
-    } else {
-        Write-Host "`n Verified $package3 is already installed. Skipping"
-        $zoomyns = "$s"
-    #>
-
     #Zoom
     If (!(Test-Path -Path:$Location3)) {
         Write-Host "`n`n Downloading $Package3" 
@@ -278,12 +254,12 @@ Function ProgList {
     Write-Host " Generating an alphabetical list of all win32 applications`n" >> $list
     (Get-WmiObject win32_product).Name | Sort-Object >> $list
     
-    Write-Host " Adding list of installed Windows Apps to $list`n" ; Write-Output " Generating list of installed Windows Apps`n Executing Command Get-AppxPackage." >> $list
+    Write-Host " Adding list of installed Windows Apps to $list`n" ; Write-Output "`n`n Generating list of installed Windows Apps`n Executing Command Get-AppxPackage." >> $list
     (Get-AppxPackage -AllUsers).PackageFamilyName >> $list
     
     If (Test-Path ~\AppData\Local\Microsoft\WindowsApps\winget.exe){
     
-        Write-Host " Adding list of Winget Packages to $list" ; Write-Output " Generating List of Winget Packages" >> $list
+        Write-Host " Adding list of Winget Packages to $list" ; Write-Output "`n`n Generating List of Winget Packages" >> $list
         winget list -s winget --accept-source-agreements >> $list
         
     } else {
