@@ -2,7 +2,7 @@
 Write-Host "Initializing New Loads"
 $WindowTitle = "New Loads - Initializing" ; $host.UI.RawUI.WindowTitle = $WindowTitle
 #Install-Module -Name BurntToast -Force
-$programversion = "22516"
+$programversion = "22517"
 $reason = "OK"
 $WantedBuild = "10.0.22000"
 $BuildNumber = (Get-ItemProperty -Path c:\windows\system32\hal.dll).VersionInfo.ProductVersion
@@ -13,6 +13,7 @@ $newloads = $env:temp + "\New Loads\"
 $log = "$newloads" + "\New Loads Automated Log - $dtime.txt"
 $oi = ".\Offline Installers\"
 $dtime = (Get-Date -UFormat %H.%M-%Y.%m.%d)
+
 ##########
 ## APPS ##
 ##########
@@ -101,6 +102,15 @@ $html = "$newloads" + "\ProgList.html"
 $list = "$newloads" + "\ProgList.txt"
 $link = "https://github.com/circlol/newload/raw/main/Assets/unview.exe"
 $line = "`n`n==================================================`n`n"
+
+$officecheck = $false
+$path86 = "C:\Program Files (x86)\Microsoft Office"
+$path64 = "C:\Program Files\Microsoft Office 15"
+$office32 = $false
+$office64 = $false
+$SaRA = $newloads + "SaRA.Zip"
+$Sexp = $newloads + "SaRA"
+
 
 
 If (!(Test-Path -Path:"$newloads")){
@@ -580,6 +590,34 @@ Function Debloat {
             Get-AppxPackage -Name $Program | Remove-AppxPackage | Out-Host
             Get-AppxProvisionedPackage -Online| Where-Object DisplayName -like $Program | Remove-AppxProvisionedPackage -Online | Out-Host
         }
+        Start-Sleep -s 3
+        ##OFFICE CHECK & EXECUTION##
+        Write-Host "`n`n Checking for Office "
+        If (Test-Path "$path64"){
+            $office64 = $true
+        } Else {
+            $office64 = $false
+        }
+        If (Test-Path "$path86"){
+            $Office32 = $true
+        } Else {
+            $office32 = $false
+        }
+    
+        If ($office32 -eq $true){
+            $officecheck = $true   
+        }
+        If ($office64 -eq $true){
+            $officecheck = $true
+        }
+        If ($officecheck -eq $true){
+            Write-Host " Office Exists"
+            } else {
+                Write-Host " Office does not exist"
+        }
+        If ($officecheck -eq $true){
+            Office_Removal_AskUser
+        }
 }
 Function AdvRegistry {
     param (
@@ -616,7 +654,7 @@ Function AdvRegistry {
     }
 
     ####################### COMMAND INPUT BELOW THIS #######################
-    $WindowTitle = "New Loads - Registry" ; $host.UI.RawUI.WindowTitle = $WindowTitle ; Write-Host "$frmt $title Registry Changes $frmt"
+    $WindowTitle = "New Loads - $title Registry" ; $host.UI.RawUI.WindowTitle = $WindowTitle ; Write-Host "$frmt $title Registry Changes $frmt"
     If ($1 -eq 0){
         Write-Host " Skipping"
     } else {
@@ -630,12 +668,12 @@ Function AdvRegistry {
 
     If ($BuildNumber -lt $WantedBuild) {            ## Windows 10
 
-        Write-Host " Applying Windows 10 Specific Registry Keys`n"
+        Write-Host " $title Windows 10 Specific Registry Keys`n"
         ## Changes search box to an icon
         If ($vari -eq '1'){
-            $tbm = 1
+            $tbm = $vari
         } elseif ($vari -eq '2') {
-            $tbm = 2
+            $tbm = $vari
         } else {
             Write-Host " Error" -ForegroundColor Red
         }
@@ -694,7 +732,7 @@ Function AdvRegistry {
 
     if ($BuildNumber -gt $WantedBuild) {            ## Windows 11
         
-        Write-Host " Applying Windows 11 Specific Registry Keys`n"
+        Write-Host " $title Windows 11 Specific Registry Keys`n"
         
         If ((Get-ItemProperty -Path $regexadv).TaskbarMn -eq $0){
             Write-Host " Skipping"
@@ -1510,7 +1548,67 @@ Function EmailLog{
     Debloat: $debloatyns
     OneDrive: $onedriveyns"
 }
+Function Office_Removal_AskUser{
+    [reflection.assembly]::loadwithpartialname("System.Windows.Forms") | Out-Null
+    $msgBoxInput = [System.Windows.Forms.MessageBox]::Show('Office Detected on this computer, Would you like to remove it?','New Loads','YesNo','Question')
+
+    switch  ($msgBoxInput) {
     
+        'Yes' {
+            Start-BitsTransfer -Source:https://aka.ms/SaRA_CommandLineVersionFiles -Destination:"$SaRA" #-Verbose
+            Expand-Archive -Path "$SaRA" -DestinationPath "$Sexp" -Force -Verbose 
+            If($?){
+                Write-Host " Extracted Successfully"
+            }
+            Write-Host " This program takes a few minutes to run. However it removes all Office 16 versions."
+            Start-Process "$Env:temp\New Loads\SaRA\SaRAcmd.exe" -ArgumentList "-S OfficeScrubScenario -AcceptEula -Officeversion All -CloseOffice" -Wait -Verbose -NoNewWindow | Out-Host
+            }
+    
+        'No' {
+            Write-Host " Leaving Office Alone"
+        }
+    
+    }
+    
+}
+Function ProductConfirmation {
+    $processor = (Get-ComputerInfo).CsProcessors.Name
+    $product = (Get-WmiObject win32_baseboard).Product
+    $gpuname = (Get-WmiObject win32_videocontroller).Name
+    $gpudesc = (Get-WmiObject win32_videocontroller).Description
+    systeminfo | Select-String  'BIOS Version', 
+                                'Network Card(s)', 
+                                'OS Name', 
+                                'OS Version', 
+                                'System Manufacturer', 
+                                'System Model', 
+                                'System Type', 
+                                'Time Zone'
+    
+    Write-Host "`nCPU: $processor"
+    Write-Host "Motherboard: $product`n"
+    Write-Host "GPU Name: $gpuname"
+    Write-Host "GPU Description: $gpudesc"
+    Start-Sleep -s 5
+    
+    
+    
+    Write-Host "`n RAM INFORMATION`n"
+    Get-CimInstance -Class CIM_PhysicalMemory -ErrorAction Stop | Select-Object 'Manufacturer', 
+                                                                                'DeviceLocator', 
+                                                                                'PartNumber', 
+                                                                                'ConfiguredClockSpeed'
+    ''    
+    systeminfo | Select-String  'Total Physical Memory'
+    Start-Sleep -s 4
+    Write-Host "`n Generating Hard Drive Report`n`n`n"
+    Write-Host " Double check all drives that should be with this computer are connected." -ForegroundColor RED
+    Start-Sleep -s 4
+    $size = 60GB
+    Get-Volume | Where-Object {$_.Size -gt $Size} | Sort-Object {$_.DriveLetter} | Out-Host
+    Start-Sleep -s 5
+}
+ProductConfirmation
 Function RestorePoint {
     $desc = "Mother Computers Courtesy Restore Point"
     If ((Get-ComputerRestorePoint).Description -eq $desc){
