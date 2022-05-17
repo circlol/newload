@@ -1014,9 +1014,9 @@ Function AdvRegistry {
         Write-Host " Applying Windows 10 Specific Registry Keys`n"
         ## Changes search box to an icon
         If ($vari -eq '1'){
-            $tbm = $vari
+            $tbm = '1'
         } elseif ($vari -eq '2') {
-            $tbm = $vari
+            $tbm = '2'
         } else {
             Write-Host " Error" -ForegroundColor Red
         }

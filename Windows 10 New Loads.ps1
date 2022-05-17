@@ -3,7 +3,6 @@ Write-Host "Initializing New Loads"
 $WindowTitle = "New Loads - Initializing" ; $host.UI.RawUI.WindowTitle = $WindowTitle
 #Install-Module -Name BurntToast -Force
 $programversion = "22516"
-
 $reason = "OK"
 $WantedBuild = "10.0.22000"
 $BuildNumber = (Get-ItemProperty -Path c:\windows\system32\hal.dll).VersionInfo.ProductVersion
@@ -13,14 +12,10 @@ $22h2 = "0.0.22593"
 $newloads = $env:temp + "\New Loads\"
 $log = "$newloads" + "\New Loads Automated Log - $dtime.txt"
 $oi = ".\Offline Installers\"
-
 $dtime = (Get-Date -UFormat %H.%M-%Y.%m.%d)
-
-
 ##########
 ## APPS ##
 ##########
-
 #Google Chrome
 $package1  = "googlechromestandaloneenterprise64.msi"
 $package1dl = "https://dl.google.com/dl/chrome/install/googlechromestandaloneenterprise64.msi"
@@ -63,52 +58,41 @@ $zoomyns = $y
 $debloatyns = $y
 $onedriveyns = $y
 
-
 $webadvisor = "C:\Program Files\McAfee\WebAdvisor\Uninstaller.exe"
 $WildGames = "C:\Program Files (x86)\WildGames\Uninstall.exe"
 $livesafe = "C:\Program Files\McAfee\MSC\mcuihost.exe"
-
 ###################
 ## REGISTRY KEYS ##
 ###################
-$lfsvc = "HKLM:\SYSTEM\CurrentControlSet\Services\lfsvc\Service\Configuration"
-$wifisense = "HKLM:\Software\Microsoft\PolicyManager\default\WiFi"
-$siufrules = "HKCU:\Software\Microsoft\Siuf\Rules"
 $regcam = "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\CapabilityAccessManager\ConsentStore\location"
 $regcdm = "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\ContentDeliveryManager"
+$lfsvc = "HKLM:\SYSTEM\CurrentControlSet\Services\lfsvc\Service\Configuration"
+$regoeminfo = "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\OEMInformation"
+$wifisense = "HKLM:\Software\Microsoft\PolicyManager\default\WiFi"
+$siufrules = "HKCU:\Software\Microsoft\Siuf\Rules"
 $reginp = "HKCU:\Software\Microsoft\InputPersonalization"
+$cloudcontent = "HKLM:\SOFTWARE\Policies\Microsoft\Windows\CloudContent"
 $regexlm = "HKLM:\Software\Microsoft\Windows\CurrentVersion\Explorer"
 $regsys = "HKLM:\SOFTWARE\Policies\Microsoft\Windows\System"
-$regcv = "HKCU:\Software\Microsoft\Windows\CurrentVersion"
-$regex = "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer"
-$regoeminfo = "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\OEMInformation"
-$regexadv = "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced"
-$regadvertising = "HKCU:\Software\Microsoft\Windows\CurrentVersion\AdvertisingInfo"
 $regpersonalize = "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Themes\Personalize"
-$cloudcontent = "HKLM:\SOFTWARE\Policies\Microsoft\Windows\CloudContent"
-
+$regadvertising = "HKCU:\Software\Microsoft\Windows\CurrentVersion\AdvertisingInfo"
+$regexadv = "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced"
+$regex = "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer"
+$regcv = "HKCU:\Software\Microsoft\Windows\CurrentVersion"
 $regsearch = "$regcv" + "\Search"
 $regex = "$regcv" + "\Explorer"
 $regcdm = "$regcv" + "\ContentDeliveryManager"
 $regexadv = "$regcv" + "\Explorer\Advanced"
 $regadvertising = "$regcv" + "\AdvertisingInfo"
 
-$1 = 1
-$0 = 0
-
 ################
 ## WALLPAPERS ##
 ################
-
-
 $storage = "$env:appdata\Microsoft\Windows\Themes"
 $wallpaper = $storage + "\MotherComputersWallpaper.jpg"
 $currentwallpaper = (Get-ItemProperty -Path "HKCU:\Control Panel\Desktop" -Name Wallpaper).Wallpaper
 $sysmode = (Get-ItemProperty -Path $regpersonalize -Name SystemUsesLightTheme).SystemUsesLightTheme
 $appmode = (Get-ItemProperty -Path $regpersonalize -Name AppsUseLightTheme).AppsUseLightTheme
-
-
-
 ###############
 ## PROG LIST ##
 ###############
@@ -649,9 +633,9 @@ Function AdvRegistry {
         Write-Host " Applying Windows 10 Specific Registry Keys`n"
         ## Changes search box to an icon
         If ($vari -eq '1'){
-            $tbm = $vari
+            $tbm = '1'
         } elseif ($vari -eq '2') {
-            $tbm = $vari
+            $tbm = '2'
         } else {
             Write-Host " Error" -ForegroundColor Red
         }
@@ -1527,18 +1511,18 @@ Function EmailLog{
     OneDrive: $onedriveyns"
 }
     
-    Function RestorePoint {
-        $desc = "Mother Computers Courtesy Restore Point"
-        If ((Get-ComputerRestorePoint).Description -eq $desc){
-        Write-Host "$desc found. Skipping."
-        } else {
-        
-        Write-Host " Enabling System Restore"
-        Enable-ComputerRestore -Drive "C:\"
-        
-        Write-Host " `n Creating Courtesy Restore Point"
-        Checkpoint-Computer -Description "$desc" -RestorePointType "MODIFY_SETTINGS" -ErrorAction SilentlyContinue -WarningAction SilentlyContinue
-        }
+Function RestorePoint {
+    $desc = "Mother Computers Courtesy Restore Point"
+    If ((Get-ComputerRestorePoint).Description -eq $desc){
+    Write-Host "$desc found. Skipping."
+    } else {
+    
+    Write-Host " Enabling System Restore"
+    Enable-ComputerRestore -Drive "C:\"
+    
+    Write-Host " `n Creating Courtesy Restore Point"
+    Checkpoint-Computer -Description "$desc" -RestorePointType "MODIFY_SETTINGS" -ErrorAction SilentlyContinue -WarningAction SilentlyContinue
+    }
 }
 
 
