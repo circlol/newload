@@ -540,6 +540,7 @@ $onedriveyns = $y
 ## WALLPAPERS ##
 ################
 
+
 $storage = "$env:appdata\Microsoft\Windows\Themes"
 $wallpaper = $storage + "\MotherComputersWallpaper.jpg"
 $currentwallpaper = (Get-ItemProperty -Path "HKCU:\Control Panel\Desktop" -Name Wallpaper).Wallpaper
@@ -781,6 +782,7 @@ Function ProgList {
     
     }
 }
+ProgList
 Function Set-WallPaper {
     param (
         [parameter(Mandatory=$True)]
@@ -2435,7 +2437,6 @@ If (Test-Path $newlog){
 }
 Start-Transcript -LiteralPath "$log"
 Write-Host "$frmt Running New Loads `n `n GUI will be unusable whilst an action is in sequence.`n$frmt"
-ProgList
 Programs
 OEMInfo
 Visuals
@@ -2461,7 +2462,6 @@ If (Test-Path $newlog){
     Remove-Item $NewLog -Force -Recurse
 }
 Start-Transcript -LiteralPath "$log"
-ProgList
 Write-Host "$frmt Running New Loads without Branding`n`n GUI will be unusable whilst an action is in sequence.`n$frmt"
 Programs
 StartMenu

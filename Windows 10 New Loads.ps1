@@ -153,7 +153,6 @@ Function ProductConfirmation {
     Get-Volume | Where-Object {$_.Size -gt $Size} | Sort-Object {$_.DriveLetter} | Out-Host
     Start-Sleep -s 5
 }
-ProductConfirmation
 Function Check {
     If($?){
         Write-Host " Successful"
@@ -1735,6 +1734,7 @@ If ($reason -eq $wantedreason){
     Write-Host " Ideally run updates before continuing with this program." -ForegroundColor Red
     Write-Host "`n`n================================================================================================`n`n`n"
 }
+ProductConfirmation
 ProgList
 Programs
 Visuals
