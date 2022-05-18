@@ -2294,7 +2294,7 @@ $uninstallonedrive.add_click{
 $reinstalldefault.add_click{
     Write-Host " Reinstalling this computers default apps"
     Start-Sleep -Milliseconds 1285
-    Get-AppxPackage -allusers | ForEach-Object {Add-AppxPackage -register "$($_.InstallLocation)\appxmanifest.xml" -DisableDevelopmentMode -Verbose -ErrorAction SilentlyContinue}
+    Get-AppxPackage -allusers | ForEach-Object {Add-AppxPackage -register "$($_.InstallLocation)\appxmanifest.xml" -DisableDevelopmentMode -Verbose -ErrorAction SilentlyContinue} | Out-Host
     Write-Host "$jc"
 }
 $restartExplorer.Add_Click{

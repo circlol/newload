@@ -8,7 +8,7 @@ $WantedBuild = "10.0.22000"
 $BuildNumber = (Get-ItemProperty -Path c:\windows\system32\hal.dll).VersionInfo.ProductVersion
 $dtime = (Get-Date -UFormat %H.%M-%Y.%m.%d)
 $frmt = "`n`n========================================`n`n"
-$22h2 = "0.0.22593"
+$22h2 = "10.0.22593"
 $newloads = $env:temp + "\New Loads\"
 $log = "$newloads" + "\New Loads Automated Log - $dtime.txt"
 $oi = ".\Offline Installers\"
@@ -130,7 +130,7 @@ Function ProductConfirmation {
                                 'System Type', 
                                 'Time Zone'
     
-    Write-Host "`nCPU: $processor"
+    Write-Host "`n`nCPU: $processor"
     Write-Host "Motherboard: $product`n"
     Write-Host "GPU Name: $gpuname"
     Write-Host "GPU Description: $gpudesc"
@@ -307,8 +307,7 @@ Function ProgList {
         Write-Host " Winget does not exist on this PC."
     
     }
-    }
-    
+}
 Function Set-WallPaper {
     param (
         [parameter(Mandatory=$True)]
@@ -1607,7 +1606,6 @@ Function Office_Removal_AskUser{
     }
     
 }
-
 Function RestorePoint {
     $desc = "Mother Computers Courtesy Restore Point"
     If ((Get-ComputerRestorePoint).Description -eq $desc){
@@ -1621,8 +1619,6 @@ Function RestorePoint {
     Checkpoint-Computer -Description "$desc" -RestorePointType "MODIFY_SETTINGS" -ErrorAction SilentlyContinue -WarningAction SilentlyContinue
     }
 }
-
-
 Function Cleanup {
     $WindowTitle = "New Loads - Cleanup" ; $host.UI.RawUI.WindowTitle = $WindowTitle ; Write-Host "$frmt Finishing Up $frmt"
 
