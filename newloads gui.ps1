@@ -465,7 +465,7 @@ $dtime = (Get-Date -UFormat %H.%M-%Y.%m.%d)
 
 
 $programversion = "22517"
-$22h2 = 22593
+$22h2 = "10.0.22593"
 $WantedBuild = "10.0.22000"
 $BuildNumber = (Get-ItemProperty -Path c:\windows\system32\hal.dll).VersionInfo.ProductVersion
 
@@ -1470,7 +1470,6 @@ Function AdvRegistry {
 
 
     ### System
-    $22h2 = 22593
     Write-Host ' Showing Details in Task Manager, also setting default tab to Performance'
     If ($BuildNumber -lt $22h2){
         Write-Host ' Showing task manager details'

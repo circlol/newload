@@ -1128,7 +1128,6 @@ Function AdvRegistry {
 
 
     ### System
-    $22h2 = 22593
     Write-Host ' Showing Details in Task Manager, also setting default tab to Performance'
     If ($BuildNumber -lt $22h2){
         Write-Host ' Showing task manager details'
