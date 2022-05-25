@@ -695,9 +695,9 @@ Function AdvRegistry {
     } else {
 
         Write-Host " Removing Unnecessary printers"
-        Remove-Printer -Name "Microsoft XPS Document Writer" -ErrorAction SilentlyContinue -Verbose
-        Remove-Printer -Name "Fax" -ErrorAction SilentlyContinue -Verbose 
-        Remove-Printer -Name "OneNote" -ErrorAction SilentlyContinue -Verbose
+        Remove-Printer -Name "Microsoft XPS Document Writer" -ErrorAction SilentlyContinue -Verbose | Out-Host
+        Remove-Printer -Name "Fax" -ErrorAction SilentlyContinue -Verbose  | Out-Host
+        Remove-Printer -Name "OneNote" -ErrorAction SilentlyContinue -Verbose | Out-Host
     }
 
 
@@ -706,9 +706,9 @@ Function AdvRegistry {
         Write-Host " $title Windows 10 Specific Registry Keys`n"
         ## Changes search box to an icon
         If ($vari -eq '1'){
-            $tbm = $vari
+            $tbm = '1'
         } elseif ($vari -eq '2') {
-            $tbm = $vari
+            $tbm = '2'
         } else {
             Write-Host " Error" -ForegroundColor Red
         }
@@ -716,7 +716,7 @@ Function AdvRegistry {
             Write-Host " Skipping"
         } Else {
             Write-Host ' Changing Searchbox to Icon Format on Taskbar'
-            Set-ItemProperty -Path $regsearch -Name "SearchboxTaskbarMode" -Value $tbm -Verbose
+            Set-ItemProperty -Path $regsearch -Name "SearchboxTaskbarMode" -Value $tbm -Verbose | Out-Host
         }
 
         ## Removes Cortana from the taskbar
@@ -724,7 +724,7 @@ Function AdvRegistry {
             Write-Host " Skipping"
         } Else {
         Write-Host ' Removing Cortana Icon from Taskbar'
-        Set-ItemProperty -Path $regexadv -Name "ShowCortanaButton" -Value $0 -Verbose
+        Set-ItemProperty -Path $regexadv -Name "ShowCortanaButton" -Value $0 -Verbose | Out-Host
         }
 
         ## Unpins taskview from Windows 10 Taskbar
@@ -732,25 +732,25 @@ Function AdvRegistry {
             Write-Host " Skipping"
         } else {
         Write-Host ' Unpinning Task View Icon'
-        Set-ItemProperty -Path $regexadv -Name "ShowTaskViewButton" -Value $0 -Verbose
+        Set-ItemProperty -Path $regexadv -Name "ShowTaskViewButton" -Value $0 -Verbose | Out-Host
         }
 
         ##  Hides 3D Objects from "This PC"
         If (Test-Path -Path "$regexlm\MyComputer\NameSpace\{0DB7E03F-FC29-4DC6-9020-FF41B59E513A}"){
             Write-Host ' Hiding 3D Objects icon from This PC'
-            Remove-Item -Path "$regexlm\MyComputer\NameSpace\{0DB7E03F-FC29-4DC6-9020-FF41B59E513A}" -Recurse -Verbose
+            Remove-Item -Path "$regexlm\MyComputer\NameSpace\{0DB7E03F-FC29-4DC6-9020-FF41B59E513A}" -Recurse -Verbose | Out-Host
         }
 
         ## Expands explorers ribbon
         If (!(Test-Path -Path $regex\Ribbon)){
-            New-Item -Path "$regex" -Name "Ribbon" -Force -Verbose
+            New-Item -Path "$regex" -Name "Ribbon" -Force -Verbose | Out-Host
         }
 
         If ((Get-ItemProperty -Path "$regex\Ribbon").MinimizedStateTabletModeOff -eq $0) { 
             Write-Host " Skipping"
         } else {
             Write-Host ' Expanding Ribbon in Explorer'
-            Set-ItemProperty -Path $regex\Ribbon -Name "MinimizedStateTabletModeOff" -Type DWORD -Value $0 -Verbose
+            Set-ItemProperty -Path $regex\Ribbon -Name "MinimizedStateTabletModeOff" -Type DWORD -Value $0 -Verbose | Out-Host
         }
 
         ## Disabling Feeds Open on Hover
@@ -759,9 +759,9 @@ Function AdvRegistry {
         } else {
             Write-Host ' Disabling Feeds open on hover'
             If (!(Test-Path -Path $regcv\Feeds)){
-                New-Item -Path $regcv -Name "Feeds" -Verbose
+                New-Item -Path $regcv -Name "Feeds" -Verbose | Out-Host
             }
-            Set-ItemProperty -Path $regcv\Feeds -Name "ShellFeedsTaskbarOpenOnHover" -Value $0 -Verbose
+            Set-ItemProperty -Path $regcv\Feeds -Name "ShellFeedsTaskbarOpenOnHover" -Value $0 -Verbose | Out-Host
         }
     }
 
@@ -769,20 +769,30 @@ Function AdvRegistry {
         
         Write-Host " $title Windows 11 Specific Registry Keys`n"
         
+        If ($BuildNumber -gt $22H2){
+            If ((Get-ItemProperty -Path "$regexadv" -Name Start_Layout).Start_Layout -eq $1){
+                Write-Host " Skipping"
+            } Else {
+                Write-Host " Expanding Start Menu to show more tiles"
+                Set-ItemProperty -Path $regexadv -Name Start_Layout -Value $1 -Type DWORD -Force -Verbose | Out-Host
+            }
+        }
+
         If ((Get-ItemProperty -Path $regexadv).TaskbarMn -eq $0){
             Write-Host " Skipping"
         } else {
             Write-Host " Removing Chats from taskbar"
-            Set-ItemProperty -Path $regexadv -Name "TaskBarMn" -Value $0 -Verbose
+            Set-ItemProperty -Path $regexadv -Name "TaskBarMn" -Value $0 -Verbose | Out-Host
         }
         If (!(Test-Path $regcv\Policies\Explorer)){
-            New-Item $regcv\Policies\ -Name Explorer -Force -Verbose
+            New-Item $regcv\Policies\ -Name Explorer -Force -Verbose | Out-Host
         }
+
         If ((Get-ItemProperty -Path "$regcv\Policies\Explorer").HideSCAMeetNow -eq $1){
             Write-Host " Skipping"
         } else {
             Write-Host ' Removing "Meet Now" button from taskbar'
-            Set-ItemProperty -Path $regcv\Policies\Explorer -Name "HideSCAMeetNow" -Type DWORD -Value $1 -Verbose
+            Set-ItemProperty -Path $regcv\Policies\Explorer -Name "HideSCAMeetNow" -Type DWORD -Value $1 -Verbose | Out-Host
         }
     }
 
@@ -795,7 +805,7 @@ Function AdvRegistry {
         Write-Host " Skipping"
     } else {
         Write-Host " Enabling Game Mode"
-        Set-ItemProperty -Path $key1 -Name $key2 -Value $1 -Verbose -Force
+        Set-ItemProperty -Path $key1 -Name $key2 -Value $1 -Verbose -Force | Out-Host
     }
     
 
@@ -804,46 +814,46 @@ Function AdvRegistry {
         Write-Host " Skipping"
     } else {
         Write-Host ' Disabling Show Recent in Explorer Menu'
-        Set-ItemProperty -Path $regex -Name "ShowRecent" -Value 0 -Verbose
+        Set-ItemProperty -Path $regex -Name "ShowRecent" -Value 0 -Verbose | Out-Host
     }
     
     If ((Get-ItemProperty -Path $regex).ShowFrequent -eq $0){
         Write-Host " Skipping"
     } else {
         Write-Host ' Disabling Show Frequent in Explorer Menu'
-        Set-ItemProperty -Path $regex -Name "ShowFrequent" -Value 0 -Verbose
+        Set-ItemProperty -Path $regex -Name "ShowFrequent" -Value 0 -Verbose | Out-Host
     }
 
     If ((Get-ItemProperty -Path $regexadv).EnableSnapAssistFlyout -eq $1){
         Write-Host " Skipping"
     } else {
         Write-Host ' Enabling Snap Assist Flyout'
-        Set-ItemProperty -Path $regexadv -Name "EnableSnapAssistFlyout" -Value $1 -Verbose
+        Set-ItemProperty -Path $regexadv -Name "EnableSnapAssistFlyout" -Value $1 -Verbose | Out-Host
     }
 
     If ((Get-ItemProperty -Path $regexadv).HideFileExt -eq $0){
         Write-Host " Skipping"
     } else {
         Write-Host ' Enabling File Extensions'
-        Set-ItemProperty -Path $regexadv -Name "HideFileExt" -Value 0 -Verbose
+        Set-ItemProperty -Path $regexadv -Name "HideFileExt" -Value 0 -Verbose | Out-Host
     }
 
     If ((Get-ItemProperty -Path $regexadv).LaunchTo -eq $1){
         Write-Host " Skipping"
     } else {
         Write-Host ' Setting Explorer Launch to This PC'
-        Set-ItemProperty -Path $regexadv -Name "LaunchTo" -Value $1 -Verbose
+        Set-ItemProperty -Path $regexadv -Name "LaunchTo" -Value $1 -Verbose | Out-Host
     }
 
     If (!(Test-Path -Path "$regexadv\HideDesktopIcons\NewStartPanel")){
-        New-Item -Path "$regexadv\HideDesktopIcons" -Name NewStartPanel -Verbose -Force
+        New-Item -Path "$regexadv\HideDesktopIcons" -Name NewStartPanel -Verbose -Force | Out-Host
     }
     $UsersFolder = "{59031a47-3f72-44a7-89c5-5595fe6b30ee}"
     If ((Get-ItemProperty -Path $regex\HideDesktopIcons\NewStartPanel).$UsersFolder -eq $0){
         Write-Host " Skipping"
     } else {
         Write-Host ' Adding User Files to desktop'
-        Set-ItemProperty -Path $regex\HideDesktopIcons\NewStartPanel -Name $UsersFolder -Value 0 -Verbose
+        Set-ItemProperty -Path $regex\HideDesktopIcons\NewStartPanel -Name $UsersFolder -Value 0 -Verbose | Out-Host
     }
 
     $ThisPC = "{20D04FE0-3AEA-1069-A2D8-08002B30309D}"
@@ -851,33 +861,33 @@ Function AdvRegistry {
         Write-Host " Skipping"
     } else {
         Write-Host ' Adding This PC icon to desktop'
-        Set-ItemProperty -Path $regex\HideDesktopIcons\NewStartPanel -Name $ThisPC -Value 0 -Verbose
+        Set-ItemProperty -Path $regex\HideDesktopIcons\NewStartPanel -Name $ThisPC -Value 0 -Verbose | Out-Host
     }
 
     If (!(Test-Path $regex\OperationStatusManager)){
-        New-Item -Path $regex\OperationStatusManager -Name EnthusiastMode -Type DWORD -Verbose -Force
+        New-Item -Path $regex\OperationStatusManager -Name EnthusiastMode -Type DWORD -Verbose -Force | Out-Host
     }
     If ((Get-ItemProperty -Path $regex\OperationStatusManager).EnthusiastMode -eq $1){
         Write-Host " Skipping"
     } else {
         Write-Host ' Showing file operations details'
         If (!(Test-Path "$regex\OperationStatusManager")) {
-            New-Item -Path "$regex\OperationStatusManager" -Verbose
+            New-Item -Path "$regex\OperationStatusManager" -Verbose | Out-Host
         }
-        Set-ItemProperty -Path "$regex\OperationStatusManager" -Name "EnthusiastMode" -Type DWORD -Value $1 -Verbose
+        Set-ItemProperty -Path "$regex\OperationStatusManager" -Name "EnthusiastMode" -Type DWORD -Value $1 -Verbose | Out-Host
     }
 
 
     ### Privacy
     #Write-Host ' Disabling Content Delivery Related Setings'
     If (!(Test-Path -Path $regcdm)){
-        New-Item -Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion" -Name "ContentDeliveryManager" -Verbose
+        New-Item -Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion" -Name "ContentDeliveryManager" -Verbose | Out-Host
     }
     If (Test-Path -Path $regcdm\Subscriptionn){
-        Remove-Item -Path $regcdm\Subscriptionn -Recurse -Force -Verbose
+        Remove-Item -Path $regcdm\Subscriptionn -Recurse -Force -Verbose | Out-Host
     }
     If (Test-Path -Path $regcdm\SuggestedApps){
-        Remove-Item -Path $regcdm\SuggestedApps -Recurse -Force -Verbose
+        Remove-Item -Path $regcdm\SuggestedApps -Recurse -Force -Verbose | Out-Host
     }
     $cdms = @(
     'ContentDeliveryAllowed'

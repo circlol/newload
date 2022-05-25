@@ -1048,9 +1048,9 @@ Function AdvRegistry {
         Write-Host " $title Windows 10 Specific Registry Keys`n"
         ## Changes search box to an icon
         If ($vari -eq '1'){
-            $tbm = $vari
+            $tbm = '1'
         } elseif ($vari -eq '2') {
-            $tbm = $vari
+            $tbm = '2'
         } else {
             Write-Host " Error" -ForegroundColor Red
         }
@@ -1058,8 +1058,9 @@ Function AdvRegistry {
             Write-Host " Skipping"
         } Else {
             Write-Host ' Changing Searchbox to Icon Format on Taskbar'
-            Set-ItemProperty -Path $regsearch -Name "SearchboxTaskbarMode" -Value $tbm -Verbose
+            Set-ItemProperty -Path $regsearch -Name "SearchboxTaskbarMode" -Value $tbm -Verbose | Out-Host
         }
+
 
         ## Removes Cortana from the taskbar
         If ((Get-ItemProperty -Path $regexadv).ShowCortanaButton -eq $0){
@@ -1110,6 +1111,10 @@ Function AdvRegistry {
     if ($BuildNumber -gt $WantedBuild) {            ## Windows 11
         
         Write-Host " $title Windows 11 Specific Registry Keys`n"
+
+        If ($BuildNumber -gt $22H2){
+            Set-ItemProperty -Path $regexadv -Name Start_Layout -Value $1 -Type DWORD -Force -Verbose
+        }
         
         If ((Get-ItemProperty -Path $regexadv).TaskbarMn -eq $0){
             Write-Host " Skipping"
