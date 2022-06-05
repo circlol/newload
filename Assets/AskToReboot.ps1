@@ -57,7 +57,7 @@ Do
             
         } | Out-Null
         
-        Wait-Event -timeout 7200 -sourceIdentifier click_event > $null
+        Wait-Event -timeout 45 -sourceIdentifier click_event > $null
         Unregister-Event -SourceIdentifier click_event -ErrorAction SilentlyContinue
         $Balloon.Dispose()
     }
