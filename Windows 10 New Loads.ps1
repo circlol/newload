@@ -2,15 +2,19 @@
 Write-Host "Initializing New Loads"
 $WindowTitle = "New Loads - Initializing" ; $host.UI.RawUI.WindowTitle = $WindowTitle
 #Install-Module -Name BurntToast -Force
-$programversion             = "22600"
+$programversion             = "22700"
 
 $22h2                       = "10.0.22593"
 $WantedBuild                = "10.0.22000"
 $BuildNumber                = (Get-ItemProperty -Path c:\windows\system32\hal.dll).VersionInfo.ProductVersion
 $dtime                      = (Get-Date -UFormat %H.%M-%Y.%m.%d)
 $newloads                   = "$env:UserProfile\AppData\Local\Temp\New Loads\"
-$log                        = "$newloads" + "New Loads GUI Log - $dtime.txt"
+$newlog                     = "$newloads" + "New Loads *.txt"
+$log                        = "$newloads" + "New Loads Automated Log - $dtime.txt"
+
 #$jc                         = "`n Task completed. Ready for next input`n"
+$health                     = 100
+$wantedreason               = "OK"
 $frmt                       = "`n`n========================================`n`n"
 $blstat                     = "on"              #Bitlocker Value
 $reason                     = "OK"
@@ -94,23 +98,20 @@ $regcam                     = "HKLM:\Software\Microsoft\Windows\CurrentVersion\C
 $regexlm                    = "HKLM:\Software\Microsoft\Windows\CurrentVersion\Explorer"
 $regsys                     = "HKLM:\Software\Policies\Microsoft\Windows\System"
 
+#$regpersonalize             = "HKCU:\Software\Microsoft\Windows\CurrentVersion\Themes\Personalize"
 $siufrules                  = "HKCU:\Software\Microsoft\Siuf\Rules"
 $reginp                     = "HKCU:\Software\Microsoft\InputPersonalization"
 $regcv                      = "HKCU:\Software\Microsoft\Windows\CurrentVersion"
-$regcdm                     = "HKCU:\Software\Microsoft\Windows\CurrentVersion\ContentDeliveryManager"
-$regex                      = "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer"
-$regexadv                   = "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced"
-$regadvertising             = "HKCU:\Software\Microsoft\Windows\CurrentVersion\AdvertisingInfo"
-#$regpersonalize             = "HKCU:\Software\Microsoft\Windows\CurrentVersion\Themes\Personalize"
-
 $regadvertising             = "$regcv" + "\AdvertisingInfo"
 $regcdm                     = "$regcv" + "\ContentDeliveryManager"
 $regex                      = "$regcv" + "\Explorer"
 $regexadv                   = "$regcv" + "\Explorer\Advanced"
 $regsearch                  = "$regcv" + "\Search"
 
-$1 = 1
-$0 = 0
+$unviewdest                 = $newloads + "unview.exe"
+$list                       = $newloads + "ProgList.txt"
+$html                       = "C:\ProgList.html"
+$link                       = "https://github.com/circlol/newload/raw/main/Assets/unview.exe"
 
 
 If (!(Test-Path -Path:"$newloads")){
@@ -130,13 +131,11 @@ Function ProductConfirmation {
     #                            'System Type', 
     #                            'Time Zone'
     
-    Write-Host "`n`nCPU: $processor"
-    Write-Host "Motherboard: $product`n"
+    Write-Host "`nCPU: $processor"
+    Write-Host "Motherboard: $product"
     Write-Host "GPU Name: $gpuname"
     Write-Host "GPU Description: $gpudesc"    
-    Start-Sleep -s 1
-    
-    Write-Host "`n RAM INFORMATION`n"
+    Write-Host " RAM INFORMATION`n"
     Get-CimInstance -Class CIM_PhysicalMemory -ErrorAction Stop | Select-Object 'Manufacturer', 
                                                                                 'DeviceLocator', 
                                                                                 'PartNumber', 
@@ -144,7 +143,7 @@ Function ProductConfirmation {
     ''    
     systeminfo | Select-String  'Total Physical Memory'
     Start-Sleep -Milliseconds 300
-    Write-Host "`n Generating Hard Drive Report`n`n`n"
+    Write-Host "`n Generating Hard Drive Report`n"
     Start-Sleep -Milliseconds 300
     Write-Host " Double check all drives that should be with this computer are connected." -ForegroundColor RED
     Start-Sleep -Milliseconds 300
@@ -152,13 +151,7 @@ Function ProductConfirmation {
     Get-Volume | Where-Object {$_.Size -gt $Size} | Sort-Object {$_.DriveLetter} | Out-Host
     Start-Sleep -s 6
 }
-Function Check {
-    If($?){
-        Write-Host " Successful"
-    } else {
-        Write-Warning " Unsuccessful"
-    }
-}
+
 Function Programs {
     $WindowTitle = "New Loads - Installing Applications" ; $host.UI.RawUI.WindowTitle = $WindowTitle
     Write-Host "$frmt Installing Apps.$frmt"
@@ -260,16 +253,6 @@ Function Programs {
 } 
 Function ProgList {
 $Title = "New Loads - ProgList Extractor" ; $host.UI.RawUI.WindowTitle = $Title
-###############
-## PROG LIST ##
-###############
-$unviewdest                 = $newloads + "unview.exe"
-$html                       = "C:\ProgList.html"
-$list                       = $newloads + "ProgList.txt"
-#$unviewdest                 = "$newloads" + "unview.exe"
-#$html                       = "$newloads" + "ProgList.html"
-#$list                       = "$newloads" + "ProgList.txt"
-$link                       = "https://github.com/circlol/newload/raw/main/Assets/unview.exe"
 
     Write-Host " Generating Program List $frmt"
     If (!(Test-Path -Path "$newloads")){
@@ -285,7 +268,7 @@ $link                       = "https://github.com/circlol/newload/raw/main/Asset
     
     If (!(Test-Path -Path "$unviewdest")){
         Write-Host " Unview not found, Downloading." >> $list
-        Start-BitsTransfer -Source "$link" -Destination "$unviewdest" -Verbose
+        Start-BitsTransfer -Source "$link" -Destination "$unviewdest"
         Start-Process "$unviewdest" -ArgumentList "/shtml $html"
         } Else {
         Write-Host " Running Uninstall View by NirSoft"
@@ -304,7 +287,8 @@ $link                       = "https://github.com/circlol/newload/raw/main/Asset
         winget list -s winget --accept-source-agreements >> $list
     } else {
         Write-Host " Winget does not exist on this PC."
-}}
+}
+}
 Function Set-WallPaper {
     param (
         [parameter(Mandatory=$True)]
@@ -328,18 +312,14 @@ Function Set-WallPaper {
     }
     
     If($Style -eq "Tile") {
-    
         New-ItemProperty -Path "HKCU:\Control Panel\Desktop" -Name "WallpaperStyle" -PropertyType String -Value $WallpaperStyle -Force
         New-ItemProperty -Path "HKCU:\Control Panel\Desktop" -Name "TileWallpaper" -PropertyType String -Value 1 -Force
-    
     }
     Else {
-    
         New-ItemProperty -Path "HKCU:\Control Panel\Desktop" -Name "WallpaperStyle" -PropertyType String -Value $WallpaperStyle -Force
         New-ItemProperty -Path "HKCU:\Control Panel\Desktop" -Name "TileWallpaper" -PropertyType String -Value 0 -Force
-    
     }
-    
+
     Add-Type -TypeDefinition @" 
     using System; 
     using System.Runtime.InteropServices;
@@ -355,11 +335,11 @@ Function Set-WallPaper {
 "@ 
     
         $SPI_SETDESKWALLPAPER = 0x0014
+
         $UpdateIniFile = 0x01
         $SendChangeEvent = 0x02
-      
         $fWinIni = $UpdateIniFile -bor $SendChangeEvent
-      
+
         $ret = [Params]::SystemParametersInfo($SPI_SETDESKWALLPAPER, 0, $Image, $fWinIni)
         $ret
 }
@@ -418,126 +398,103 @@ Function OEMInfo{
     $regoeminfo = "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\OEMInformation"
 
     $store = "Mother Computers"
-    If ((Get-ItemProperty -Path $regoeminfo).Manufacturer -eq "$store"){
-        Write-Host " Skipping"
-    }else {
-        Set-ItemProperty -Path $regoeminfo -Name "Manufacturer" -Type String -Value "$store" -Verbose
-    }
+    If ((Get-ItemProperty -Path $regoeminfo).Manufacturer -eq "$store"){  Write-Host " Skipping" } else { Set-ItemProperty -Path $regoeminfo -Name "Manufacturer" -Type String -Value "$store" -Verbose }
 
     $phone = "(250) 479-8561"
-    If ((Get-ItemProperty -Path $regoeminfo).SupportPhone -eq $phone){
-        Write-Host " Skipping"
-    }else {
-    Set-ItemProperty -Path $regoeminfo -Name "SupportPhone" -Type String -Value "$phone" -Verbose
-        
-    }
+    If ((Get-ItemProperty -Path $regoeminfo).SupportPhone -eq $phone){ Write-Host " Skipping" } else { Set-ItemProperty -Path $regoeminfo -Name "SupportPhone" -Type String -Value "$phone" -Verbose }
 
     $hours = "Monday - Saturday 9AM-5PM | Sunday - Closed" 
-    If ((Get-ItemProperty -Path $regoeminfo).SupportHours -eq "$hours"){
-        Write-Host " Skipping"
-    }else {
-    Set-ItemProperty -Path $regoeminfo -Name "SupportHours" -Type String -Value "$hours" -Verbose
-        
-    }
+    If ((Get-ItemProperty -Path $regoeminfo).SupportHours -eq "$hours"){ Write-Host " Skipping" } else { Set-ItemProperty -Path $regoeminfo -Name "SupportHours" -Type String -Value "$hours" -Verbose }
 
     $website = "https://www.mothercomputers.com"
-    If ((Get-ItemProperty -Path $regoeminfo).SupportURL -eq $website){
-        Write-Host " Skipping"
-
-    }else {
-    Set-ItemProperty -Path $regoeminfo -Name "SupportURL" -Type String -Value $website -Verbose
-        
-    }
+    If ((Get-ItemProperty -Path $regoeminfo).SupportURL -eq $website){ Write-Host " Skipping" } else { Set-ItemProperty -Path $regoeminfo -Name "SupportURL" -Type String -Value $website -Verbose }
 
     $model = "Mother Computers - (250) 479-8561"
-    If ((Get-ItemProperty -Path $regoeminfo).Model -eq "$model"){
-        Write-Host " Skipping"
-    }else {
-    Set-ItemProperty -Path $regoeminfo -Name "Model" -Type String -Value "$Model"
-    }
+    If ((Get-ItemProperty -Path $regoeminfo).Model -eq "$model"){ Write-Host " Skipping" } else { Set-ItemProperty -Path $regoeminfo -Name "Model" -Type String -Value "$Model" }
 }
 Function StartMenu {
-    $WindowTitle = "New Loads - Setting Taskbar Layout" ; $host.UI.RawUI.WindowTitle = $WindowTitle ; Write-Host "$frmt Pinning Apps to taskbar , Clearing Start Menu Pins. $frmt"
+    $WindowTitle = "New Loads - StartMenuLayout.xml" ; $host.UI.RawUI.WindowTitle = $WindowTitle ; Write-Host "$frmt Pinning Apps to taskbar , Clearing Start Menu Pins. $frmt"
 
-$START_MENU_LAYOUT = @"
-<LayoutModificationTemplate xmlns:defaultlayout="http://schemas.microsoft.com/Start/2014/FullDefaultLayout" xmlns:start="http://schemas.microsoft.com/Start/2014/StartLayout" Version="1" xmlns:taskbar="http://schemas.microsoft.com/Start/2014/TaskbarLayout" xmlns="http://schemas.microsoft.com/Start/2014/LayoutModification">
-    <LayoutOptions StartTileGroupCellWidth="6" />
-    <DefaultLayoutOverride>
-        <StartLayoutCollection>
-            <defaultlayout:StartLayout GroupCellWidth="6" />
-        </StartLayoutCollection>
-    </DefaultLayoutOverride>
-    <CustomTaskbarLayoutCollection PinListPlacement="Replace">
-        <defaultlayout:TaskbarLayout>
-        <taskbar:TaskbarPinList>
-            <taskbar:DesktopApp DesktopApplicationID="Microsoft.Windows.Explorer"/>
-            <taskbar:UWA AppUserModelID="windows.immersivecontrolpanel_cw5n1h2txyewy!Microsoft.Windows.ImmersiveControlPanel" />
-            <taskbar:UWA AppUserModelID="Microsoft.Windows.SecHealthUI_cw5n1h2txyewy!SecHealthUI" />
-            <taskbar:UWA AppUserModelID="Microsoft.SecHealthUI_8wekyb3d8bbwe!SecHealthUI" />
-            <taskbar:DesktopApp DesktopApplicationID="Chrome" />
-            </taskbar:TaskbarPinList>
-        </defaultlayout:TaskbarLayout>
-    </CustomTaskbarLayoutCollection>
-</LayoutModificationTemplate>
+    $StartLayout = @"
+    <LayoutModificationTemplate xmlns:defaultlayout="http://schemas.microsoft.com/Start/2014/FullDefaultLayout" xmlns:start="http://schemas.microsoft.com/Start/2014/StartLayout" Version="1" xmlns:taskbar="http://schemas.microsoft.com/Start/2014/TaskbarLayout" xmlns="http://schemas.microsoft.com/Start/2014/LayoutModification">
+        <LayoutOptions StartTileGroupCellWidth="6" />
+        <DefaultLayoutOverride>
+            <StartLayoutCollection>
+                <defaultlayout:StartLayout GroupCellWidth="6" />
+            </StartLayoutCollection>
+        </DefaultLayoutOverride>
+        <CustomTaskbarLayoutCollection PinListPlacement="Replace">
+            <defaultlayout:TaskbarLayout>
+            <taskbar:TaskbarPinList>
+                <taskbar:DesktopApp DesktopApplicationID="Microsoft.Windows.Explorer"/>
+                <taskbar:UWA AppUserModelID="windows.immersivecontrolpanel_cw5n1h2txyewy!Microsoft.Windows.ImmersiveControlPanel" />
+                <taskbar:UWA AppUserModelID="Microsoft.Windows.SecHealthUI_cw5n1h2txyewy!SecHealthUI" />
+                <taskbar:UWA AppUserModelID="Microsoft.SecHealthUI_8wekyb3d8bbwe!SecHealthUI" />
+                <taskbar:DesktopApp DesktopApplicationID="Chrome" />
+                </taskbar:TaskbarPinList>
+            </defaultlayout:TaskbarLayout>
+        </CustomTaskbarLayoutCollection>
+    </LayoutModificationTemplate>
 "@
 
-$layoutFile="C:\Windows\StartMenuLayout.xml"
+    $layoutFile = "C:\Windows\StartMenuLayout.xml"
+    #Deletes the Layout file if one exists already.
+    If(Test-Path $layoutFile){Remove-Item $layoutFile}
 
-If(Test-Path -Path:$layoutFile)
-{
-    Remove-Item $layoutFile
-}
+    #Creates a new layout file
+    $StartLayout | Out-File $layoutFile -Encoding ASCII
 
-$START_MENU_LAYOUT | Out-File $layoutFile -Encoding ASCII
+    $regAliases = @("HKLM", "HKCU")
 
-$regAliases = @("HKLM", "HKCU")
-
-foreach ($regAlias in $regAliases){
-    $basePath = $regAlias + ":\SOFTWARE\Policies\Microsoft\Windows"
-    $keyPath = $basePath + "\Explorer" 
-    IF(!(Test-Path -Path:$keyPath)) { 
-        New-Item -Path $basePath -Name "Explorer"
+    #Assign the start layout and force it to apply with "LockedStartLayout" at both the machine and user level
+    foreach ($regAlias in $regAliases){
+        $basePath = $regAlias + ":\SOFTWARE\Policies\Microsoft\Windows"
+        $keyPath = $basePath + "\Explorer" 
+        If (!(Test-Path -Path $keyPath)) {  New-Item -Path $basePath -Name "Explorer"  }
+        Set-ItemProperty -Path $keyPath -Name "LockedStartLayout" -Value 1
+        Set-ItemProperty -Path $keyPath -Name "StartLayoutFile" -Value $layoutFile
     }
-    Set-ItemProperty -Path $keyPath -Name "LockedStartLayout" -Value 1
-    Set-ItemProperty -Path $keyPath -Name "StartLayoutFile" -Value $layoutFile
-}
-If (!(Get-Process Explorer)){
-    Start-Process Explorer -Verbose
-} else {
-    Stop-Process -Name:Explorer -ErrorAction SilentlyContinue
-    Start-Sleep -s 3
-    Start-Process Explorer -Verbose
-}
-Start-Sleep -s 3
-$wshell = New-Object -ComObject wscript.shell; $wshell.SendKeys('^{ESCAPE}')
 
-foreach ($regAlias in $regAliases){
-    $basePath = $regAlias + ":\SOFTWARE\Policies\Microsoft\Windows"
-    $keyPath = $basePath + "\Explorer" 
-    Set-ItemProperty -Path $keyPath -Name "LockedStartLayout" -Value 0
+    #Restart Explorer, open the start menu (necessary to load the new layout), and give it a few seconds to process
+    If (!(Get-Process Explorer)){
+        Start-Process Explorer -Verbose
+    } Else {
+        Stop-Process -Name Explorer -ErrorAction SilentlyContinue
+        Start-Sleep -s 3
+        Start-Process Explorer -Verbose
+    }
+    Start-Sleep -s 4
+    $wshell = new-Object -ComObject wscript.shell; $wshell.SendKeys('^{ESCAPE}')
+    Start-Sleep -s 4
+
+    #Enable the ability to pin items again by disabling "LockedStartLayout"
+    Foreach ($regAlias in $regAliases){
+        $basePath = $regAlias + ":\SOFTWARE\Policies\Microsoft\Windows"
+        $keyPath = $basePath + "\Explorer" 
+        Set-ItemProperty -Path $keyPath -Name "LockedStartLayout" -Value 0
+    }
+
+    #Restart Explorer and delete the layout file
+    Stop-Process -name Explorer 
+
+    #the next line makes clean start menu default for all new users
+    Import-StartLayout -LayoutPath $layoutFile -MountPath $env:SystemDrive\
+
+    Remove-Item $layoutFile -Verbose
+    Write-Host "$jc"
 }
-Stop-Process -Name:Explorer -Verbose 
-# Comment the next line to disable start menu from defaulting for all new users
-Import-StartLayout -LayoutPath $layoutFile -MountPath $env:SystemDrive\
-Remove-Item $layoutFile -Verbose
-}
-Function OneDrive {
+Function OneDriveRe {
     $WindowTitle = "New Loads - Removing OneDrive" ; $host.UI.RawUI.WindowTitle = $WindowTitle
-    Stop-Process -Name:OneDrive -Verbose -ErrorAction SilentlyContinue
-    Start-Sleep -s 3
-If (Test-Path -Path:C:\Windows\System32\OneDriveSetup.exe){
-    ' Found OneDrive in sys32, Removing'
-    Start-Process -FilePath:C:\Windows\System32\OneDriveSetup.exe -ArgumentList /uninstall -Wait -Verbose -ErrorAction SilentlyContinue
-    Check
-}
-If (Test-Path -Path:C:\Windows\SysWOW64\OneDriveSetup.exe){
-    ' Found OneDrive in its dirty house, Starting Uninstaller'
-    Start-Process -FilePath:C:\Windows\SysWOW64\OneDriveSetup.exe -ArgumentList /uninstall -Verbose
-}
-    Remove-Item -Path "$env:USERPROFILE\OneDrive" -Force -Recurse -ErrorAction SilentlyContinue
-    Remove-Item -Path "$env:LOCALAPPDATA\Microsoft\OneDrive" -Force -Recurse -ErrorAction SilentlyContinue
-    Remove-Item -Path "$env:PROGRAMDATA\Microsoft OneDrive" -Force -Recurse -ErrorAction SilentlyContinue
-    Remove-Item -Path "$env:SYSTEMDRIVE\OneDriveTemp" -Force -Recurse -ErrorAction SilentlyContinue
+    If (Test-Path "C:\Windows\SysWOW64\OneDriveSetup.exe" -ErrorAction SilentlyContinue){
+        If (Get-Process -Name OneDrive -ErrorAction SilentlyContinue){
+            Stop-Process -Name "OneDrive" -Verbose -ErrorAction SilentlyContinue
+            Write-Host " Found OneDrive in its dirty house, Stopping & Uninstalling."
+        }
+        Start-Process -FilePath:C:\Windows\SysWOW64\OneDriveSetup.exe -ArgumentList /uninstall -Verbose
+        If (Test-Path -Path $env:OneDrive){Remove-Item -Path "$env:OneDrive" -Force -Recurse}
+        If (Test-Path "$env:PROGRAMDATA\Microsoft OneDrive"){Remove-Item -Path "$env:PROGRAMDATA\Microsoft OneDrive" -Force -Recurse}
+        If (Test-Path "$env:SYSTEMDRIVE\OneDriveTemp"){Remove-Item -Path "$env:SYSTEMDRIVE\OneDriveTemp" -Force -Recurse}
+    }
 }
 Function Debloat {
     $WindowTitle = "New Loads - Debloating" ; $host.UI.RawUI.WindowTitle = $WindowTitle ; Write-Host "$frmt Removing Bloatware $frmt "
@@ -560,6 +517,8 @@ Function Debloat {
     # non-Microsoft All Machines
     "Clipchamp.Clipchamp"
     "Disney.37853FC22B2CE"
+    "Disney.37853FC22B2CE_6rarf9sa4v8jt"
+    "SpotifyAB.SpotifyMusic_zpdnekdrzrea0"
     "SpotifyAB.SpotifyMusic"
     "4DF9E0F8.Netflix"
     "C27EB4BA.DropboxOEM"
@@ -568,7 +527,7 @@ Function Debloat {
     "26720RandomSaladGamesLLC.SimpleSolitaire"
     "26720RandomSaladGamesLLC.SimpleMahjong"
     "26720RandomSaladGamesLLC.Spades"
-    "5319275A.WhatsAppDesktop"
+    "5319275A.WhatsAppDesktop" 
     "5A894077.McAfeeSecurity"
     "57540AMZNMobileLLC.AmazonAlexa"
     "7EE7776C.LinkedInforWindows"
@@ -618,7 +577,7 @@ Function Debloat {
     "Microsoft.MixedReality.Portal"
     "Microsoft.MicrosoftOfficeHub"
     "Microsoft.Microsoft3DViewer"
-    "Microsoft.News"
+    #"Microsoft.News"
     "Microsoft.Office.Hub"
     "Microsoft.Office.Lens"
     "Microsoft.Office.Sway"
@@ -631,81 +590,29 @@ Function Debloat {
     "Microsoft.Whiteboard"
     "Microsoft.WindowsMaps"
     )
-        foreach ($Program in $Programs) {
-            Write-Warning " Attempting removal of $Program."   
-            Get-AppxPackage -Name $Program | Remove-AppxPackage | Out-Host
-            Get-AppxProvisionedPackage -Online| Where-Object DisplayName -like $Program | Remove-AppxProvisionedPackage -Online | Out-Host
-        }
-        Start-Sleep -Milliseconds 200
-        ##OFFICE CHECK & EXECUTION##
-        Write-Host "`n`n Checking for Office "
-        If (Test-Path "$path64"){
-            $office64 = $true
-        } Else {
-            $office64 = $false
-        }
-        If (Test-Path "$path86"){
-            $Office32 = $true
-        } Else {
-            $office32 = $false
-        }
+    Foreach ($Program in $Programs) {
+        Write-Warning " Attempting removal of $Program."   
+        Get-AppxPackage -Name "$Program*"| Remove-AppxPackage
+        Get-AppxProvisionedPackage -Online | Where-Object DisplayName -like "$Program*" | Remove-AppxProvisionedPackage -Online
+    }
+
+    Write-Host "`n`n Checking for Office "
+    If (Test-Path "$path64")    {    $office64 = $true}             Else {    $office64 = $false}
+    If (Test-Path "$path86")    {    $Office32 = $true}             Else {    $office32 = $false}
+    If ($office32 -eq $true)    {    $officecheck = $true}       
+    If ($office64 -eq $true)    {    $officecheck = $true}    
+    If ($officecheck -eq $true) {    Write-Host " Office Exists"}   Else {    Write-Host " Office does not exist"}
+    If ($officecheck -eq $true) {    Office_Removal_AskUser
+    }
     
-        If ($office32 -eq $true){
-            $officecheck = $true   
-        }
-        If ($office64 -eq $true){
-            $officecheck = $true
-        }
-        If ($officecheck -eq $true){
-            Write-Host " Office Exists"
-            } else {
-                Write-Host " Office does not exist"
-        }
-        If ($officecheck -eq $true){
-            Office_Removal_AskUser
-        }
 }
-Function AdvRegistry {
-    param (
-        [Parameter(Mandatory=$True)]
-        [String]$Action
-    )
-    
 
-    $Vari = Switch ($Action) {
-
-        "Apply" {"1"}
-        "Undo" {"2"}
-        "*" {"3"}
-    }
-
-    If ($vari -eq '1'){
-        Write-Host " Applying"
-        $1 = 1
-        $0 = 0
-        $regjob = "Applied"
-        $title = "Applying"
-    } else {
-        If ($Vari -eq '2'){
-            Write-Host " Undoing Changes"
-            $1 = '0'
-            $0 = '1'
-            $regjob = "Undone"
-            $title = "Undoing"
-        } else {
-            Write-Host " ERROR: Option specified is not valid. Try again" -ForegroundColor Red
-            Exit
-        }
-        
-    }
-
-    ####################### COMMAND INPUT BELOW THIS #######################
-    $WindowTitle = "New Loads - $title Registry" ; $host.UI.RawUI.WindowTitle = $WindowTitle ; Write-Host "$frmt $title Registry Changes $frmt"
-    If ($1 -eq 0){
-        Write-Host " Skipping"
-    } else {
-
-        Write-Host " Removing Unnecessary printers"
+Function Registry {
+    $WindowTitle = "New Loads - Applying Registry" ; $host.UI.RawUI.WindowTitle = $WindowTitle ; Write-Host "$frmt $title Registry Changes $frmt"
+    Write-Host " Applying"
+    $1 = '1'
+    $0 = '0'
+    If ($1 -eq 0){        Write-Host " Skipping"    } else {Write-Host " Removing Unnecessary printers"
         Remove-Printer -Name "Microsoft XPS Document Writer" -ErrorAction SilentlyContinue -Verbose
         Remove-Printer -Name "Fax" -ErrorAction SilentlyContinue -Verbose 
         Remove-Printer -Name "OneNote" -ErrorAction SilentlyContinue -Verbose
@@ -713,188 +620,83 @@ Function AdvRegistry {
 
 
     If ($BuildNumber -lt $WantedBuild) {            ## Windows 10
-
         Write-Host " $title Windows 10 Specific Registry Keys`n"
         ## Changes search box to an icon
-        If ($vari -eq '1'){
-            $tbm = '1'
-        } elseif ($vari -eq '2') {
-            $tbm = '2'
-        } else {
-            Write-Host " Error" -ForegroundColor Red
-        }
-        If ((Get-ItemProperty -Path $regsearch).SearchBoxTaskbarMode -eq $1){
-            Write-Host " Skipping"
-        } Else {
-            Write-Host ' Changing Searchbox to Icon Format on Taskbar'
-            Set-ItemProperty -Path $regsearch -Name "SearchboxTaskbarMode" -Value $tbm -Verbose | Out-Host
-        }
-
-
+        Write-Host ' Changing Searchbox to Icon Format on Taskbar'
+        Set-ItemProperty -Path $regsearch -Name "SearchboxTaskbarMode" -Value 1 -Verbose
         ## Removes Cortana from the taskbar
-        If ((Get-ItemProperty -Path $regexadv).ShowCortanaButton -eq $0){
-            Write-Host " Skipping"
-        } Else {
         Write-Host ' Removing Cortana Icon from Taskbar'
         Set-ItemProperty -Path $regexadv -Name "ShowCortanaButton" -Value $0 -Verbose
-        }
-
         ## Unpins taskview from Windows 10 Taskbar
-        If ((Get-ItemProperty -Path $Regexadv).ShowTaskViewButton -eq $0){
-            Write-Host " Skipping"
-        } else {
         Write-Host ' Unpinning Task View Icon'
-        Set-ItemProperty -Path $regexadv -Name "ShowTaskViewButton" -Value $0 -Verbose
-        }
-
+        Set-ItemProperty -Path $regexadv -Name "ShowTaskViewButton" -Value 0 -Verbose
         ##  Hides 3D Objects from "This PC"
-        If (Test-Path -Path "$regexlm\MyComputer\NameSpace\{0DB7E03F-FC29-4DC6-9020-FF41B59E513A}"){
-            Write-Host ' Hiding 3D Objects icon from This PC'
-            Remove-Item -Path "$regexlm\MyComputer\NameSpace\{0DB7E03F-FC29-4DC6-9020-FF41B59E513A}" -Recurse -Verbose
-        }
+        Write-Host ' Hiding 3D Objects icon from This PC'
+        Remove-Item -Path "$regexlm\MyComputer\NameSpace\{0DB7E03F-FC29-4DC6-9020-FF41B59E513A}" -Recurse -Verbose -EA SilentlyContinue
 
         ## Expands explorers ribbon
         If (!(Test-Path -Path $regex\Ribbon)){
             New-Item -Path "$regex" -Name "Ribbon" -Force -Verbose
         }
-
-        If ((Get-ItemProperty -Path "$regex\Ribbon").MinimizedStateTabletModeOff -eq $0) { 
-            Write-Host " Skipping"
-        } else {
-            Write-Host ' Expanding Ribbon in Explorer'
-            Set-ItemProperty -Path $regex\Ribbon -Name "MinimizedStateTabletModeOff" -Type DWORD -Value $0 -Verbose
-        }
+        Write-Host ' Expanding Ribbon in Explorer'
+        Set-ItemProperty -Path $regex\Ribbon -Name "MinimizedStateTabletModeOff" -Type DWORD -Value $0 -Verbose
 
         ## Disabling Feeds Open on Hover
-        If ((Get-ItemProperty -Path $regcv\Feeds).ShellFeedsTaskbarOpenOnHover -eq $0){
-            Write-Host " Skipping"
-        } else {
-            Write-Host ' Disabling Feeds open on hover'
-            If (!(Test-Path -Path $regcv\Feeds)){
-                New-Item -Path $regcv -Name "Feeds" -Verbose
-            }
-            Set-ItemProperty -Path $regcv\Feeds -Name "ShellFeedsTaskbarOpenOnHover" -Value $0 -Verbose
+        Write-Host ' Disabling Feeds open on hover'
+        If (!(Test-Path -Path $regcv\Feeds)){
+            New-Item -Path $regcv -Name "Feeds" -Verbose
         }
+        Set-ItemProperty -Path $regcv\Feeds -Name "ShellFeedsTaskbarOpenOnHover" -Value $0 -Verbose
+    
+        
+        #Disables live feeds in search
+        Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Feeds\DSB" -Name "ShowDynamicContent" -Value 0 -type DWORD -Force -Verbose
+        Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\SearchSettings" -Name "IsDynamicSearchBoxEnabled" -Value 0 -Type DWORD -Force -Verbose        
     }
 
-    if ($BuildNumber -gt $WantedBuild) {            ## Windows 11
-        
+    If ($BuildNumber -gt $WantedBuild) {            ## Windows 11
         Write-Host " $title Windows 11 Specific Registry Keys`n"
 
-        If ($BuildNumber -gt $22H2){
+        #Sets start layout to show more pins.
+        If ($BuildNumber -gt $22H2){ 
+            Write-Host " Setting Start Menu to Show More Pins"
             Set-ItemProperty -Path $regexadv -Name Start_Layout -Value $1 -Type DWORD -Force -Verbose
         }
         
-        If ((Get-ItemProperty -Path $regexadv).TaskbarMn -eq $0){
-            Write-Host " Skipping"
-        } else {
-            Write-Host " Removing Chats from taskbar"
-            Set-ItemProperty -Path $regexadv -Name "TaskBarMn" -Value $0 -Verbose
-        }
-        If (!(Test-Path $regcv\Policies\Explorer)){
-            New-Item $regcv\Policies\ -Name Explorer -Force -Verbose
-        }
-        If ((Get-ItemProperty -Path "$regcv\Policies\Explorer").HideSCAMeetNow -eq $1){
-            Write-Host " Skipping"
-        } else {
-            Write-Host ' Removing "Meet Now" button from taskbar'
-            Set-ItemProperty -Path $regcv\Policies\Explorer -Name "HideSCAMeetNow" -Type DWORD -Value $1 -Verbose
-        }
+        Write-Host " Removing Chats from taskbar" ; Set-ItemProperty -Path $regexadv -Name "TaskBarMn" -Value $0 -Verbose
+
+        If (!(Test-Path $regcv\Policies\Explorer)){ New-Item $regcv\Policies\ -Name Explorer -Force}
+        Write-Host ' Removing "Meet Now" button from taskbar' ; Set-ItemProperty -Path $regcv\Policies\Explorer -Name "HideSCAMeetNow" -Type DWORD -Value $1 -Verbose
+
     }
 
 
-    # Checks current value for Game mode and E.
-    $key1 = "HKCU:\Software\Microsoft\GameBar"
-    $key2 = "AutoGameModeEnabled"
-    $agme = (Get-ItemProperty -Path $key1).$key2
-    If ($agme -eq 1){
-        Write-Host " Skipping"
-    } else {
-        Write-Host " Enabling Game Mode"
-        Set-ItemProperty -Path $key1 -Name $key2 -Value $1 -Force
-    }
+    Write-Host " Enabling Game Mode" ; Set-ItemProperty -Path "HKCU:\Software\Microsoft\GameBar" -Name "AutoGameModeEnabled" -Value $1 -Force -Verbose
+
+    Write-Host ' Disabling Show Recent in Explorer Menu' ; Set-ItemProperty -Path $regex -Name "ShowRecent" -Value 0 -Verbose
     
+    Write-Host ' Disabling Show Frequent in Explorer Menu' ; Set-ItemProperty -Path $regex -Name "ShowFrequent" -Value 0 -Verbose
 
-    ### Explorer related
-    If ((Get-ItemProperty -Path $regex).ShowRecent -eq $0){
-        Write-Host " Skipping"
-    } else {
-        Write-Host ' Disabling Show Recent in Explorer Menu'
-        Set-ItemProperty -Path $regex -Name "ShowRecent" -Value 0
-    }
-    
-    If ((Get-ItemProperty -Path $regex).ShowFrequent -eq $0){
-        Write-Host " Skipping"
-    } else {
-        Write-Host ' Disabling Show Frequent in Explorer Menu'
-        Set-ItemProperty -Path $regex -Name "ShowFrequent" -Value 0
-    }
+    Write-Host ' Enabling Snap Assist Flyout' ; Set-ItemProperty -Path $regexadv -Name "EnableSnapAssistFlyout" -Value $1 -Verbose
 
-    If ((Get-ItemProperty -Path $regexadv).EnableSnapAssistFlyout -eq $1){
-        Write-Host " Skipping"
-    } else {
-        Write-Host ' Enabling Snap Assist Flyout'
-        Set-ItemProperty -Path $regexadv -Name "EnableSnapAssistFlyout" -Value $1
-    }
+    Write-Host ' Enabling File Extensions' ; Set-ItemProperty -Path $regexadv -Name "HideFileExt" -Value 0 -Verbose
 
-    If ((Get-ItemProperty -Path $regexadv).HideFileExt -eq $0){
-        Write-Host " Skipping"
-    } else {
-        Write-Host ' Enabling File Extensions'
-        Set-ItemProperty -Path $regexadv -Name "HideFileExt" -Value 0
-    }
+    Write-Host ' Setting Explorer Launch to This PC' ; Set-ItemProperty -Path $regexadv -Name "LaunchTo" -Value $1 -Verbose
 
-    If ((Get-ItemProperty -Path $regexadv).LaunchTo -eq $vari){
-        Write-Host " Skipping"
-    } else {
-        Write-Host ' Setting Explorer Launch to This PC'
-        Set-ItemProperty -Path $regexadv -Name "LaunchTo" -Value $Vari
-    }
+    Write-Host ' Adding User Files to desktop' ; Set-ItemProperty -Path $regex\HideDesktopIcons\NewStartPanel -Name "{59031a47-3f72-44a7-89c5-5595fe6b30ee}" -Value 0 -Verbose
 
-    If (!(Test-Path -Path "$regexadv\HideDesktopIcons\NewStartPanel")){
-        New-Item -Path "$regexadv\HideDesktopIcons" -Name NewStartPanel
-    }
-    $UsersFolder = "{59031a47-3f72-44a7-89c5-5595fe6b30ee}"
-    If ((Get-ItemProperty -Path $regex\HideDesktopIcons\NewStartPanel).$UsersFolder -eq $0){
-        Write-Host " Skipping"
-    } else {
-        Write-Host ' Adding User Files to desktop'
-        Set-ItemProperty -Path $regex\HideDesktopIcons\NewStartPanel -Name $UsersFolder -Value 0
-    }
+    Write-Host ' Adding This PC icon to desktop' ; Set-ItemProperty -Path $regex\HideDesktopIcons\NewStartPanel -Name "{20D04FE0-3AEA-1069-A2D8-08002B30309D}" -Value 0 -Verbose
 
-    $ThisPC = "{20D04FE0-3AEA-1069-A2D8-08002B30309D}"
-    If ((Get-ItemProperty -Path $regex\HideDesktopIcons\NewStartPanel).$ThisPC -eq $0){
-        Write-Host " Skipping"
-    } else {
-        Write-Host ' Adding This PC icon to desktop'
-        Set-ItemProperty -Path $regex\HideDesktopIcons\NewStartPanel -Name $ThisPC -Value 0
-    }
+    If (!(Test-Path $regex\OperationStatusManager)){New-Item -Path $regex\OperationStatusManager -Name EnthusiastMode -Type DWORD -Force -Verbose}
 
-    If (!(Test-Path $regex\OperationStatusManager)){
-        New-Item -Path $regex\OperationStatusManager -Name EnthusiastMode -Type DWORD -Force
-    }
-    If ((Get-ItemProperty -Path $regex\OperationStatusManager).EnthusiastMode -eq $1){
-        Write-Host " Skipping"
-    } else {
-        Write-Host ' Showing file operations details'
-        If (!(Test-Path "$regex\OperationStatusManager")) {
-            New-Item -Path "$regex\OperationStatusManager"
-        }
-        Set-ItemProperty -Path "$regex\OperationStatusManager" -Name "EnthusiastMode" -Type DWORD -Value $1
-    }
-
-
+    Write-Host ' Showing file operations details' ; If (!(Test-Path "$regex\OperationStatusManager")) {New-Item -Path "$regex\OperationStatusManager" -Verbose}
+                                                    Set-ItemProperty -Path "$regex\OperationStatusManager" -Name "EnthusiastMode" -Type DWORD -Value $1 -Verbose
     ### Privacy
     #Write-Host ' Disabling Content Delivery Related Setings'
-    If (!(Test-Path -Path $regcdm)){
-        New-Item -Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion" -Name "ContentDeliveryManager"
-    }
-    If (Test-Path -Path $regcdm\Subscriptionn){
-        Remove-Item -Path $regcdm\Subscriptionn -Recurse -Force
-    }
-    If (Test-Path -Path $regcdm\SuggestedApps){
-        Remove-Item -Path $regcdm\SuggestedApps -Recurse -Force
-    }
+    If (!(Test-Path -Path $regcdm)){New-Item -Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion" -Name "ContentDeliveryManager" -Verbose}
+    If (Test-Path -Path $regcdm\Subscriptionn){Remove-Item -Path $regcdm\Subscriptionn -Recurse -Force -Verbose}
+    If (Test-Path -Path $regcdm\SuggestedApps){Remove-Item -Path $regcdm\SuggestedApps -Recurse -Force -Verbose}
+    
     $cdms = @(
     'ContentDeliveryAllowed'
     'OemPreInstalledAppsEnabled'
@@ -913,75 +715,25 @@ Function AdvRegistry {
     'SoftLandingEnabled'
     )
     ForEach ($cdm in $cdms) {
-        If ((Get-ItemProperty -Path $regcdm).$cdm -eq $0){
-            Write-Host " Skipping"
-        } else {
-            #Write-Host " Setting $cdm to $0"
-            Set-ItemProperty -Path $regcdm -Name $cdm -Value $0
+        If ((Get-ItemProperty -Path $regcdm).$cdm -eq $0){            Write-Host " Skipping"        } else {
+            Set-ItemProperty -Path $regcdm -Name $cdm -Value $0 -Verbose
         }
     }
 
 
-    If ((Get-ItemProperty -Path $regadvertising).DisabledByGroupPolicy -eq $1){
-        Write-Host " Skipping"
-    } else {
-        Write-Host ' Disabling Advertiser ID'
-        Set-ItemProperty -Path $regadvertising -Name "DisabledByGroupPolicy" -Value $1 -Type DWORD
-    }
+    Write-Host ' Disabling Advertiser ID' ;     Set-ItemProperty -Path $regadvertising -Name "DisabledByGroupPolicy" -Value $1 -Type DWORD -Verbose
+                                                Set-ItemProperty -Path $regadvertising -Name "Enabled" -Value $0 -Verbose
 
-
-    If ((Get-ItemProperty -Path $regadvertising).Enabled -eq $0){
-        Write-Host " Skipping"
-    } else {
-        Set-ItemProperty -Path $regadvertising -Name "Enabled" -Value $0
-    }
-
-
-    If (!(Test-Path -Path:HKCU:\Software\Policies\Microsoft\Windows\EdgeUI)){
-        New-Item -Path:HKCU:\Software\Policies\Microsoft\Windows -Name "EdgeUI"
-    }
-    If ((Get-ItemProperty -Path HKCU:\Software\Policies\Microsoft\Windows\EdgeUI).DisableMFUTracking -eq $1){
-        Write-Host " Skipping"
-    } else {
-        Write-Host ' Disabling App Launch Tracking'
-        Set-ItemProperty -Path HKCU:\Software\Policies\Microsoft\Windows\EdgeUI -Name "DisableMFUTracking" -Value $1 -Type DWORD
-    }
-    If ($vari -eq '2'){
-        Remove-Item -Path HKCU:\Software\Policies\Microsoft\Windows\EdgeUI -Force
-    }
-
+    If (!(Test-Path -Path:HKCU:\Software\Policies\Microsoft\Windows\EdgeUI)){ New-Item -Path:HKCU:\Software\Policies\Microsoft\Windows -Name "EdgeUI" }
+    Write-Host ' Disabling App Launch Tracking' ; Set-ItemProperty -Path HKCU:\Software\Policies\Microsoft\Windows\EdgeUI -Name "DisableMFUTracking" -Value $1 -Type DWORD -Verbose
     
-    If ((Get-ItemProperty -Path $reginp\TrainedDataStore).HarvestContacts -eq $0){
-        Write-Host " Skipping"        
-    } else {
-        Write-Host ' Disabling Contact Harvesting'
-        Set-ItemProperty -Path $reginp\TrainedDataStore -Name "HarvestContacts" -Value $0
-    }
+    Write-Host ' Disabling Contact Harvesting' ; Set-ItemProperty -Path $reginp\TrainedDataStore -Name "HarvestContacts" -Value $0 -Verbose
 
+    Write-Host ' Declining Microsoft Privacy Policy' ; Set-ItemProperty -Path:HKCU:\Software\Microsoft\Personalization\Settings -Name "AcceptedPrivacyPolicy" -Value $0 -Verbose
 
-    If ((Get-ItemProperty -Path HKCU:\Software\Microsoft\Personalization\Settings).AcceptedPrivacyPolicy -eq $0){
-        Write-Host " Skipping"        
-    } else {
-        Write-Host ' Declining Microsoft Privacy Policy'
-        Set-ItemProperty -Path:HKCU:\Software\Microsoft\Personalization\Settings -Name "AcceptedPrivacyPolicy" -Value $0
-    }
+    Write-Host ' Restricting Text Collection' ; Set-ItemProperty -Path $reginp -Name "RestrictImplicitTextCollection" -Value $1 -Verbose
 
-
-    If ((Get-ItemProperty -Path $reginp).RestrictImplicitTextCollection -eq $1){
-        Write-Host " Skipping"
-    } else {
-        Write-Host ' Restricting Text Collection'
-        Set-ItemProperty -Path $reginp -Name "RestrictImplicitTextCollection" -Value $1
-        
-    } 
-
-    If ((Get-ItemProperty -Path $reginp).RestrictImplicitInkCollection -eq $1){
-        Write-Host " Skipping"
-    } else {
-        Write-Host ' Restricting Ink Collection'
-        Set-ItemProperty -Path $reginp -Name "RestrictImplicitInkCollection" -Value $1
-
-    }
+    Write-Host ' Restricting Ink Collection' ; Set-ItemProperty -Path $reginp -Name "RestrictImplicitInkCollection" -Value $1 -Verbose
     
     
     ### Disables Feedback to Microsoft.
@@ -991,112 +743,59 @@ Function AdvRegistry {
     If (!(Test-Path -Path $siufrules)) {
         New-Item -Path HKCU:\Software\Microsoft\Siuf -Name "Rules"
     }
-    If (!((Get-Service -Name DiagTrack).Status -eq "Disabled")){
-        Write-Host " Skipping"
-    } else {
+    Set-ItemProperty -Path $siufrules -Name "NumberOfSiufInPeriod" -Type DWORD -Value 0 -Verbose
+    Set-ItemProperty -Path $siufrules -Name "PeriodInNanoSeconds" -Type QWORD -Value 0 -Verbose
+    
+    If (!((Get-Service -Name DiagTrack).Status -eq "Disabled")){        Write-Host " Skipping"    } else {
         Stop-Service "DiagTrack" -WarningAction SilentlyContinue
         Set-Service "DiagTrack" -StartupType Disabled
     }    
-    If ((Get-ItemProperty -Path $siufrules).PeriodInNanoSeconds -eq $0){
-        Write-Host " Skipping"
-    } else {
-        Set-ItemProperty -Path $siufrules -Name "NumberOfSiufInPeriod" -Type DWORD -Value 0
-    }
-    If ((Get-ItemProperty -Path $siufrules).PeriodInNanoSeconds -eq $0){
-        Write-Host " Skipping"
-    } else {
-        Set-ItemProperty -Path $siufrules -Name "PeriodInNanoSeconds" -Type QWORD -Value 0
-    }
-    
+
     
 
 
-    If ((Get-ItemProperty -Path HKLM:\SOFTWARE\Policies\Microsoft\Windows\DataCollection).DoNotShowFeedbackNotifications -eq $1){
-        Write-Host " Skipping"
-    } else {
+    If ((Get-ItemProperty -Path HKLM:\SOFTWARE\Policies\Microsoft\Windows\DataCollection).DoNotShowFeedbackNotifications -eq $1){        Write-Host " Skipping"    } else {
         Write-Host ' Disabling Windows Feedback Notifications'
-        Set-ItemProperty -Path:HKLM:\SOFTWARE\Policies\Microsoft\Windows\DataCollection -Name "DoNotShowFeedbackNotifications" -Type DWORD -Value $1
+        Set-ItemProperty -Path:HKLM:\SOFTWARE\Policies\Microsoft\Windows\DataCollection -Name "DoNotShowFeedbackNotifications" -Type DWORD -Value $1 -Verbose
     }
 
 
-    If ((Get-ItemProperty -Path $regsys).EnableActivityFeed -eq $0){
-        Write-Host " Skipping"
-    } else {
+    If ((Get-ItemProperty -Path $regsys).EnableActivityFeed -eq $0){        Write-Host " Skipping"    } else {
         Write-Host ' Disabling Activity History'
-        Set-ItemProperty -Path $regsys -Name "EnableActivityFeed" -Type DWORD -Value $0
+        Set-ItemProperty -Path $regsys -Name "EnableActivityFeed" -Type DWORD -Value $0 -Verbose
         
     }
 
-    If ((Get-ItemProperty -Path $regsys).PublishUserActivities -eq $0){
-        Write-Host " Skipping"
-    } else {
-        Set-ItemProperty -Path $regsys -Name "PublishUserActivities" -Type DWORD -Value $0
-        
-    }
+    Set-ItemProperty -Path $regsys -Name "PublishUserActivities" -Type DWORD -Value $0 -Verbose
+    Set-ItemProperty -Path $regsys -Name "UploadUserActivities" -Type DWORD -Value $0 -Verbose
 
-    If ((Get-ItemProperty -Path $regsys).UploadUserActivities -eq $0){
-        Write-Host " Skipping"
-    } else {
-        Set-ItemProperty -Path $regsys -Name "UploadUserActivities" -Type DWORD -Value $0
-    }
+    If (!(Test-Path -Path:$regcam)) {New-Item -Path:$regcam -Force}
+    
+    Write-Host ' Disabling Location Tracking'
+    Set-ItemProperty -Path "$regcam" -Name "Value" -Type String -Value "Deny"
+    Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Sensor\Overrides\{BFA794E4-F964-4FDB-90F6-51056BFE4B44}" -Name "SensorPermissionState" -Type DWORD -Value $0
+    Set-ItemProperty -Path "$lfsvc" -Name "Status" -Type DWORD -Value $0 -Verbose
 
 
-
-    If (!(Test-Path -Path:$regcam)) {
-        New-Item -Path:$regcam -Force
-    }
-    If ((Get-ItemProperty -Path "$regcam" -Name Value).Value -eq "Deny"){
-        Write-Host " Skipping"
-    } else {
-        Write-Host ' Disabling Location Tracking'
-        Set-ItemProperty -Path "$regcam" -Name "Value" -Type String -Value "Deny"
-    }
-
-    If ((Get-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Sensor\Overrides\{BFA794E4-F964-4FDB-90F6-51056BFE4B44}" -Name SensorPermissionState).SensorPermissionState -eq $0){
-        Write-Host " Skipping"
-    } else {
-        Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Sensor\Overrides\{BFA794E4-F964-4FDB-90F6-51056BFE4B44}" -Name "SensorPermissionState" -Type DWORD -Value $0
-    }
-
-    If ((Get-ItemProperty -Path $lfsvc -Name Status).Status -eq $0){
-        Write-Host " Skipping"
-    } else {
-        Set-ItemProperty -Path "$lfsvc" -Name "Status" -Type DWORD -Value $0
-    }
-
-
-
-    If ((Get-ItemProperty -Path HKLM:\System\Maps).AutoUpdateEnabled -eq $0){
-        Write-Host " Skipping"
-    } else {
+    If ((Get-ItemProperty -Path HKLM:\System\Maps).AutoUpdateEnabled -eq $0){        Write-Host " Skipping"    } else {
         Write-Host ' Disabling automatic Maps updates'
-        Set-ItemProperty -Path:HKLM:\SYSTEM\Maps -Name "AutoUpdateEnabled" -Type DWORD -Value $0
+        Set-ItemProperty -Path:HKLM:\SYSTEM\Maps -Name "AutoUpdateEnabled" -Type DWORD -Value $0 -Verbose
     }
 
 
-    If (!((Get-Service -Name dmwappushservice).Status -eq "Disabled")){
-        Write-Host " Skipping"
-    } else {
+    If (!((Get-Service -Name dmwappushservice).Status -eq "Disabled")){        Write-Host " Skipping"    } else {
         Write-Host ' Stopping and disabling WAP Push Service'
         Stop-Service "dmwappushservice" -WarningAction SilentlyContinue
         Set-Service "dmwappushservice" -StartupType Disabled
     }
-    If ((Get-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\DataCollection").AllowTelemetry -eq $0){
-        Write-Host " Skipping"
-    } else {
-        Set-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\DataCollection" -Name "AllowTelemetry" -Type DWORD -Value $0
+    If ((Get-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\DataCollection").AllowTelemetry -eq $0){        Write-Host " Skipping"    } else {
+        Set-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\DataCollection" -Name "AllowTelemetry" -Type DWORD -Value $0 -Verbose
     }
 
-    If ((Get-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\DataCollection").AllowTelemetry -eq $0){
-        Write-Host " Skipping"
-    } else {
-        Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\DataCollection" -Name "AllowTelemetry" -Type DWORD -Value $0
-
-
-
+    If ((Get-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\DataCollection").AllowTelemetry -eq $0){        Write-Host " Skipping"    } else {
+        Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\DataCollection" -Name "AllowTelemetry" -Type DWORD -Value $0 -Verbose
     }
     
-
     Disable-ScheduledTask -TaskName "Microsoft\Windows\Application Experience\Microsoft Compatibility Appraiser" 
     Disable-ScheduledTask -TaskName "Microsoft\Windows\Application Experience\ProgramDataUpdater" 
     Disable-ScheduledTask -TaskName "Microsoft\Windows\Autochk\Proxy" 
@@ -1108,17 +807,13 @@ Function AdvRegistry {
     If (!(Test-Path -Path $wifisense\AllowWiFiHotSpotReporting)) {
         New-Item -Path $wifisense\AllowWiFiHotSpotReporting -Force
     }
-    If ((Get-ItemProperty -Path $wifisense\AllowAutoConnectToWiFiSenseHotspots).Value -eq $0){
-        Write-Host " Skipping"
-    } else {
+    If ((Get-ItemProperty -Path $wifisense\AllowAutoConnectToWiFiSenseHotspots).Value -eq $0){        Write-Host " Skipping"    } else {
         Write-Host ' Disabling Wi-Fi Sense'
-        Set-ItemProperty -Path $wifisense\AllowAutoConnectToWiFiSenseHotspots -Name "Value" -Type DWORD -Value $0
+        Set-ItemProperty -Path $wifisense\AllowAutoConnectToWiFiSenseHotspots -Name "Value" -Type DWORD -Value $0 -Verbose
     }
-    If ((Get-ItemProperty -Path $wifisense\AllowWiFiHotSpotReporting).Value -eq $0){
-        Write-Host " Skipping"
-    } else {
+    If ((Get-ItemProperty -Path $wifisense\AllowWiFiHotSpotReporting).Value -eq $0){        Write-Host " Skipping"    } else {
         Write-Host ' Disabling HotSpot Reporting to Microsoft'
-        Set-ItemProperty -Path $wifisense\AllowWiFiHotSpotReporting -Name "Value" -Type DWORD -Value $0
+        Set-ItemProperty -Path $wifisense\AllowWiFiHotSpotReporting -Name "Value" -Type DWORD -Value $0 -Verbose
     }
 
 
@@ -1127,107 +822,61 @@ Function AdvRegistry {
     If (!(Test-Path -Path $cloudcontent)) {
     New-Item -Path $cloudcontent -Force
     }
-    If ((Get-ItemProperty -Path $cloudcontent).DisableWindowsConsumerFeatures -eq $1){
-        Write-Host " Skipping"
-    } else {
-        Set-ItemProperty -Path $cloudcontent -Name "DisableWindowsConsumerFeatures" -Type DWORD -Value $1
+    If ((Get-ItemProperty -Path $cloudcontent).DisableWindowsConsumerFeatures -eq $1){        Write-Host " Skipping"    } else {
+        Set-ItemProperty -Path $cloudcontent -Name "DisableWindowsConsumerFeatures" -Type DWORD -Value $1 -Verbose
     }
 
 
     $key1 = "HKCU:\Software\Microsoft\Windows\CurrentVersion\Privacy"
     $key2 = "TailoredExperiencesWithDiagnosticDataEnabled"
-    If ((Get-ItemProperty -Path $key1).$key2 -eq $0){
-        Write-Host " Skipping"
-    } else {
-        Set-ItemProperty -Path $key1 -Name "$key2" -Value $0 -Type DWORD -Force
+    If ((Get-ItemProperty -Path $key1).$key2 -eq $0){        Write-Host " Skipping"    } else {
+        Set-ItemProperty -Path $key1 -Name "$key2" -Value $0 -Type DWORD -Force -Verbose
     }
 
 
     ### System
-    Write-Host ' Showing Details in Task Manager, also setting default tab to Performance'
     If ($BuildNumber -lt $22h2){
-        Write-Host ' Showing task manager details'
-        $taskmgr = Start-Process -WindowStyle Hidden -FilePath taskmgr.exe -PassThru
+        Write-Host ' Showing Details in Task Manager, also setting default tab to Performance'
+        $taskmgr = Start-Process -WindowStyle Hidden -FilePath taskmgr.exe -PassThru -Verbose
         Do {
             Start-Sleep -Milliseconds 100
             $preferences = Get-ItemProperty -Path $regcv\TaskManager -Name "Preferences" -ErrorAction SilentlyContinue
-        } Until ($preferences)
+            } Until ($preferences)
         Stop-Process $taskmgr
         $preferences.Preferences[28] = 0
-        Set-ItemProperty -Path $regcv\TaskManager -Name "Preferences" -Type Binary -Value $preferences.Preferences
-        Write-Host ' Setting default tab to Performance'
-        Set-ItemProperty -Path $regcv\TaskManager -Name "StartUpTab" -Value $1 -Type DWORD
+
+        Set-ItemProperty -Path $regcv\TaskManager -Name "Preferences" -Type Binary -Value $preferences.Preferences -Verbose
+        Set-ItemProperty -Path $regcv\TaskManager -Name "StartUpTab" -Value $1 -Type DWORD -Verbose
     } else {
         Write-Host " This PC is running 22H2 with a new task manager. Skipping this action."
     }
-
-
-    If (!(Get-Service -Name HomeGroupListener -ErrorAction SilentlyContinue)){
-        Write-Host " Skipping"
-    } else {
+    
+    If (!(Get-Service -Name HomeGroupListener -ErrorAction SilentlyContinue)){        Write-Host " Skipping"    } else {
         Write-Host ' Stopping and disabling Home Groups services'
         Stop-Service "HomeGroupListener" -WarningAction SilentlyContinue -ErrorAction SilentlyContinue
         Set-Service "HomeGroupListener" -StartupType Disabled -ErrorAction SilentlyContinue 
     }
-    If (!(Get-Service -Name HomeGroupListener -ErrorAction SilentlyContinue)){
-        Write-Host " Skipping"
-    } else {
+    If (!(Get-Service -Name HomeGroupListener -ErrorAction SilentlyContinue)){        Write-Host " Skipping"    } else {
         Stop-Service "HomeGroupProvider" -WarningAction SilentlyContinue -ErrorAction SilentlyContinue
         Set-Service "HomeGroupProvider" -StartupType Disabled -ErrorAction SilentlyContinue 
     }
 
-    If ((Get-Service -Name SysMain -ErrorAction SilentlyContinue).Status -eq 'Stopped'){
-        Write-Host " Skipping"
-    } else {
+    If ((Get-Service -Name SysMain -ErrorAction SilentlyContinue).Status -eq 'Stopped'){        Write-Host " Skipping"    } else {
         Write-Host ' Stopping and disabling Superfetch service'
         Stop-Service "SysMain" -WarningAction SilentlyContinue
         Set-Service "SysMain" -StartupType Disabled
     }
 
-    
-
-    If ((Get-ItemProperty -Path HKCU:\Software\Microsoft\MultiMedia\Audio).UserDuckingPreference -eq 3){
-        Write-Host " Skipping"
-    } else {
-        Write-Host ' Setting Sounds > Communications to "Do Nothing"'
-        Set-ItemProperty -Path:HKCU:\Software\Microsoft\MultiMedia\Audio -Name "UserDuckingPreference" -Value 3 -Type DWORD
-    }
+    #Sets Communications tab in Sound to Do Nothing
+    Set-ItemProperty -Path:HKCU:\Software\Microsoft\MultiMedia\Audio -Name "UserDuckingPreference" -Value 3 -Type DWORD -Verbose
 
     $ram = (Get-CimInstance -ClassName Win32_PhysicalMemory | Measure-Object -Property Capacity -Sum).Sum / 1kb
-    If ((Get-ItemProperty -Path HKLM:\SYSTEM\CurrentControlSet\Control).SvcHostSplitThresholdInKB -eq $ram){
-        Write-Host " Skipping"
-    } else {
-        Write-Host ' Grouping svchost.exe processes'
-        Set-ItemProperty -Path:HKLM:\SYSTEM\CurrentControlSet\Control -Name "SvcHostSplitThresholdInKB" -Type DWORD -Value $ram -Force
-    }
+    Write-Host ' Grouping svchost.exe processes' ; Set-ItemProperty -Path:HKLM:\SYSTEM\CurrentControlSet\Control -Name "SvcHostSplitThresholdInKB" -Type DWORD -Value $ram  -Verbose -Force
 
-    If ((Get-ItemProperty -Path HKLM:\SYSTEM\CurrentControlSet\Services\LanmanServer\Parameters).IRPStackSize -eq 30){
-        Write-Host " Skipping"
-    } else {
-        Write-Host ' Increasing stack size up to 30'
-        Set-ItemProperty -Path:HKLM:\SYSTEM\CurrentControlSet\Services\LanmanServer\Parameters -Name "IRPStackSize" -Type DWORD -Value 30
-        
-    }
+    Set-ItemProperty -Path:HKLM:\SYSTEM\CurrentControlSet\Services\LanmanServer\Parameters -Name "IRPStackSize" -Type DWORD -Value 30 -Verbose
 
     
-    If ($vari -eq 2){
-        Remove-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\DataCollection" -Name AllowTelemetry -Force
-        Remove-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\DataCollection" -Name AllowTelemetry -Force
-        Remove-ItemProperty -Path "HKCU:\Software\Microsoft\Personalization\Settings" -Name "AcceptedPrivacyPolicy" -Force
-        Remove-ItemProperty -Path $reginp -Name "RestrictImplicitTextCollection" -Force
-        Remove-ItemProperty -Path $reginp -Name "RestrictImplicitInkCollection" -Force
-        Set-Service "DiagTrack" -StartupType Automatic
-        Set-Service "dmwappushservice" -StartupType Automatic
-        Set-Service "SysMain" -StartupType Automatic
-        Enable-ScheduledTask -TaskName "Microsoft\Windows\Application Experience\Microsoft Compatibility Appraiser" 
-        Enable-ScheduledTask -TaskName "Microsoft\Windows\Application Experience\ProgramDataUpdater" 
-        Enable-ScheduledTask -TaskName "Microsoft\Windows\Autochk\Proxy" 
-        Enable-ScheduledTask -TaskName "Microsoft\Windows\Customer Experience Improvement Program\Consolidator" 
-        Enable-ScheduledTask -TaskName "Microsoft\Windows\Customer Experience Improvement Program\UsbCeip" 
-        Enable-ScheduledTask -TaskName "Microsoft\Windows\DiskDiagnostic\Microsoft-Windows-DiskDiagnosticDataCollector"
-        }
-
-    Write-Host "$frmt Registry changes $regjob $frmt"
+    Write-Host "$frmt Registry changes completed $frmt"
 }
 
 Function Notify([string]$arg) {
@@ -1246,61 +895,9 @@ Function Notify([string]$arg) {
     $balloon.ShowBalloonTip($Miliseconds)
     
 }
-Function Reboot {
-    [void][System.Reflection.Assembly]::LoadWithPartialName("System.Windows.Forms")
-    [void][System.Reflection.Assembly]::LoadWithPartialName("System.Drawing")
-    [System.Reflection.Assembly]::LoadWithPartialName("System.Windows.Forms") | out-null
-    [System.Reflection.Assembly]::LoadWithPartialName("System.Drawing") | out-null
-    $TimeStart = Get-Date
-    $TimeEnd = $timeStart.addminutes(360)
-    Do
-    {
-        $TimeNow = Get-Date
-        if ($TimeNow -ge $TimeEnd)
-        {
-            
-            Unregister-Event -SourceIdentifier click_event -ErrorAction SilentlyContinue
-            Remove-Event click_event -ErrorAction SilentlyContinue
-            [void][System.Reflection.Assembly]::LoadWithPartialName("System.Windows.Forms")
-            [void][System.Reflection.Assembly]::LoadWithPartialName("System.Drawing")
-            Exit
-        }
-        else
-        {
-            $Balloon = new-object System.Windows.Forms.NotifyIcon
-            $path = (Get-Process -id $pid).Path
-            $Balloon.Icon = [System.Drawing.Icon]::ExtractAssociatedIcon($path)
-            $Balloon.BalloonTipText = "New Loads Completed. Please Restart Computer."
-            $balloon.BalloonTipTitle = "New Loads" 
-            $Balloon.BalloonTipIcon = "Warning"
-            $Balloon.Visible = $true;
-            $Balloon.ShowBalloonTip(20000);
-            $Balloon_MouseOver = [System.Windows.Forms.MouseEventHandler]{ $Balloon.ShowBalloonTip(20000) }
-            $Balloon.add_MouseClick($Balloon_MouseOver)
-            Unregister-Event -SourceIdentifier click_event -ErrorAction SilentlyContinue
-            Register-ObjectEvent $Balloon BalloonTipClicked -sourceIdentifier click_event -Action {
-                Add-Type -AssemblyName Microsoft.VisualBasic
-                
-                If ([Microsoft.VisualBasic.Interaction]::MsgBox('Would you like to reboot your machine now?', 'YesNo,MsgBoxSetForeground,Question', 'New Loads') -eq "NO")
-                { }
-                else
-                {
-                    Restart-Computer -Force
-                }
-                
-            } | Out-Null
-            
-            Wait-Event -timeout 7200 -sourceIdentifier click_event > $null
-            Unregister-Event -SourceIdentifier click_event -ErrorAction SilentlyContinue
-            $Balloon.Dispose()
-        }
-    
-    }
-    Until ($TimeNow -ge $TimeEnd)
-}
 Function EmailLog {
-    $gui = "New Loads GUI"
-    $versionrun = $gui
+    $automated = "New Loads Automated"
+    $versionrun = $automated
     $dtwritten = (Get-Date)
     $user = $env:USERNAME
     $compname = $env:COMPUTERNAME
@@ -1329,8 +926,6 @@ Function EmailLog {
     Functions Run:
     Debloat: $debloatyns
     OneDrive: $onedriveyns"
-    
-    
 }
 Function Office_Removal_AskUser{
     [reflection.assembly]::loadwithpartialname("System.Windows.Forms") | Out-Null
@@ -1370,9 +965,15 @@ Function RestorePoint {
 }
 Function Cleanup {
     $WindowTitle = "New Loads - Cleanup" ; $host.UI.RawUI.WindowTitle = $WindowTitle ; Write-Host "$frmt Finishing Up$frmt"
-	If (!(Get-Process -Name:Explorer -ErrorAction SilentlyContinue)){
-		Start-Process Explorer -Verbose
-		Write-Host " Explorer Started"
+    $app = 'Explorer'
+    If (!(Get-Process -Name $app -ErrorAction SilentlyContinue)){
+        Write-Host " $app not found. Restarting."
+        Start-Process $app -Verbose
+    } else {
+        Write-Host " Restarting $app"
+        taskkill /f /im "$app.exe"
+        Start-Sleep -Seconds 2
+        Start-Process $app 
     }
     Write-Host ' Changing On AC Sleep Settings'
     powercfg -change -standby-timeout-ac "60"
@@ -1380,9 +981,10 @@ Function Cleanup {
     Write-Host ' Changing On Battery Sleep Settings'
     powercfg -change -standby-timeout-dc "15"
     powercfg -change -monitor-timeout-dc "10"
-
-    Write-Host ' Enabling F8 boot menu options'
-    bcdedit /set {bootmgr} displaybootmenu yes
+#    Disabled - Does not work on UEFI computers. Useless for the store.
+#    Write-Host ' Enabling F8 boot menu options'
+#    bcdedit /set {bootmgr} displaybootmenu yes
+    
 
 
 	Write-Host " Checking Windows Activation Status.."
@@ -1455,18 +1057,23 @@ Function NewLoadsCleanup {
         Remove-Item C:\ProgList.html -Force -Confirm:$false -ErrorAction SilentlyContinue -Verbose 2>$NULL
     }
 }
+Function Check {
+    If($?){
+        Write-Host " Successful"
+    } else {
+        Write-Warning " Unsuccessful"
+    }
+}
 Function RebootComputer {
     Write-Host " Script Completed. Please reboot computer."
     Start-Process Powershell -WindowStyle Hidden -ArgumentList '-Command iwr -useb "https://raw.githubusercontent.com/circlol/newload/main/Assets/AskToReboot.ps1" | iex'
 }
 
-$newlog = "$newloads" + "New Loads *.txt"
 If (Test-Path $newlog){
     Remove-Item $NewLog -Force
 }
 Start-Transcript -LiteralPath "$log"
-$health = 100
-$wantedreason = "OK"
+
 If ($reason -eq $wantedreason){
     Write-Host "`n`n================================================================================================`n`n"
     Write-Host " New Loads`n" #-ForegroundColor Cyan
@@ -1489,19 +1096,20 @@ Programs
 Visuals
 OEMInfo
 StartMenu
-#Registry
-AdvRegistry -Action Apply
-OneDrive
+Registry
+#AdvRegistry -Action Apply
+OneDrivere
 Debloat
 Cleanup
 RestorePoint
 Stop-Transcript
 EmailLog
 #Notify("Script has Completed. Please Reboot Computer.")
+Start-Sleep -s 3
+NewLoadsCleanup
+RebootComputer
 Write-Host " New Loads Completed."
-#RebootComputer
 Write-Host "`n Exiting"
-#NewLoadsCleanup
 Exit
 
 # SIG # Begin signature block
