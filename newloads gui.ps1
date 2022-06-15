@@ -619,21 +619,17 @@ Function ProductConfirmation {
     Write-Host "Motherboard: $product"
     Write-Host "GPU Name: $gpuname"
     Write-Host "GPU Description: $gpudesc"    
-    Write-Host " RAM INFORMATION`n"
+    Write-Host " RAM INFORMATION"
     Get-CimInstance -Class CIM_PhysicalMemory -ErrorAction Stop | Select-Object 'Manufacturer', 
                                                                                 'DeviceLocator', 
                                                                                 'PartNumber', 
                                                                                 'ConfiguredClockSpeed'
     ''    
     systeminfo | Select-String  'Total Physical Memory'
-    Start-Sleep -Milliseconds 300
     Write-Host "`n Generating Hard Drive Report`n"
-    Start-Sleep -Milliseconds 300
     Write-Host " Double check all drives that should be with this computer are connected." -ForegroundColor RED
-    Start-Sleep -Milliseconds 300
     $size = 60GB
     Get-Volume | Where-Object {$_.Size -gt $Size} | Sort-Object {$_.DriveLetter} | Out-Host
-    Start-Sleep -s 6
 }
 Function Programs {
     If ($perform_apps.checked -eq $true){
@@ -1049,6 +1045,9 @@ Function AdvRegistry {
             Set-ItemProperty -Path $regcv\Feeds -Name "ShellFeedsTaskbarOpenOnHover" -Value 0 -Verbose
         }
         #Disables live feeds in search
+        If (!(Test-Path -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Feeds\DSB")){
+            New-Item -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Feeds" -Name "DSB" -Force -Verbose
+        }
         Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Feeds\DSB" -Name "ShowDynamicContent" -Value 0 -type DWORD -Force -Verbose
         Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\SearchSettings" -Name "IsDynamicSearchBoxEnabled" -Value 0 -Type DWORD -Force -Verbose        
     }
@@ -1411,11 +1410,13 @@ Function AdvRegistry {
         Enable-ScheduledTask -TaskName "Microsoft\Windows\DiskDiagnostic\Microsoft-Windows-DiskDiagnosticDataCollector" -EA SilentlyContinue
         }
 
-    Write-Host "$frmt Registry changes $regjob $frmt"
-
-}
-Function Debloat {
+        Write-Host "$frmt Registry changes $regjob $frmt"
+        
+    }
+    Function Debloat {
     If ($perform_debloat.Checked -eq $true){
+    
+        $WindowTitle = "New Loads - Debloating Computer" ; $host.UI.RawUI.WindowTitle = $WindowTitle ; Write-Host "$frmt Removing Bloatware $frmt "
     If (Test-Path -Path $webadvisor -ErrorAction SilentlyContinue){
         Write-Host " Attemping Removal of McAfee WebAdvisor Uninstall"
         Start-Process "$webadvisor"
@@ -1508,11 +1509,10 @@ Function Debloat {
     "Microsoft.Whiteboard"
     "Microsoft.WindowsMaps"
     )
-    $WindowTitle = "New Loads - Debloating Computer" ; $host.UI.RawUI.WindowTitle = $WindowTitle ; Write-Host "$frmt Removing Bloatware $frmt "
     Foreach ($Program in $Programs) {
         Write-Warning " Attempting removal of $Program."   
-        Get-AppxPackage -Name "$Program*"| Remove-AppxPackage
-        Get-AppxProvisionedPackage -Online | Where-Object DisplayName -like "$Program*" | Remove-AppxProvisionedPackage -Online
+        Get-AppxPackage -Name $Program| Remove-AppxPackage | Out-Host
+        Get-AppxProvisionedPackage -Online | Where-Object DisplayName -like $Program | Remove-AppxProvisionedPackage -Online | Out-Host
     }
 
     Write-Host "`n`n Checking for Office "
@@ -2073,10 +2073,11 @@ OneDrivere
 Debloat
 Cleanup
 Stop-Transcript
+Start-Sleep -s 3
 EmailLog
+Start-Sleep -s 3
 #Notify("Script has Completed. Please Reboot Computer.")
 RebootComputer
-Start-Sleep -s 3
 NewLoadsCleanup
 Write-Host "$frmt New Loads Run Completed`n`n Ready for next task $frmt"
 
