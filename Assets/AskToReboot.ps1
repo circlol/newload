@@ -14,7 +14,7 @@
 [System.Reflection.Assembly]::LoadWithPartialName("System.Windows.Forms") | out-null
 [System.Reflection.Assembly]::LoadWithPartialName("System.Drawing") | out-null
 $TimeStart = Get-Date
-$TimeEnd = $timeStart.addminutes(20)
+$TimeEnd = $timeStart.addminutes(2)
 Do
 {
     $TimeNow = Get-Date
@@ -57,7 +57,7 @@ Do
             
         } | Out-Null
         
-        Wait-Event -timeout 45 -sourceIdentifier click_event > $null
+        Wait-Event -timeout 20 -sourceIdentifier click_event > $null
         Unregister-Event -SourceIdentifier click_event -ErrorAction SilentlyContinue
         $Balloon.Dispose()
     }
