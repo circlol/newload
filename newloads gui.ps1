@@ -7,25 +7,25 @@ If (!([System.Environment]::Is64BitOperatingSystem -eq $true)){
     Start-Sleep -Seconds 4
     Exit
 }
-$1909                       = "19000"
+#$1909                       = "19000"
 #$1809                       = "17763"
 #$2004                       = "19041"
-$20H2                       = "19042" 
+#$20H2                       = "19042" 
 #$21H1                       = "19043"
 $Win11                      = "22000"
 $22H2                       = "22593"
 $BuildNumber                = [System.Environment]::OSVersion.Version.Build
-$BuildNumber                = [int]$BuildNumber
-If ($BuildNumber -lt $1909){
-    Write-Host "ERROR: Windows out of date. Cannot run on devices with builds older than 2004." -ForegroundColor Red
-    Start-Sleep -Seconds 4
-    Exit
-}
+#$BuildNumber                = [int]$BuildNumber
+#If ($BuildNumber -lt $1909){
+    #Write-Host "ERROR: Windows out of date. Should not run on devices with builds older than 2004." -ForegroundColor Red
+    #Start-Sleep -Seconds 4
+    #Exit
+#}
 
-If ($BuildNumber -lt $20H2){
-    Write-Host "Warning: This computer is running a build older than 1 year.. Running your Updates is " -NoNewline -ForegroundColor Yellow ; Write-Host "STRONGLY RECOMMENDED" -ForegroundColor RED
-    Start-Sleep -Seconds 10
-}
+#If ($BuildNumber -lt $20H2){
+    #Write-Host "Warning: This computer is running a build older than 1 year.. Running your Updates is " -NoNewline -ForegroundColor Yellow ; Write-Host "STRONGLY RECOMMENDED" -ForegroundColor RED
+    #Start-Sleep -Seconds 10
+#}
 
 
 try {
