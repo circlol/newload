@@ -19,9 +19,9 @@ $20H2                       = "19042"
 $Win11                      = "22000"
 $22H2                       = "22593"
 $BuildNumber                = [System.Environment]::OSVersion.Version.Build
-$BuildNumber                = [int]$BuildNumber
+#$BuildNumber                = [int]$BuildNumber
 
-If ($BuildNumber -lt "$1909"){
+If ($BuildNumber -lt $1909){
     Write-Host "ERROR: Windows out of date. Cannot run on devices with builds older than 2004." -ForegroundColor Red
     Start-Sleep -Seconds 4
     Exit
