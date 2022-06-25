@@ -2,22 +2,47 @@
 Write-Host "Initializing New Loads"
 $WindowTitle = "New Loads - Initializing" ; $host.UI.RawUI.WindowTitle = $WindowTitle
 #Install-Module -Name BurntToast -Force
-$programversion             = "22700"
-#$winget = $false
-#If (Test-Path ~\AppData\Local\Microsoft\WindowsApps\Winget.exe){
-    #$winget = $true
-#} elseif (!(Test-Path ~\AppData\Local\Microsoft\WindowsApps\Winget.exe)){
-    #$winget = $false
-#}
+$StartTime = $(get-date)
+$programversion             = "22724"
+
+If (!([System.Environment]::Is64BitOperatingSystem -eq $true)){
+    Write-Host "ERROR: System is not running a 64-Bit Operating System" -ForegroundColor Red
+    Start-Sleep -Seconds 4
+    Exit
+}
+
+$1909                       = "18999"
+#$1809                       = "17763"
+#$2004                       = "19041"
+$20H2                       = "19042" 
+#$21H1                       = "19043"
+$Win11                      = "22000"
+$22H2                       = "22593"
+$BuildNumber                = [System.Environment]::OSVersion.Version.Build
+$BuildNumber                = [int]$BuildNumber
+
+If ($BuildNumber -lt $1909){
+    Write-Host "ERROR: Windows out of date. Cannot run on devices with builds older than 2004." -ForegroundColor Red
+    Start-Sleep -Seconds 4
+    Exit
+}
+
+If ($BuildNumber -lt $20H2){
+    Write-Host "Warning: This computer is running a build older than 1 year.. Running your Updates is " -NoNewline -ForegroundColor Yellow ; Write-Host "STRONGLY RECOMMENDED" -ForegroundColor RED
+    Start-Sleep -Seconds 10
+}
 
 
-$22h2                       = "10.0.22593"
-$WantedBuild                = "10.0.22000"
-$BuildNumber                = (Get-ItemProperty -Path c:\windows\system32\hal.dll).VersionInfo.ProductVersion
-$dtime                      = (Get-Date -UFormat %H.%M-%Y.%m.%d)
+try {
+    stop-transcript|out-null
+    }
+    catch [System.InvalidOperationException]{}
+
+
 $newloads                   = "$env:UserProfile\AppData\Local\Temp\New Loads\"
-#$newlog                     = "$newloads" + "New Loads *.txt"
-$log                        = "$newloads" + "New Loads Automated Log - $dtime.txt"
+$log                        = "$newloads" + "New Loads Log.txt"
+$newlog                     = "$newloads" + "New Loads *.txt"
+
 
 #$jc                         = "`n Task completed. Ready for next input`n"
 $health                     = 100
@@ -347,12 +372,12 @@ Function Visuals {
     Write-Host "$frmt Applying Visuals $frmt"
 
     If (!(Test-Path -Path $Wallpaper)){
-    If ($BuildNumber -gt $WantedBuild) {
+    If ($BuildNumber -ge $Win11) {
         Write-Host " Downloading Wallpaper"
         Write-Host " I have detected that you are on Windows 11"
         Start-BitsTransfer -Source "https://github.com/circlol/newload/raw/main/Assets/wallpaper/11.jpg" -Destination $wallpaper -Verbose
     } else {
-        If ($BuildNumber -lt $WantedBuild) {
+        If ($BuildNumber -lt $Win11) {
             Write-Host " I have detected that you are on Windows 10"
             Write-Host " Downloading Wallpaper"
             Start-BitsTransfer -Source "https://github.com/circlol/newload/raw/main/Assets/wallpaper/10.jpg" -Destination $wallpaper -Verbose
@@ -421,11 +446,11 @@ Function StartMenu {
         <CustomTaskbarLayoutCollection PinListPlacement="Replace">
             <defaultlayout:TaskbarLayout>
             <taskbar:TaskbarPinList>
-                <taskbar:DesktopApp DesktopApplicationID="Microsoft.Windows.Explorer"/>
-                <taskbar:UWA AppUserModelID="windows.immersivecontrolpanel_cw5n1h2txyewy!Microsoft.Windows.ImmersiveControlPanel" />
-                <taskbar:UWA AppUserModelID="Microsoft.Windows.SecHealthUI_cw5n1h2txyewy!SecHealthUI" />
-                <taskbar:UWA AppUserModelID="Microsoft.SecHealthUI_8wekyb3d8bbwe!SecHealthUI" />
-                <taskbar:DesktopApp DesktopApplicationID="Chrome" />
+            <taskbar:UWA AppUserModelID="windows.immersivecontrolpanel_cw5n1h2txyewy!Microsoft.Windows.ImmersiveControlPanel" />
+            <taskbar:UWA AppUserModelID="Microsoft.Windows.SecHealthUI_cw5n1h2txyewy!SecHealthUI" />
+            <taskbar:UWA AppUserModelID="Microsoft.SecHealthUI_8wekyb3d8bbwe!SecHealthUI" />
+            <taskbar:DesktopApp DesktopApplicationID="Chrome" />
+            <taskbar:DesktopApp DesktopApplicationID="Microsoft.Windows.Explorer"/>
                 </taskbar:TaskbarPinList>
             </defaultlayout:TaskbarLayout>
         </CustomTaskbarLayoutCollection>
@@ -492,116 +517,131 @@ Function OneDriveRe {
     }
 }
 Function Debloat {
-    $WindowTitle = "New Loads - Debloating" ; $host.UI.RawUI.WindowTitle = $WindowTitle ; Write-Host "$frmt Removing Bloatware $frmt "
-
+    $WindowTitle = "New Loads - Debloating Computer" ; $host.UI.RawUI.WindowTitle = $WindowTitle ; Write-Host "$frmt Removing Bloatware $frmt "
+    
+    #WebAdvisor Removal
     If (Test-Path -Path $webadvisor -ErrorAction SilentlyContinue){
         Write-Host " Attemping Removal of McAfee WebAdvisor Uninstall"
         Start-Process "$webadvisor"
     }
+    #Preinsatlled on Acer machines primarily WildTangent Games
     If (Test-Path -Path $WildGames -ErrorAction SilentlyContinue){
         Write-Host " Attemping Removal WildTangent Games"
         Start-Process $WildGames 
     }
+    #McAfee Live Safe Removal
     If (Test-Path -Path $livesafe -ErrorAction SilentlyContinue){
         Write-Host " Attemping Removal of McAfee Live Safe"
         Start-Process "$livesafe"
-        #Start-Process -Path $Livesafe -ArgumentList /body:misp://MSCJsRes.dll::uninstall.html /id:uninstall -Force
-    }
-
-    $Programs = @(
-    # non-Microsoft All Machines
-    "Clipchamp.Clipchamp"
-    "Disney.37853FC22B2CE"
-    "Disney.37853FC22B2CE_6rarf9sa4v8jt"
-    "SpotifyAB.SpotifyMusic_zpdnekdrzrea0"
-    "SpotifyAB.SpotifyMusic"
-    "4DF9E0F8.Netflix"
-    "C27EB4BA.DropboxOEM"
-    "2FE3CB00.PicsArt-PhotoStudio"
-    "26720RandomSaladGamesLLC.HeartsDeluxe"
-    "26720RandomSaladGamesLLC.SimpleSolitaire"
-    "26720RandomSaladGamesLLC.SimpleMahjong"
-    "26720RandomSaladGamesLLC.Spades"
-    "5319275A.WhatsAppDesktop" 
-    "5A894077.McAfeeSecurity"
-    "57540AMZNMobileLLC.AmazonAlexa"
-    "7EE7776C.LinkedInforWindows"
-    "89006A2E.AutodeskSketchBook"
-    "AD2F1837.HPSupportAssistant"
-    "AD2F1837.HPPrinterControl"
-    "AD2F1837.HPQuickDrop"
-    "AD2F1837.HPSystemEventUtility"
-    "AD2F1837.HPPrivacySettings"
-    "AD2F1837.HPInc.EnergyStar"
-    "AD2F1837.HPAudioCenter"
-    "A278AB0D.DisneyMagicKingdoms"
-    "A278AB0D.MarchofEmpires"
-    "AdobeSystemsIncorporated.AdobeLightroom"
-    "AcerIncorporated.AcerRegistration"
-    "AcerIncorporated.QuickAccess"
-    "AcerIncorporated.UserExperienceImprovementProgram"
-    "AcerIncorporated.AcerCareCe nterS"
-    "AcerIncorporated.AcerCollectionS"
-    "DolbyLaboratories.DolbyAudio"
-    "DolbyLaboratories.DolbyAccess"
-    "CorelCorporation.PaintShopPro"
-    "CyberLinkCorp.ac.PowerDirectorforacerDesktop"
-    "CyberLinkCorp.ac.PhotoDirectorforacerDesktop"
-    "DB6EA5DB.CyberLinkMediaSuiteEssentials"
-    "E0469640.LenovoUtility"
-    "Evernote.Evernote"
-    "FACEBOOK.317180B0BB486"
-
-
-    #Unnecessary Windows 10 AppX Apps
-    "Microsoft.3DBuilder"
-    "Microsoft.Microsoft3DViewer"
-    "Microsoft.AppConnector"
-    #"Microsoft.BingFinance"
-    #"Microsoft.BingNews"
-    #"Microsoft.BingSports"
-    #"Microsoft.BingTranslator"
-    #"Microsoft.BingWeather"
-    #"Microsoft.BingFoodAndDrink"
-    #"Microsoft.BingHealthAndFitness"
-    #"Microsoft.BingTravel"
-    "Microsoft.ConnectivityStore"
-    "Microsoft.MinecraftEducationEdition"
-    "Microsoft.MinecraftUWP"
-    "Microsoft.Messaging"
-    "Microsoft.MixedReality.Portal"
-    "Microsoft.MicrosoftOfficeHub"
-    "Microsoft.Microsoft3DViewer"
-    #"Microsoft.News"
-    "Microsoft.Office.Hub"
-    "Microsoft.Office.Lens"
-    "Microsoft.Office.Sway"
-    "Microsoft.Office.OneNote"
-    "Microsoft.OneConnect"
-    "Microsoft.OneDriveSync"
-    "Microsoft.People"
-    "Microsoft.SkypeApp"
-    "Microsoft.Wallet"
-    "Microsoft.Whiteboard"
-    "Microsoft.WindowsMaps"
-    )
-    Foreach ($Program in $Programs) {
-        Write-Warning " Attempting removal of $Program."   
-        Get-AppxPackage -Name $Program| Remove-AppxPackage | Out-Host
-        Get-AppxProvisionedPackage -Online | Where-Object DisplayName -like $Program | Remove-AppxProvisionedPackage -Online | Out-Host
-    }
-
-    Write-Host "`n`n Checking for Office "
-    If (Test-Path "$path64")    {    $office64 = $true}             Else {    $office64 = $false}
-    If (Test-Path "$path86")    {    $Office32 = $true}             Else {    $office32 = $false}
-    If ($office32 -eq $true)    {    $officecheck = $true}       
-    If ($office64 -eq $true)    {    $officecheck = $true}    
-    If ($officecheck -eq $true) {    Write-Host " Office Exists"}   Else {    Write-Host " Office does not exist"}
-    If ($officecheck -eq $true) {    Office_Removal_AskUser
     }
     
-}
+    $commonapps = "$env:ALLUSERSPROFILE\Microsoft\Windows\Start Menu\Programs"
+    $apps = @(
+        "Amazon"
+        "Booking.com"
+        "Forge of Empires"
+        "Planet9 Link"
+        )
 
+    ForEach ($app in $apps){
+        If (Test-Path -Path "$commonapps\$app.url"){
+                Write-Host "$app was found. Removing" -ForegroundColor Green
+                Remove-Item -Path "$commonapps\$app.url" -Force -Verbose
+            } else {
+                Write-Host "$app not found" -ForegroundColor Yellow
+            }
+        }
+
+        $Programs = @(
+        "Clipchamp.Clipchamp"
+        "Disney.37853FC22B2CE"
+        "Disney.37853FC22B2CE_6rarf9sa4v8jt"
+        "SpotifyAB.SpotifyMusic_zpdnekdrzrea0"
+        "SpotifyAB.SpotifyMusic"
+        "4DF9E0F8.Netflix"
+        "C27EB4BA.DropboxOEM"
+        "2FE3CB00.PicsArt-PhotoStudio"
+        "26720RandomSaladGamesLLC.HeartsDeluxe"
+        "26720RandomSaladGamesLLC.SimpleSolitaire"
+        "26720RandomSaladGamesLLC.SimpleMahjong"
+        "26720RandomSaladGamesLLC.Spades"
+        "5319275A.WhatsAppDesktop" 
+        "5A894077.McAfeeSecurity"
+        "57540AMZNMobileLLC.AmazonAlexa"
+        "7EE7776C.LinkedInforWindows"
+        "89006A2E.AutodeskSketchBook"
+        "AD2F1837.HPSupportAssistant"
+        "AD2F1837.HPPrinterControl"
+        "AD2F1837.HPQuickDrop"
+        "AD2F1837.HPSystemEventUtility"
+        "AD2F1837.HPPrivacySettings"
+        "AD2F1837.HPInc.EnergyStar"
+        "AD2F1837.HPAudioCenter"
+        "A278AB0D.DisneyMagicKingdoms"
+        "A278AB0D.MarchofEmpires"
+        "AdobeSystemsIncorporated.AdobeLightroom"
+        "AcerIncorporated.AcerRegistration"
+        "AcerIncorporated.QuickAccess"
+        "AcerIncorporated.UserExperienceImprovementProgram"
+        "AcerIncorporated.AcerCareCe nterS"
+        "AcerIncorporated.AcerCollectionS"
+        "DolbyLaboratories.DolbyAudio"
+        "DolbyLaboratories.DolbyAccess"
+        "CorelCorporation.PaintShopPro"
+        "CyberLinkCorp.ac.PowerDirectorforacerDesktop"
+        "CyberLinkCorp.ac.PhotoDirectorforacerDesktop"
+        "DB6EA5DB.CyberLinkMediaSuiteEssentials"
+        "E0469640.LenovoUtility"
+        "Evernote.Evernote"
+        "FACEBOOK.317180B0BB486"
+        "Microsoft.3DBuilder"
+        "Microsoft.Microsoft3DViewer"
+        "Microsoft.AppConnector"
+        "Microsoft.ConnectivityStore"
+        "Microsoft.MinecraftEducationEdition"
+        "Microsoft.MinecraftUWP"
+        "Microsoft.Messaging"
+        "Microsoft.MixedReality.Portal"
+        "Microsoft.MicrosoftOfficeHub"
+        "Microsoft.Microsoft3DViewer"
+        "Microsoft.Office.Hub"
+        "Microsoft.Office.Lens"
+        "Microsoft.Office.Sway"
+        "Microsoft.Office.OneNote"
+        "Microsoft.OneConnect"
+        "Microsoft.OneDriveSync"
+        "Microsoft.People"
+        "Microsoft.SkypeApp"
+        "Microsoft.Wallet"
+        "Microsoft.Whiteboard"
+        "Microsoft.WindowsMaps"
+        )
+        #$provpkg = "HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Appx\PackageState\S-1-5-21-3668021648-1202156387-2837978000-1001"
+        Foreach ($Program in $Programs) {
+            If (Get-AppxPackage -Name $program){
+                Write-Host " Attempting to remove package $Program." -ForegroundColor Yellow
+                Get-AppxPackage -Name $Program | Remove-AppxPackage | Out-Host
+                If ($?){Write-Host "$Program was successfully removed for this account $env:COMPUTERNAME\$env:USERNAME" -ForegroundColor Green
+                } else {Write-Host "$Program was successfully removed for this account $env:COMPUTERNAME\$env:USERNAME" -ForegroundColor Red
+                }
+                Get-AppxProvisionedPackage -Online | Where-Object DisplayName -like $Program | Remove-AppxProvisionedPackage -Online -ErrorAction SilentlyContinue | Out-Host
+                If ($?){Write-Host "$Program was successfully debloated from future accounts" -ForegroundColor Green
+                } else { Write-Host "$Program was unsuccessfully debloated from future accounts" -ForegroundColor Red
+                }
+            } else {
+            Write-Host "$Program not found" -ForegroundColor Yellow
+            }
+        }
+    }
+    Function OfficeCheck {
+        Write-Host "`n`n Checking for Office "
+        If (Test-Path "$path64")    {    $office64 = $true}             Else {    $office64 = $false}
+        If (Test-Path "$path86")    {    $Office32 = $true}             Else {    $office32 = $false}
+        If ($office32 -eq $true)    {    $officecheck = $true}       
+        If ($office64 -eq $true)    {    $officecheck = $true}    
+        If ($officecheck -eq $true) {    Write-Host " Office Exists"}   Else {    Write-Host " Office does not exist"}
+        If ($officecheck -eq $true) {    Office_Removal_AskUser}
+    }
 Function Registry {
     $WindowTitle = "New Loads - Applying Registry" ; $host.UI.RawUI.WindowTitle = $WindowTitle ; Write-Host "$frmt $title Registry Changes $frmt"
     Write-Host " Applying"
@@ -611,35 +651,29 @@ Function Registry {
     Remove-Printer -Name "Fax" -ErrorAction SilentlyContinue -Verbose 
     Remove-Printer -Name "OneNote" -ErrorAction SilentlyContinue -Verbose
 
-    If ($BuildNumber -lt $WantedBuild) {            ## Windows 10
+    If ($BuildNumber -lt $Win11) {            ## Windows 10
         Write-Host " $title Windows 10 Specific Registry Keys`n"
         ## Changes search box to an icon
-        Write-Host ' Changing Searchbox to Icon Format on Taskbar'
-        Set-ItemProperty -Path $regsearch -Name "SearchboxTaskbarMode" -Value 1 
+        Write-Host ' Changing Searchbox to Icon Format on Taskbar' ; Set-ItemProperty -Path $regsearch -Name "SearchboxTaskbarMode" -Value 1 
         ## Removes Cortana from the taskbar
-        Write-Host ' Removing Cortana Icon from Taskbar'
-        Set-ItemProperty -Path $regexadv -Name "ShowCortanaButton" -Value 0 
+        Write-Host ' Removing Cortana Icon from Taskbar' ; Set-ItemProperty -Path $regexadv -Name "ShowCortanaButton" -Value 0 
         ## Unpins taskview from Windows 10 Taskbar
-        Write-Host ' Unpinning Task View Icon'
-        Set-ItemProperty -Path $regexadv -Name "ShowTaskViewButton" -Value 0 
+        Write-Host ' Unpinning Task View Icon' ; Set-ItemProperty -Path $regexadv -Name "ShowTaskViewButton" -Value 0 
         ##  Hides 3D Objects from "This PC"
-        Write-Host ' Hiding 3D Objects icon from This PC'
-        Remove-Item -Path "$regexlm\MyComputer\NameSpace\{0DB7E03F-FC29-4DC6-9020-FF41B59E513A}" -Recurse  -EA SilentlyContinue
+        Write-Host ' Hiding 3D Objects icon from This PC' ; Remove-Item -Path "$regexlm\MyComputer\NameSpace\{0DB7E03F-FC29-4DC6-9020-FF41B59E513A}" -Recurse  -EA SilentlyContinue
 
         ## Expands explorers ribbon
         If (!(Test-Path -Path $regex\Ribbon)){
             New-Item -Path "$regex" -Name "Ribbon" -Force 
         }
-        Write-Host ' Expanding Ribbon in Explorer'
-        Set-ItemProperty -Path $regex\Ribbon -Name "MinimizedStateTabletModeOff" -Type DWORD -Value 0 
+        Write-Host ' Expanding Ribbon in Explorer' ; Set-ItemProperty -Path $regex\Ribbon -Name "MinimizedStateTabletModeOff" -Type DWORD -Value 0 
 
         ## Disabling Feeds Open on Hover
-        Write-Host ' Disabling Feeds open on hover'
         If (!(Test-Path -Path $regcv\Feeds)){
             New-Item -Path $regcv -Name "Feeds" 
         }
-        Set-ItemProperty -Path $regcv\Feeds -Name "ShellFeedsTaskbarOpenOnHover" -Value 0 
-    
+        Write-Host ' Disabling Feeds open on hover' ; Set-ItemProperty -Path $regcv\Feeds -Name "ShellFeedsTaskbarOpenOnHover" -Value 0 
+        
         
         #Disables live feeds in search
         If (!(Test-Path -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Feeds\DSB")){
@@ -649,13 +683,15 @@ Function Registry {
         Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\SearchSettings" -Name "IsDynamicSearchBoxEnabled" -Value 0 -Type DWORD -Force         
     }
 
-    If ($BuildNumber -gt $WantedBuild) {            ## Windows 11
+    If ($BuildNumber -gt $Win11) {            ## Windows 11
         Write-Host " $title Windows 11 Specific Registry Keys`n"
+
+        #Write-Host " Checking Network Information" | Out-File $Log
+        #Invoke-RestMethod -Uri ('http://ipinfo.io/'+(Invoke-WebRequest -uri "http://ifconfig.me/ip").Content) > $log 2>&1
 
         #Sets start layout to show more pins.
         If ($BuildNumber -gt $22H2){ 
-            Write-Host " Setting Start Menu to Show More Pins"
-            Set-ItemProperty -Path $regexadv -Name Start_Layout -Value 1 -Type DWORD -Force 
+            Write-Host " Setting Start Menu to Show More Pins" ; Set-ItemProperty -Path $regexadv -Name Start_Layout -Value 1 -Type DWORD -Force 
         }
         
         Write-Host " Removing Chats from taskbar" ; Set-ItemProperty -Path $regexadv -Name "TaskBarMn" -Value 0 
@@ -751,14 +787,12 @@ Function Registry {
 
 
     If ((Get-ItemProperty -Path HKLM:\SOFTWARE\Policies\Microsoft\Windows\DataCollection).DoNotShowFeedbackNotifications -eq 1){        Write-Host " Skipping"    } else {
-        Write-Host ' Disabling Windows Feedback Notifications'
-        Set-ItemProperty -Path:HKLM:\SOFTWARE\Policies\Microsoft\Windows\DataCollection -Name "DoNotShowFeedbackNotifications" -Type DWORD -Value 1
+        Write-Host ' Disabling Windows Feedback Notifications' ; Set-ItemProperty -Path:HKLM:\SOFTWARE\Policies\Microsoft\Windows\DataCollection -Name "DoNotShowFeedbackNotifications" -Type DWORD -Value 1
     }
 
 
     If ((Get-ItemProperty -Path $regsys).EnableActivityFeed -eq 1){        Write-Host " Skipping"    } else {
-        Write-Host ' Disabling Activity History'
-        Set-ItemProperty -Path $regsys -Name "EnableActivityFeed" -Type DWORD -Value 0
+        Write-Host ' Disabling Activity History' ; Set-ItemProperty -Path $regsys -Name "EnableActivityFeed" -Type DWORD -Value 0
         
     }
 
@@ -774,8 +808,7 @@ Function Registry {
 
 
     If ((Get-ItemProperty -Path HKLM:\System\Maps).AutoUpdateEnabled -eq 0){        Write-Host " Skipping"    } else {
-        Write-Host ' Disabling automatic Maps updates'
-        Set-ItemProperty -Path:HKLM:\SYSTEM\Maps -Name "AutoUpdateEnabled" -Type DWORD -Value 0
+        Write-Host ' Disabling automatic Maps updates' ; Set-ItemProperty -Path:HKLM:\SYSTEM\Maps -Name "AutoUpdateEnabled" -Type DWORD -Value 0
     }
 
 
@@ -804,12 +837,10 @@ Function Registry {
         New-Item -Path $wifisense\AllowWiFiHotSpotReporting -Force
     }
     If ((Get-ItemProperty -Path $wifisense\AllowAutoConnectToWiFiSenseHotspots).Value -eq 0){        Write-Host " Skipping"    } else {
-        Write-Host ' Disabling Wi-Fi Sense'
-        Set-ItemProperty -Path $wifisense\AllowAutoConnectToWiFiSenseHotspots -Name "Value" -Type DWORD -Value 0
+        Write-Host ' Disabling Wi-Fi Sense' ; Set-ItemProperty -Path $wifisense\AllowAutoConnectToWiFiSenseHotspots -Name "Value" -Type DWORD -Value 0
     }
     If ((Get-ItemProperty -Path $wifisense\AllowWiFiHotSpotReporting).Value -eq 0){        Write-Host " Skipping"    } else {
-        Write-Host ' Disabling HotSpot Reporting to Microsoft'
-        Set-ItemProperty -Path $wifisense\AllowWiFiHotSpotReporting -Name "Value" -Type DWORD -Value 0
+        Write-Host ' Disabling HotSpot Reporting to Microsoft' ; Set-ItemProperty -Path $wifisense\AllowWiFiHotSpotReporting -Name "Value" -Type DWORD -Value 0
     }
 
 
@@ -894,23 +925,67 @@ Function Notify([string]$arg) {
 }
 Function EmailLog {
     $automated = "New Loads Automated"
-    $versionrun = $automated
-    $dtwritten = (Get-Date)
-    $user = $env:USERNAME
-    $compname = $env:COMPUTERNAME
-
+    $auto = $automated
+    $versionrun = $auto
+    $sysinfo = systeminfo | Sort-Object | Out-File -Append $log -Encoding ascii
     $newloads = "$env:temp" + "\New Loads\"
     $attachlog = (Get-ChildItem -Path "$env:temp\New Loads\" -Recurse -Filter "New Loads*.txt").Name
 	$attachlog = "$newloads" + "$attachlog"
 	
     $html = "C:\ProgList.html"
     $proglist = "$newloads" + "ProgList.txt"
+    
+    $ip = (New-Object System.Net.WebClient).DownloadString('http://ifconfig.me/ip')
+    $ipinfo = (New-Object System.Net.WebClient).DownloadString('http://ipinfo.io/'+"$ip")
+
+    $chromeloc                  = $Env:PROGRAMFILES + "\Google\Chrome\Application\chrome.exe"
+    $vlcloc                  = $Env:PROGRAMFILES + "\VideoLAN\VLC\vlc.exe"
+    $adobeloc                  = $Env:PROGRAMFILES + "\Adobe\Acrobat DC\Acrobat\"
+    $zoomloc                  = $Env:PROGRAMFILES + "\Zoom\bin\Zoom.exe"
+
+    If (Test-Path -Path "$chromeloc"){
+        $chromeyns = "X"
+    }else{ 
+        $chromeyns = ""
+    }
+    If (Test-Path -Path "$vlcloc"){
+        $vlcyns = "X"
+    }else{
+        $vlcyns = ""
+    }
+    If (Test-Path -Path "$adobeloc"){ 
+        $adobeyns = "X"
+    }else{ 
+        $adobeyns = ""
+    }
+    If (
+        Test-Path -Path "$zoomloc"){
+        $zoomyns = "X"
+    }else{
+        $zoomyns = ""
+    }
 
 
-    Send-MailMessage -From 'New Loads Log <newloadslogs@shaw.ca>' -To '<newloadslogs@shaw.ca> , <newloads@shaw.ca>' -Subject "$versionrun Log - Generated at $dtime" -Attachments $attachlog , $html , $proglist -Priority High -DeliveryNotification OnSuccess, OnFailure -SmtpServer 'smtp.shaw.ca' -Verbose -ErrorAction SilentlyContinue -Body "This script was run in $versionrun mode on $dtwritten.. The Computer it was run on was named $compname with a username $user.
+    $elapsedTime = $(get-date) - $StartTime
+    $totalTime = "{0:HH:mm:ss}" -f ([datetime]$elapsedTime.Ticks)
+    $Displayversion = (Get-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion" -Name "DisplayVersion").DisplayVersion
+    #$WindowsVersion = (Get-Computerinfo).OsName
+    $WindowsVersion = (Get-WmiObject -class Win32_OperatingSystem).Caption
+
+    Send-MailMessage -From 'New Loads Log <newloadslogs@shaw.ca>' -To '<newloadslogs@shaw.ca> , <newloads@shaw.ca>' -Subject "$versionrun Log - Generated at $dtime" -Attachments $attachlog , $html , $proglist -Priority High -DeliveryNotification OnSuccess, OnFailure -SmtpServer 'smtp.shaw.ca' -Verbose -ErrorAction SilentlyContinue -Body "
+    The script was run in $auto, on a computer for $ip\$env:USERNAME, Completing in $totaltime
     
-    Script Results at a glance:
+    Windows Version: $WindowsVersion, $DisplayVersion
+    Script Version: $programversion
+    Script Start Time: $Starttime
+    Script End Time: $elapsedtime
     
+    Script Log $dtime.txt
+    
+    System Information
+    xxxxxx
+
+
     Applications Installed: $appsyns
     [$chromeyns] Chrome
     [$vlcyns] VLC Media Player
@@ -922,7 +997,10 @@ Function EmailLog {
     
     Functions Run:
     Debloat: $debloatyns
-    OneDrive: $onedriveyns"
+    OneDrive: $onedriveyns
+
+    Network Information of this PC: 
+    $ipinfo"
 }
 Function Office_Removal_AskUser{
     [reflection.assembly]::loadwithpartialname("System.Windows.Forms") | Out-Null
@@ -943,9 +1021,7 @@ Function Office_Removal_AskUser{
         'No' {
             Write-Host " Leaving Office Alone"
         }
-    
     }
-    
 }
 Function RestorePoint {
     $desc = "Mother Computers Courtesy Restore Point"
@@ -979,8 +1055,9 @@ Function Cleanup {
     powercfg -change -standby-timeout-dc "15"
     powercfg -change -monitor-timeout-dc "10"
 #    Disabled - Does not work on UEFI computers. Useless for the store.
-#    Write-Host ' Enabling F8 boot menu options'
-#    bcdedit /set {bootmgr} displaybootmenu yes
+    Write-Host ' Enabling F8 boot menu options'
+    bcdedit /set {bootmgr} displaybootmenu yes | Out-Null
+    bcdedit /set "{CURRENT}" bootmenupolicy legacy
     
 
 
@@ -1066,9 +1143,9 @@ Function RebootComputer {
     Start-Process Powershell -WindowStyle Hidden -ArgumentList '-Command iwr -useb "https://raw.githubusercontent.com/circlol/newload/main/Assets/AskToReboot.ps1" | iex'
 }
 
-#If (Test-Path $newlog){
-    #Remove-Item $NewLog -Force
-#}
+If (Test-Path $newlog){
+    Remove-Item $NewLog -Force
+}
 Start-Transcript -LiteralPath "$log"
 
 If ($reason -eq $wantedreason){
@@ -1087,6 +1164,9 @@ If ($reason -eq $wantedreason){
     Write-Host " Ideally run updates before continuing with this program." -ForegroundColor Red
     Write-Host "`n`n================================================================================================`n`n`n"
 }
+
+
+
 ProductConfirmation
 ProgList
 Programs
@@ -1097,14 +1177,16 @@ Registry
 #AdvRegistry -Action Apply
 OneDrivere
 Debloat
+OfficeCheck
 Cleanup
 RestorePoint
 Stop-Transcript
+$EndTime = $(get-date)
 Start-Sleep -s 3
 EmailLog
 Start-Sleep -s 3
 #Notify("Script has Completed. Please Reboot Computer.")
-NewLoadsCleanup
+#NewLoadsCleanup
 RebootComputer
 Write-Host " New Loads Completed."
 Write-Host "`n Exiting"
