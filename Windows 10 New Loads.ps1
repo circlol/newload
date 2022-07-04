@@ -3,7 +3,7 @@ Write-Host "Initializing New Loads"
 $WindowTitle = "New Loads - Initializing" ; $host.UI.RawUI.WindowTitle = $WindowTitle
 #Install-Module -Name BurntToast -Force
 $StartTime = $(get-date)
-$programversion             = "22724"
+$programversion             = "22724.1"
 
 If (!([System.Environment]::Is64BitOperatingSystem -eq $true)){
     Write-Host "ERROR: System is not running a 64-Bit Operating System" -ForegroundColor Red
@@ -11,11 +11,11 @@ If (!([System.Environment]::Is64BitOperatingSystem -eq $true)){
     Exit
 }
 
-#$1909                       = "18999"
-#$1809                       = "17763"
-#$2004                       = "19041"
-#$20H2                       = "19042" 
-#$21H1                       = "19043"
+$1909                       = "18999"
+$1809                       = "17763"
+$2004                       = "19041"
+$20H2                       = "19042" 
+$21H1                       = "19043"
 $Win11                      = "22000"
 $22H2                       = "22593"
 $BuildNumber                = [System.Environment]::OSVersion.Version.Build
@@ -167,13 +167,13 @@ Function ProductConfirmation {
     Write-Host "Motherboard: $product"
     Write-Host "GPU Name: $gpuname"
     Write-Host "GPU Description: $gpudesc"    
-    Write-Host " RAM INFORMATION"
-    Get-CimInstance -Class CIM_PhysicalMemory -ErrorAction Stop | Select-Object 'Manufacturer', 
-                                                                                'DeviceLocator', 
-                                                                                'PartNumber', 
-                                                                                'ConfiguredClockSpeed'
-    ''    
-    systeminfo | Select-String  'Total Physical Memory'
+    #Write-Host " RAM INFORMATION"
+    #Get-CimInstance -Class CIM_PhysicalMemory -ErrorAction Stop | Select-Object 'Manufacturer', 
+                                                                                #'DeviceLocator', 
+                                                                                #'PartNumber', 
+                                                                                #'ConfiguredClockSpeed'
+    #''    
+    #systeminfo | Select-String  'Total Physical Memory'
     Write-Host "`n Generating Hard Drive Report`n"
     Write-Host " Double check all drives that should be with this computer are connected." -ForegroundColor RED
     $size = 60GB
@@ -759,9 +759,13 @@ Function Registry {
     If (!(Test-Path -Path:HKCU:\Software\Policies\Microsoft\Windows\EdgeUI)){ New-Item -Path:HKCU:\Software\Policies\Microsoft\Windows -Name "EdgeUI" }
     Write-Host ' Disabling App Launch Tracking' ; Set-ItemProperty -Path HKCU:\Software\Policies\Microsoft\Windows\EdgeUI -Name "DisableMFUTracking" -Value 1 -Type DWORD
     
-    Write-Host ' Disabling Contact Harvesting' ; Set-ItemProperty -Path $reginp\TrainedDataStore -Name "HarvestContacts" -Value 0
-
     Write-Host ' Declining Microsoft Privacy Policy' ; Set-ItemProperty -Path:HKCU:\Software\Microsoft\Personalization\Settings -Name "AcceptedPrivacyPolicy" -Value 0
+
+    If (!(Test-Path $reginp)){
+        Write-Host "Seems that InputPersonalization wasn't found. Creating" ; New-Item -Path "HKCU:\Software\Microsoft" -Name "InputPersonalization" -Verbose
+    }
+
+    Write-Host ' Disabling Contact Harvesting' ; Set-ItemProperty -Path $reginp\TrainedDataStore -Name "HarvestContacts" -Value 0
 
     Write-Host ' Restricting Text Collection' ; Set-ItemProperty -Path $reginp -Name "RestrictImplicitTextCollection" -Value 0
 
@@ -804,6 +808,9 @@ Function Registry {
     Write-Host ' Disabling Location Tracking'
     Set-ItemProperty -Path "$regcam" -Name "Value" -Type String -Value "Deny"
     Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Sensor\Overrides\{BFA794E4-F964-4FDB-90F6-51056BFE4B44}" -Name "SensorPermissionState" -Type DWORD -Value 0
+    If (!(Test-Path -Path $lfsvc)){
+        New-Item "HKLM:\SYSTEM\CurrentControlSet\Services\lfsvc\Service" -Name "Configuration" -Verbose -ErrorAction SilentlyContinue
+    }
     Set-ItemProperty -Path "$lfsvc" -Name "Status" -Type DWORD -Value 0
 
 
@@ -924,8 +931,7 @@ Function Notify([string]$arg) {
     
 }
 Function EmailLog {
-    $automated = "New Loads Automated"
-    $auto = $automated
+    $auto = "New Loads Automated"
     $versionrun = $auto
     $sysinfo = systeminfo | Sort-Object | Out-File -Append $log -Encoding ascii
     $newloads = "$env:temp" + "\New Loads\"
@@ -972,7 +978,7 @@ Function EmailLog {
     #$WindowsVersion = (Get-Computerinfo).OsName
     $WindowsVersion = (Get-WmiObject -class Win32_OperatingSystem).Caption
 
-    Send-MailMessage -From 'New Loads Log <newloadslogs@shaw.ca>' -To '<newloadslogs@shaw.ca> , <newloads@shaw.ca>' -Subject "$versionrun Log - Generated at $dtime" -Attachments $attachlog , $html , $proglist -Priority High -DeliveryNotification OnSuccess, OnFailure -SmtpServer 'smtp.shaw.ca' -Verbose -ErrorAction SilentlyContinue -Body "
+    Send-MailMessage -From 'New Loads Log <newloadslogs@shaw.ca>' -To '<newloadslogs@shaw.ca> , <newloads@shaw.ca>' -Subject "$versionrun Log" -Attachments $attachlog , $html , $proglist -Priority High -DeliveryNotification OnSuccess, OnFailure -SmtpServer 'smtp.shaw.ca' -Verbose -ErrorAction SilentlyContinue -Body "
     The script was run in $auto, on a computer for $ip\$env:USERNAME, Completing in $totaltime
     
     Windows Version: $WindowsVersion, $DisplayVersion
@@ -1064,28 +1070,32 @@ Function Cleanup {
 	Write-Host " Checking Windows Activation Status.."
     #WAS = Windows Activation Status
     $WAS = (Get-CimInstance -ClassName SoftwareLicensingProduct -Filter "Name like 'Windows%'" | Where-Object PartialProductKey).LicenseStatus
-    If ($WAS -ne 1) {Write-Warning " Windows is not activated" ; Start-Sleep -Milliseconds 125 ; Start-Process slui -ArgumentList '3'} else {Write-Host "Windows is Activated. Proceeding"}
+    If ($WAS -ne 1) {Write-Warning " Windows is not activated" ; Start-Sleep -Milliseconds 125 ; Start-Process slui -ArgumentList '3'} else {Write-Host "Windows is Activated. Proceeding" -ForegroundColor Green}
     
 
 	
     #A112
     If ((Get-BitLockerVolume -MountPoint "C:").ProtectionStatus -eq $blstat){
-        Write-Warning " Bitlocker seems to be enabled. Would you like to start the decryption process?."
-        ###Requires -RunSilent
-    
-        [reflection.assembly]::loadwithpartialname("System.Windows.Forms") | Out-Null 
-        $msgBoxInput = [System.Windows.Forms.MessageBox]::Show('BitLocker seems to be enabled. Would you like to disable it?','New Loads','YesNo','Question')
-        switch  ($msgBoxInput) {
-        'Yes' {
-            manage-bde -off "C:"
-            Write-Host " Continuing task in background."
-        }
-        'No'{
-            Write-Host " Moving on."
-        }
-    
-        }
+        Write-Host "ALERT: Bitlocker seems to be enabled --> " -NoNewLine -ForegroundColor Yellow ; Write-Host "STARTING THE DECRYPTION PROCESS" -ForegroundColor RED
+        manage-bde -off "C:"
+        Write-Host " Continuing task in background." -ForegroundColor Green
+
+<#
+###Requires -RunSilent
+
+[reflection.assembly]::loadwithpartialname("System.Windows.Forms") | Out-Null 
+$msgBoxInput = [System.Windows.Forms.MessageBox]::Show('BitLocker seems to be enabled. Would you like to disable it?','New Loads','YesNo','Question')
+switch  ($msgBoxInput) {
+    'Yes' {
+        manage-bde -off "C:"
+        Write-Host " Continuing task in background."
     }
+    'No'{
+        Write-Host " Moving on."
+    }
+}
+#>
+}
 
 
     If (Test-Path $zoomsc){

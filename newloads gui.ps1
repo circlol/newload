@@ -514,7 +514,7 @@ $GPU_TextBox.ReadOnly           = $true
 ####
 # New Loads
 ####
-$programversion             = "22724"
+$programversion             = "22724.1"
 
 $newloads                   = "$env:UserProfile\AppData\Local\Temp\New Loads\"
 $log                        = "$newloads" + "New Loads GUI Log.txt"
@@ -651,13 +651,13 @@ Function ProductConfirmation {
     Write-Host " Motherboard: $product"
     Write-Host " GPU Name: $gpuname"
     Write-Host " GPU Description: $gpudesc"    
-    Write-Host " RAM INFORMATION"
-    Get-CimInstance -Class CIM_PhysicalMemory -ErrorAction Stop | Select-Object 'Manufacturer', 
-                                                                                'DeviceLocator', 
-                                                                                'PartNumber', 
-                                                                                'ConfiguredClockSpeed'
-    ''    
-    systeminfo | Select-String  'Total Physical Memory'
+    #Write-Host " RAM INFORMATION"
+    #Get-CimInstance -Class CIM_PhysicalMemory -ErrorAction Stop | Select-Object 'Manufacturer', 
+                                                                                #'DeviceLocator', 
+                                                                                #'PartNumber', 
+                                                                                #'ConfiguredClockSpeed'
+    #''    
+    #systeminfo | Select-String  'Total Physical Memory'
     Write-Host "`n Generating Hard Drive Report`n"
     Write-Host " Double check all drives that should be with this computer are connected." -ForegroundColor RED
     $size = 60GB
@@ -702,7 +702,7 @@ Function Programs {
             Start-Process -FilePath:$package2lc -ArgumentList /quiet -Verbose -Wait
         }
             } else {
-                Write-Host "`n Verified $package2 is already installed. Skipping"
+                Write-Host "`n Verified $package2 is already installed. Skipping" -ForegroundColor Red
         }
 
     #Zoom
@@ -714,7 +714,7 @@ Function Programs {
         Write-Host " Installing $Package3`n"
         Start-Process -FilePath:$package3lc -ArgumentList /quiet -Verbose -Wait
         } else {
-            Write-Host "`n Verified $package3 is already installed. Skipping"
+            Write-Host "`n Verified $package3 is already installed. Skipping" -ForegroundColor Red
     }
 
     #Adobe
@@ -776,6 +776,29 @@ Function ProgList {
             Write-Host " Winget does not exist on this PC."
     }
     }
+
+    Function Wallpaper {
+        $code = @' 
+using System.Runtime.InteropServices; 
+namespace Win32{ 
+    
+    public class Wallpaper{ 
+        [DllImport("user32.dll", CharSet=CharSet.Auto)] 
+        static extern int SystemParametersInfo (int uAction , int uParam , string lpvParam , int fuWinIni) ; 
+        
+        public static void SetWallpaper(string thePath){ 
+            SystemParametersInfo(20,0,thePath,3); 
+        }
+    }
+} 
+'@
+
+add-type $code 
+[Win32.Wallpaper]::SetWallpaper($Wallpaper)
+New-ItemProperty -Path "HKCU:\Control Panel\Desktop" -Name WallpaperStyle -PropertyType String -Value '2' -Force
+    
+}
+
     Function Set-WallPaper {
     param (
         [parameter(Mandatory=$True)]
@@ -859,7 +882,8 @@ Function Visuals {
     Write-Host " Checking if wallpaper is applied"
     If (!($currentwallpaper -eq "$wallpaper")){
         Write-Host " It is not. Applying."
-        Set-WallPaper -Image "$wallpaper" -Style Stretch
+        Wallpaper
+        #Set-WallPaper -Image "$wallpaper" -Style Stretch
     } else {
         Write-Host " Detected wallpaper is set to New Loads"
     }
@@ -1005,7 +1029,7 @@ Function AdvRegistry {
 
     ####################### COMMAND INPUT BELOW THIS #######################
     $WindowTitle = "New Loads - $title Registry" ; $host.UI.RawUI.WindowTitle = $WindowTitle ; Write-Host "$frmt $title Registry Changes $frmt"
-    If ($1 -eq 0){        Write-Host " Skipping"    } else {
+    If ($1 -eq 0){        Write-Host " Skipping" -ForegroundColor Red    } else {
         Write-Host " Removing Unnecessary printers"
         Remove-Printer -Name "Microsoft XPS Document Writer" -ErrorAction SilentlyContinue -Verbose
         Remove-Printer -Name "Fax" -ErrorAction SilentlyContinue -Verbose 
@@ -1017,20 +1041,20 @@ Function AdvRegistry {
 
         Write-Host " $title Windows 10 Specific Registry Keys`n"
         ## Changes search box to an icon
-        If ((Get-ItemProperty -Path $regsearch).SearchBoxTaskbarMode -eq 1){            Write-Host " Skipping"        } Else {
+        If ((Get-ItemProperty -Path $regsearch).SearchBoxTaskbarMode -eq 1){            Write-Host " Skipping" -ForegroundColor Red        } Else {
             Write-Host ' Changing Searchbox to Icon Format on Taskbar'
             Set-ItemProperty -Path $regsearch -Name "SearchboxTaskbarMode" -Value 1 -Verbose
         }
 
 
         ## Removes Cortana from the taskbar
-        If ((Get-ItemProperty -Path $regexadv).ShowCortanaButton -eq 0){            Write-Host " Skipping"        } Else {
+        If ((Get-ItemProperty -Path $regexadv).ShowCortanaButton -eq 0){            Write-Host " Skipping" -ForegroundColor Red        } Else {
         Write-Host ' Removing Cortana Icon from Taskbar'
         Set-ItemProperty -Path $regexadv -Name "ShowCortanaButton" -Value 0 -Verbose
         }
 
         ## Unpins taskview from Windows 10 Taskbar
-        If ((Get-ItemProperty -Path $Regexadv).ShowTaskViewButton -eq 0){            Write-Host " Skipping"        } else {
+        If ((Get-ItemProperty -Path $Regexadv).ShowTaskViewButton -eq 0){            Write-Host " Skipping" -ForegroundColor Red        } else {
         Write-Host ' Unpinning Task View Icon'
         Set-ItemProperty -Path $regexadv -Name "ShowTaskViewButton" -Value 0 -Verbose
         }
@@ -1046,13 +1070,13 @@ Function AdvRegistry {
             New-Item -Path "$regex" -Name "Ribbon" -Force -Verbose
         }
 
-        If ((Get-ItemProperty -Path "$regex\Ribbon").MinimizedStateTabletModeOff -eq 0) {             Write-Host " Skipping"        } else {
+        If ((Get-ItemProperty -Path "$regex\Ribbon").MinimizedStateTabletModeOff -eq 0) {             Write-Host " Skipping" -ForegroundColor Red        } else {
             Write-Host ' Expanding Ribbon in Explorer'
             Set-ItemProperty -Path $regex\Ribbon -Name "MinimizedStateTabletModeOff" -Type DWORD -Value 0 -Verbose
         }
 
         ## Disabling Feeds Open on Hover
-        If ((Get-ItemProperty -Path $regcv\Feeds).ShellFeedsTaskbarOpenOnHover -eq 0){            Write-Host " Skipping"        } else {
+        If ((Get-ItemProperty -Path $regcv\Feeds).ShellFeedsTaskbarOpenOnHover -eq 0){            Write-Host " Skipping" -ForegroundColor Red        } else {
             Write-Host ' Disabling Feeds open on hover'
             If (!(Test-Path -Path $regcv\Feeds)){
                 New-Item -Path $regcv -Name "Feeds" -Verbose
@@ -1074,19 +1098,19 @@ Function AdvRegistry {
             Set-ItemProperty -Path $regexadv -Name Start_Layout -Value $1 -Type DWORD -Force -Verbose
         }
         
-        If ((Get-ItemProperty -Path $regexadv).TaskbarMn -eq 0){            Write-Host " Skipping"        } else {
+        If ((Get-ItemProperty -Path $regexadv).TaskbarMn -eq 0){            Write-Host " Skipping" -ForegroundColor Red        } else {
             Write-Host " Removing Chats from taskbar"
             Set-ItemProperty -Path $regexadv -Name "TaskBarMn" -Value 0 -Verbose
         }
         If (!(Test-Path $regcv\Policies\Explorer)){
             New-Item $regcv\Policies\ -Name Explorer -Force -Verbose
         }
-        If ((Get-ItemProperty -Path "$regcv\Policies\Explorer").HideSCAMeetNow -eq 1){            Write-Host " Skipping"        } else {
+        If ((Get-ItemProperty -Path "$regcv\Policies\Explorer").HideSCAMeetNow -eq 1){            Write-Host " Skipping" -ForegroundColor Red        } else {
             Write-Host ' Removing "Meet Now" button from taskbar'
             Set-ItemProperty -Path $regcv\Policies\Explorer -Name "HideSCAMeetNow" -Type DWORD -Value 1 -Verbose
         }
         
-        If ((Get-ItemProperty -Path $regexadv).EnableSnapAssistFlyout -eq $1){        Write-Host " Skipping"} else {
+        If ((Get-ItemProperty -Path $regexadv).EnableSnapAssistFlyout -eq $1){        Write-Host " Skipping" -ForegroundColor Red} else {
             Write-Host ' Enabling Snap Assist Flyout'
             Set-ItemProperty -Path $regexadv -Name "EnableSnapAssistFlyout" -Value $1 -Verbose -Type DWORD
         }
@@ -1097,29 +1121,29 @@ Function AdvRegistry {
     $key1 = "HKCU:\Software\Microsoft\GameBar"
     $key2 = "AutoGameModeEnabled"
     $agme = (Get-ItemProperty -Path $key1).$key2
-    If ($agme -eq 1){        Write-Host " Skipping"    } else {
+    If ($agme -eq 1){        Write-Host " Skipping" -ForegroundColor Red    } else {
         Write-Host " Enabling Game Mode"
         Set-ItemProperty -Path $key1 -Name $key2 -Value $1 -Force -Verbose
     }
     
 
     ### Explorer related
-    If ((Get-ItemProperty -Path $regex).ShowRecent -eq $0){        Write-Host " Skipping"    } else {
+    If ((Get-ItemProperty -Path $regex).ShowRecent -eq $0){        Write-Host " Skipping" -ForegroundColor Red    } else {
         Write-Host ' Disabling Show Recent in Explorer Menu'
         Set-ItemProperty -Path $regex -Name "ShowRecent" -Value 0 -Verbose -Type DWORD
     }
     
-    If ((Get-ItemProperty -Path $regex).ShowFrequent -eq $0){        Write-Host " Skipping"    } else {
+    If ((Get-ItemProperty -Path $regex).ShowFrequent -eq $0){        Write-Host " Skipping" -ForegroundColor Red    } else {
         Write-Host ' Disabling Show Frequent in Explorer Menu'
         Set-ItemProperty -Path $regex -Name "ShowFrequent" -Value 0 -Verbose -Type DWORD
     }
 
-    If ((Get-ItemProperty -Path $regexadv).HideFileExt -eq $0){        Write-Host " Skipping"    } else {
+    If ((Get-ItemProperty -Path $regexadv).HideFileExt -eq $0){        Write-Host " Skipping" -ForegroundColor Red    } else {
         Write-Host ' Enabling File Extensions'
         Set-ItemProperty -Path $regexadv -Name "HideFileExt" -Value 0 -Verbose -Type DWORD
     }
 
-    If ((Get-ItemProperty -Path $regexadv).LaunchTo -eq $1){        Write-Host " Skipping"    } else {
+    If ((Get-ItemProperty -Path $regexadv).LaunchTo -eq $1){        Write-Host " Skipping" -ForegroundColor Red    } else {
         Write-Host ' Setting Explorer Launch to This PC'
         Set-ItemProperty -Path $regexadv -Name "LaunchTo" -Value $tbm -Verbose -Type DWORD
     }
@@ -1129,13 +1153,13 @@ Function AdvRegistry {
         New-Item -Path "$regexadv\HideDesktopIcons" -Name NewStartPanel
     }
     $UsersFolder = "{59031a47-3f72-44a7-89c5-5595fe6b30ee}"
-    If ((Get-ItemProperty -Path $regex\HideDesktopIcons\NewStartPanel).$UsersFolder -eq $0){        Write-Host " Skipping"    } else {
+    If ((Get-ItemProperty -Path $regex\HideDesktopIcons\NewStartPanel).$UsersFolder -eq $0){        Write-Host " Skipping" -ForegroundColor Red    } else {
         Write-Host ' Adding User Files to desktop'
         Set-ItemProperty -Path $regex\HideDesktopIcons\NewStartPanel -Name $UsersFolder -Value 0 -Verbose
     }
 
     $ThisPC = "{20D04FE0-3AEA-1069-A2D8-08002B30309D}"
-    If ((Get-ItemProperty -Path $regex\HideDesktopIcons\NewStartPanel).$ThisPC -eq $0){        Write-Host " Skipping"    } else {
+    If ((Get-ItemProperty -Path $regex\HideDesktopIcons\NewStartPanel).$ThisPC -eq $0){        Write-Host " Skipping" -ForegroundColor Red    } else {
         Write-Host ' Adding This PC icon to desktop'
         Set-ItemProperty -Path $regex\HideDesktopIcons\NewStartPanel -Name $ThisPC -Value 0 -Verbose
     }
@@ -1143,7 +1167,7 @@ Function AdvRegistry {
     If (!(Test-Path $regex\OperationStatusManager)){
         New-Item -Path $regex\OperationStatusManager -Name EnthusiastMode -Type DWORD -Force -Verbose
     }
-    If ((Get-ItemProperty -Path $regex\OperationStatusManager).EnthusiastMode -eq $1){        Write-Host " Skipping"    } else {
+    If ((Get-ItemProperty -Path $regex\OperationStatusManager).EnthusiastMode -eq $1){        Write-Host " Skipping" -ForegroundColor Red    } else {
         Write-Host ' Showing file operations details'
         If (!(Test-Path "$regex\OperationStatusManager")) {
             New-Item -Path "$regex\OperationStatusManager"
@@ -1181,20 +1205,20 @@ Function AdvRegistry {
     'SoftLandingEnabled'
     )
     ForEach ($cdm in $cdms) {
-        If ((Get-ItemProperty -Path $regcdm).$cdm -eq $0){            Write-Host " Skipping"        } else {
+        If ((Get-ItemProperty -Path $regcdm).$cdm -eq $0){            Write-Host " Skipping" -ForegroundColor Red        } else {
             #Write-Host " Setting $cdm to $0"
             Set-ItemProperty -Path $regcdm -Name $cdm -Value $0 -Verbose
         }
     }
 
 
-    If ((Get-ItemProperty -Path $regadvertising).DisabledByGroupPolicy -eq $1){        Write-Host " Skipping"    } else {
+    If ((Get-ItemProperty -Path $regadvertising).DisabledByGroupPolicy -eq $1){        Write-Host " Skipping" -ForegroundColor Red    } else {
         Write-Host ' Disabling Advertiser ID'
         Set-ItemProperty -Path $regadvertising -Name "DisabledByGroupPolicy" -Value $1 -Type DWORD -Verbose
     }
 
 
-    If ((Get-ItemProperty -Path $regadvertising).Enabled -eq $0){       Write-Host " Skipping"    } else {
+    If ((Get-ItemProperty -Path $regadvertising).Enabled -eq $0){       Write-Host " Skipping" -ForegroundColor Red    } else {
         Set-ItemProperty -Path $regadvertising -Name "Enabled" -Value $0 -Verbose
     }
 
@@ -1202,7 +1226,7 @@ Function AdvRegistry {
     If (!(Test-Path -Path:HKCU:\Software\Policies\Microsoft\Windows\EdgeUI)){
         New-Item -Path:HKCU:\Software\Policies\Microsoft\Windows -Name "EdgeUI" -Verbose | Out-Host
     }
-    If ((Get-ItemProperty -Path HKCU:\Software\Policies\Microsoft\Windows\EdgeUI).DisableMFUTracking -eq $1){        Write-Host " Skipping"    } else {
+    If ((Get-ItemProperty -Path HKCU:\Software\Policies\Microsoft\Windows\EdgeUI).DisableMFUTracking -eq $1){        Write-Host " Skipping" -ForegroundColor Red    } else {
         Write-Host ' Disabling App Launch Tracking'
         Set-ItemProperty -Path HKCU:\Software\Policies\Microsoft\Windows\EdgeUI -Name "DisableMFUTracking" -Value $1 -Type DWORD -Verbose
     }
@@ -1210,26 +1234,30 @@ Function AdvRegistry {
         Remove-Item -Path HKCU:\Software\Policies\Microsoft\Windows\EdgeUI -Force -Verbose
     }
 
+    If (!(Test-Path $reginp)){
+        Write-Host "Seems that InputPersonalization wasn't found. Creating" ; New-Item -Path "HKCU:\Software\Microsoft" -Name "InputPersonalization" -Verbose
+    }
+
     
-    If ((Get-ItemProperty -Path $reginp\TrainedDataStore).HarvestContacts -eq $0){        Write-Host " Skipping"            } else {
+    If ((Get-ItemProperty -Path $reginp\TrainedDataStore).HarvestContacts -eq $0){        Write-Host " Skipping" -ForegroundColor Red            } else {
         Write-Host ' Disabling Contact Harvesting'
         Set-ItemProperty -Path $reginp\TrainedDataStore -Name "HarvestContacts" -Value $0 -Verbose
     }
 
 
-    If ((Get-ItemProperty -Path HKCU:\Software\Microsoft\Personalization\Settings).AcceptedPrivacyPolicy -eq $0){        Write-Host " Skipping"            } else {
+    If ((Get-ItemProperty -Path HKCU:\Software\Microsoft\Personalization\Settings).AcceptedPrivacyPolicy -eq $0){        Write-Host " Skipping" -ForegroundColor Red            } else {
         Write-Host ' Declining Microsoft Privacy Policy'
         Set-ItemProperty -Path:HKCU:\Software\Microsoft\Personalization\Settings -Name "AcceptedPrivacyPolicy" -Value $0 -Verbose
     }
 
 
-    If ((Get-ItemProperty -Path $reginp).RestrictImplicitTextCollection -eq $1){        Write-Host " Skipping"    } else {
+    If ((Get-ItemProperty -Path $reginp).RestrictImplicitTextCollection -eq $1){        Write-Host " Skipping" -ForegroundColor Red    } else {
         Write-Host ' Restricting Text Collection'
         Set-ItemProperty -Path $reginp -Name "RestrictImplicitTextCollection" -Value $1 -Verbose
         
     } 
 
-    If ((Get-ItemProperty -Path $reginp).RestrictImplicitInkCollection -eq $1){        Write-Host " Skipping"    } else {
+    If ((Get-ItemProperty -Path $reginp).RestrictImplicitInkCollection -eq $1){        Write-Host " Skipping" -ForegroundColor Red    } else {
         Write-Host ' Restricting Ink Collection'
         Set-ItemProperty -Path $reginp -Name "RestrictImplicitInkCollection" -Value $1 -Verbose
 
@@ -1243,38 +1271,38 @@ Function AdvRegistry {
     If (!(Test-Path -Path $siufrules)) {
         New-Item -Path HKCU:\Software\Microsoft\Siuf -Name "Rules" -Verbose
     }
-    If (!((Get-Service -Name DiagTrack).Status -eq "Disabled")){        Write-Host " Skipping"    } else {
+    If (!((Get-Service -Name DiagTrack).Status -eq "Disabled")){        Write-Host " Skipping" -ForegroundColor Red    } else {
         Stop-Service "DiagTrack" -WarningAction SilentlyContinue
         Set-Service "DiagTrack" -StartupType Disabled -Verbose
     }    
-    If ((Get-ItemProperty -Path $siufrules).PeriodInNanoSeconds -eq $0){        Write-Host " Skipping"    } else {
+    If ((Get-ItemProperty -Path $siufrules).PeriodInNanoSeconds -eq $0){        Write-Host " Skipping" -ForegroundColor Red    } else {
         Set-ItemProperty -Path $siufrules -Name "NumberOfSiufInPeriod" -Type DWORD -Value 0 -Verbose
     }
-    If ((Get-ItemProperty -Path $siufrules).PeriodInNanoSeconds -eq $0){        Write-Host " Skipping"    } else {
+    If ((Get-ItemProperty -Path $siufrules).PeriodInNanoSeconds -eq $0){        Write-Host " Skipping" -ForegroundColor Red    } else {
         Set-ItemProperty -Path $siufrules -Name "PeriodInNanoSeconds" -Type QWORD -Value 0 -Verbose
     }
     
     
 
 
-    If ((Get-ItemProperty -Path HKLM:\SOFTWARE\Policies\Microsoft\Windows\DataCollection).DoNotShowFeedbackNotifications -eq $1){        Write-Host " Skipping"    } else {
+    If ((Get-ItemProperty -Path HKLM:\SOFTWARE\Policies\Microsoft\Windows\DataCollection).DoNotShowFeedbackNotifications -eq $1){        Write-Host " Skipping" -ForegroundColor Red    } else {
         Write-Host ' Disabling Windows Feedback Notifications'
         Set-ItemProperty -Path:HKLM:\SOFTWARE\Policies\Microsoft\Windows\DataCollection -Name "DoNotShowFeedbackNotifications" -Type DWORD -Value $1 -Verbose
     }
 
 
-    If ((Get-ItemProperty -Path $regsys).EnableActivityFeed -eq $0){        Write-Host " Skipping"    } else {
+    If ((Get-ItemProperty -Path $regsys).EnableActivityFeed -eq $0){        Write-Host " Skipping" -ForegroundColor Red    } else {
         Write-Host ' Disabling Activity History'
         Set-ItemProperty -Path $regsys -Name "EnableActivityFeed" -Type DWORD -Value $0 -Verbose
         
     }
 
-    If ((Get-ItemProperty -Path $regsys).PublishUserActivities -eq $0){        Write-Host " Skipping"    } else {
+    If ((Get-ItemProperty -Path $regsys).PublishUserActivities -eq $0){        Write-Host " Skipping" -ForegroundColor Red    } else {
         Set-ItemProperty -Path $regsys -Name "PublishUserActivities" -Type DWORD -Value $0 -Verbose
         
     }
 
-    If ((Get-ItemProperty -Path $regsys).UploadUserActivities -eq $0){        Write-Host " Skipping"    } else {
+    If ((Get-ItemProperty -Path $regsys).UploadUserActivities -eq $0){        Write-Host " Skipping" -ForegroundColor Red    } else {
         Set-ItemProperty -Path $regsys -Name "UploadUserActivities" -Type DWORD -Value $0 -Verbose
     }
 
@@ -1283,37 +1311,40 @@ Function AdvRegistry {
     If (!(Test-Path -Path:$regcam)) {
         New-Item -Path:$regcam -Force -Verbose
     }
-    If ((Get-ItemProperty -Path "$regcam" -Name Value).Value -eq "Deny"){        Write-Host " Skipping"    } else {
+    If ((Get-ItemProperty -Path "$regcam" -Name Value).Value -eq "Deny"){        Write-Host " Skipping" -ForegroundColor Red    } else {
         Write-Host ' Disabling Location Tracking'
         Set-ItemProperty -Path "$regcam" -Name "Value" -Type String -Value "Deny" -Verbose
     }
 
-    If ((Get-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Sensor\Overrides\{BFA794E4-F964-4FDB-90F6-51056BFE4B44}" -Name SensorPermissionState).SensorPermissionState -eq $0){        Write-Host " Skipping"    } else {
+    If ((Get-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Sensor\Overrides\{BFA794E4-F964-4FDB-90F6-51056BFE4B44}" -Name SensorPermissionState).SensorPermissionState -eq $0){        Write-Host " Skipping" -ForegroundColor Red    } else {
         Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Sensor\Overrides\{BFA794E4-F964-4FDB-90F6-51056BFE4B44}" -Name "SensorPermissionState" -Type DWORD -Value $0 -Verbose
     }
 
-    If ((Get-ItemProperty -Path $lfsvc -Name Status).Status -eq $0){        Write-Host " Skipping"    } else {
+    If (!(Test-Path -Path $lfsvc)){
+        New-Item "HKLM:\SYSTEM\CurrentControlSet\Services\lfsvc\Service" -Name "Configuration" -Verbose -ErrorAction SilentlyContinue
+    }
+    If ((Get-ItemProperty -Path $lfsvc -Name Status).Status -eq $0){        Write-Host " Skipping" -ForegroundColor Red    } else {
         Set-ItemProperty -Path "$lfsvc" -Name "Status" -Type DWORD -Value $0 -Verbose
     }
 
 
 
-    If ((Get-ItemProperty -Path HKLM:\System\Maps).AutoUpdateEnabled -eq $0){        Write-Host " Skipping"    } else {
+    If ((Get-ItemProperty -Path HKLM:\System\Maps).AutoUpdateEnabled -eq $0){        Write-Host " Skipping" -ForegroundColor Red    } else {
         Write-Host ' Disabling automatic Maps updates'
         Set-ItemProperty -Path:HKLM:\SYSTEM\Maps -Name "AutoUpdateEnabled" -Type DWORD -Value $0 -Verbose
     }
 
 
-    If (!((Get-Service -Name dmwappushservice).Status -eq "Disabled")){        Write-Host " Skipping"    } else {
+    If (!((Get-Service -Name dmwappushservice).Status -eq "Disabled")){        Write-Host " Skipping" -ForegroundColor Red    } else {
         Write-Host ' Stopping and disabling WAP Push Service'
         Stop-Service "dmwappushservice" -WarningAction SilentlyContinue
         Set-Service "dmwappushservice" -StartupType Disabled -Verbose
     }
-    If ((Get-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\DataCollection").AllowTelemetry -eq $0){        Write-Host " Skipping"    } else {
+    If ((Get-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\DataCollection").AllowTelemetry -eq $0){        Write-Host " Skipping" -ForegroundColor Red    } else {
         Set-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\DataCollection" -Name "AllowTelemetry" -Type DWORD -Value $0 -Verbose
     }
 
-    If ((Get-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\DataCollection").AllowTelemetry -eq $0){        Write-Host " Skipping"    } else {
+    If ((Get-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\DataCollection").AllowTelemetry -eq $0){        Write-Host " Skipping" -ForegroundColor Red    } else {
         Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\DataCollection" -Name "AllowTelemetry" -Type DWORD -Value $0 -Verbose
     }
     
@@ -1328,11 +1359,11 @@ Function AdvRegistry {
     If (!(Test-Path -Path $wifisense\AllowWiFiHotSpotReporting)) {
         New-Item -Path $wifisense\AllowWiFiHotSpotReporting -Force -Verbose
     }
-    If ((Get-ItemProperty -Path $wifisense\AllowAutoConnectToWiFiSenseHotspots).Value -eq $0){        Write-Host " Skipping"    } else {
+    If ((Get-ItemProperty -Path $wifisense\AllowAutoConnectToWiFiSenseHotspots).Value -eq $0){        Write-Host " Skipping" -ForegroundColor Red    } else {
         Write-Host ' Disabling Wi-Fi Sense'
         Set-ItemProperty -Path $wifisense\AllowAutoConnectToWiFiSenseHotspots -Name "Value" -Type DWORD -Value $0 -Verbose
     }
-    If ((Get-ItemProperty -Path $wifisense\AllowWiFiHotSpotReporting).Value -eq $0){        Write-Host " Skipping"    } else {
+    If ((Get-ItemProperty -Path $wifisense\AllowWiFiHotSpotReporting).Value -eq $0){        Write-Host " Skipping" -ForegroundColor Red    } else {
         Write-Host ' Disabling HotSpot Reporting to Microsoft'
         Set-ItemProperty -Path $wifisense\AllowWiFiHotSpotReporting -Name "Value" -Type DWORD -Value $0 -Verbose
     }
@@ -1343,14 +1374,14 @@ Function AdvRegistry {
     If (!(Test-Path -Path $cloudcontent)) {
     New-Item -Path $cloudcontent -Force
     }
-    If ((Get-ItemProperty -Path $cloudcontent).DisableWindowsConsumerFeatures -eq $1){        Write-Host " Skipping"    } else {
+    If ((Get-ItemProperty -Path $cloudcontent).DisableWindowsConsumerFeatures -eq $1){        Write-Host " Skipping" -ForegroundColor Red    } else {
         Set-ItemProperty -Path $cloudcontent -Name "DisableWindowsConsumerFeatures" -Type DWORD -Value $1 -Verbose
     }
 
 
     $key1 = "HKCU:\Software\Microsoft\Windows\CurrentVersion\Privacy"
     $key2 = "TailoredExperiencesWithDiagnosticDataEnabled"
-    If ((Get-ItemProperty -Path $key1).$key2 -eq $0){        Write-Host " Skipping"    } else {
+    If ((Get-ItemProperty -Path $key1).$key2 -eq $0){        Write-Host " Skipping" -ForegroundColor Red    } else {
         Set-ItemProperty -Path $key1 -Name "$key2" -Value $0 -Type DWORD -Force -Verbose
     }
 <#
@@ -1376,34 +1407,34 @@ If ($BuildNumber -lt $22h2){
 
 
 
-    If (!(Get-Service -Name HomeGroupListener -ErrorAction SilentlyContinue)){        Write-Host " Skipping"    } else {
+    If (!(Get-Service -Name HomeGroupListener -ErrorAction SilentlyContinue)){        Write-Host " Skipping" -ForegroundColor Red    } else {
         Write-Host ' Stopping and disabling Home Groups services'
         Stop-Service "HomeGroupListener" -WarningAction SilentlyContinue -ErrorAction SilentlyContinue
         Set-Service "HomeGroupListener" -StartupType Disabled -ErrorAction SilentlyContinue  -Verbose
     }
-    If (!(Get-Service -Name HomeGroupListener -ErrorAction SilentlyContinue)){        Write-Host " Skipping"    } else {
+    If (!(Get-Service -Name HomeGroupListener -ErrorAction SilentlyContinue)){        Write-Host " Skipping" -ForegroundColor Red    } else {
         Stop-Service "HomeGroupProvider" -WarningAction SilentlyContinue -ErrorAction SilentlyContinue
         Set-Service "HomeGroupProvider" -StartupType Disabled -ErrorAction SilentlyContinue  -Verbose
     }
 
-    If ((Get-Service -Name SysMain -ErrorAction SilentlyContinue).Status -eq 'Stopped'){        Write-Host " Skipping"    } else {
+    If ((Get-Service -Name SysMain -ErrorAction SilentlyContinue).Status -eq 'Stopped'){        Write-Host " Skipping" -ForegroundColor Red    } else {
         Write-Host ' Stopping and disabling Superfetch service'
         Stop-Service "SysMain" -WarningAction SilentlyContinue
         Set-Service "SysMain" -StartupType Disabled -Verbose
     }
 
-    If ((Get-ItemProperty -Path HKCU:\Software\Microsoft\MultiMedia\Audio).UserDuckingPreference -eq 3){        Write-Host " Skipping"    } else {
+    If ((Get-ItemProperty -Path HKCU:\Software\Microsoft\MultiMedia\Audio).UserDuckingPreference -eq 3){        Write-Host " Skipping" -ForegroundColor Red    } else {
         Write-Host ' Setting Sounds > Communications to "Do Nothing"'
         Set-ItemProperty -Path:HKCU:\Software\Microsoft\MultiMedia\Audio -Name "UserDuckingPreference" -Value 3 -Type DWORD -Verbose
     }
 
     $ram = (Get-CimInstance -ClassName Win32_PhysicalMemory | Measure-Object -Property Capacity -Sum).Sum / 1kb
-    If ((Get-ItemProperty -Path HKLM:\SYSTEM\CurrentControlSet\Control).SvcHostSplitThresholdInKB -eq $ram){        Write-Host " Skipping"    } else {
+    If ((Get-ItemProperty -Path HKLM:\SYSTEM\CurrentControlSet\Control).SvcHostSplitThresholdInKB -eq $ram){        Write-Host " Skipping" -ForegroundColor Red    } else {
         Write-Host ' Grouping svchost.exe processes'
         Set-ItemProperty -Path:HKLM:\SYSTEM\CurrentControlSet\Control -Name "SvcHostSplitThresholdInKB" -Type DWORD -Value $ram -Force -Verbose
     }
 
-    If ((Get-ItemProperty -Path HKLM:\SYSTEM\CurrentControlSet\Services\LanmanServer\Parameters).IRPStackSize -eq 30){        Write-Host " Skipping"    } else {
+    If ((Get-ItemProperty -Path HKLM:\SYSTEM\CurrentControlSet\Services\LanmanServer\Parameters).IRPStackSize -eq 30){        Write-Host " Skipping" -ForegroundColor Red    } else {
         Write-Host ' Increasing stack size up to 30'
         Set-ItemProperty -Path:HKLM:\SYSTEM\CurrentControlSet\Services\LanmanServer\Parameters -Name "IRPStackSize" -Type DWORD -Value 30 -Verbose
     }
@@ -1553,14 +1584,14 @@ Function OEMInfo{
 
     $store = "Mother Computers"
     If ((Get-ItemProperty -Path $regoeminfo).Manufacturer -eq "$store"){
-        Write-Host " Skipping"
+        Write-Host " Skipping" -ForegroundColor Red
     } else {
         Set-ItemProperty -Path $regoeminfo -Name "Manufacturer" -Type String -Value "$store" -Verbose
     }
 
     $phone = "(250) 479-8561"
     If ((Get-ItemProperty -Path $regoeminfo).SupportPhone -eq $phone){
-        Write-Host " Skipping"
+        Write-Host " Skipping" -ForegroundColor Red
     } else {
     Set-ItemProperty -Path $regoeminfo -Name "SupportPhone" -Type String -Value "$phone" -Verbose
         
@@ -1568,7 +1599,7 @@ Function OEMInfo{
 
     $hours = "Monday - Saturday 9AM-5PM | Sunday - Closed" 
     If ((Get-ItemProperty -Path $regoeminfo).SupportHours -eq "$hours"){
-        Write-Host " Skipping"
+        Write-Host " Skipping" -ForegroundColor Red
     } else {
     Set-ItemProperty -Path $regoeminfo -Name "SupportHours" -Type String -Value "$hours" -Verbose
         
@@ -1576,7 +1607,7 @@ Function OEMInfo{
 
     $website = "https://www.mothercomputers.com"
     If ((Get-ItemProperty -Path $regoeminfo).SupportURL -eq $website){
-        Write-Host " Skipping"
+        Write-Host " Skipping" -ForegroundColor Red
     } else {
     Set-ItemProperty -Path $regoeminfo -Name "SupportURL" -Type String -Value $website -Verbose
         
@@ -1584,7 +1615,7 @@ Function OEMInfo{
 
     $model = "Mother Computers - (250) 479-8561"
     If ((Get-ItemProperty -Path $regoeminfo).Model -eq "$model"){
-        Write-Host " Skipping"
+        Write-Host " Skipping" -ForegroundColor Red
     } else {
     Set-ItemProperty -Path $regoeminfo -Name "Model" -Type String -Value "$Model"
 }
@@ -1607,16 +1638,18 @@ Function Cleanup {
 #    bcdedit /set {bootmgr} displaybootmenu yes | Out-Null
     bcdedit /set "{CURRENT}" bootmenupolicy legacy
     
-	Write-Host " Checking Windows Activation Status.."
+	Write-Host " Checking Windows Activation Status.." -ForegroundColor Yellow
     $was = (Get-CimInstance -ClassName SoftwareLicensingProduct -Filter "Name like 'Windows%'" | Where-Object PartialProductKey).LicenseStatus
-    If ($was -ne 1) {Write-Warning " Windows is not activated" ; Start-Sleep -Milliseconds 125 ; Start-Process slui -ArgumentList '3'} else {Write-Host "Windows is Activated. Proceeding"}
+    If ($was -ne 1) {Write-Warning " Windows is not activated" ; Start-Sleep -Milliseconds 125 ; Start-Process slui -ArgumentList '3'} else {Write-Host "Windows is Activated. Proceeding" -ForegroundColor Green}
     
     
 	
     #A112
     If ((Get-BitLockerVolume -MountPoint "C:").ProtectionStatus -eq $blstat){
-        Write-Warning " Bitlocker seems to be enabled. Would you like to start the decryption process?."
-
+        Write-Host "ALERT: Bitlocker seems to be enabled --> " -NoNewLine -ForegroundColor Yellow ; Write-Host "STARTING THE DECRYPTION PROCESS" -ForegroundColor RED
+        manage-bde -off "C:"
+        Write-Host " Continuing task in background." -ForegroundColor Green
+        <#
         [reflection.assembly]::loadwithpartialname("System.Windows.Forms") | Out-Null 
         $msgBoxInput = [System.Windows.Forms.MessageBox]::Show('BitLocker seems to be enabled. Would you like to disable it?','New Loads','YesNo','Question')
         switch  ($msgBoxInput) {
@@ -1629,6 +1662,7 @@ Function Cleanup {
             }
             
         }
+        #>
     }
     Remove-Item "$env:localappdata\temp\*.*" -Force -Recurse -Confirm:$false -ErrorAction SilentlyContinue -Verbose -Exclude "New Loads" 2>$NULL
 
@@ -1731,7 +1765,7 @@ Function rebootComputer {
 Function RestorePoint {
     $desc = "Mother Computers Courtesy Restore Point"
     If ((Get-ComputerRestorePoint).Description -eq $desc){
-        Write-Host " $desc found. Skipping."
+        Write-Host " $desc found. Skipping." -ForegroundColor Red
         } else {
         Write-Host " Enabling System Restore"
         Enable-ComputerRestore -Drive "C:\"
@@ -1756,8 +1790,7 @@ Function Notify([string]$arg){
     $balloon.ShowBalloonTip($Miliseconds)
 }
 Function EmailLog {
-    $gui = "New Loads GUI"
-    $auto = $gui
+    $auto = "New Loads GUI"
     $versionrun = $auto
     $newloads = "$env:temp" + "\New Loads\"
     $attachlog = (Get-ChildItem -Path "$env:temp\New Loads\" -Recurse -Filter "New Loads*.txt").Name
@@ -1765,10 +1798,6 @@ Function EmailLog {
 	$sysinfo = systeminfo | Sort-Object | Out-File -Append $log -Encoding ascii
     $html = "C:\ProgList.html"
     $proglist = "$newloads" + "ProgList.txt"
-    
-
-
-
 
     $ip = (New-Object System.Net.WebClient).DownloadString("http://ifconfig.me/ip")
     $ipinfo = (New-Object System.Net.WebClient).DownloadString('http://ipinfo.io/')
@@ -1810,7 +1839,7 @@ Function EmailLog {
     #$WindowsVersion = (Get-Computerinfo).OsName
     $WindowsVersion = (Get-WmiObject -class Win32_OperatingSystem).Caption
 
-    Send-MailMessage -From 'New Loads Log <newloadslogs@shaw.ca>' -To '<newloadslogs@shaw.ca> , <newloads@shaw.ca>' -Subject "$versionrun Log - Generated at $dtime" -Attachments $attachlog , $html , $proglist -Priority High -DeliveryNotification OnSuccess, OnFailure -SmtpServer 'smtp.shaw.ca' -Verbose -ErrorAction SilentlyContinue -Body "
+    Send-MailMessage -From 'New Loads Log <newloadslogs@shaw.ca>' -To '<newloadslogs@shaw.ca> , <newloads@shaw.ca>' -Subject "$versionrun Log" -Attachments $attachlog , $html , $proglist -Priority High -DeliveryNotification OnSuccess, OnFailure -SmtpServer 'smtp.shaw.ca' -Verbose -ErrorAction SilentlyContinue -Body "
     The script was run in $auto, on a computer for $ip\$env:USERNAME, Completing in $totaltime
 
     Windows Version: $WindowsVersion, $DisplayVersion
