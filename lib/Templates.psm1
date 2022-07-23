@@ -8,6 +8,18 @@ function Write-Title() {
     Write-Host "$Text " -NoNewline -ForegroundColor White -BackgroundColor Black
     Write-Host "}====================>" -ForegroundColor Blue -BackgroundColor Black
 }
+
+function Write-Section() {
+    [CmdletBinding()]
+    param (
+        [String] $Text = "No Text"
+    )
+
+    Write-Host "`n<=========={ " -NoNewline -ForegroundColor Cyan -BackgroundColor Black
+    Write-Host "$Text " -NoNewline -ForegroundColor White -BackgroundColor Black
+    Write-Host "}==========>`n" -ForegroundColor Cyan -BackgroundColor Black
+}
+
 function Write-Caption() {
     [CmdletBinding()]
     param (
@@ -57,3 +69,41 @@ function Write-TitleCounter() {
 
     return $Counter
 }
+
+function Write-ScriptLogo() {
+    [CmdletBinding()] param ()
+
+    Write-Host "<=========================================================================================================>`n" -ForegroundColor White -BackgroundColor Black
+    Write-Host '            888       888 d8b               8888888b.           888      888                   888    ' -ForegroundColor Green -BackgroundColor Black
+    Write-Host '            888   o   888 Y8P               888  "Y88b          888      888                   888    ' -ForegroundColor Green -BackgroundColor Black
+    Write-Host '            888  d8b  888                   888    888          888      888                   888    ' -ForegroundColor Green -BackgroundColor Black
+    Write-Host '            888 d888b 888 888 88888b.       888    888  .d88b.  88888b.  888  .d88b.   8888b.  888888 ' -ForegroundColor Green -BackgroundColor Black
+    Write-Host '            888d88888b888 888 888 "88b      888    888 d8P  Y8b 888 "88b 888 d88""88b     "88b 888    ' -ForegroundColor Green -BackgroundColor Black
+    Write-Host '            88888P Y88888 888 888  888      888    888 88888888 888  888 888 888  888 .d888888 888    ' -ForegroundColor Green -BackgroundColor Black
+    Write-Host '            8888P   Y8888 888 888  888      888  .d88P Y8b.     888 d88P 888 Y88..88P 888  888 Y88b.  ' -ForegroundColor Green -BackgroundColor Black
+    Write-Host '            888P     Y888 888 888  888      8888888P"   "Y8888  88888P"  888  "Y88P"  "Y888888  "Y888 ' -ForegroundColor Green -BackgroundColor Black
+    Write-Host '                                                                                                      ' -ForegroundColor Green -BackgroundColor Black
+    Write-Host '                                    88888888888                888         ' -ForegroundColor Green -BackgroundColor Black
+    Write-Host '                                        888                    888         ' -ForegroundColor Green -BackgroundColor Black
+    Write-Host '                                        888                    888         ' -ForegroundColor Green -BackgroundColor Black
+    Write-Host '                                        888   .d88b.   .d88b.  888 .d8888b ' -ForegroundColor Green -BackgroundColor Black
+    Write-Host '                                        888  d88""88b d88""88b 888 88K     ' -ForegroundColor Green -BackgroundColor Black
+    Write-Host '                                        888  888  888 888  888 888 "Y8888b.' -ForegroundColor Green -BackgroundColor Black
+    Write-Host '                                        888  Y88..88P Y88..88P 888      X88' -ForegroundColor Green -BackgroundColor Black
+    Write-Host '                                        888   "Y88P"   "Y88P"  888  88888P"' -ForegroundColor Green -BackgroundColor Black
+    Write-Host "`n<=========================================================================================================>" -ForegroundColor White -BackgroundColor Black
+    Write-Host "                                        It's Time to Debloat Windows 🧹" -ForegroundColor Green -BackgroundColor Black
+    Write-Host "<=========================================================================================================>" -ForegroundColor White -BackgroundColor Black
+}
+
+<#
+Example:
+Write-Title -Text "Text" # Used to print Tweak introduction
+Write-Section -Text "Text" # Used to print Tweak Section
+Write-Caption -Text "Text" # Used to print Tweak Category
+Write-Status -Types "?", ... -Status "Doing something"
+Write-Status -Types "?", ... -Status "Doing something" -Warning
+$Private:Counter = Write-TitleCounter -Text "Text" -Counter $Counter -MaxLenght 100 # Used to print when working with collections # No need to iterate $Counter before, as long it's private
+$Private:Counter = Write-TitleCounter -Text "Text" -Counter $Counter -MaxLenght 100 # Used to print when working with collections # No need to iterate $Counter before, as long it's private
+Write-ScriptLogo # Used at the start of the Script
+#>
