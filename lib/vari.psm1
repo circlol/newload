@@ -1,3 +1,4 @@
+Function Main() {
 New-Variable -Name "ProgramVersion" -Value "22801.631" -Force
 New-Variable -Name "newloads" -Value ".\temp" -Force
 
@@ -103,3 +104,5 @@ New-Variable -Name "html" -Value "$newloads\unview.exe" -Force
 New-Variable -Name "list" -Value "$newloads\ProgList.html" -Force 
 New-Variable -Name "list" -Value "$newloads\ProgList.txt" -Force 
 New-Variable -Name "link" -Value "https://github.com/circlol/newload/raw/main/Assets/unview.exe" -Force 
+}
+Main
