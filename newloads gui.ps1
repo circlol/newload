@@ -208,7 +208,7 @@ $DarkMode.height                 = 35
 $DarkMode.location               = New-Object System.Drawing.Point(335,305)
 $DarkMode.Font                   = New-Object System.Drawing.Font('Microsoft PhagsPa',10,[System.Drawing.FontStyle]([System.Drawing.FontStyle]::Bold))
 $DarkMode.ForeColor              = [System.Drawing.ColorTranslator]::FromHtml("#ffffff")
-$DarkMode.BackColor              = [System.Drawing.ColorTranslator]::FromHtml("#6b6767")
+$DarkMode.BackColor              = [System.Drawing.ColorTranslator]::FromHtml("#008000")
 
 $Reboot                          = New-Object system.Windows.Forms.Button
 $Reboot.text                     = "REBOOT"
