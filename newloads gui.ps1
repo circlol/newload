@@ -557,9 +557,9 @@ $package3lc                 = $newloads + $package3
 $package4lc                 = $newloads + $package4
 
 $package1dl                 = "https://dl.google.com/dl/chrome/install/googlechromestandaloneenterprise64.msi"
-$package2dl                 = "https://github.com/circlol/newload/raw/main/Assets/BAF/vlc-3.0.17-win64.msi"
-$package3dl                 = "https://zoom.us/client/5.10.4.5035/ZoomInstallerFull.msi?archType=x64"
-$package4dl                 = "https://ardownload2.adobe.com/pub/adobe/acrobat/win/AcrobatDC/2200120085/AcroRdrDCx642200120085_MUI.exe"
+$package2dl                 = "https://get.videolan.org/vlc/3.0.17.4/win64/vlc-3.0.17.4-win64.msi"
+$package3dl                 = "https://zoom.us/client/5.11.4.7185/ZoomInstallerFull.msi?archType=x64"
+$package4dl                 = "https://ardownload2.adobe.com/pub/adobe/reader/win/AcrobatDC/2200120169/AcroRdrDC2200120169_en_US.exe"
 
 $location1                  = $Env:PROGRAMFILES + "\Google\Chrome\Application\chrome.exe"
 $location2                  = $Env:PROGRAMFILES + "\VideoLAN\VLC\vlc.exe"
