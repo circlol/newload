@@ -1,0 +1,96 @@
+Import-Module -DisableNameChecking $PSScriptRoot\..\lib\"templates.psm1"
+Import-Module -DisableNameChecking $PSScriptRoot\..\lib\"restart-explorer.psm1"
+Function CheckFiles() {
+    Write-Section -Text "Checking integrity of New Loads files"
+    If (!(Test-Path ".\bin")){mkdir ".\bin"}
+    If (!(Test-Path ".\assets")){mkdir ".\assets"}
+    If (!(Test-Path ".\lib")){mkdir ".\lib"}
+    If (!(Test-Path ".\scripts")){mkdir ".\scripts"}
+    If (!(Test-Path "C:\Windows\Setup\Scripts")){mkdir "C:\Windows\Setup\Scripts"}
+    
+    $Files = @(
+    "bin\googlechromestandaloneenterprise64.msi"
+    "bin\vlc-3.0.17-win64.msi"
+    "bin\ZoomInstallerFull.msi"
+    "bin\AcroRdrDCx642200120085_MUI.exe"
+
+    "Assets\Branding.png"
+    "Assets\diskette.png"
+    "Assets\Floppy.png"
+    "Assets\logo.png"
+    "Assets\microsoft.png"
+    "Assets\NoBranding.png"
+    "Assets\toolbox.png"
+
+    "Assets\win10.deskthemepack"
+    "Assets\win11.deskthemepack"
+
+    "lib\get-hardware-info.psm1"
+    "lib\new-shortcut.psm1"
+    "lib\open-file.psm1"
+    "lib\restart-explorer.psm1"
+    "lib\set-service-startup.psm1"
+    "lib\set-scheduled-task-state.psm1"
+    "lib\set-wallpaper.psm1"
+    "lib\set-windows-feature-state.psm1"
+    "lib\show-dialog-window.psm1"
+    "lib\start-logging.psm1"
+    "lib\Templates.psm1"
+
+    "scripts\Adwcleaner.ps1"
+    "scripts\backup-system.ps1"
+    "scripts\Bitlocker Decryption.ps1"
+    "scripts\Branding.ps1"
+    "scripts\Cleanup.ps1"
+    "scripts\Debloat.ps1"
+    "scripts\OfficeRemoval.ps1"
+    "scripts\OneDrive Removal.ps1"
+    "scripts\ProductConfirmation.ps1"
+    "scripts\Programs.ps1"
+    "scripts\Start Menu.ps1"
+    "scripts\Visuals.ps1"
+    #ry.ps1"
+    #"scripts\AskToReboot.ps1"
+    #"scripts\New Loads Cleanup.ps1"
+    #"scripts\ProgList.ps1"
+    #"scripts\Restart-Explorer.ps1"
+    #"scripts\Set-Wallpaper.ps1"
+    #"scripts\SystemRestore.ps1"
+    #"scripts\UndoScript.ps1"
+    #"scripts\Wallpaper.ps1"
+    )
+    
+
+    $Items = [System.Collections.ArrayList]::new()
+
+    ForEach ($file in $files){
+        If(Test-Path ".\$File"){Write-CaptionSucceed -Text "$File Validated"
+        }else{
+            Write-CaptionFailed -Text "$file failed to validate."
+            $Items += $file
+        } 
+    }
+
+    If(!($Items)){
+        Write-Section -Text "All packages successfully validated."
+    }else{
+
+        $ItemsFile = ".\tmp.txt"
+        $Items | Out-File $ItemsFile -Encoding ASCII 
+        (Get-Content $ItemsFile).replace('\', '/') | Set-Content $ItemsFile
+        $urls = Get-Content $ItemsFile
+        
+        
+        Start-Sleep -Seconds 2
+        Write-Section -Text "Grabbing missing files"
+        
+        
+        ForEach ($url in $urls){
+            Write-Caption "Attempting to download $url"
+            $link = "https://raw.githubusercontent.com/circlol/newload/main/" + $url.replace('\','/')
+            Start-BitsTransfer -Source "$link" -Destination ".\$url" -Verbose -TransferType Download -RetryTimeout 60 -RetryInterval 60
+            Check
+        }
+    }
+}
+CheckFiles
