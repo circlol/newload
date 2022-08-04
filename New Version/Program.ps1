@@ -3,6 +3,11 @@ $WindowTitle = "New Loads - Initializing" ; $host.UI.RawUI.WindowTitle = $Window
                                             $host.UI.RawUI.BackgroundColor = 'Black'
                                             $host.UI.RawUI.ForegroundColor = 'White'
 
+                                            
+$Win11 = '22000'
+$22H2 = '22593'
+$BuildNumber = [System.Environment]::OSVersion.Version.Build
+
 Stop-Transcript ; Clear-Host
 Import-Module -DisableNameChecking ".\lib\get-hardware-info.psm1" -ErrorAction SilentlyContinue
 Import-Module -DisableNameChecking ".\lib\new-shortcut.psm1" -ErrorAction SilentlyContinue
@@ -383,7 +388,7 @@ Function StartMenu() {
 }
 Function Visuals() {
     $TweakType = "Visual"
-    If ($BuildNumber -Ge $Win11) {
+    If ($BuildNumber -ge $Win11) {
         Write-Title -Text "Dectected Windows 11"
         Write-Status -Types "+", "$TweakType" -Status "Applying Wallpaper for Windows 11"
         $PathToFile = Get-ChildItem -Path ".\Assets" -Recurse -Filter "11.jpg" | ForEach-Object { $_.FullName }
