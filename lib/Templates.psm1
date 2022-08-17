@@ -67,7 +67,7 @@ function Write-CaptionWarning() {
     Write-Host "==> " -NoNewline -ForegroundColor Yellow -BackgroundColor Black
     Write-Host "$Text" -ForegroundColor White -BackgroundColor Black
 }
-function Write-Status() {
+Function Write-Status() {
     [CmdletBinding()]
     param (
         [Parameter(Mandatory)]
@@ -79,7 +79,7 @@ function Write-Status() {
 
     ForEach ($Type in $Types) {
         Write-Host "[" -NoNewline -ForegroundColor Cyan -BackgroundColor Black
-        Write-Host "$Type" -NoNewline -ForegroundColor White -BackgroundColor Black
+        Write-Host "$Type" -NoNewline -ForegroundColor Red -BackgroundColor Black
         Write-Host "] " -NoNewline -ForegroundColor Cyan -BackgroundColor Black
     }
 
