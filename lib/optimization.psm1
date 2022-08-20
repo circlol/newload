@@ -1,5 +1,5 @@
-Import-Module .\lib\"templates.psm1"
-Import-Module .\lib\"Variables.psm1"
+Import-Module $PSScriptRoot..\lib\"templates.psm1"
+Import-Module $PSScriptRoot..\lib\"Variables.psm1"
 
 Function Optimize-Performance() {
     [CmdletBinding()]
@@ -749,3 +749,9 @@ Else {
 Write-Section -Text "Enabling Scheduled Tasks from Windows"
 Set-ScheduledTaskState -Ready -ScheduledTask $EnableScheduledTasks
 }
+
+Optimize-Performance
+Optimize-Privacy
+Optimize-Security
+Optimize-ServicesRunning
+Optimize-TaskScheduler
