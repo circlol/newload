@@ -106,7 +106,10 @@ Function Variables(){
     New-Variable -Name "list" -Value "$newloads\ProgList.html","$newloads\ProgList.txt" -Option ReadOnly -Scope Global -Force
     New-Variable -Name "link" -Value "https://github.com/circlol/newload/raw/main/Assets/unview.exe" -Option ReadOnly -Scope Global -Force
 }
+
 Variables
+
+
 # SIG # Begin signature block
 # MIIGiwYJKoZIhvcNAQcCoIIGfDCCBngCAQExCzAJBgUrDgMCGgUAMGkGCisGAQQB
 # gjcCAQSgWzBZMDQGCisGAQQBgjcCAR4wJgIDAQAABBAfzDtgWUsITrck0sYpfvNR
