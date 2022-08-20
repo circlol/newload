@@ -1,5 +1,5 @@
-Import-Module $PSScriptRoot..\lib\"templates.psm1"
-Import-Module $PSScriptRoot..\lib\"Variables.psm1"
+Import-Module -DisableNameChecking .\lib\"templates.psm1"
+Import-Module -DisableNameChecking .\lib\"Variables.psm1"
 
 Function Optimize-Performance() {
     [CmdletBinding()]
