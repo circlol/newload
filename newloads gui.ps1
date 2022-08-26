@@ -525,14 +525,20 @@ $SetWallpaper.Add_Click{
 }
 $RunScript.Add_click{
     Start-Transcript -Path $Log ; $StartTime = $(get-date)
-    Programs
+    If ($perform_apps -eq $True){
+        Programs
+    }
     Visuals
     Branding 
     StartMenu
-    Debloat
+    If ($perform_debloat -eq $True){
+        Debloat
+    }
     OOS
     OfficeCheck
-    OneDriveRe
+    If ($perform_onedrive -eq $True){
+        OneDriveRemoval
+    }
     Import-Module -DisableNameChecking .\lib\"advregistry.psm1" -Force | Unblock-File
     Import-Module -DisableNameChecking .\lib\"optimization.psm1" -Force | Unblock-File
     <#
@@ -555,11 +561,18 @@ $RunNoOEM.Add_Click{
         ScriptInfo
         CheckFiles
         Programs
+        If ($perform_apps -eq $True){
+            Programs
+        }
         StartMenu
-        Debloat
+        If ($perform_debloat -eq $True){
+            Debloat
+        }
         OOS
         OfficeCheck
-        OneDriveRemoval
+        If ($perform_onedrive -eq $True){
+            OneDriveRemoval
+        }
         Import-Module -DisableNameChecking .\lib\"advregistry.psm1" -Force | Unblock-File
         Import-Module -DisableNameChecking .\lib\"optimization.psm1" -Force | Unblock-File
         BitlockerDecryption
@@ -1165,7 +1178,7 @@ Function Adw() {
     Start-Process -FilePath ".\$adw" -ArgumentList "/eula", "/clean", "/noreboot" -Wait -NoNewWindow
     Remove-Item "$adw" -Force
 }
-Function OneDriveRe() {
+Function OneDriveRemoval() {
     Write-Host "`n" ; Write-TitleCounter -Counter '8' -MaxLength $MaxLength -Text "OneDrive Removal"
     If (Test-Path $Location5 -ErrorAction SilentlyContinue) {
         If (Test-Path $Location5 -ErrorAction SilentlyContinue) {
