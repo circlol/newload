@@ -555,6 +555,7 @@ $RunScript.Add_click{
     EmailLog
     Cleanup
     Request-PcRestart
+    JC
 }
 $RunNoOEM.Add_Click{
         Start-Transcript -Path $Log ; $StartTime = $(get-date)
@@ -581,6 +582,7 @@ $RunNoOEM.Add_Click{
         EmailLog
         Cleanup
         Request-PcRestart
+        JC
 }
 $UndoScript.Add_Click{
         $Global:Revert = $true
