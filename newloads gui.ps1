@@ -525,6 +525,10 @@ $SetWallpaper.Add_Click{
 }
 $RunScript.Add_click{
     Start-Transcript -Path $Log ; $StartTime = $(get-date)
+    Write-Status -Types "?" , "Activation" -Status "Checking Windows Activation Status.." -Warning
+    $ActiStat = (Get-CimInstance -ClassName SoftwareLicensingProduct -Filter "Name like 'Windows%'" | Where-Object PartialProductKey).LicenseStatus
+    If ($ActiStat -ne 1) { Write-CaptionFailed -Text "Windows is not activated. Feel free to Activate Windows while New Loads runs.."; Start-Sleep -Seconds 3 ; Start-Process slui -ArgumentList '3' }else { Write-CaptionSucceed -Text "Windows is Activated. Proceeding" }
+
     If ($perform_apps -eq $True){
         Programs
     }
@@ -554,10 +558,14 @@ $RunScript.Add_click{
     Backup-HostsFile
     EmailLog
     Cleanup
+    Write-Status -Types "WAITING" -Text "User action needed - You may have to ALT + TAB "
     Request-PcRestart
     JC
 }
 $RunNoOEM.Add_Click{
+        Write-Status -Types "?" , "Activation" -Status "Checking Windows Activation Status.." -Warning
+        $ActiStat = (Get-CimInstance -ClassName SoftwareLicensingProduct -Filter "Name like 'Windows%'" | Where-Object PartialProductKey).LicenseStatus
+        If ($ActiStat -ne 1) { Write-CaptionFailed -Text "Windows is not activated. Feel free to Activate Windows while New Loads runs.."; Start-Sleep -Seconds 3 ; Start-Process slui -ArgumentList '3' }else { Write-CaptionSucceed -Text "Windows is Activated. Proceeding" }
         Start-Transcript -Path $Log ; $StartTime = $(get-date)
         ScriptInfo
         CheckFiles
@@ -581,6 +589,7 @@ $RunNoOEM.Add_Click{
         Backup-HostsFile
         EmailLog
         Cleanup
+        Write-Status -Types "WAITING" -Text "User action needed - You may have to ALT + TAB "
         Request-PcRestart
         JC
 }
@@ -631,7 +640,7 @@ $UndoScript.Add_Click{
         switch  ($msgBoxInput) {
     
             'Yes' {
-                $Global:Revert = $true
+                $global:Revert = $True
                 AdvRegistry
                 Import-Module -DisableNameChecking .\lib\"advregistry.psm1" -Force | Unblock-File
                 Import-Module -DisableNameChecking .\lib\"optimization.psm1" -Force | Unblock-File
@@ -643,6 +652,7 @@ $UndoScript.Add_Click{
         
         }
         Stop-Transcript
+        Write-Status -Types "WAITING" -Text "User action needed - You may have to ALT + TAB "
         Request-PcRestart
         JC
 }
@@ -1414,7 +1424,6 @@ Function UndoOneDrive(){
     }
 }
 Function UndoDebloat() {
-    Write-Section -Text "Rebloat"
     Write-Status "+" -Status "Reinstalling Computers Default Bloatware"
     Write-Host " Reinstalling this computers default apps"
     Get-AppxPackage -allusers | ForEach-Object {Add-AppxPackage -register "$($_.InstallLocation)\appxmanifest.xml" -DisableDevelopmentMode -ErrorAction SilentlyContinue} | Out-Host 
