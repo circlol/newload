@@ -493,12 +493,16 @@ $IParray = @("13.64.90.137", "13.66.56.243", "13.68.31.193", "13.68.82.8", "13.6
     "157.56.106.189","157.56.113.217","157.56.121.89","157.56.124.87","157.56.149.250","157.56.194.72","157.56.194.73","157.56.194.74","168.61.24.141","168.61.146.25","168.61.149.17","168.61.161.212"
     "168.61.172.71","168.62.187.13","168.63.100.61","168.63.108.233","191.236.155.80","191.237.218.239","191.239.50.18","191.239.50.77","191.239.52.100","191.239.54.52","207.68.166.254"
 )
-
+If (!$Revert){
 foreach($ip in $IParray)
-{
+    {
+        Write-Status "+",$TweakType -Status "Blocking Microsoft Telemtry IP Address: $ip "
+        New-NetFirewallRule -DisplayName "Allow $ip" -Direction Inbound -Action Block -RemoteAddress $ip -ErrorAction SilentlyContinue | Out-Null
+        Check
+    }
+}else{
     Write-Status "+",$TweakType -Status "Blocking Microsoft Telemtry IP Address: $ip "
-    New-NetFirewallRule -DisplayName "Allow $ip" -Direction Inbound -Action Block -RemoteAddress $ip -ErrorAction SilentlyContinue | Out-Null
-    Check
+    Remove-NetFirewallRule -DisplayName "Allow $ip" -ErrorAction SilentlyContinue | Out-Null
 }
 
 
@@ -745,13 +749,29 @@ If ($Revert) {
 Else {
     Set-ScheduledTaskState -Disabled -ScheduledTask $DisableScheduledTasks
 }
-
 Write-Section -Text "Enabling Scheduled Tasks from Windows"
 Set-ScheduledTaskState -Ready -ScheduledTask $EnableScheduledTasks
 }
 
-Optimize-Performance
-Optimize-Privacy
-Optimize-Security
-Optimize-ServicesRunning
-Optimize-TaskScheduler
+
+Function Main(){
+
+    If (!$Revert) {
+        Optimize-Performance
+        Optimize-Privacy
+        Optimize-Security
+        Optimize-ServicesRunning
+        Optimize-TaskScheduler
+        Optimize-ServicesRunning
+    } Else {
+        Optimize-Performance -Revert
+        Optimize-Privacy -Revert
+        Optimize-Security -Revert
+        Optimize-ServicesRunning -Revert
+        Optimize-TaskScheduler -Revert
+        Optimize-ServicesRunning -Revert
+    }
+    
+}
+
+Main

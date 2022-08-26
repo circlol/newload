@@ -585,11 +585,12 @@ $RunNoOEM.Add_Click{
         JC
 }
 $UndoScript.Add_Click{
-        $Global:Revert = $true
         Start-Transcript -LiteralPath "$log"
+        Write-Title -Text "Undoing Changes made by New Loads"
+        Write-Section -Text "OEM"
         Write-Status -Types "-" -Status "Removing Mother OEM Information"
         UndoOEMInfo
-    
+        Write-Section -Text "Rebloat"
         Write-Status -Types "WAITING" -Status "Do you want to Reinstall ALL Default Applications?"
         [reflection.assembly]::loadwithpartialname("System.Windows.Forms") | Out-Null 
         $msgBoxInput = [System.Windows.Forms.MessageBox]::Show('Do you want to reinstall all default apps?','New Loads','YesNo','Question')
@@ -605,7 +606,7 @@ $UndoScript.Add_Click{
         
         }
         
-        
+        Write-Section -Text "OneDrive Reinstallation"
         Write-Status -Types "WAITING" -Status "Do you want to Reinstall OneDrive?"
         [reflection.assembly]::loadwithpartialname("System.Windows.Forms") | Out-Null 
         $msgBoxInput = [System.Windows.Forms.MessageBox]::Show('Do you want to reinstall OneDrive?','New Loads','YesNo','Question')
@@ -622,7 +623,7 @@ $UndoScript.Add_Click{
         
         }
     
-    
+        Write-Section -Text "Registry Changes"
         Write-Status -Types "WAITING" -Status "Do you want to Undo ALL REGISTRY CHANGES?"
         [reflection.assembly]::loadwithpartialname("System.Windows.Forms") | Out-Null 
         $msgBoxInput = [System.Windows.Forms.MessageBox]::Show('Do you want to undo registry changes?','New Loads','YesNo','Question')
@@ -630,6 +631,7 @@ $UndoScript.Add_Click{
         switch  ($msgBoxInput) {
     
             'Yes' {
+                $Global:Revert = $true
                 AdvRegistry
                 Import-Module -DisableNameChecking .\lib\"advregistry.psm1" -Force | Unblock-File
                 Import-Module -DisableNameChecking .\lib\"optimization.psm1" -Force | Unblock-File
