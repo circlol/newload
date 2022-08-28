@@ -34,7 +34,7 @@ function Show-Question() {
 }
 
 function Request-PcRestart() {
-    $Ask = "  Want to Reboot?"
+    $Ask = "Reboot?"
 
     switch (Show-Question -Title "New Loads" -Message $Ask) {
         'Yes' {
