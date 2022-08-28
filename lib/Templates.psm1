@@ -9,63 +9,65 @@ Function Logo(){
     Write-Host "circ" -ForegroundColor Cyan -BackgroundColor Black
 }
 
-function Write-Title() {
+Function Write-Title() {
     [CmdletBinding()]
     param (
         [String] $Text = "No Text"
     )
 
     Write-Host "`n<====================] " -NoNewline -ForegroundColor Cyan -BackgroundColor Black
-    Write-Host "$Text " -NoNewline -ForegroundColor White -BackgroundColor Black
+    Write-Host "$Text " -NoNewline -ForegroundColor RED -BackgroundColor Black
     Write-Host "[====================>" -ForegroundColor Cyan -BackgroundColor Black
 }
-function Write-Section() {
+Function Write-Section() {
     [CmdletBinding()]
     param (
         [String] $Text = "No Text"
     )
 
     Write-Host "`n<==========] " -NoNewline -ForegroundColor Cyan -BackgroundColor Black
-    Write-Host "$Text " -NoNewline -ForegroundColor White -BackgroundColor Black
+    Write-Host "$Text " -NoNewline -ForegroundColor RED -BackgroundColor Black
     Write-Host "[==========>`n" -ForegroundColor Cyan -BackgroundColor Black
 }
-function Write-Caption() {
+Function Write-Caption() {
     [CmdletBinding()]
     param (
         [String] $Text = "No Text"
     )
 
     Write-Host "==> " -NoNewline -ForegroundColor Cyan -BackgroundColor Black
-    Write-Host "$Text" -ForegroundColor White -BackgroundColor Black
+    Write-Host "$Text" -ForegroundColor RED -BackgroundColor Black
 }
 
-function Write-CaptionFailed() {
+Function Write-CaptionFailed() {
     [CmdletBinding()]
     param (
         [String] $Text = "No Text"
     )
 
     Write-Host "==> " -NoNewline -ForegroundColor Red -BackgroundColor Black
-    Write-Host "$Text" -ForegroundColor White -BackgroundColor Black
+    Write-Host "$Text" -ForegroundColor RED -BackgroundColor Black
+    Write-Host ""
 }
-function Write-CaptionSucceed() {
+Function Write-CaptionSucceed() {
     [CmdletBinding()]
     param (
         [String] $Text = "No Text"
     )
 
     Write-Host "==> " -NoNewline -ForegroundColor Green -BackgroundColor Black
-    Write-Host "$Text" -ForegroundColor White -BackgroundColor Black
+    Write-Host "$Text" -ForegroundColor RED -BackgroundColor Black
+    Write-Host ""
 }
-
-function Write-CaptionWarning() {
+Function Write-CaptionWarning() {
     [CmdletBinding()]
     param (
         [String] $Text = "No Text"
     )
 
     Write-Host "==> " -NoNewline -ForegroundColor Yellow -BackgroundColor Black
-    Write-Host "$Text" -ForegroundColor White -BackgroundColor Black
+    Write-Host "$Text" -ForegroundColor RED -BackgroundColor Black
+    Write-Host ""
 }
 Function Write-Status() {
     [CmdletBinding()]
@@ -79,18 +81,17 @@ Function Write-Status() {
 
     ForEach ($Type in $Types) {
         Write-Host "[" -NoNewline -ForegroundColor Cyan -BackgroundColor Black
-        Write-Host "$Type" -NoNewline -ForegroundColor Red -BackgroundColor Black
+        Write-Host "$Type" -NoNewline -ForegroundColor RED -BackgroundColor Black
         Write-Host "] " -NoNewline -ForegroundColor Cyan -BackgroundColor Black
     }
 
     If ($Warning) {
         Write-Host "$Status" -ForegroundColor Yellow -BackgroundColor Black
     } Else {
-        Write-Host "$Status" -ForegroundColor White -BackgroundColor Black
+        Write-Host "$Status" -ForegroundColor RED -BackgroundColor Black
     }
 }
-
-function Write-TitleCounter() {
+Function Write-TitleCounter() {
     [CmdletBinding()]
     [OutputType([System.Int32])]
     param (
@@ -101,17 +102,15 @@ function Write-TitleCounter() {
 
     #$Counter += 1
     Write-Host "`n<====================] " -NoNewline -ForegroundColor Cyan -BackgroundColor Black
-    Write-Host "( $Counter/$MaxLength ) - { $Text } " -NoNewline -ForegroundColor White -BackgroundColor Black
+    Write-Host "( $Counter/$MaxLength ) - { $Text } " -NoNewline -ForegroundColor RED -BackgroundColor Black
     Write-Host "[====================>" -ForegroundColor Cyan -BackgroundColor Black
 
 }
-
 Function Write-Break(){
     Write-Host "`n`n[" -NoNewline -ForegroundColor Cyan -Backgroundcolor Black
-    Write-Host "================================================================================================" -NoNewLine -ForegroundColor White -BackgroundColor Black
+    Write-Host "================================================================================================" -NoNewLine -ForegroundColor RED -BackgroundColor Black
     Write-Host "]`n" -ForegroundColor Cyan -BackgroundColor Black
 }
-
 Function ScriptInfo(){
     Write-Break
     Write-Host ""
@@ -121,7 +120,6 @@ Function ScriptInfo(){
     Write-Host " Ideally run updates before continuing with this program." -ForegroundColor Red
     Write-Break
 }
-
 Function Check() {
     If ($?) {
         Write-CaptionSucceed -Text "Succcessful"
@@ -145,8 +143,8 @@ Function Check() {
 # SIG # Begin signature block
 # MIIGiwYJKoZIhvcNAQcCoIIGfDCCBngCAQExCzAJBgUrDgMCGgUAMGkGCisGAQQB
 # gjcCAQSgWzBZMDQGCisGAQQBgjcCAR4wJgIDAQAABBAfzDtgWUsITrck0sYpfvNR
-# AgEAAgEAAgEAAgEAAgEAMCEwCQYFKw4DAhoFAAQUlrTTrGrYyua7dq+fn7mHhdqm
-# wyagggPGMIIDwjCCAqqgAwIBAgIQG23ehsglIKxDyVeFlzqJzzANBgkqhkiG9w0B
+# AgEAAgEAAgEAAgEAAgEAMCEwCQYFKw4DAhoFAAQUr7jjlGUFpnXjQA/rS7YibnAK
+# VmKgggPGMIIDwjCCAqqgAwIBAgIQG23ehsglIKxDyVeFlzqJzzANBgkqhkiG9w0B
 # AQsFADB5MScwJQYJKoZIhvcNAQkBFhhtaWtlQG1vdGhlcmNvbXB1dGVycy5jb20x
 # JDAiBgNVBAsMG2h0dHBzOi8vbW90aGVyY29tcHV0ZXJzLmNvbTESMBAGA1UECgwJ
 # TmV3IExvYWRzMRQwEgYDVQQDDAtNaWtlIEl2aXNvbjAeFw0yMjAyMjYwMjA4MjFa
@@ -171,11 +169,11 @@ Function Check() {
 # bXB1dGVycy5jb20xEjAQBgNVBAoMCU5ldyBMb2FkczEUMBIGA1UEAwwLTWlrZSBJ
 # dmlzb24CEBtt3obIJSCsQ8lXhZc6ic8wCQYFKw4DAhoFAKB4MBgGCisGAQQBgjcC
 # AQwxCjAIoAKAAKECgAAwGQYJKoZIhvcNAQkDMQwGCisGAQQBgjcCAQQwHAYKKwYB
-# BAGCNwIBCzEOMAwGCisGAQQBgjcCARUwIwYJKoZIhvcNAQkEMRYEFASZ3hAX1leM
-# Aws9BFg0iRbHpX/2MA0GCSqGSIb3DQEBAQUABIIBAHkz4HTRU2ocKV1eWQgEB8AO
-# LIAvFu7LtlPGOyUB+QZi8aNRDwnBnGQvAQi8HgYBlNofA/udGsHOPMYobfhP+voE
-# hBDAQ4Ut5yBZJ0qUNMcjFZlIl14KNSWnZ1X6kne2lEk1Wf98owH92yMoaKzFPNSu
-# Cj7rOtg39JJq2Xjm+zzyOzwBNX6JWHEzyP2JDl5VXWqbySGdaSuFh0WPqWYxhCQH
-# uIf4rlAG52bOxcZ/HOeoETOHiIQLlNXDep+sIhU1309B2MCyHKLhGrMP5Ry6wE6f
-# tcFQZU+2OpGmRt0hPpfYxroVkqkuywAI4pj8UaB0hDL6Ligqi8iX76i/0H5/otE=
+# BAGCNwIBCzEOMAwGCisGAQQBgjcCARUwIwYJKoZIhvcNAQkEMRYEFLDV9f8sxMDY
+# dnzuly/sXZ8LH89bMA0GCSqGSIb3DQEBAQUABIIBADEAmKGLZK4/7Ef3ysrSmlZ3
+# vTnGkgKqpYJs+gEfh80sXK9QUAC11U+7Mdb+3lwHW55UWThasb1ELZsy4cTSYmHS
+# Y9CucEnGXTgDJx+UaM7+NjpUE2WE4YkO5/LpSkj1uHZSvGIIetS49ehGvLT4xhyS
+# F60/rrkdfRVH1OVQbrJ4gMbjQh8FXrbEcumyPpbi1/QI/+ioLIiG2bAMzMcregrb
+# vyDzHQMssWIytG8wWZAnMPLpTyaR0advwmllN24a5IKy7fzbOB1lPjCir3GxRCY6
+# rhPGoEh4b4Fl6uKS1eCczyiZP5yjIPHOVj3+I8sJ/FVpsztttFpZwAriGWjQpzc=
 # SIG # End signature block
