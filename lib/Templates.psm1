@@ -46,7 +46,7 @@ Function Write-CaptionFailed() {
     )
 
     Write-Host "==> " -NoNewline -ForegroundColor Red -BackgroundColor Black
-    Write-Host "$Text" -ForegroundColor RED -BackgroundColor Black
+    Write-Host "$Text" -ForegroundColor White -BackgroundColor Black
     Write-Host ""
 }
 Function Write-CaptionSucceed() {
@@ -56,7 +56,7 @@ Function Write-CaptionSucceed() {
     )
 
     Write-Host "==> " -NoNewline -ForegroundColor Green -BackgroundColor Black
-    Write-Host "$Text" -ForegroundColor RED -BackgroundColor Black
+    Write-Host "$Text" -ForegroundColor White -BackgroundColor Black
     Write-Host ""
 }
 Function Write-CaptionWarning() {
@@ -66,7 +66,7 @@ Function Write-CaptionWarning() {
     )
 
     Write-Host "==> " -NoNewline -ForegroundColor Yellow -BackgroundColor Black
-    Write-Host "$Text" -ForegroundColor RED -BackgroundColor Black
+    Write-Host "$Text" -ForegroundColor White -BackgroundColor Black
     Write-Host ""
 }
 Function Write-Status() {
