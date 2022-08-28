@@ -81,14 +81,14 @@ Function Write-Status() {
 
     ForEach ($Type in $Types) {
         Write-Host "[" -NoNewline -ForegroundColor Cyan -BackgroundColor Black
-        Write-Host "$Type" -NoNewline -ForegroundColor White -BackgroundColor Black
+        Write-Host "$Type" -NoNewline -ForegroundColor Red -BackgroundColor Black
         Write-Host "] " -NoNewline -ForegroundColor Cyan -BackgroundColor Black
     }
 
     If ($Warning) {
         Write-Host "$Status" -ForegroundColor Yellow -BackgroundColor Black
     } Else {
-        Write-Host "$Status" -ForegroundColor RED -BackgroundColor Black
+        Write-Host "$Status" -ForegroundColor White -BackgroundColor Black
     }
 }
 Function Write-TitleCounter() {
