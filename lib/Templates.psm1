@@ -16,7 +16,7 @@ Function Write-Title() {
     )
 
     Write-Host "`n<====================] " -NoNewline -ForegroundColor Cyan -BackgroundColor Black
-    Write-Host "$Text " -NoNewline -ForegroundColor RED -BackgroundColor Black
+    Write-Host "$Text " -NoNewline -ForegroundColor White -BackgroundColor Black
     Write-Host "[====================>" -ForegroundColor Cyan -BackgroundColor Black
 }
 Function Write-Section() {
@@ -26,7 +26,7 @@ Function Write-Section() {
     )
 
     Write-Host "`n<==========] " -NoNewline -ForegroundColor Cyan -BackgroundColor Black
-    Write-Host "$Text " -NoNewline -ForegroundColor RED -BackgroundColor Black
+    Write-Host "$Text " -NoNewline -ForegroundColor White -BackgroundColor Black
     Write-Host "[==========>`n" -ForegroundColor Cyan -BackgroundColor Black
 }
 Function Write-Caption() {
@@ -36,7 +36,7 @@ Function Write-Caption() {
     )
 
     Write-Host "==> " -NoNewline -ForegroundColor Cyan -BackgroundColor Black
-    Write-Host "$Text" -ForegroundColor RED -BackgroundColor Black
+    Write-Host "$Text" -ForegroundColor White -BackgroundColor Black
 }
 
 Function Write-CaptionFailed() {
@@ -81,7 +81,7 @@ Function Write-Status() {
 
     ForEach ($Type in $Types) {
         Write-Host "[" -NoNewline -ForegroundColor Cyan -BackgroundColor Black
-        Write-Host "$Type" -NoNewline -ForegroundColor RED -BackgroundColor Black
+        Write-Host "$Type" -NoNewline -ForegroundColor White -BackgroundColor Black
         Write-Host "] " -NoNewline -ForegroundColor Cyan -BackgroundColor Black
     }
 
@@ -102,7 +102,7 @@ Function Write-TitleCounter() {
 
     #$Counter += 1
     Write-Host "`n<====================] " -NoNewline -ForegroundColor Cyan -BackgroundColor Black
-    Write-Host "( $Counter/$MaxLength ) - { $Text } " -NoNewline -ForegroundColor RED -BackgroundColor Black
+    Write-Host "( $Counter/$MaxLength ) - { $Text } " -NoNewline -ForegroundColor White -BackgroundColor Black
     Write-Host "[====================>" -ForegroundColor Cyan -BackgroundColor Black
 
 }
