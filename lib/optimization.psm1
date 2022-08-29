@@ -1,3 +1,4 @@
+$Global:OptimizationLastUpdated = '20220829'
 Import-Module -DisableNameChecking .\lib\"templates.psm1"
 Import-Module -DisableNameChecking .\lib\"Variables.psm1"
 

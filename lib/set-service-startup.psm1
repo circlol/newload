@@ -1,5 +1,5 @@
+$Global:SetServiceLastUpdated = '20220829'
 Import-Module -DisableNameChecking $PSScriptRoot\..\lib\"templates.psm1"
-
 function Find-Service() {
     [CmdletBinding()]
     [OutputType([Bool])]

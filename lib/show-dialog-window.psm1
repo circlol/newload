@@ -16,6 +16,7 @@ function Show-Message() {
     Use-WindowsForm
     [System.Windows.Forms.MessageBox]::Show($Message, $Title, [System.Windows.Forms.MessageBoxButtons]::$BoxButtons, [System.Windows.Forms.MessageBoxIcon]::$BoxIcon)
 }
+$Global:ShowDialogLastUpdated = '20220829'
 
 function Show-Question() {
     [CmdletBinding()]

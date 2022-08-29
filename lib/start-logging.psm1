@@ -1,3 +1,4 @@
+$Global:StartLoggingLastUpdated = '20220829'
 function Start-Logging {
     [CmdletBinding()]
     param (

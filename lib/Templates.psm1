@@ -1,3 +1,4 @@
+$Global:TemplatesLastUpdated = '20220829'
 Function Logo(){
     Write-Host " _   _                 _                     _     " -ForegroundColor Cyan -BackgroundColor Black
     Write-Host "| \ | |               | |                   | |    " -ForegroundColor Cyan -BackgroundColor Black

@@ -1,3 +1,4 @@
+$Global:NewShortcutLastUpdated = '20220829'
 # Adapted From: https://shellgeek.com/create-shortcuts-on-user-desktop-using-powershell/
 # Short circuit code: https://stackoverflow.com/a/26768902
 

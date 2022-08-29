@@ -1,6 +1,6 @@
+$Global:OpenFileLastUpdated = '20220829'
 Import-Module -DisableNameChecking $PSScriptRoot\..\lib\"templates.psm1"
 Import-Module -DisableNameChecking $PSScriptRoot\..\lib\"show-dialog-window.psm1"
-
 
 #$PSScriptRoot\
 function Open-PowerShellFilesCollection {

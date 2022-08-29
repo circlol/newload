@@ -1,3 +1,4 @@
+$Global:ManageSoftwareLastUpdated = '20220829'
 Import-Module -DisableNameChecking $PSScriptRoot\..\lib\"show-dialog-window.psm1"
 Import-Module -DisableNameChecking $PSScriptRoot\..\lib\"templates.psm1"
 

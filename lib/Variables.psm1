@@ -1,3 +1,4 @@
+$Global:VariablesLastUpdated = '20220829'
 Function Variables() {
     New-Variable -Name "ProgramVersion" -Value "22800" -Option ReadOnly -Scope Global -Force
     New-Variable -Name "newloads" -Value ".\" -Option ReadOnly -Scope Global -Force
