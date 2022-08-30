@@ -16,8 +16,23 @@ function Show-Message() {
     Use-WindowsForm
     [System.Windows.Forms.MessageBox]::Show($Message, $Title, [System.Windows.Forms.MessageBoxButtons]::$BoxButtons, [System.Windows.Forms.MessageBoxIcon]::$BoxIcon)
 }
-$Global:ShowDialogLastUpdated = '20220829'
+$Global:ShowDialogLastUpdated = '20220830'
+function Use-WindowsForm() {
+    [System.Reflection.Assembly]::LoadWithPartialName("System.Windows.Forms") | Out-Null # Load assembly
+}
+function Show-Message() {
+    [CmdletBinding()]
+    [OutputType([System.Windows.Forms.DialogResult])]
+    param (
+        [String] $Title = "Insert title here",
+        [Array]  $Message = "`nCrash`nBandicoot",
+        [String] $BoxButtons = "OK", # AbortRetryIgnore, OK, OKCancel, RetryCancel, YesNo, YesNoCancel
+        [String] $BoxIcon = "Information" # Information, Question, Warning, Error or None
+    )
 
+    Use-WindowsForm
+    [System.Windows.Forms.MessageBox]::Show($Message, $Title, [System.Windows.Forms.MessageBoxButtons]::$BoxButtons, [System.Windows.Forms.MessageBoxIcon]::$BoxIcon)
+}
 function Show-Question() {
     [CmdletBinding()]
     [OutputType([System.Windows.Forms.DialogResult])]
