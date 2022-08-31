@@ -543,8 +543,8 @@ $RunScript.Add_click{
     If ($perform_onedrive -eq $True){
         OneDriveRemoval
     }
-    Import-Module -DisableNameChecking .\lib\"advregistry.psm1" -Force | Unblock-File
-    Import-Module -DisableNameChecking .\lib\"optimization.psm1" -Force | Unblock-File
+    Import-Module -DisableNameChecking ".\lib\advregistry.psm1" | Unblock-File
+    Import-Module -DisableNameChecking ".\lib\optimization.psm1" | Unblock-File
     <#
     AdvRegistry
     #Optimize-Performance
@@ -558,7 +558,7 @@ $RunScript.Add_click{
     Backup-HostsFile
     EmailLog
     Cleanup
-    Write-Status -Types "WAITING" -Text "User action needed - You may have to ALT + TAB "
+    Write-Status -Types "WAITING" -Status "User action needed - You may have to ALT + TAB "
     Request-PcRestart
     JC
 }
@@ -589,7 +589,7 @@ $RunNoOEM.Add_Click{
         Backup-HostsFile
         EmailLog
         Cleanup
-        Write-Status -Types "WAITING" -Text "User action needed - You may have to ALT + TAB "
+        Write-Status -Types "WAITING" -Status "User action needed - You may have to ALT + TAB "
         Request-PcRestart
         JC
 }
@@ -652,7 +652,7 @@ $UndoScript.Add_Click{
         
         }
         Stop-Transcript
-        Write-Status -Types "WAITING" -Text "User action needed - You may have to ALT + TAB "
+        Write-Status -Types "WAITING" -Status "User action needed - You may have to ALT + TAB "
         Request-PcRestart
         JC
 }
@@ -908,40 +908,6 @@ Function Branding() {
         Set-ItemProperty -Path $PathToOEMInfo -Name $page -Type String -Value "$Model"
         Check
     }
-}
-Function OfficeCheck() {
-    Write-Host "`n" ; Write-TitleCounter -Counter '7' -MaxLength $MaxLength -Text "Office Removal"
-    Write-Status -Types "?" -Status "Checking for Office"
-    If (Test-Path "$PathToOffice64") { $office64 = $true }Else { $office64 = $false }
-    If (Test-Path "$PathToOffice86") { $Office32 = $true }Else { $office32 = $false }
-    If ($office32 -eq $true) { $officecheck = $true }       
-    If ($office64 -eq $true) { $officecheck = $true }    
-    If ($officecheck -eq $true) { Write-Status -Types "WAITING" -Status "Office Exists" -Warning }Else { Write-Status -Types "?" -Status "Office Doesn't Exist on This Machine" -Warning }
-    If ($officecheck -eq $true) { Office_Removal_AskUser }
-}
-Function Office_Removal_AskUser() {
-    $TweakType = "Office"
-    [reflection.assembly]::loadwithpartialname("System.Windows.Forms") | Out-Null
-    $msgBoxInput = [System.Windows.Forms.MessageBox]::Show('  OFFICE EXISTS ON THIS PC:  SHALL I REMOVE IT?', 'New Loads', 'YesNoCancel', 'Question')
-    switch ($msgBoxInput) {
-    
-        'Yes' {
-            CheckNetworkStatus
-            Write-Status "+", $TweakType -Status "Downloading Microsoft Support and Recovery Assistant (SaRA)"
-            Start-BitsTransfer -Source:https://aka.ms/SaRA_CommandLineVersionFiles -Destination:"$SaRA" | Out-Host
-            Expand-Archive -Path "$SaRA" -DestinationPath "$Sexp" -Force
-            Check
-            Start-Process ".\SaRA\SaRAcmd.exe" -ArgumentList "-S OfficeScrubScenario -AcceptEula -OfficeVersion All" -NoNewWindow | Out-Host
-        }
-    
-        'No' {
-            Write-Status -Types "?" -Status "Skipping Office Removal" -Warning
-        }
-        'Cancel'{
-            Write-Status -Types "?" -Status "Skipping Office Removal" -Warning
-        }
-    }    
-    
 }
 Function Debloat() {
     $TweakType = "Debloat"
@@ -1458,8 +1424,8 @@ $Form.Dispose()
 # SIG # Begin signature block
 # MIIGiwYJKoZIhvcNAQcCoIIGfDCCBngCAQExCzAJBgUrDgMCGgUAMGkGCisGAQQB
 # gjcCAQSgWzBZMDQGCisGAQQBgjcCAR4wJgIDAQAABBAfzDtgWUsITrck0sYpfvNR
-# AgEAAgEAAgEAAgEAAgEAMCEwCQYFKw4DAhoFAAQUaGQsp+g7HoSiqtxjjqgbOzwc
-# +UGgggPGMIIDwjCCAqqgAwIBAgIQG23ehsglIKxDyVeFlzqJzzANBgkqhkiG9w0B
+# AgEAAgEAAgEAAgEAAgEAMCEwCQYFKw4DAhoFAAQUU9ZBSgD2PVl3bcZ5h5JcFila
+# lWmgggPGMIIDwjCCAqqgAwIBAgIQG23ehsglIKxDyVeFlzqJzzANBgkqhkiG9w0B
 # AQsFADB5MScwJQYJKoZIhvcNAQkBFhhtaWtlQG1vdGhlcmNvbXB1dGVycy5jb20x
 # JDAiBgNVBAsMG2h0dHBzOi8vbW90aGVyY29tcHV0ZXJzLmNvbTESMBAGA1UECgwJ
 # TmV3IExvYWRzMRQwEgYDVQQDDAtNaWtlIEl2aXNvbjAeFw0yMjAyMjYwMjA4MjFa
@@ -1484,11 +1450,11 @@ $Form.Dispose()
 # bXB1dGVycy5jb20xEjAQBgNVBAoMCU5ldyBMb2FkczEUMBIGA1UEAwwLTWlrZSBJ
 # dmlzb24CEBtt3obIJSCsQ8lXhZc6ic8wCQYFKw4DAhoFAKB4MBgGCisGAQQBgjcC
 # AQwxCjAIoAKAAKECgAAwGQYJKoZIhvcNAQkDMQwGCisGAQQBgjcCAQQwHAYKKwYB
-# BAGCNwIBCzEOMAwGCisGAQQBgjcCARUwIwYJKoZIhvcNAQkEMRYEFJyPt4cr/ljl
-# 9+yRH8bt94UuXHjDMA0GCSqGSIb3DQEBAQUABIIBAKEQ2XSt+x4zRQFc0Z1TY/TW
-# Ed+bH72Y+Xhb4CbD2UHSbhYpyRVHasyJGNPkuUKB/5nrq6yZ929cyTN/Kipe7+/k
-# 7jS2yHTA7af8EsI7A2t9ZQo+oSvsQv3s8aBCAhGmqyZ1VBvQOYPQBQ5v+7B8Quuq
-# uIHUIEixP0zgvMNVqQtyyig7byO1tNotQVzRNfJIlxKsjUlSLJs8Gtu/ByuWpMtL
-# hNaGPsGxrL6F8Geuu6IReZUKTCnqre2ArF+X6XwJJ3YyAT/HGfjXfhccuGki+49e
-# thJX4vvAmRjkqbsg7dIpWfbPcExu8vjjDZoOVHUuQCP9ftWAbDSGPwDPMFrqpMA=
+# BAGCNwIBCzEOMAwGCisGAQQBgjcCARUwIwYJKoZIhvcNAQkEMRYEFGsOC4Fm0dS9
+# T7GEAVCRonM8sWVCMA0GCSqGSIb3DQEBAQUABIIBAF1VE8jZpOGKYq2Hh9c8r/fj
+# +s4RK/zD8k/cgRmLAxqjSlCGicpehJYivImXWCuN0macnTSAs4zdnyIrPLqLKAhf
+# v0GazFep2U2NkaVel+9GjU7J6pnM/8DNBYP1y1m3QvHroi9NcRzNi7+aE7kfNmFO
+# OQK77CB1mcIDVMs3NYa7Peo8JTPNKjMocMtKyiby4QOIoalCxsh9WmLlXD4JFVEm
+# Au0dVrlulqVMy54eT1ueEGXTMfbGBdpg66h8JjphTPa8m3ZUsnW+UP0KVDAyU+WD
+# 0Z+PXbiXI9QdphMKGG31uqXk6vdz9rR2o67VRn+diayYQF/vnVjiGi/l0Abz8R0=
 # SIG # End signature block
