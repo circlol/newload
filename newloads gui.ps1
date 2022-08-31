@@ -528,27 +528,13 @@ $RunScript.Add_click{
     Write-Status -Types "?" , "Activation" -Status "Checking Windows Activation Status.." -Warning
     $ActiStat = (Get-CimInstance -ClassName SoftwareLicensingProduct -Filter "Name like 'Windows%'" | Where-Object PartialProductKey).LicenseStatus
     If ($ActiStat -ne 1) { Write-CaptionFailed -Text "Windows is not activated. Feel free to Activate Windows while New Loads runs.."; Start-Sleep -Seconds 3 ; Start-Process slui -ArgumentList '3' }else { Write-CaptionSucceed -Text "Windows is Activated. Proceeding" }
-
-    If ($perform_apps -eq $True){
-        Programs
-    } else{
-        Write-Status -Types "WARNING" -Status "Application Installation has been DISABLED in the GUI"
-    }
+    If ($Perform_apps.checked -eq $True){Programs} else {Write-Status -Types "WARNING" -Status "Application Installation has been DISABLED in the GUI"}
     Visuals
     Branding 
-    StartMenu
-    If ($perform_debloat -eq $True){
-        Debloat
-    }else{
-        Write-Status -Types "WARNING" -Status "Debloat has been DISABLED in the GUI"
-    }
+    If ($Perform_debloat.checked -eq $True){Debloat} else {Write-Status -Types "WARNING" -Status "Debloat has been DISABLED in the GUI"}
     #OOS
     OfficeCheck
-    If ($perform_onedrive -eq $True){
-        OneDriveRemoval
-    }else{
-        Write-Status -Types "WARNING" -Status "OneDrive Removal has been DISABLED in the GUI"
-    }
+    If ($Perform_onedrive.checked -eq $True){OneDriveRemoval} else {Write-Status -Types "WARNING" -Status "OneDrive Removal has been DISABLED in the GUI"}
     AdvRegistry
     Optimize-Performance
     Optimize-Privacy
@@ -580,24 +566,12 @@ $RunNoOEM.Add_Click{
         ScriptInfo
         CheckFiles
         Programs
-        If ($perform_apps -eq $True){
-            Programs
-        }else{
-            Write-Status -Types "WARNING" -Status "Application Installation has been DISABLED in the GUI"
-        }
+        If ($Perform_apps.checked -eq $True){Programs} else {Write-Status -Types "WARNING" -Status "Application Installation has been DISABLED in the GUI"}
         StartMenu
-        If ($perform_debloat -eq $True){
-            Debloat
-        }else{
-            Write-Status -Types "WARNING" -Status "Debloat has been DISABLED in the GUI"
-        }
+        If ($Perform_debloat.checked -eq $True){Debloat} else {Write-Status -Types "WARNING" -Status "Debloat has been DISABLED in the GUI"}
         #OOS
         OfficeCheck
-        If ($perform_onedrive -eq $True){
-            OneDriveRemoval
-        }else{
-            Write-Status -Types "WARNING" -Status "OneDrive Removal has been DISABLED in the GUI"
-        }
+        If ($Perform_onedrive.checked -eq $True){OneDriveRemoval} else {Write-Status -Types "WARNING" -Status "OneDrive Removal has been DISABLED in the GUI"}
         AdvRegistry
         Optimize-Performance
         Optimize-Privacy
