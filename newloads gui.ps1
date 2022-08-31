@@ -531,7 +531,7 @@ $RunScript.Add_click{
 
     If ($perform_apps -eq $True){
         Programs
-    } elseif ($perform_apps -eq $false){
+    } else{
         Write-Status -Types "WARNING" -Status "Application Installation has been DISABLED in the GUI"
     }
     Visuals
@@ -539,14 +539,14 @@ $RunScript.Add_click{
     StartMenu
     If ($perform_debloat -eq $True){
         Debloat
-    } elseif ($perform_debloat -eq $false){
+    }else{
         Write-Status -Types "WARNING" -Status "Debloat has been DISABLED in the GUI"
     }
     #OOS
     OfficeCheck
     If ($perform_onedrive -eq $True){
         OneDriveRemoval
-    }elseif ($perform_onedrive -eq $false){
+    }else{
         Write-Status -Types "WARNING" -Status "OneDrive Removal has been DISABLED in the GUI"
     }
     AdvRegistry
@@ -582,20 +582,20 @@ $RunNoOEM.Add_Click{
         Programs
         If ($perform_apps -eq $True){
             Programs
-        } elseif ($perform_apps -eq $false){
+        }else{
             Write-Status -Types "WARNING" -Status "Application Installation has been DISABLED in the GUI"
         }
         StartMenu
         If ($perform_debloat -eq $True){
             Debloat
-        } elseif ($perform_debloat -eq $false){
+        }else{
             Write-Status -Types "WARNING" -Status "Debloat has been DISABLED in the GUI"
         }
         #OOS
+        OfficeCheck
         If ($perform_onedrive -eq $True){
             OneDriveRemoval
-        }elseif ($perform_onedrive -eq $false){
-        OfficeCheck
+        }else{
             Write-Status -Types "WARNING" -Status "OneDrive Removal has been DISABLED in the GUI"
         }
         AdvRegistry
@@ -1321,17 +1321,17 @@ Function EmailLog() {
     }else{
         $vlcyns = ""
     }
+    If (Test-Path -Path "$Location3"){
+        $zoomyns = "X"
+    }else{
+        $zoomyns = ""
+    }
     If (Test-Path -Path "$Location4"){ 
         $adobeyns = "X"
     }else{ 
         $adobeyns = ""
     }
-    If (
-        Test-Path -Path "$Location3"){
-        $zoomyns = "X"
-    }else{
-        $zoomyns = ""
-    }
+
 
     If ($currentwallpaper -eq $wallpaper){ $visualsyn = "X"}else{ $visualsyn = ""}
 
