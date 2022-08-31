@@ -531,20 +531,30 @@ $RunScript.Add_click{
 
     If ($perform_apps -eq $True){
         Programs
+    } elseif ($perform_apps -eq $false){
+        Write-Status -Types "WARNING" -Status "Application Installation has been DISABLED in the GUI"
     }
     Visuals
     Branding 
     StartMenu
     If ($perform_debloat -eq $True){
         Debloat
+    } elseif ($perform_debloat -eq $false){
+        Write-Status -Types "WARNING" -Status "Debloat has been DISABLED in the GUI"
     }
     OOS
     OfficeCheck
     If ($perform_onedrive -eq $True){
         OneDriveRemoval
+    }elseif ($perform_onedrive -eq $false){
+        Write-Status -Types "WARNING" -Status "OneDrive Removal has been DISABLED in the GUI"
     }
-    Import-Module -DisableNameChecking ".\lib\advregistry.psm1" | Unblock-File
-    Import-Module -DisableNameChecking ".\lib\optimization.psm1" | Unblock-File
+    AdvRegistry
+    Optimize-Performance
+    Optimize-Privacy
+    Optimize-Security
+    Optimize-ServicesRunning
+    Optimize-TaskScheduler
     <#
     AdvRegistry
     #Optimize-Performance
@@ -832,33 +842,37 @@ Function StartMenu() {
 }
 Function Visuals() {
     $TweakType = "Visual"
-    Write-Host "`n" ; Write-TitleCounter -Counter '4' -MaxLength $MaxLength -Text "Visuals"
+    Write-Host "`n" ; Write-TitleCounter -Counter '3' -MaxLength $MaxLength -Text "Visuals"
     If ($BuildNumber -Ge '22000') {
         Write-Title -Text "Detected Windows 11"
         Write-Status -Types "+", "$TweakType" -Status "Applying Wallpaper for Windows 11"
         $PathToFile = Get-ChildItem -Path ".\Assets" -Recurse -Filter "11.jpg" | ForEach-Object { $_.FullName }
-        Copy-Item -Path "$PathToFile" -Destination $Wallpaper -Force -Confirm:$False ; $PathToFile = "C:\Windows\SysWOW64\oobe\11.jpg"
+        $WallpaperDestination = "C:\Windows\OEM\11.jpg"
+        If (!(Test-Path C:\Windows\OEM)){ New-Item C:\Windows\OEM -ItemType Folder -Force -ErrorAction SilentlyContinue | Out-Null}
+        Copy-Item -Path "$PathToFile" -Destination $WallpaperDestination -Force -Confirm:$False
         Set-ItemProperty -Path "HKCU:\Control Panel\Desktop" -Name WallpaperStyle -Value '2' -Force
-        Set-ItemProperty -Path "HKCU:\Control Panel\Desktop" -Name Wallpaper -Value "$PathToFile"
+        Set-ItemProperty -Path "HKCU:\Control Panel\Desktop" -Name Wallpaper -Value $WallpaperDestination
         Set-ItemProperty -Path $PathToRegPersonalize -Name "SystemUsesLightTheme" -Value 0
         Set-ItemProperty -Path $PathToRegPersonalize -Name "AppsUseLightTheme" -Value 1
         RUNDLL32.EXE user32.dll, UpdatePerUserSystemParameters
         Write-Host " REMINDER " -BackgroundColor Red -ForegroundColor White -NoNewLine ; Write-Host ": Wallpaper might not Apply UNTIL System is Rebooted"
-        $Status = ($?) ; If ($Status) { Write-Status -Types "+", "Visual" -Status "Wallpaper Set" } elseif (!($Status)) { Write-Status -Types "?", "Visual" -Status "Error Applying Wallpaper" -Warning } else { Write-Host " idk wtf happened" }
+        $Status = ($?) ; If ($Status) { Write-Status -Types "+", "Visual" -Status "Wallpaper Set" } elseif (!$Status) { Write-Status -Types "?", "Visual" -Status "Error Applying Wallpaper" -Warning } else { Write-Host " idk wtf happened" }
         
     }
     elseif ($BuildNumber -Lt '22000') {
         Write-Title -Text "Detected Windows 10"
         Write-Status -Types "+", "$TweakType" -Status "Applying Wallpaper for Windows 10"
         $PathToFile = Get-ChildItem -Path ".\Assets" -Recurse -Filter "10.jpg" | ForEach-Object { $_.FullName }
-        Copy-Item -Path "$PathToFile" -Destination $Wallpaper -Force -Confirm:$False  ; $PathToFile = "C:\Windows\SysWOW64\oobe\10.jpg"
+        $WallpaperDestination = "C:\Windows\OEM\10.jpg"
+        If (!(Test-Path C:\Windows\OEM)){ New-Item C:\Windows\OEM -ItemType Folder -Force -ErrorAction SilentlyContinue | Out-Null}
+        Copy-Item -Path $PathToFile -Destination $WallpaperDestination -Force -Confirm:$False
         Set-ItemProperty -Path "HKCU:\Control Panel\Desktop" -Name WallpaperStyle -Value '2' -Force
-        Set-ItemProperty -Path "HKCU:\Control Panel\Desktop" -Name Wallpaper -Value "$PathToFile"
+        Set-ItemProperty -Path "HKCU:\Control Panel\Desktop" -Name Wallpaper -Value $WallpaperDestination
         Set-ItemProperty -Path $PathToRegPersonalize -Name "SystemUsesLightTheme" -Value 0
         Set-ItemProperty -Path $PathToRegPersonalize -Name "AppsUseLightTheme" -Value 1
         RUNDLL32.EXE user32.dll, UpdatePerUserSystemParameters
         Write-Host " REMINDER " -BackgroundColor Red -ForegroundColor White -NoNewLine ; Write-Host ": Wallpaper might not Apply UNTIL System is Rebooted"
-        $Status = ($?) ; If ($Status) { Write-Status -Types "+", "Visual" -Status "Wallpaper Set" } elseif (!($Status)) { Write-Status -Types "?", "Visual" -Status "Error Applying Wallpaper" -Warning } else { Write-Host " idk wtf happened" }
+        $Status = ($?) ; If ($Status) { Write-Status -Types "+", "Visual" -Status "Wallpaper Set" } elseif (!$Status) { Write-Status -Types "?", "Visual" -Status "Error Applying Wallpaper" -Warning } else { Write-Host " idk wtf happened" }
     }
 }
 Function Branding() {
