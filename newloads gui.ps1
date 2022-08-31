@@ -542,7 +542,7 @@ $RunScript.Add_click{
     } elseif ($perform_debloat -eq $false){
         Write-Status -Types "WARNING" -Status "Debloat has been DISABLED in the GUI"
     }
-    OOS
+    #OOS
     OfficeCheck
     If ($perform_onedrive -eq $True){
         OneDriveRemoval
@@ -582,18 +582,28 @@ $RunNoOEM.Add_Click{
         Programs
         If ($perform_apps -eq $True){
             Programs
+        } elseif ($perform_apps -eq $false){
+            Write-Status -Types "WARNING" -Status "Application Installation has been DISABLED in the GUI"
         }
         StartMenu
         If ($perform_debloat -eq $True){
             Debloat
+        } elseif ($perform_debloat -eq $false){
+            Write-Status -Types "WARNING" -Status "Debloat has been DISABLED in the GUI"
         }
-        OOS
-        OfficeCheck
+        #OOS
         If ($perform_onedrive -eq $True){
             OneDriveRemoval
+        }elseif ($perform_onedrive -eq $false){
+        OfficeCheck
+            Write-Status -Types "WARNING" -Status "OneDrive Removal has been DISABLED in the GUI"
         }
-        Import-Module -DisableNameChecking .\lib\"advregistry.psm1" -Force | Unblock-File
-        Import-Module -DisableNameChecking .\lib\"optimization.psm1" -Force | Unblock-File
+        AdvRegistry
+        Optimize-Performance
+        Optimize-Privacy
+        Optimize-Security
+        Optimize-ServicesRunning
+        Optimize-TaskScheduler
         BitlockerDecryption
         New-RestorePoint
         Backup-HostsFile
@@ -605,7 +615,7 @@ $RunNoOEM.Add_Click{
 }
 $UndoScript.Add_Click{
         Start-Transcript -LiteralPath "$log"
-        Write-Title -Text "Undoing Changes made by New Loads"
+        Write-Title -Text "Undoing Most Changes made by New Loads"
         Write-Section -Text "OEM"
         Write-Status -Types "-" -Status "Removing Mother OEM Information"
         UndoOEMInfo
@@ -772,7 +782,7 @@ Function Programs() {
     #Start-Process ms-windows-store://pdp/?ProductId=9n4wgh0z6vhq
 }
 Function StartMenu() {
-    Write-Host "`n" ; Write-TitleCounter -Counter '3' -MaxLength $MaxLength -Text "StartMenuLayout.xml Modification"
+    Write-Host "`n" ; Write-TitleCounter -Counter '4' -MaxLength $MaxLength -Text "StartMenuLayout.xml Modification"
     Write-Title -Text "Applying Taskbar Layout"
     $StartLayout = @"
     <LayoutModificationTemplate xmlns:defaultlayout="http://schemas.microsoft.com/Start/2014/FullDefaultLayout" xmlns:start="http://schemas.microsoft.com/Start/2014/StartLayout" Version="1" xmlns:taskbar="http://schemas.microsoft.com/Start/2014/TaskbarLayout" xmlns="http://schemas.microsoft.com/Start/2014/LayoutModification">
@@ -842,7 +852,7 @@ Function StartMenu() {
 }
 Function Visuals() {
     $TweakType = "Visual"
-    Write-Host "`n" ; Write-TitleCounter -Counter '3' -MaxLength $MaxLength -Text "Visuals"
+    Write-Host "`n" ; Write-TitleCounter -Counter '2' -MaxLength $MaxLength -Text "Visuals"
     If ($BuildNumber -Ge '22000') {
         Write-Title -Text "Detected Windows 11"
         Write-Status -Types "+", "$TweakType" -Status "Applying Wallpaper for Windows 11"
@@ -876,7 +886,7 @@ Function Visuals() {
     }
 }
 Function Branding() {
-    Write-Host "`n" ; Write-TitleCounter -Counter '5' -MaxLength $MaxLength -Text "Mothers Branding"
+    Write-Host "`n" ; Write-TitleCounter -Counter '3' -MaxLength $MaxLength -Text "Mothers Branding"
     $TweakType = "Branding"
     If ((Get-ItemProperty -Path $PathToOEMInfo).Manufacturer -eq "$store") {
         Write-Status -Types "?" -Status "Skipping" -Warning
@@ -925,7 +935,7 @@ Function Branding() {
 }
 Function Debloat() {
     $TweakType = "Debloat"
-    Write-Host "`n" ; Write-TitleCounter -Counter '6' -MaxLength $MaxLength -Text "Debloat"
+    Write-Host "`n" ; Write-TitleCounter -Counter '5' -MaxLength $MaxLength -Text "Debloat"
     
     Write-Section -Text "Checking for Win32 Pre-Installed Bloat"
     $TweakTypeLocal = "Win32"
@@ -1153,27 +1163,8 @@ Function Debloat() {
         Remove-UWPAppx -AppxPackages $Programs
 
 }
-Function OOS() {
-    Write-Section -Text "OOS"
-    $ShutUpDl = "https://dl5.oo-software.com/files/ooshutup10/OOSU10.exe"
-    $ShutUpLocation = ".\assets\OOSU10.exe"
-    $ShutUpCfgLocation = ".\assets\settings.cfg"
-    
-    If (!(Test-Path $ShutUpLocation)) { CheckNetworkStatus ; Start-BitsTransfer -Source $ShutUpDl -Destination $ShutUpLocation | Out-Null }
-    Write-Status -Types "+" -Status "Running OOS10 and applying Custom settings."
-    Start-Process -FilePath $ShutUpLocation -ArgumentList "$ShutUpCFGLocation", "/quiet" -Wait
-    Remove-Item "$ShutUpLocation" -Force
-}
-Function Adw() {
-    $AdwCleanerDl = "https://downloads.malwarebytes.com/file/adwcleaner"
-    $adw = "bin\adwCleaner.exe"
-    If (!(Test-Path ".\bin\adwCleaner")){ CheckNetworkStatus ; Start-BitsTransfer -TransferType Download -Source $AdwCleanerDl -Destination ".\$adw"}
-    Write-Status -Types "+" -Status "Running MalwareBytes AdwCleaner scanner."
-    Start-Process -FilePath ".\$adw" -ArgumentList "/eula", "/clean", "/noreboot" -Wait -NoNewWindow
-    Remove-Item "$adw" -Force
-}
 Function OneDriveRemoval() {
-    Write-Host "`n" ; Write-TitleCounter -Counter '8' -MaxLength $MaxLength -Text "OneDrive Removal"
+    Write-Host "`n" ; Write-TitleCounter -Counter '6' -MaxLength $MaxLength -Text "OneDrive Removal"
     If (Test-Path $Location5 -ErrorAction SilentlyContinue) {
         If (Test-Path $Location5 -ErrorAction SilentlyContinue) {
             If (Get-Process -Name OneDrive -ErrorAction SilentlyContinue) {
