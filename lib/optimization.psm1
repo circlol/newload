@@ -750,11 +750,7 @@ Else {
 Write-Section -Text "Enabling Scheduled Tasks from Windows"
 Set-ScheduledTaskState -Ready -ScheduledTask $EnableScheduledTasks
 }
-Optimize-Performance
-Optimize-Privacy
-Optimize-Security
-Optimize-ServicesRunning
-Optimize-TaskScheduler
+
 # SIG # Begin signature block
 # MIIGiwYJKoZIhvcNAQcCoIIGfDCCBngCAQExCzAJBgUrDgMCGgUAMGkGCisGAQQB
 # gjcCAQSgWzBZMDQGCisGAQQBgjcCAR4wJgIDAQAABBAfzDtgWUsITrck0sYpfvNR

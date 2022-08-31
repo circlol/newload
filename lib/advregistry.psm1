@@ -339,7 +339,6 @@ Function AdvRegistry() {
             Set-Service "SysMain" -StartupType Automatic -EA SilentlyContinue
         }
 }
-AdvRegistry
 
 # SIG # Begin signature block
 # MIIGiwYJKoZIhvcNAQcCoIIGfDCCBngCAQExCzAJBgUrDgMCGgUAMGkGCisGAQQB
