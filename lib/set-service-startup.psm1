@@ -86,12 +86,11 @@ Set-ServiceStartup -Manual -Services @("Service1", "Service2", "Service3")
 Set-ServiceStartup -Manual -Services @("Service1", "Service2", "Service3") -Filter @("Service3")
 Set-ServiceStartup -Manual -Services @("Service1", "Service2", "Service3") -Filter @("Service3") -CustomMessage { "Setting $Service as Manual!"}
 #>
-
 # SIG # Begin signature block
 # MIIGiwYJKoZIhvcNAQcCoIIGfDCCBngCAQExCzAJBgUrDgMCGgUAMGkGCisGAQQB
 # gjcCAQSgWzBZMDQGCisGAQQBgjcCAR4wJgIDAQAABBAfzDtgWUsITrck0sYpfvNR
-# AgEAAgEAAgEAAgEAAgEAMCEwCQYFKw4DAhoFAAQUlmuCszKCfRm2XNpmd5VSyBBV
-# QwagggPGMIIDwjCCAqqgAwIBAgIQG23ehsglIKxDyVeFlzqJzzANBgkqhkiG9w0B
+# AgEAAgEAAgEAAgEAAgEAMCEwCQYFKw4DAhoFAAQUt9iJP0MOpjArfPOK7bUrAo7f
+# bpagggPGMIIDwjCCAqqgAwIBAgIQG23ehsglIKxDyVeFlzqJzzANBgkqhkiG9w0B
 # AQsFADB5MScwJQYJKoZIhvcNAQkBFhhtaWtlQG1vdGhlcmNvbXB1dGVycy5jb20x
 # JDAiBgNVBAsMG2h0dHBzOi8vbW90aGVyY29tcHV0ZXJzLmNvbTESMBAGA1UECgwJ
 # TmV3IExvYWRzMRQwEgYDVQQDDAtNaWtlIEl2aXNvbjAeFw0yMjAyMjYwMjA4MjFa
@@ -116,11 +115,11 @@ Set-ServiceStartup -Manual -Services @("Service1", "Service2", "Service3") -Filt
 # bXB1dGVycy5jb20xEjAQBgNVBAoMCU5ldyBMb2FkczEUMBIGA1UEAwwLTWlrZSBJ
 # dmlzb24CEBtt3obIJSCsQ8lXhZc6ic8wCQYFKw4DAhoFAKB4MBgGCisGAQQBgjcC
 # AQwxCjAIoAKAAKECgAAwGQYJKoZIhvcNAQkDMQwGCisGAQQBgjcCAQQwHAYKKwYB
-# BAGCNwIBCzEOMAwGCisGAQQBgjcCARUwIwYJKoZIhvcNAQkEMRYEFGh0CFsfJyk7
-# zIT3uHsQWg2IBfxkMA0GCSqGSIb3DQEBAQUABIIBAAgm3GAN+ROEs0En0h0AE5PM
-# ZX5N01Yc6g339qwXRvKr2XChwunHX2GNMCtG1uyh3wrlWL0bTIen7KdOVfe+6FRX
-# FjU6zzoDYhzbDCcqgYea7wGlKIsFYuZbN7CrbrDBVtl3byWKG2pBuW+GEiKJWDkx
-# q2s/ts/E4jKB1v+eqcPL8N68jYKs3iofRf9Doq5fNPUeWPnqQNMRTrUos1kBCD6S
-# /wMGtpTCeDFNzbd71QDYaPXdM2p/NZvsE+BxlTe/isJJIopg0dSqzfCWCkbHvHzn
-# K9LkT2j4Nz1bVvD36lbDUrVtQLeiKOP680tjlU2vpTDxa5kA8TTcKpZXZnoknPA=
+# BAGCNwIBCzEOMAwGCisGAQQBgjcCARUwIwYJKoZIhvcNAQkEMRYEFMe5cEyOCCUG
+# YmH4af+vz2/FjPfKMA0GCSqGSIb3DQEBAQUABIIBAGv+CHT2ws4Ie8H3ZjXlF4XQ
+# fGHsMR+iGCbAVxtd/EfPyurVZtUThDEBqPYC43DpYldt6xQurlVwGldD0BH64oHg
+# oEIDQuLXfqiKUrg0kCWB9XrslojJSIIkJu5dSxvTiESPolDaRIhnI+FXiKzd7lTc
+# fVgTQHa9xC/aukBDI1Afqu/dsvBqg0kTScpjROSv1icqkPlMalDR3z2SJiKI96n2
+# +y73gYuX8EshRRwuSgx3EoSy816dhPa9IlQmtECGLQqnCP+x5tXqUWqoodRWpMvt
+# lTiTLQxs0gwyrdSnLcntgvQuFCDTRhUTFOyt8+2l9hyZSivM+z5K3Erj6EBYVK8=
 # SIG # End signature block

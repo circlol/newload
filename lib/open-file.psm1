@@ -66,12 +66,12 @@ Open-PowerShellFilesCollection -RelativeLocation "src\scripts" -Scripts "script.
 Open-PowerShellFilesCollection -RelativeLocation "src\scripts" -Scripts @("script1.ps1", "script2.ps1") -DoneTitle "Title" -DoneMessage "Message" -OpenFromGUI $false
 Open-RegFilesCollection -RelativeLocation "src\scripts" -Scripts "script.reg" -NoDialog
 Open-RegFilesCollection -RelativeLocation "src\scripts" -Scripts @("script1.reg", "script2.reg") -DoneTitle "Title" -DoneMessage "Message"
-#>
+#
 # SIG # Begin signature block
 # MIIGiwYJKoZIhvcNAQcCoIIGfDCCBngCAQExCzAJBgUrDgMCGgUAMGkGCisGAQQB
 # gjcCAQSgWzBZMDQGCisGAQQBgjcCAR4wJgIDAQAABBAfzDtgWUsITrck0sYpfvNR
-# AgEAAgEAAgEAAgEAAgEAMCEwCQYFKw4DAhoFAAQUT0tMSt/GfKILT8u1fHqcb9II
-# 9lmgggPGMIIDwjCCAqqgAwIBAgIQG23ehsglIKxDyVeFlzqJzzANBgkqhkiG9w0B
+# AgEAAgEAAgEAAgEAAgEAMCEwCQYFKw4DAhoFAAQU7ZfZxrLd2EKi/Dr6cc+wSqQg
+# dtagggPGMIIDwjCCAqqgAwIBAgIQG23ehsglIKxDyVeFlzqJzzANBgkqhkiG9w0B
 # AQsFADB5MScwJQYJKoZIhvcNAQkBFhhtaWtlQG1vdGhlcmNvbXB1dGVycy5jb20x
 # JDAiBgNVBAsMG2h0dHBzOi8vbW90aGVyY29tcHV0ZXJzLmNvbTESMBAGA1UECgwJ
 # TmV3IExvYWRzMRQwEgYDVQQDDAtNaWtlIEl2aXNvbjAeFw0yMjAyMjYwMjA4MjFa
@@ -96,11 +96,11 @@ Open-RegFilesCollection -RelativeLocation "src\scripts" -Scripts @("script1.reg"
 # bXB1dGVycy5jb20xEjAQBgNVBAoMCU5ldyBMb2FkczEUMBIGA1UEAwwLTWlrZSBJ
 # dmlzb24CEBtt3obIJSCsQ8lXhZc6ic8wCQYFKw4DAhoFAKB4MBgGCisGAQQBgjcC
 # AQwxCjAIoAKAAKECgAAwGQYJKoZIhvcNAQkDMQwGCisGAQQBgjcCAQQwHAYKKwYB
-# BAGCNwIBCzEOMAwGCisGAQQBgjcCARUwIwYJKoZIhvcNAQkEMRYEFJgtWUekZhIy
-# lW8kYACNLO2f+jgXMA0GCSqGSIb3DQEBAQUABIIBACD28FL45MJFCz19gK/7L+Yz
-# G0ccclMhzU/x4H01gjsJZQepFUCs2VS0s4+xH0fukaIneG3pZumKHxByTuMWAQQB
-# rNn9FLI4GYolJAWvOgglEukBUppR/jkpIFeaY6LGWj027XchvBUsduk+OGPnv4N9
-# 9moHfDfgUPvQQXUgijeka199NNl1NrKWB/qeZCW2MOziA9WNEhCMkZDBUKpg34mv
-# uZzmalG0TDM4svnISS6ofAliIXij8Y0S+uQvJhVaCxyV0wuryAUHxGHdnjKCtgCp
-# qoQQbQ3WcaxsMVR4pQrD7UbO/bWPJ+m077vu3iGsJu/tay4SVV5UmqTnVlsgrnY=
+# BAGCNwIBCzEOMAwGCisGAQQBgjcCARUwIwYJKoZIhvcNAQkEMRYEFIxzj7DI8YjO
+# QBK0qPoj5o0Q0lO/MA0GCSqGSIb3DQEBAQUABIIBAKbfLb3U9R+GolfpSkgQT5cV
+# /oONbSMHcBVllLnHh17LbxtZ7179fckxO0Q3zcC26U8n9WUVVI/70FyuKsYp3LCB
+# tCoRkmfoHENNa1N2dVJ5VF2iAXRobAAjNiAO45AOdRK2rPYNIm9DKSnN4ygbATVu
+# q2N3qn4twuUtS1vfoHH3cP47AJekfG62vGzL+GTPd4jHMLsP9sa6UV6LbeCJrJwe
+# jTkSVELKGxuRzLqbzmOOxsib+5l4DDnseMtG69aSdqkOn3fxTiHaJngCw8fmqxGg
+# 30srVRxmlHgb+9ohsrqlfCkBf0+6XutgMX4JU9MaYmYqtB6MKpnfpESJpMfW7aU=
 # SIG # End signature block

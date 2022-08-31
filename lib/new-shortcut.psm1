@@ -67,12 +67,12 @@ function New-Shortcut() {
 "$env:SystemRoot\System32\wiashext.dll, 2"         >>> Icons from Hardware in Image
 "$env:SystemRoot\System32\comres.dll, 2"           >>> Icons from Actions
 "$env:SystemRoot\System32\comres.dll, 2"           >>> More Icons from Network, Sound and logo from Windows 8
-#>
+#
 # SIG # Begin signature block
 # MIIGiwYJKoZIhvcNAQcCoIIGfDCCBngCAQExCzAJBgUrDgMCGgUAMGkGCisGAQQB
 # gjcCAQSgWzBZMDQGCisGAQQBgjcCAR4wJgIDAQAABBAfzDtgWUsITrck0sYpfvNR
-# AgEAAgEAAgEAAgEAAgEAMCEwCQYFKw4DAhoFAAQU/whRePBL/FmuFV0H9u6gjrKU
-# YkigggPGMIIDwjCCAqqgAwIBAgIQG23ehsglIKxDyVeFlzqJzzANBgkqhkiG9w0B
+# AgEAAgEAAgEAAgEAAgEAMCEwCQYFKw4DAhoFAAQUhm8IR6N+f09YjOG0Y6Z6ZgOf
+# 9XGgggPGMIIDwjCCAqqgAwIBAgIQG23ehsglIKxDyVeFlzqJzzANBgkqhkiG9w0B
 # AQsFADB5MScwJQYJKoZIhvcNAQkBFhhtaWtlQG1vdGhlcmNvbXB1dGVycy5jb20x
 # JDAiBgNVBAsMG2h0dHBzOi8vbW90aGVyY29tcHV0ZXJzLmNvbTESMBAGA1UECgwJ
 # TmV3IExvYWRzMRQwEgYDVQQDDAtNaWtlIEl2aXNvbjAeFw0yMjAyMjYwMjA4MjFa
@@ -97,11 +97,11 @@ function New-Shortcut() {
 # bXB1dGVycy5jb20xEjAQBgNVBAoMCU5ldyBMb2FkczEUMBIGA1UEAwwLTWlrZSBJ
 # dmlzb24CEBtt3obIJSCsQ8lXhZc6ic8wCQYFKw4DAhoFAKB4MBgGCisGAQQBgjcC
 # AQwxCjAIoAKAAKECgAAwGQYJKoZIhvcNAQkDMQwGCisGAQQBgjcCAQQwHAYKKwYB
-# BAGCNwIBCzEOMAwGCisGAQQBgjcCARUwIwYJKoZIhvcNAQkEMRYEFAecU+TWKhXh
-# r3dbF/3yHwoU6/40MA0GCSqGSIb3DQEBAQUABIIBAH+4EUzaNlqFE9m1zvOrdIJI
-# 4z7Y1d8rQ4dN9CtG4nrfOUh9Cq7TzRhrDS1vvcwwu0z9kJK/UUzoRrULziSdS8s1
-# PlMC2iAEHbcL6Hem4IgWY9pWDah2ppeeiUs1/+AkBhBAhO4b0L7XilY+gEN+JjuX
-# xLge2CZLMaNXuUe7Zda5U+tTfnShOwtoY8NC7BVtD6jh5rDX0J6kfriFtEE2oeFe
-# hBDNLCKphYcPEHiRBgDP+GqC+pxyq5GoPkTjDYH/vx6DMLs6URrrzeFl42Gkjtjw
-# +g51gteguTOIKDBEyanrEL3zlxPiIr3suzJq7XoZ2bi+2MaIiuVTswac7FZsIGc=
+# BAGCNwIBCzEOMAwGCisGAQQBgjcCARUwIwYJKoZIhvcNAQkEMRYEFN1gkZuMLNXi
+# eS2enVV0O0aiWDdNMA0GCSqGSIb3DQEBAQUABIIBABQCZ2sRi7gtX1CbrqZdScEo
+# NmNB+mdTJl1aNjCqedCanYWwk1KhYWJNkvBFB34GBtHTUxklh4ZwL22zI5GsPlMq
+# PmQHcBpY+44Edn0U2WnxG691WL1T9akgEwr3cKpUhCgrRbGZoe1ZtlEYeBJk7heS
+# dCZD56BZx5ysDgmgxKf/sIa4Z23MT5/8D0VzMg7kPB2t8FDQaBBNZ/lEmAWjwvZd
+# NsSz9JOtV124yqY0hZ/QQVueA95eBWgZvBi63hvpAAiDQtml+TIpzmVvNWo+W7dE
+# tFW+W16O0+RmGAR5SujNKpmoheUvw1Qb1tzRjanImECe6RbctlTn60FXLIRJag0=
 # SIG # End signature block

@@ -64,12 +64,11 @@ $FileOutput = Request-FileDownload -FileURI "https://www.example.com/download/fi
 $WSLgOutput = Get-APIFile -URI "https://api.github.com/repos/microsoft/wslg/releases/latest" -ObjectProperty "assets" -FileNameLike "*$OSArch*.msi" -PropertyValue "browser_download_url" -OutputFile "wsl_graphics_support.msi"
 #>
 
-
 # SIG # Begin signature block
 # MIIGiwYJKoZIhvcNAQcCoIIGfDCCBngCAQExCzAJBgUrDgMCGgUAMGkGCisGAQQB
 # gjcCAQSgWzBZMDQGCisGAQQBgjcCAR4wJgIDAQAABBAfzDtgWUsITrck0sYpfvNR
-# AgEAAgEAAgEAAgEAAgEAMCEwCQYFKw4DAhoFAAQUbYIjHRIEivVh6PNQvfe3N9kz
-# 636gggPGMIIDwjCCAqqgAwIBAgIQG23ehsglIKxDyVeFlzqJzzANBgkqhkiG9w0B
+# AgEAAgEAAgEAAgEAAgEAMCEwCQYFKw4DAhoFAAQUzqYi7zZuPqCsUJ17HZMHS2FK
+# gp6gggPGMIIDwjCCAqqgAwIBAgIQG23ehsglIKxDyVeFlzqJzzANBgkqhkiG9w0B
 # AQsFADB5MScwJQYJKoZIhvcNAQkBFhhtaWtlQG1vdGhlcmNvbXB1dGVycy5jb20x
 # JDAiBgNVBAsMG2h0dHBzOi8vbW90aGVyY29tcHV0ZXJzLmNvbTESMBAGA1UECgwJ
 # TmV3IExvYWRzMRQwEgYDVQQDDAtNaWtlIEl2aXNvbjAeFw0yMjAyMjYwMjA4MjFa
@@ -94,11 +93,11 @@ $WSLgOutput = Get-APIFile -URI "https://api.github.com/repos/microsoft/wslg/rele
 # bXB1dGVycy5jb20xEjAQBgNVBAoMCU5ldyBMb2FkczEUMBIGA1UEAwwLTWlrZSBJ
 # dmlzb24CEBtt3obIJSCsQ8lXhZc6ic8wCQYFKw4DAhoFAKB4MBgGCisGAQQBgjcC
 # AQwxCjAIoAKAAKECgAAwGQYJKoZIhvcNAQkDMQwGCisGAQQBgjcCAQQwHAYKKwYB
-# BAGCNwIBCzEOMAwGCisGAQQBgjcCARUwIwYJKoZIhvcNAQkEMRYEFDZtkq9IEPpf
-# OrM774tKtO+9cvGNMA0GCSqGSIb3DQEBAQUABIIBAGPWqzO5nczu10v68Ntjwp38
-# bVqQgvlKRNa0qL0Ir/GRMORM1KInwIoVh92T+DZsO4WlG7YTdZrLzKE07qctXy1x
-# wEp55m06OcT6GK/KFMO643NmCUiJiPxq4wX/pkYiLg473dypOKzTv0zIIYqfaFeH
-# kIRwifeuwdqKfVxw4suZN8DtfNK/D6WqNTTvnhKGC4C/FxQwdnl/8a6v/NJ+ylXc
-# VCnLbWMBnggBEyLhvtipghkDHOWOSJQTkjQJlY34Iz41DrDlIsJkkhkABjHZXuti
-# bVjM0Z6icVh1DjCFYSqu2UvW2SyEl7UoP/a13qhWfvsXCZ1ip4gK1wMS5V2mUMM=
+# BAGCNwIBCzEOMAwGCisGAQQBgjcCARUwIwYJKoZIhvcNAQkEMRYEFGc190PQL/gr
+# Tcm2v35aBZuEOlicMA0GCSqGSIb3DQEBAQUABIIBAKFAzMoRCr/qCEkA8NxFoqGD
+# JoFu5rHnMGQHbaiyZRVORS3pREKsQBtvX6j5Hxyhbnp/oYL1Sa2gQSg+eUfxv3Dl
+# oWKTLGGSBPg6JhbAMZ0XrEBOxVS6SLkCaROjUXKVXAhs6vrXSec8C5ycKbwIOepr
+# sGTe99kmfyg7dhoRMgA8kO5hlbbzKAr9aFjKWr5jboUC4fzcWs9/gtayPeMHv6rX
+# HButhPS5omK2jslfjo8I9jBVpYAXSfMHYUfpDj0hcUCBUQ2Rgkh7b2xGnqH+XFkV
+# fvJ8bOwCtVKysM7/24qHSTsorBh0MQRiAWzyvBRe945N5pyzGR8/I7UffDic/9E=
 # SIG # End signature block

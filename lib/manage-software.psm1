@@ -177,12 +177,12 @@ Uninstall-Software -Name "Multiple Packages" -Packages @("Package1", "Package2",
 Uninstall-Software -Name "Multiple Packages" -Packages @("Package1", "Package2", "Package3", ...) -ViaMSStore -NoDialog
 Uninstall-Software -Name "Ubuntu" -Packages "Ubuntu" -ViaWSL
 Uninstall-Software -Name "Ubuntu" -Packages "Ubuntu" -ViaWSL -NoDialog
-#>
+#
 # SIG # Begin signature block
 # MIIGiwYJKoZIhvcNAQcCoIIGfDCCBngCAQExCzAJBgUrDgMCGgUAMGkGCisGAQQB
 # gjcCAQSgWzBZMDQGCisGAQQBgjcCAR4wJgIDAQAABBAfzDtgWUsITrck0sYpfvNR
-# AgEAAgEAAgEAAgEAAgEAMCEwCQYFKw4DAhoFAAQU6/NkpvRJ5+2PPc8agJo2/GcT
-# etigggPGMIIDwjCCAqqgAwIBAgIQG23ehsglIKxDyVeFlzqJzzANBgkqhkiG9w0B
+# AgEAAgEAAgEAAgEAAgEAMCEwCQYFKw4DAhoFAAQUfwqNAKLrc/3zDf2rN1e26a+g
+# Uw+gggPGMIIDwjCCAqqgAwIBAgIQG23ehsglIKxDyVeFlzqJzzANBgkqhkiG9w0B
 # AQsFADB5MScwJQYJKoZIhvcNAQkBFhhtaWtlQG1vdGhlcmNvbXB1dGVycy5jb20x
 # JDAiBgNVBAsMG2h0dHBzOi8vbW90aGVyY29tcHV0ZXJzLmNvbTESMBAGA1UECgwJ
 # TmV3IExvYWRzMRQwEgYDVQQDDAtNaWtlIEl2aXNvbjAeFw0yMjAyMjYwMjA4MjFa
@@ -207,11 +207,11 @@ Uninstall-Software -Name "Ubuntu" -Packages "Ubuntu" -ViaWSL -NoDialog
 # bXB1dGVycy5jb20xEjAQBgNVBAoMCU5ldyBMb2FkczEUMBIGA1UEAwwLTWlrZSBJ
 # dmlzb24CEBtt3obIJSCsQ8lXhZc6ic8wCQYFKw4DAhoFAKB4MBgGCisGAQQBgjcC
 # AQwxCjAIoAKAAKECgAAwGQYJKoZIhvcNAQkDMQwGCisGAQQBgjcCAQQwHAYKKwYB
-# BAGCNwIBCzEOMAwGCisGAQQBgjcCARUwIwYJKoZIhvcNAQkEMRYEFKSiGhpubbAP
-# CnhJiHoCEeIHgK/BMA0GCSqGSIb3DQEBAQUABIIBAE/h17LmzKuSBMVI/CPIFrjk
-# stIl7i9vtffUqw9a0uw4lYEXbMDHOUpLetE4g5dYQbQZhAOJNWaK7PCY8NjR4qvH
-# 3rNV2ETknogzOkKmZHU7pI/jEYSC11kT0jab+6vII2WCV3lwo6rC/dGgqI8zwOuR
-# LoXgSH00Ed1VVhkj79bVHrIXrhcrgOUfH+Ez82V/NwQf4xwXC8iuYDo6RC6iRSB1
-# d+o9jGaLFv0Fb+6xw4+7vwZmwK3g/PawwcMAAGf1DBw+8Iyf4+qeQzfo6rrY0XDF
-# a3Wm5ENww+RZSSE8FwnaoOxiJYtJwgZ1ZCT2CRJkS+PN+xIX6CkWv5Gq/gDMsp8=
+# BAGCNwIBCzEOMAwGCisGAQQBgjcCARUwIwYJKoZIhvcNAQkEMRYEFICjP/uvFmVd
+# iU9N8WzKwtYZMeePMA0GCSqGSIb3DQEBAQUABIIBAFxs6nqSZ8YhfM9hqjCMl/Wn
+# 2cU4VOzKLoEy02DAjMxsjTMiDD3NPKaODNlPBxFe71F25Fn80r0PpWlj4/g+z/QN
+# bX3s7vXEUbDOKQVchZrVppfLX+YiJor6ii5rc7pDskgjWiFJX1tCy52D0Xjv116y
+# +99RzZ3DUOmdOv7bg69W17OCnx4CUymbdp2XjFlE5gXtZwHJ9cdNf+RUKfVnPDLh
+# STL1C4gpwDi4q/5plePevygY0Iv37XrunvVAHlFdVA28BRWnYWQ/pKevugUFWoYD
+# Bs9Knbl4oJsDy76zFGv3K6MFAzkvtW4XWH9w+JIIjau26K5ssnK+xXW5fjnOQMc=
 # SIG # End signature block

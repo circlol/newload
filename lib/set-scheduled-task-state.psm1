@@ -70,12 +70,11 @@ Set-ScheduledTaskState -Ready -ScheduledTasks @("ScheduledTask1", "ScheduledTask
 Set-ScheduledTaskState -Ready -ScheduledTasks @("ScheduledTask1", "ScheduledTask2", "ScheduledTask3") -Filter @("ScheduledTask3")
 Set-ScheduledTaskState -Ready -ScheduledTasks @("ScheduledTask1", "ScheduledTask2", "ScheduledTask3") -Filter @("ScheduledTask3") -CustomMessage { "Setting $ScheduledTask as Ready!"}
 #>
-
 # SIG # Begin signature block
 # MIIGiwYJKoZIhvcNAQcCoIIGfDCCBngCAQExCzAJBgUrDgMCGgUAMGkGCisGAQQB
 # gjcCAQSgWzBZMDQGCisGAQQBgjcCAR4wJgIDAQAABBAfzDtgWUsITrck0sYpfvNR
-# AgEAAgEAAgEAAgEAAgEAMCEwCQYFKw4DAhoFAAQUXwvnLUiPDH7vWpsQ2hsAY0gx
-# 5qugggPGMIIDwjCCAqqgAwIBAgIQG23ehsglIKxDyVeFlzqJzzANBgkqhkiG9w0B
+# AgEAAgEAAgEAAgEAAgEAMCEwCQYFKw4DAhoFAAQUvTCeM2agI29YNNu+amTtNb1r
+# bWGgggPGMIIDwjCCAqqgAwIBAgIQG23ehsglIKxDyVeFlzqJzzANBgkqhkiG9w0B
 # AQsFADB5MScwJQYJKoZIhvcNAQkBFhhtaWtlQG1vdGhlcmNvbXB1dGVycy5jb20x
 # JDAiBgNVBAsMG2h0dHBzOi8vbW90aGVyY29tcHV0ZXJzLmNvbTESMBAGA1UECgwJ
 # TmV3IExvYWRzMRQwEgYDVQQDDAtNaWtlIEl2aXNvbjAeFw0yMjAyMjYwMjA4MjFa
@@ -100,11 +99,11 @@ Set-ScheduledTaskState -Ready -ScheduledTasks @("ScheduledTask1", "ScheduledTask
 # bXB1dGVycy5jb20xEjAQBgNVBAoMCU5ldyBMb2FkczEUMBIGA1UEAwwLTWlrZSBJ
 # dmlzb24CEBtt3obIJSCsQ8lXhZc6ic8wCQYFKw4DAhoFAKB4MBgGCisGAQQBgjcC
 # AQwxCjAIoAKAAKECgAAwGQYJKoZIhvcNAQkDMQwGCisGAQQBgjcCAQQwHAYKKwYB
-# BAGCNwIBCzEOMAwGCisGAQQBgjcCARUwIwYJKoZIhvcNAQkEMRYEFJMYBxa0FKAa
-# x83+PaTrf+Fkg6UbMA0GCSqGSIb3DQEBAQUABIIBAEra/URYXFIfxkzgHPwxu9H6
-# 5LtNPHSJ6W10zgFxz3hSif7K1R0KwEpbmbHEmncicojDR52shbqouceleeWJquZf
-# GIqqCmY4FrY/BRzjRrr/1L9Onfy0HRMnubydG0bH/ETT1K68CQPgjj9vS0To5Jqx
-# ZFyJ/vVmvw4Gtg47jWeHImlGdvJZCc5HTG3UisymX9Tm8dra+A7RD16xEq4O79bG
-# e0mSDeuxDFrUpc8HsGdCEHAjRbVctA4mpEwaha7oL1HM0TAeDp+Rd0Zka+my4HtV
-# O4ylIcDlhF779FrkVLkCtbFRSrtURo037V8vMvQjsOjTzoFx0crkaB2RiXuH/co=
+# BAGCNwIBCzEOMAwGCisGAQQBgjcCARUwIwYJKoZIhvcNAQkEMRYEFLFSHXvc5jky
+# Rm21Jww87vGWQnOcMA0GCSqGSIb3DQEBAQUABIIBAH5T9b6/PQ9QmMJhTe0tmmcd
+# YZeWx5lmWyaaLF64DjkqWhFLuBSp9RsCIpFn7+GoTWKxF8RxkBj0PS92GZ+Sfrit
+# aHjNVsqWL48IBJqlAS+IeXsJshAhFlQGwAY3nmUBQBbYZw+UqkBd5FAYPH7B/z9j
+# Cil7SvYnRy1sOiEmYmrJa79YWVXGaGcBdgopLyBtNk5St1BYFI5r4yJwWj7SIeu1
+# HmD76aUXPcYrg8wlHIm5zSLdn4dcGonpCS2+YtyX3icGgThD+SGTiYFUPR07/aKN
+# V1zNpepIL+iTsXaMzy5Q12OOVoVW6rrm/GgpkUi6xPPxPW4I3q9TB2kKFjM1WmU=
 # SIG # End signature block
