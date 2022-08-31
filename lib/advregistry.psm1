@@ -1,4 +1,4 @@
-$Global:AdvRegistryLastUpdated = '20220829'
+$Global:AdvRegistryLastUpdated = '20220830'
 #Import-Module $PSScriptRoot\..\lib\"templates.psm1"
 #Import-Module $PSScriptRoot\..\lib\"Variables.psm1"
 Import-Module -DisableNameChecking .\lib\"templates.psm1"
