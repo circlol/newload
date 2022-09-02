@@ -449,7 +449,7 @@ Function Visuals() {
         Write-Title -Text "Detected Windows 11"
         Write-Status -Types "+", "$TweakType" -Status "Applying Wallpaper for Windows 11"
         $PathToFile = Get-ChildItem -Path ".\Assets" -Recurse -Filter "11.jpg" | ForEach-Object { $_.FullName }
-        $WallpaperDestination = "~\AppData\Local\Microsoft\Windows\Themes\11.jpg"
+        $WallpaperDestination = "$env:appdata\Microsoft\Windows\Themes\11.jpg"
         If (!(Test-Path $WallpaperDestination)){
             Copy-Item -Path $PathToFile -Destination $WallpaperDestination -Force -Confirm:$False
         }
@@ -466,7 +466,7 @@ Function Visuals() {
         Write-Title -Text "Detected Windows 10"
         Write-Status -Types "+", "$TweakType" -Status "Applying Wallpaper for Windows 10"
         $PathToFile = Get-ChildItem -Path ".\Assets" -Recurse -Filter "10.jpg" | ForEach-Object { $_.FullName }
-        $WallpaperDestination = "~\AppData\Local\Microsoft\Windows\Themes\11.jpg"
+        $WallpaperDestination = "$env:appdata\Microsoft\Windows\Themes\11.jpg"
         If (!(Test-Path $WallpaperDestination)){
         Copy-Item -Path $PathToFile -Destination $WallpaperDestination -Force -Confirm:$False
         }
