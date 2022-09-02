@@ -1041,12 +1041,12 @@ Function EmailLog() {
 ### CTRL + K - CTRL + J - Unfold Everything
     If (!($GUI)){
 
-        $MaxLength = '17'
-        Variables
-        BootCheck
+        #$MaxLength = '17'
+        #Variables
+        #BootCheck
+        #ScriptInfo
+        #CheckFiles
         Start-Transcript -Path $Log ; $StartTime = $(get-date)
-        ScriptInfo
-        CheckFiles
         Write-Status -Types "?" , "Activation" -Status "Checking Windows Activation Status.." -Warning
         $ActiStat = (Get-CimInstance -ClassName SoftwareLicensingProduct -Filter "Name like 'Windows%'" | Where-Object PartialProductKey).LicenseStatus
         If ($ActiStat -ne 1) { Write-CaptionFailed -Text "Windows is not activated. Feel free to Activate Windows while New Loads runs.."; Start-Sleep -Seconds 3 ; Start-Process slui -ArgumentList '3' }else { Write-CaptionSucceed -Text "Windows is Activated. Proceeding" }
@@ -1078,8 +1078,8 @@ Function EmailLog() {
         Write-Status -Types "?" , "Activation" -Status "Checking Windows Activation Status.." -Warning
         $ActiStat = (Get-CimInstance -ClassName SoftwareLicensingProduct -Filter "Name like 'Windows%'" | Where-Object PartialProductKey).LicenseStatus
         If ($ActiStat -ne 1) { Write-CaptionFailed -Text "Windows is not activated. Feel free to Activate Windows while New Loads runs.."; Start-Sleep -Seconds 3 ; Start-Process slui -ArgumentList '3' }else { Write-CaptionSucceed -Text "Windows is Activated. Proceeding" }
-        CheckNetworkStatus
-        GUI
+        
+        CheckNetworkStatus ; GUI
     }
 ### END OF SCRIPT ###
 
