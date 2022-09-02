@@ -1039,7 +1039,7 @@ Function EmailLog() {
 #PowerShell -NoProfile -ExecutionPolicy Bypass
 ### CTRL + K - CTRL + 0 - Fold Everything
 ### CTRL + K - CTRL + J - Unfold Everything
-If (!$GUI){
+If (!($GUI)){
 $MaxLength = '17'
 Variables
 BootCheck
@@ -1068,7 +1068,7 @@ EmailLog
 Cleanup
 Write-Status -Types "WAITING" -Status "User action needed - You may have to ALT + TAB "
 Request-PcRestart
-}elseif ($GUI){
+}elseif ($GUI -eq $True){
     GUI
 }
 ### END OF SCRIPT ###
