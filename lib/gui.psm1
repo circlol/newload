@@ -393,7 +393,7 @@ Function GUI() {
         JC
     }
     $mssu.add_click{
-        Write-Status -Types "+" -Types "Triggering a Microsoft Store Application Update Check"
+        Write-Status -Types "+" -Status "Triggering a Microsoft Store Application Update Check"
         $namespaceName = "root\cimv2\mdm\dmmap"
         $className = "MDM_EnterpriseModernAppManagement_AppManagement01"
         $wmiObj = Get-WmiObject -Namespace $namespaceName -Class $className
@@ -403,63 +403,63 @@ Function GUI() {
         
     }
     $themebutton.Add_Click{
-        Write-Status -Types "+" -Types "Opening Windows 7 Themes Page"
+        Write-Status -Types "+" -Status "Opening Windows 7 Themes Page"
         Start-Process Explorer.exe "shell:::{ED834ED6-4B5A-4bfe-8F11-A626DCB6A921}"
         JC
     
     }
     $appwiz.Add_Click{
-        Write-Status -Types "+" -Types "Opening Programs and Features"
+        Write-Status -Types "+" -Status "Opening Programs and Features"
         Start-Process appwiz.cpl
         JC
         
     }
     $installedapps.Add_click{
-        Write-Status -Types "+" -Types "Opening Installed Apps"
+        Write-Status -Types "+" -Status "Opening Installed Apps"
         Start-Process ms-settings:appsfeatures	
         JC
     }
     $updatesbutton.Add_Click{
-        Write-Status -Types "+" -Types "Opening Windows Updates"
+        Write-Status -Types "+" -Status "Opening Windows Updates"
         Start-Process ms-settings:windowsupdate
         JC
     }
     $oldscpanel.add_click{
-        Write-Status -Types "+" -Types "Opening Windows 7 Sound Panel"
+        Write-Status -Types "+" -Status "Opening Windows 7 Sound Panel"
         Start-Process mmsys.cpl
         JC
     }
     $activationbutton.Add_Click{
-        Write-Status -Types "+" -Types "Opening Activation"
+        Write-Status -Types "+" -Status "Opening Activation"
         Start-Process slui -ArgumentList '3'
         JC
     }
     $msishortcut.Add_Click{
-        Write-Status -Types "+" -Types "Opening MSI's Website"
+        Write-Status -Types "+" -Status "Opening MSI's Website"
         Start-Process "https://www.msi.com/support/download"
         JC
     }
     $asusshortcut.Add_Click{
-        Write-Status -Types "+" -Types "Opening ASUS Websites"
+        Write-Status -Types "+" -Status "Opening ASUS Websites"
         Start-Process "https://www.asus.com/ca-en/support/download-center/"
         JC
     }
     $nvidiashortcut.Add_Click{
-        Write-Status -Types "+" -Types "Opening NVIDIA's Website"
+        Write-Status -Types "+" -Status "Opening NVIDIA's Website"
         Start-Process "https://www.nvidia.com/Download/index.aspx?lang=en-us"
         JC
     }
     $amdshortcut.Add_Click{
-        Write-Status -Types "+" -Types "Opening AMD's Website"
+        Write-Status -Types "+" -Status "Opening AMD's Website"
         Start-Process "https://www.amd.com/en/support"
         JC
     }
     $intelshortcut.Add_Click{
-        Write-Status -Types "+" -Types "Opening Intel's Website"
+        Write-Status -Types "+" -Status "Opening Intel's Website"
         Start-Process "https://www.intel.com/content/www/us/en/download-center/home.html"
     }
     $DeviceManager.Add_Click{
-        Write-Status -Types "+" -Types "Opening Device Manager"
+        Write-Status -Types "+" -Status "Opening Device Manager"
         Start-Process devmgmt.msc
         JC
     }
