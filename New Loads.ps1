@@ -1034,7 +1034,10 @@ Function EmailLog() {
     $ipinfo"
 
 }
-
+Function JC() {
+    Write-Host ""
+    Write-Status "+" -Status "Ready for Next Selection"
+}
 
 #PowerShell -NoProfile -ExecutionPolicy Bypass
 ### CTRL + K - CTRL + 0 - Fold Everything

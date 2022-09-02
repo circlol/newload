@@ -40,7 +40,7 @@ Function GUI() {
     $UndoScript.text                 = "Undo Script Changes"
     $UndoScript.width                = 268
     $UndoScript.height               = 35
-    $UndoScript.visible              = $true
+    $UndoScript.visible              = $false
     $UndoScript.enabled              = $true
     $UndoScript.location             = New-Object System.Drawing.Point(335,425)
     $UndoScript.Font                 = New-Object System.Drawing.Font('Microsoft Sans Serif',10,[System.Drawing.FontStyle]([System.Drawing.FontStyle]::Bold))
@@ -660,11 +660,52 @@ Function GUI() {
     $Form.Dispose()
     }
     
+    Function JC() {
+        Write-Host ""
+        Write-Status "+" -Status "Ready for Next Selection"
+    }
+    Function UndoOneDrive(){
+        Write-Section "OneDrive"
+        Write-Status -Types "+" -Status "Reinstalling OneDrive"
+        If (!(Test-Path "C:\Windows\SysWOW64\OneDriveSetup.exe")){
+            CheckNetworkStatus
+            Start-BitsTransfer -Source "https://github.com/circlol/newload/raw/main/bin/OneDriveSetup.exe" -Destination ".\bin\OneDriveSetup.exe" | Out-Host
+            Start-Process -FilePath:".\bin\OneDriveSetup.exe" -ArgumentList /install -Verbose
+        }else{
+            Write-Host " Starting $onedrivelocation"
+            Start-Process -FilePath:C:\Windows\Syswow64\OneDriveSetup.exe -ArgumentList /install -Verbose
+        }
+    }
+    Function UndoDebloat() {
+        Write-Status "+" -Status "Reinstalling Computers Default Bloatware"
+        Write-Host " Reinstalling this computers default apps"
+        Get-AppxPackage -allusers | ForEach-Object {Add-AppxPackage -register "$($_.InstallLocation)\appxmanifest.xml" -DisableDevelopmentMode -ErrorAction SilentlyContinue} | Out-Host 
+    }
+    Function UndoOEMInfo() {
+        Write-Section -Text "OEM Info"
+        Write-Status -Types "-" -Status "Removing OEM Information"
+        
+        Set-ItemProperty -Path $PathToOEMInfo -Name "Manufacturer" -Type String -Value ""
+        Set-ItemProperty -Path $PathToOEMInfo -Name "Model" -Type String -Value ""
+        Set-ItemProperty -Path $PathToOEMInfo -Name "SupportHours" -Type String -Value ""
+        Set-ItemProperty -Path $PathToOEMInfo -Name "SupportURL" -Type String -Value ""
+        Set-ItemProperty -Path $PathToOEMInfo -Name "SupportPhone" -Type String -Value ""
+        If (Test-Path -Path "$wallpaper"){
+            Write-Status -Types "-" -Status "Deleting wallpaper from location $wallpaper"
+            Remove-Item -Path "$wallpaper" -Verbose -Force
+        }
+        $defaulttheme = "C:\Windows\Resources\Themes\aero.theme"
+        Write-Status -Types "+" -Status "Setting Windows Theme to Default"
+        Start-Process $defaulttheme
+    
+        Start-Sleep -s 5
+        taskkill /F /IM systemsettings.exe 2>$NULL
+    }
 # SIG # Begin signature block
 # MIIGiwYJKoZIhvcNAQcCoIIGfDCCBngCAQExCzAJBgUrDgMCGgUAMGkGCisGAQQB
 # gjcCAQSgWzBZMDQGCisGAQQBgjcCAR4wJgIDAQAABBAfzDtgWUsITrck0sYpfvNR
-# AgEAAgEAAgEAAgEAAgEAMCEwCQYFKw4DAhoFAAQUH5/bJIJ+9j0+JZNnYyQINcWb
-# SE+gggPGMIIDwjCCAqqgAwIBAgIQG23ehsglIKxDyVeFlzqJzzANBgkqhkiG9w0B
+# AgEAAgEAAgEAAgEAAgEAMCEwCQYFKw4DAhoFAAQUF0GRMGPdQ37mTIyAjFfn1YN0
+# fDqgggPGMIIDwjCCAqqgAwIBAgIQG23ehsglIKxDyVeFlzqJzzANBgkqhkiG9w0B
 # AQsFADB5MScwJQYJKoZIhvcNAQkBFhhtaWtlQG1vdGhlcmNvbXB1dGVycy5jb20x
 # JDAiBgNVBAsMG2h0dHBzOi8vbW90aGVyY29tcHV0ZXJzLmNvbTESMBAGA1UECgwJ
 # TmV3IExvYWRzMRQwEgYDVQQDDAtNaWtlIEl2aXNvbjAeFw0yMjAyMjYwMjA4MjFa
@@ -689,11 +730,11 @@ Function GUI() {
 # bXB1dGVycy5jb20xEjAQBgNVBAoMCU5ldyBMb2FkczEUMBIGA1UEAwwLTWlrZSBJ
 # dmlzb24CEBtt3obIJSCsQ8lXhZc6ic8wCQYFKw4DAhoFAKB4MBgGCisGAQQBgjcC
 # AQwxCjAIoAKAAKECgAAwGQYJKoZIhvcNAQkDMQwGCisGAQQBgjcCAQQwHAYKKwYB
-# BAGCNwIBCzEOMAwGCisGAQQBgjcCARUwIwYJKoZIhvcNAQkEMRYEFHhdQcaN3yHz
-# HirKaBJdLaifolGiMA0GCSqGSIb3DQEBAQUABIIBAFHOYqya0TOpw8vKY7G+jgwm
-# 61HJaG4eW01CFEqH9YvhyEloMlom9oBFaMrkeKGY2b0xlhkTANAf08nlH3i6sgkm
-# 8eVDCBd4trqV93TSQ4n3lRqxjyoJdpNyhGDlDcAnwBIEkaaTQamcJWv8Vj8tM8Xw
-# PRO7Gq3y5zrS1QZYHr4X5qSVtImLpjwaRP7Jc0da9j3HT7XC+zwsv1ZOhcKw6QVW
-# yB51GlTlJvjIU41TZsVDu8EIQsu7o+6LgCW30+GFVVjkcedo9S82zcobzc4EEjVM
-# zQEfCVytRfSg6pn695xZ5fik+N247iIxg/FaPk1xtR15as5Xcwxpl3hVoA5M1ow=
+# BAGCNwIBCzEOMAwGCisGAQQBgjcCARUwIwYJKoZIhvcNAQkEMRYEFLbHTG46q26V
+# qj4wQj1yiwGPFZa+MA0GCSqGSIb3DQEBAQUABIIBAIMRnesMXJ69l+mgrquNm4wa
+# 06QeeJgVA1frWCaDJKYhVylczWNx61bEY+qDVAvdYEsXeQDOEnfzTvXlRFTV74/F
+# snvusFOroWpNodt4WNlNi5cAj9MHLQsfjqqiobF6nUwgp8Ycn385V/eky3xKzUpB
+# WpLkIt2HQ9045GyqztMSXBneLKzna/Q4QYp7MPHXE0bHZdoBSeqWVt/lT6MNKj5f
+# sFAQ905hMFqA+OiuQEF+6qIlpuXDcbjFYrqpfEGrQGaMXSNak3JPGPt2XvC3DszQ
+# 8PCDOL68s/xDQ7AacPdIPD4krP3RsbK+MB/FRnyjJfBS3wbxZkb5dmyLM0gripk=
 # SIG # End signature block
