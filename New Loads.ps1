@@ -1039,41 +1039,48 @@ Function EmailLog() {
 #PowerShell -NoProfile -ExecutionPolicy Bypass
 ### CTRL + K - CTRL + 0 - Fold Everything
 ### CTRL + K - CTRL + J - Unfold Everything
-If (!($GUI)){
-$MaxLength = '17'
-Variables
-BootCheck
-Start-Transcript -Path $Log ; $StartTime = $(get-date)
-ScriptInfo
-CheckFiles
-Write-Status -Types "?" , "Activation" -Status "Checking Windows Activation Status.." -Warning
-$ActiStat = (Get-CimInstance -ClassName SoftwareLicensingProduct -Filter "Name like 'Windows%'" | Where-Object PartialProductKey).LicenseStatus
-If ($ActiStat -ne 1) { Write-CaptionFailed -Text "Windows is not activated. Feel free to Activate Windows while New Loads runs.."; Start-Sleep -Seconds 3 ; Start-Process slui -ArgumentList '3' }else { Write-CaptionSucceed -Text "Windows is Activated. Proceeding" }
-Programs
-Visuals
-Branding
-StartMenu
-Debloat
-#OOS
-#Adw
-OfficeCheck
-OneDriveRemoval
-AdvRegistry
-Optimize-Performance
-Optimize-Privacy
-Optimize-Security
-Optimize-ServicesRunning
-Optimize-TaskScheduler
-BitlockerDecryption
-New-RestorePoint
-Backup-HostsFile
-EmailLog
-Cleanup
-Write-Status -Types "WAITING" -Status "User action needed - You may have to ALT + TAB "
-Request-PcRestart
-}elseif ($GUI -eq $True){
-    GUI
-}
+    If (!($GUI)){
+
+        $MaxLength = '17'
+        Variables
+        BootCheck
+        Start-Transcript -Path $Log ; $StartTime = $(get-date)
+        ScriptInfo
+        CheckFiles
+        Write-Status -Types "?" , "Activation" -Status "Checking Windows Activation Status.." -Warning
+        $ActiStat = (Get-CimInstance -ClassName SoftwareLicensingProduct -Filter "Name like 'Windows%'" | Where-Object PartialProductKey).LicenseStatus
+        If ($ActiStat -ne 1) { Write-CaptionFailed -Text "Windows is not activated. Feel free to Activate Windows while New Loads runs.."; Start-Sleep -Seconds 3 ; Start-Process slui -ArgumentList '3' }else { Write-CaptionSucceed -Text "Windows is Activated. Proceeding" }
+        Programs
+        Visuals
+        Branding
+        StartMenu
+        Debloat
+        #OOS
+        #Adw
+        OfficeCheck
+        OneDriveRemoval
+        AdvRegistry
+        Optimize-Performance
+        Optimize-Privacy
+        Optimize-Security
+        Optimize-ServicesRunning
+        Optimize-TaskScheduler
+        BitlockerDecryption
+        New-RestorePoint
+        Backup-HostsFile
+        EmailLog
+        Cleanup
+        Write-Status -Types "WAITING" -Status "User action needed - You may have to ALT + TAB "
+        Request-PcRestart
+
+    }elseif ($GUI -eq $True){
+        
+        Write-Status -Types "?" , "Activation" -Status "Checking Windows Activation Status.." -Warning
+        $ActiStat = (Get-CimInstance -ClassName SoftwareLicensingProduct -Filter "Name like 'Windows%'" | Where-Object PartialProductKey).LicenseStatus
+        If ($ActiStat -ne 1) { Write-CaptionFailed -Text "Windows is not activated. Feel free to Activate Windows while New Loads runs.."; Start-Sleep -Seconds 3 ; Start-Process slui -ArgumentList '3' }else { Write-CaptionSucceed -Text "Windows is Activated. Proceeding" }
+
+        GUI
+    }
 ### END OF SCRIPT ###
 
 # SIG # Begin signature block
