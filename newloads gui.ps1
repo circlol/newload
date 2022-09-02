@@ -565,7 +565,6 @@ $RunNoOEM.Add_Click{
         Start-Transcript -Path $Log ; $StartTime = $(get-date)
         ScriptInfo
         CheckFiles
-        Programs
         If ($Perform_apps.checked -eq $True){Programs} else {Write-Status -Types "WARNING" -Status "Application Installation has been DISABLED in the GUI"}
         StartMenu
         If ($Perform_debloat.checked -eq $True){Debloat} else {Write-Status -Types "WARNING" -Status "Debloat has been DISABLED in the GUI"}
@@ -831,9 +830,10 @@ Function Visuals() {
         Write-Title -Text "Detected Windows 11"
         Write-Status -Types "+", "$TweakType" -Status "Applying Wallpaper for Windows 11"
         $PathToFile = Get-ChildItem -Path ".\Assets" -Recurse -Filter "11.jpg" | ForEach-Object { $_.FullName }
-        $WallpaperDestination = "C:\Windows\OEM\11.jpg"
-        If (!(Test-Path C:\Windows\OEM)){ New-Item C:\Windows\OEM -ItemType Folder -Force -ErrorAction SilentlyContinue | Out-Null}
-        Copy-Item -Path "$PathToFile" -Destination $WallpaperDestination -Force -Confirm:$False
+        $WallpaperDestination = "~\AppData\Local\Microsoft\Windows\Themes\11.jpg"
+        If (!(Test-Path $WallpaperDestination)){
+            Copy-Item -Path $PathToFile -Destination $WallpaperDestination -Force -Confirm:$False
+        }
         Set-ItemProperty -Path "HKCU:\Control Panel\Desktop" -Name WallpaperStyle -Value '2' -Force
         Set-ItemProperty -Path "HKCU:\Control Panel\Desktop" -Name Wallpaper -Value $WallpaperDestination
         Set-ItemProperty -Path $PathToRegPersonalize -Name "SystemUsesLightTheme" -Value 0
@@ -846,10 +846,11 @@ Function Visuals() {
     elseif ($BuildNumber -Lt '22000') {
         Write-Title -Text "Detected Windows 10"
         Write-Status -Types "+", "$TweakType" -Status "Applying Wallpaper for Windows 10"
-        $PathToFile = Get-ChildItem -Path ".\Assets" -Recurse -Filter "10.jpg" | ForEach-Object { $_.FullName }
-        $WallpaperDestination = "C:\Windows\OEM\10.jpg"
-        If (!(Test-Path C:\Windows\OEM)){ New-Item C:\Windows\OEM -ItemType Folder -Force -ErrorAction SilentlyContinue | Out-Null}
-        Copy-Item -Path $PathToFile -Destination $WallpaperDestination -Force -Confirm:$False
+        $PathToFile = Get-ChildItem -Path ".\Assets" -Recurse -Filter "11.jpg" | ForEach-Object { $_.FullName }
+        $WallpaperDestination = "~\AppData\Local\Microsoft\Windows\Themes\11.jpg"
+        If (!(Test-Path $WallpaperDestination)){
+            Copy-Item -Path $PathToFile -Destination $WallpaperDestination -Force -Confirm:$False
+        }
         Set-ItemProperty -Path "HKCU:\Control Panel\Desktop" -Name WallpaperStyle -Value '2' -Force
         Set-ItemProperty -Path "HKCU:\Control Panel\Desktop" -Name Wallpaper -Value $WallpaperDestination
         Set-ItemProperty -Path $PathToRegPersonalize -Name "SystemUsesLightTheme" -Value 0
