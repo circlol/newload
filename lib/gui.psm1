@@ -483,7 +483,12 @@ Function GUI() {
         JC
     }
     $RegistryButton.add_click{
-        AdvRegistry -Action Apply
+        AdvRegistry
+        Optimize-Performance
+        Optimize-Privacy
+        Optimize-Security
+        Optimize-ServicesRunning
+        Optimize-TaskScheduler
         JC
     
     }
@@ -704,8 +709,8 @@ Function GUI() {
 # SIG # Begin signature block
 # MIIGiwYJKoZIhvcNAQcCoIIGfDCCBngCAQExCzAJBgUrDgMCGgUAMGkGCisGAQQB
 # gjcCAQSgWzBZMDQGCisGAQQBgjcCAR4wJgIDAQAABBAfzDtgWUsITrck0sYpfvNR
-# AgEAAgEAAgEAAgEAAgEAMCEwCQYFKw4DAhoFAAQUF0GRMGPdQ37mTIyAjFfn1YN0
-# fDqgggPGMIIDwjCCAqqgAwIBAgIQG23ehsglIKxDyVeFlzqJzzANBgkqhkiG9w0B
+# AgEAAgEAAgEAAgEAAgEAMCEwCQYFKw4DAhoFAAQUGSELkT9NfPfoqPqI8v5YIsNG
+# 12GgggPGMIIDwjCCAqqgAwIBAgIQG23ehsglIKxDyVeFlzqJzzANBgkqhkiG9w0B
 # AQsFADB5MScwJQYJKoZIhvcNAQkBFhhtaWtlQG1vdGhlcmNvbXB1dGVycy5jb20x
 # JDAiBgNVBAsMG2h0dHBzOi8vbW90aGVyY29tcHV0ZXJzLmNvbTESMBAGA1UECgwJ
 # TmV3IExvYWRzMRQwEgYDVQQDDAtNaWtlIEl2aXNvbjAeFw0yMjAyMjYwMjA4MjFa
@@ -730,11 +735,11 @@ Function GUI() {
 # bXB1dGVycy5jb20xEjAQBgNVBAoMCU5ldyBMb2FkczEUMBIGA1UEAwwLTWlrZSBJ
 # dmlzb24CEBtt3obIJSCsQ8lXhZc6ic8wCQYFKw4DAhoFAKB4MBgGCisGAQQBgjcC
 # AQwxCjAIoAKAAKECgAAwGQYJKoZIhvcNAQkDMQwGCisGAQQBgjcCAQQwHAYKKwYB
-# BAGCNwIBCzEOMAwGCisGAQQBgjcCARUwIwYJKoZIhvcNAQkEMRYEFLbHTG46q26V
-# qj4wQj1yiwGPFZa+MA0GCSqGSIb3DQEBAQUABIIBAIMRnesMXJ69l+mgrquNm4wa
-# 06QeeJgVA1frWCaDJKYhVylczWNx61bEY+qDVAvdYEsXeQDOEnfzTvXlRFTV74/F
-# snvusFOroWpNodt4WNlNi5cAj9MHLQsfjqqiobF6nUwgp8Ycn385V/eky3xKzUpB
-# WpLkIt2HQ9045GyqztMSXBneLKzna/Q4QYp7MPHXE0bHZdoBSeqWVt/lT6MNKj5f
-# sFAQ905hMFqA+OiuQEF+6qIlpuXDcbjFYrqpfEGrQGaMXSNak3JPGPt2XvC3DszQ
-# 8PCDOL68s/xDQ7AacPdIPD4krP3RsbK+MB/FRnyjJfBS3wbxZkb5dmyLM0gripk=
+# BAGCNwIBCzEOMAwGCisGAQQBgjcCARUwIwYJKoZIhvcNAQkEMRYEFCrQMceqfgE7
+# Tfhbb1Re8Q15vN8zMA0GCSqGSIb3DQEBAQUABIIBACUlOn9E2+ydqiOTXxGMHMGg
+# YulLDIbNSYbxJi9zzk/pFt2FOREvZC4m2xofhHz4quOV0hc6UB+wc7pwz5bUW9L+
+# Gkyn3h6hqxOI12Y05ImPY1yJZhMGNctaGq6tShv38Jc9R/3lT6+XDUfrbga8fur9
+# JnrUSnYnREUwqLgWhj5Hg3UT/tlooRcmxKs3UpZ9VheX6OqVXV+LAM4H40zz0i9/
+# zTeaFQIBtVDtBiQI6489ixxJIuDf5uE6LDDnb0QNkvUOflhXMBLpJLlzIYNqaKOD
+# GEaard5mFaCY5ATtaUAN5bBf07grGYY/EbZrnp4RbHcSzr2zjcYMYs9M9y985jo=
 # SIG # End signature block
