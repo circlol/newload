@@ -1077,11 +1077,6 @@ Function JC() {
         Request-PcRestart
 
     }elseif ($GUI -eq $True){
-        
-        Write-Status -Types "?" , "Activation" -Status "Checking Windows Activation Status.." -Warning
-        $ActiStat = (Get-CimInstance -ClassName SoftwareLicensingProduct -Filter "Name like 'Windows%'" | Where-Object PartialProductKey).LicenseStatus
-        If ($ActiStat -ne 1) { Write-CaptionFailed -Text "Windows is not activated. Feel free to Activate Windows while New Loads runs.."; Start-Sleep -Seconds 3 ; Start-Process slui -ArgumentList '3' }else { Write-CaptionSucceed -Text "Windows is Activated. Proceeding" }
-        
         CheckNetworkStatus ; GUI
     }
 ### END OF SCRIPT ###
@@ -1089,8 +1084,8 @@ Function JC() {
 # SIG # Begin signature block
 # MIIGiwYJKoZIhvcNAQcCoIIGfDCCBngCAQExCzAJBgUrDgMCGgUAMGkGCisGAQQB
 # gjcCAQSgWzBZMDQGCisGAQQBgjcCAR4wJgIDAQAABBAfzDtgWUsITrck0sYpfvNR
-# AgEAAgEAAgEAAgEAAgEAMCEwCQYFKw4DAhoFAAQURi2ZLNpV/jB4Nqg4Gyj7hJfs
-# vuugggPGMIIDwjCCAqqgAwIBAgIQG23ehsglIKxDyVeFlzqJzzANBgkqhkiG9w0B
+# AgEAAgEAAgEAAgEAAgEAMCEwCQYFKw4DAhoFAAQUKCw+FD71Gkoc11F/c0B0F7ZZ
+# M6OgggPGMIIDwjCCAqqgAwIBAgIQG23ehsglIKxDyVeFlzqJzzANBgkqhkiG9w0B
 # AQsFADB5MScwJQYJKoZIhvcNAQkBFhhtaWtlQG1vdGhlcmNvbXB1dGVycy5jb20x
 # JDAiBgNVBAsMG2h0dHBzOi8vbW90aGVyY29tcHV0ZXJzLmNvbTESMBAGA1UECgwJ
 # TmV3IExvYWRzMRQwEgYDVQQDDAtNaWtlIEl2aXNvbjAeFw0yMjAyMjYwMjA4MjFa
@@ -1115,11 +1110,11 @@ Function JC() {
 # bXB1dGVycy5jb20xEjAQBgNVBAoMCU5ldyBMb2FkczEUMBIGA1UEAwwLTWlrZSBJ
 # dmlzb24CEBtt3obIJSCsQ8lXhZc6ic8wCQYFKw4DAhoFAKB4MBgGCisGAQQBgjcC
 # AQwxCjAIoAKAAKECgAAwGQYJKoZIhvcNAQkDMQwGCisGAQQBgjcCAQQwHAYKKwYB
-# BAGCNwIBCzEOMAwGCisGAQQBgjcCARUwIwYJKoZIhvcNAQkEMRYEFExd6V/cmyX/
-# xjhvH4n6VPFB5XSQMA0GCSqGSIb3DQEBAQUABIIBACTFT/urRQRmnUg7AutTfoQy
-# rPFg58IiRFeqNPWg5JjS387t7lOljViOx/zf4M0imrrBuJA7F8u8YiQqvJnw4FyQ
-# qfSTiagk+HBXuQFrR/dzWSY6/52gm/zhADm1QwPniA17xzpw0g9jBi9d+R8q8/JD
-# Qr1hMefxGj2mbeB34MFtFa0g0XVZ1viuBDr+vPrlOw9j6gXNmkF2P5+7aKy9RixP
-# iRuZhOaqzPu2WCLqodMPYuKxroF4G4WplGXgZuG+W/AzWtQ3GD3qxDgSxRFOvW7v
-# wqfzhYq+1211/W+2boQx+hmY9A+Wz/HjWWRTfR7dkXMV+BGsXp5EyD3guJMRVNU=
+# BAGCNwIBCzEOMAwGCisGAQQBgjcCARUwIwYJKoZIhvcNAQkEMRYEFBAI78SCeZTD
+# dp4Ny0kvBj2j1vaoMA0GCSqGSIb3DQEBAQUABIIBABMdO//HEUKnFyd674sKNpMf
+# Y5KCOIJUNQ6KRp1wgu8I9Nvn9/p/5ZBQLjo9RloVfuGEfV+CIWyLE2bDH57YHFzo
+# qFMqHjXSOPOdLX6+ioftVIicX3vlj0Blb4WRYyqfcKZoQDn+GrsY1oU2SyP4mh3h
+# /k4HrBgjPt+KmBAosXCA2DELa06xgUnH8Be3IzZNSQG7Pn0wuv+rx1DPYpcEEHK9
+# rgyFeKOh1F6gnjOVs7QIKLXm0TQqwVLHoUZeJ7Fm/YAhJL8JzrOmznBKyvKYY1QU
+# TQuqgoDv6UADjJB2uyB6fBwi2Ndr3ToUO0YU63GdHR7YcftNrV6+rrXzMekzlz0=
 # SIG # End signature block
