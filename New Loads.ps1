@@ -139,27 +139,12 @@ Function CheckFiles() {
         Write-Status -Types "-" -Status "Removing $ItemsFile"
         Remove-Item $ItemsFile
     }
-    #Write-Status -Types "?" -Status "Heads up - Type 'Y' and press 'ENTER' to continue!" -Warning
-    #Import-Module -DisableNameChecking .\lib\"download-web-file.psm1" -Force | Unblock-File
-    Import-Module -DisableNameChecking .\lib\"advregistry.psm1" -Force | Unblock-File
-    Import-Module -DisableNameChecking .\lib\"get-hardware-info.psm1"  -Force | Unblock-File
-    #Import-Module -DisableNameChecking .\lib\"manage-software.psm1" -Force | Unblock-File
-    Import-Module -DisableNameChecking .\lib\"new-shortcut.psm1" -Force | Unblock-File
-    Import-Module -DisableNameChecking .\lib\"office.psm1" -Force | Unblock-File
-    Import-Module -DisableNameChecking .\lib\"open-file.psm1" -Force | Unblock-File
-    Import-Module -DisableNameChecking .\lib\"optimization.psm1" -Force | Unblock-File
-    Import-Module -DisableNameChecking .\lib\"remove-uwp-appx.psm1" -Force | Unblock-File
-    Import-Module -DisableNameChecking .\lib\"restart-explorer.psm1" -Force | Unblock-File
-    Import-Module -DisableNameChecking .\lib\"set-scheduled-task-state.psm1" -Force | Unblock-File
-    Import-Module -DisableNameChecking .\lib\"set-service-startup.psm1" -Force | Unblock-File
-    Import-Module -DisableNameChecking .\lib\"Set-Wallpaper.psm1" -Force | Unblock-File
-    Import-Module -DisableNameChecking .\lib\"set-windows-feature-state.psm1" -Force | Unblock-File
-    Import-Module -DisableNameChecking .\lib\"show-dialog-window.psm1" -Force | Unblock-File
-    Import-Module -DisableNameChecking .\lib\"start-logging.psm1" -Force | Unblock-File
-    Import-Module -DisableNameChecking .\lib\"Templates.psm1" -Force | Unblock-File
-    #Import-Module -DisableNameChecking .\lib\"download-web-file.psm1" -Force | Unblock-File
-    Import-Module -DisableNameChecking .\lib\"Variables.psm1" -Force | Unblock-File
     
+    #Get-ChildItem -Path ".\lib" -Include "*.psm1" -Recurse
+    $Modules = (Get-ChildItem -Path ".\lib" -Include "*.psm1" -Recurse).Name
+    ForEach ($Module in $Modules){
+        Import-Module -DisableNameChecking .\lib\"$Module" -Force -Verbose
+    }
     <#
     Invoke-Expression ((New-Object System.Net.WebClient).DownloadString('https://raw.githubusercontent.com/circlol/newload/main/Assets/Individual%20Functions/ls/comparisons.ps1'))
     Write-Section -Text "Checking for Updated Script Files"
@@ -185,7 +170,7 @@ Function CheckFiles() {
     
 }
 Function Variables() {
-    New-Variable -Name "ProgramVersion" -Value "22830.223" -Option ReadOnly -Scope Global -Force
+    New-Variable -Name "ProgramVersion" -Value "220914" -Option ReadOnly -Scope Global -Force
     New-Variable -Name "newloads" -Value ".\" -Option ReadOnly -Scope Global -Force
     
     New-Variable -Name "Log" -Value ".\Log.txt" -Option ReadOnly -Scope Global -Force
