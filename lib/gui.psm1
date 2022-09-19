@@ -611,7 +611,8 @@ Function GUI() {
         If ($ActiStat -ne 1) { Write-CaptionFailed -Text "Windows is not activated. Feel free to Activate Windows while New Loads runs.."; Start-Sleep -Seconds 3 ; Start-Process slui -ArgumentList '3' }else { Write-CaptionSucceed -Text "Windows is Activated. Proceeding" }
         If ($Perform_apps.checked -eq $True){Programs} else {Write-Status -Types "WARNING" -Status "Application Installation has been DISABLED in the GUI"}
         Visuals
-        Branding 
+        Branding
+        StartMenu
         If ($Perform_debloat.checked -eq $True){Debloat} else {Write-Status -Types "WARNING" -Status "Debloat has been DISABLED in the GUI"}
         #OOS
         OfficeCheck
