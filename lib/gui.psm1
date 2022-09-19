@@ -29,6 +29,7 @@ Function GUI() {
     $RunNoOEM.location               = New-Object System.Drawing.Point(404,524)
     $RunNoOEM.imageLocation          = "https://raw.githubusercontent.com/circlol/newload/main/Assets/NoBranding.png"
     $RunNoOEM.SizeMode               = [System.Windows.Forms.PictureBoxSizeMode]::zoom
+
     $RunScript                       = New-Object system.Windows.Forms.PictureBox
     $RunScript.width                 = 118
     $RunScript.height                = 121
@@ -36,6 +37,7 @@ Function GUI() {
     $RunScript.location              = New-Object System.Drawing.Point(483,478)
     $RunScript.imageLocation         = "https://raw.githubusercontent.com/circlol/newload/main/Assets/Branding.png"
     $RunScript.SizeMode              = [System.Windows.Forms.PictureBoxSizeMode]::zoom
+
     $UndoScript                      = New-Object system.Windows.Forms.Button
     $UndoScript.text                 = "Undo Script Changes"
     $UndoScript.width                = 268
@@ -46,6 +48,7 @@ Function GUI() {
     $UndoScript.Font                 = New-Object System.Drawing.Font('Microsoft Sans Serif',10,[System.Drawing.FontStyle]([System.Drawing.FontStyle]::Bold))
     $UndoScript.ForeColor            = [System.Drawing.ColorTranslator]::FromHtml("#000000")
     $UndoScript.BackColor            = [System.Drawing.ColorTranslator]::FromHtml("#f8e71c")
+
     $ExitButton                      = New-Object system.Windows.Forms.Button
     $ExitButton.text                 = "Exit"
     $ExitButton.width                = 181
@@ -54,6 +57,7 @@ Function GUI() {
     $ExitButton.Font                 = New-Object System.Drawing.Font('Microsoft Sans Serif',10)
     $ExitButton.ForeColor            = [System.Drawing.ColorTranslator]::FromHtml("#f3e7e7")
     $ExitButton.BackColor            = [System.Drawing.ColorTranslator]::FromHtml("#3b3b3b")
+
     $nvidiashortcut                  = New-Object system.Windows.Forms.Button
     $nvidiashortcut.text             = "NVIDIA"
     $nvidiashortcut.width            = 125
@@ -62,6 +66,8 @@ Function GUI() {
     $nvidiashortcut.Font             = New-Object System.Drawing.Font('Microsoft PhagsPa',10,[System.Drawing.FontStyle]([System.Drawing.FontStyle]::Bold))
     $nvidiashortcut.ForeColor        = [System.Drawing.ColorTranslator]::FromHtml("#ffffff")
     $nvidiashortcut.BackColor        = [System.Drawing.ColorTranslator]::FromHtml("#7ed321")
+
+
     $amdshortcut                     = New-Object system.Windows.Forms.Button
     $amdshortcut.text                = "AMD"
     $amdshortcut.width               = 125
@@ -70,6 +76,7 @@ Function GUI() {
     $amdshortcut.Font                = New-Object System.Drawing.Font('Microsoft PhagsPa',10,[System.Drawing.FontStyle]([System.Drawing.FontStyle]::Bold))
     $amdshortcut.ForeColor           = [System.Drawing.ColorTranslator]::FromHtml("#ffffff")
     $amdshortcut.BackColor           = [System.Drawing.ColorTranslator]::FromHtml("#d0021b")
+
     $DriverWebsites                  = New-Object system.Windows.Forms.Label
     $DriverWebsites.text             = "Driver Websites"
     $DriverWebsites.AutoSize         = $true
@@ -78,6 +85,7 @@ Function GUI() {
     $DriverWebsites.location         = New-Object System.Drawing.Point(106,99)
     $DriverWebsites.Font             = New-Object System.Drawing.Font('Microsoft JhengHei UI',15,[System.Drawing.FontStyle]([System.Drawing.FontStyle]::Bold))
     $DriverWebsites.ForeColor        = [System.Drawing.ColorTranslator]::FromHtml("#ffffff")
+
     $asusshortcut                    = New-Object system.Windows.Forms.Button
     $asusshortcut.text               = "ASUS"
     $asusshortcut.width              = 71
@@ -86,6 +94,7 @@ Function GUI() {
     $asusshortcut.Font               = New-Object System.Drawing.Font('Microsoft PhagsPa',10,[System.Drawing.FontStyle]([System.Drawing.FontStyle]::Bold))
     $asusshortcut.ForeColor          = [System.Drawing.ColorTranslator]::FromHtml("#ffffff")
     $asusshortcut.BackColor          = [System.Drawing.ColorTranslator]::FromHtml("#6b6767")
+
     $msishortcut                     = New-Object system.Windows.Forms.Button
     $msishortcut.text                = "MSI"
     $msishortcut.width               = 74
@@ -94,6 +103,7 @@ Function GUI() {
     $msishortcut.Font                = New-Object System.Drawing.Font('Microsoft PhagsPa',10,[System.Drawing.FontStyle]([System.Drawing.FontStyle]::Bold))
     $msishortcut.ForeColor           = [System.Drawing.ColorTranslator]::FromHtml("#ffffff")
     $msishortcut.BackColor           = [System.Drawing.ColorTranslator]::FromHtml("#6b6767")
+
     $activationbutton                = New-Object system.Windows.Forms.Button
     $activationbutton.text           = "Enter Product Key"
     $activationbutton.width          = 268
@@ -102,6 +112,7 @@ Function GUI() {
     $activationbutton.Font           = New-Object System.Drawing.Font('Microsoft PhagsPa',11,[System.Drawing.FontStyle]([System.Drawing.FontStyle]::Bold))
     $activationbutton.ForeColor      = [System.Drawing.ColorTranslator]::FromHtml("#ffffff")
     $activationbutton.BackColor      = [System.Drawing.ColorTranslator]::FromHtml("#6b6767")
+
     $installedapps                   = New-Object system.Windows.Forms.Button
     $installedapps.text              = "Installed Apps"
     $installedapps.width             = 131.5
@@ -110,6 +121,7 @@ Function GUI() {
     $installedapps.Font              = New-Object System.Drawing.Font('Microsoft PhagsPa',11,[System.Drawing.FontStyle]([System.Drawing.FontStyle]::Bold))
     $installedapps.ForeColor         = [System.Drawing.ColorTranslator]::FromHtml("#ffffff")
     $installedapps.BackColor         = [System.Drawing.ColorTranslator]::FromHtml("#6b6767")
+
     $updatesbutton                   = New-Object system.Windows.Forms.Button
     $updatesbutton.text              = "Windows Updates"
     $updatesbutton.width             = 268
@@ -118,6 +130,7 @@ Function GUI() {
     $updatesbutton.Font              = New-Object System.Drawing.Font('Microsoft PhagsPa',11,[System.Drawing.FontStyle]([System.Drawing.FontStyle]::Bold))
     $updatesbutton.ForeColor         = [System.Drawing.ColorTranslator]::FromHtml("#ffffff")
     $updatesbutton.BackColor         = [System.Drawing.ColorTranslator]::FromHtml("#6b6767")
+
     $ThemeButton                     = New-Object system.Windows.Forms.Button
     $ThemeButton.text                = "Win 7 Themes Page"
     $ThemeButton.width               = 268
@@ -126,6 +139,7 @@ Function GUI() {
     $ThemeButton.Font                = New-Object System.Drawing.Font('Microsoft PhagsPa',11,[System.Drawing.FontStyle]([System.Drawing.FontStyle]::Bold))
     $ThemeButton.ForeColor           = [System.Drawing.ColorTranslator]::FromHtml("#ffffff")
     $ThemeButton.BackColor           = [System.Drawing.ColorTranslator]::FromHtml("#6b6767")
+
     $branding                        = New-Object system.Windows.Forms.Button
     $branding.text                   = "Mother Computers Branding"
     $branding.width                  = 268
@@ -134,6 +148,7 @@ Function GUI() {
     $branding.Font                   = New-Object System.Drawing.Font('Microsoft PhagsPa',10,[System.Drawing.FontStyle]([System.Drawing.FontStyle]::Bold))
     $branding.ForeColor              = [System.Drawing.ColorTranslator]::FromHtml("#ffffff")
     $branding.BackColor              = [System.Drawing.ColorTranslator]::FromHtml("#6b6767")
+
     $intelshortcut                   = New-Object system.Windows.Forms.Button
     $intelshortcut.text              = "Intel"
     $intelshortcut.width             = 102
@@ -142,6 +157,7 @@ Function GUI() {
     $intelshortcut.Font              = New-Object System.Drawing.Font('Microsoft PhagsPa',10,[System.Drawing.FontStyle]([System.Drawing.FontStyle]::Bold))
     $intelshortcut.ForeColor         = [System.Drawing.ColorTranslator]::FromHtml("#ffffff")
     $intelshortcut.BackColor         = [System.Drawing.ColorTranslator]::FromHtml("#4a90e2")
+
     $LightMode                       = New-Object system.Windows.Forms.Button
     $LightMode.text                  = "Light Mode"
     $LightMode.width                 = 131
@@ -150,6 +166,7 @@ Function GUI() {
     $LightMode.Font                  = New-Object System.Drawing.Font('Microsoft PhagsPa',10,[System.Drawing.FontStyle]([System.Drawing.FontStyle]::Bold))
     $LightMode.ForeColor             = [System.Drawing.ColorTranslator]::FromHtml("#ffffff")
     $LightMode.BackColor             = [System.Drawing.ColorTranslator]::FromHtml("#6b6767")
+
     $DarkMode                        = New-Object system.Windows.Forms.Button
     $DarkMode.text                   = "Dark Mode"
     $DarkMode.width                  = 131.5
@@ -158,6 +175,7 @@ Function GUI() {
     $DarkMode.Font                   = New-Object System.Drawing.Font('Microsoft PhagsPa',10,[System.Drawing.FontStyle]([System.Drawing.FontStyle]::Bold))
     $DarkMode.ForeColor              = [System.Drawing.ColorTranslator]::FromHtml("#ffffff")
     $DarkMode.BackColor              = [System.Drawing.ColorTranslator]::FromHtml("#6b6767")
+
     $Reboot                          = New-Object system.Windows.Forms.Button
     $Reboot.text                     = "REBOOT"
     $Reboot.width                    = 123
@@ -166,6 +184,7 @@ Function GUI() {
     $Reboot.Font                     = New-Object System.Drawing.Font('Microsoft PhagsPa',11,[System.Drawing.FontStyle]([System.Drawing.FontStyle]::Bold))
     $Reboot.ForeColor                = [System.Drawing.ColorTranslator]::FromHtml("#000000")
     $Reboot.BackColor                = [System.Drawing.ColorTranslator]::FromHtml("#ff0000")
+
     $DeviceManager                   = New-Object system.Windows.Forms.Button
     $DeviceManager.text              = "Device Manager"
     $DeviceManager.width             = 268
@@ -174,6 +193,7 @@ Function GUI() {
     $DeviceManager.Font              = New-Object System.Drawing.Font('Microsoft PhagsPa',11,[System.Drawing.FontStyle]([System.Drawing.FontStyle]::Bold))
     $DeviceManager.ForeColor         = [System.Drawing.ColorTranslator]::FromHtml("#ffffff")
     $DeviceManager.BackColor         = [System.Drawing.ColorTranslator]::FromHtml("#6b6767")
+
     $oldscpanel                      = New-Object system.Windows.Forms.Button
     $oldscpanel.text                 = "Win 7 Sound Panel"
     $oldscpanel.width                = 268
@@ -182,12 +202,14 @@ Function GUI() {
     $oldscpanel.Font                 = New-Object System.Drawing.Font('Microsoft PhagsPa',11,[System.Drawing.FontStyle]([System.Drawing.FontStyle]::Bold))
     $oldscpanel.ForeColor            = [System.Drawing.ColorTranslator]::FromHtml("#ffffff")
     $oldscpanel.BackColor            = [System.Drawing.ColorTranslator]::FromHtml("#6b6767")
+
     $Drivericon                      = New-Object system.Windows.Forms.PictureBox
     $Drivericon.width                = 60
     $Drivericon.height               = 30
     $Drivericon.location             = New-Object System.Drawing.Point(52,95)
     $Drivericon.imageLocation        = "https://github.com/circlol/newload/raw/main/Assets/diskette.png"
     $Drivericon.SizeMode             = [System.Windows.Forms.PictureBoxSizeMode]::zoom
+
     $quicklink                       = New-Object system.Windows.Forms.Label
     $quicklink.text                  = "Quick Links"
     $quicklink.AutoSize              = $true
@@ -196,12 +218,14 @@ Function GUI() {
     $quicklink.location              = New-Object System.Drawing.Point(433,28)
     $quicklink.Font                  = New-Object System.Drawing.Font('Microsoft JhengHei UI',15,[System.Drawing.FontStyle]([System.Drawing.FontStyle]::Bold))
     $quicklink.ForeColor             = [System.Drawing.ColorTranslator]::FromHtml("#ffffff")
+
     $microsoftlogo                   = New-Object system.Windows.Forms.PictureBox
     $microsoftlogo.width             = 41
     $microsoftlogo.height            = 35
     $microsoftlogo.location          = New-Object System.Drawing.Point(388,18)
     $microsoftlogo.imageLocation     = "https://github.com/circlol/newload/raw/main/Assets/microsoft.png"
     $microsoftlogo.SizeMode          = [System.Windows.Forms.PictureBoxSizeMode]::zoom
+
     $install_apps                    = New-Object system.Windows.Forms.Button
     $install_apps.text               = "Install Apps (Chrome,VLC, Ado..)"
     $install_apps.width              = 268
@@ -210,6 +234,7 @@ Function GUI() {
     $install_apps.Font               = New-Object System.Drawing.Font('Microsoft PhagsPa',10,[System.Drawing.FontStyle]([System.Drawing.FontStyle]::Bold))
     $install_apps.ForeColor          = [System.Drawing.ColorTranslator]::FromHtml("#ffffff")
     $install_apps.BackColor          = [System.Drawing.ColorTranslator]::FromHtml("#6b6767")
+
     $debloat_button                  = New-Object system.Windows.Forms.Button
     $debloat_button.text             = "Run Debloater"
     $debloat_button.width            = 268
@@ -218,6 +243,7 @@ Function GUI() {
     $debloat_button.Font             = New-Object System.Drawing.Font('Microsoft PhagsPa',10,[System.Drawing.FontStyle]([System.Drawing.FontStyle]::Bold))
     $debloat_button.ForeColor        = [System.Drawing.ColorTranslator]::FromHtml("#ffffff")
     $debloat_button.BackColor        = [System.Drawing.ColorTranslator]::FromHtml("#6b6767")
+
     $scriptfunctions_label           = New-Object system.Windows.Forms.Label
     $scriptfunctions_label.text      = "Script Functions"
     $scriptfunctions_label.AutoSize  = $true
@@ -226,14 +252,16 @@ Function GUI() {
     $scriptfunctions_label.location  = New-Object System.Drawing.Point(106,221)
     $scriptfunctions_label.Font      = New-Object System.Drawing.Font('Microsoft JhengHei UI',15,[System.Drawing.FontStyle]([System.Drawing.FontStyle]::Bold))
     $scriptfunctions_label.ForeColor = [System.Drawing.ColorTranslator]::FromHtml("#ffffff")
+
     $StartMenu                       = New-Object system.Windows.Forms.Button
-    $StartMenu.text                  = "Apply Taskbar & Start Menu Layout"
+    $StartMenu.text                  = "Apply Taskbar Layout"
     $StartMenu.width                 = 268
     $StartMenu.height                = 35
     $StartMenu.location              = New-Object System.Drawing.Point(31,410)
     $StartMenu.Font                  = New-Object System.Drawing.Font('Microsoft PhagsPa',10,[System.Drawing.FontStyle]([System.Drawing.FontStyle]::Bold))
     $StartMenu.ForeColor             = [System.Drawing.ColorTranslator]::FromHtml("#ffffff")
     $StartMenu.BackColor             = [System.Drawing.ColorTranslator]::FromHtml("#6b6767")
+
     $RegistryButton                  = New-Object system.Windows.Forms.Button
     $RegistryButton.text             = "Registry"
     $RegistryButton.width            = 268
@@ -242,12 +270,14 @@ Function GUI() {
     $RegistryButton.Font             = New-Object System.Drawing.Font('Microsoft PhagsPa',11,[System.Drawing.FontStyle]([System.Drawing.FontStyle]::Bold))
     $RegistryButton.ForeColor        = [System.Drawing.ColorTranslator]::FromHtml("#ffffff")
     $RegistryButton.BackColor        = [System.Drawing.ColorTranslator]::FromHtml("#6b6767")
+
     $functionlogo                    = New-Object system.Windows.Forms.PictureBox
     $functionlogo.width              = 30
     $functionlogo.height             = 30
     $functionlogo.location           = New-Object System.Drawing.Point(67,213)
     $functionlogo.imageLocation      = "https://github.com/circlol/newload/raw/main/Assets/toolbox.png"
     $functionlogo.SizeMode           = [System.Windows.Forms.PictureBoxSizeMode]::zoom
+
     $mssu                            = New-Object system.Windows.Forms.Button
     $mssu.text                       = "Run Store Updates"
     $mssu.width                      = 268
@@ -256,6 +286,7 @@ Function GUI() {
     $mssu.Font                       = New-Object System.Drawing.Font('Microsoft PhagsPa',11,[System.Drawing.FontStyle]([System.Drawing.FontStyle]::Bold))
     $mssu.ForeColor                  = [System.Drawing.ColorTranslator]::FromHtml("#ffffff")
     $mssu.BackColor                  = [System.Drawing.ColorTranslator]::FromHtml("#6b6767")
+
     $Customclean                     = New-Object system.Windows.Forms.Button
     $Customclean.text                = "Custom Debloat"
     $Customclean.width               = 268
@@ -264,6 +295,7 @@ Function GUI() {
     $Customclean.Font                = New-Object System.Drawing.Font('Microsoft PhagsPa',11,[System.Drawing.FontStyle]([System.Drawing.FontStyle]::Bold))
     $Customclean.ForeColor           = [System.Drawing.ColorTranslator]::FromHtml("#ffffff")
     $Customclean.BackColor           = [System.Drawing.ColorTranslator]::FromHtml("#6b6767")
+
     $appwiz                          = New-Object system.Windows.Forms.Button
     $appwiz.text                     = "Programs & Features"
     $appwiz.width                    = 131
@@ -272,6 +304,7 @@ Function GUI() {
     $appwiz.Font                     = New-Object System.Drawing.Font('Microsoft PhagsPa',9,[System.Drawing.FontStyle]([System.Drawing.FontStyle]::Bold))
     $appwiz.ForeColor                = [System.Drawing.ColorTranslator]::FromHtml("#ffffff")
     $appwiz.BackColor                = [System.Drawing.ColorTranslator]::FromHtml("#6b6767")
+
     $perform_onedrive                = New-Object system.Windows.Forms.CheckBox
     $perform_onedrive.text           = "Remove OneDrive"
     $perform_onedrive.AutoSize       = $true
@@ -281,6 +314,7 @@ Function GUI() {
     $perform_onedrive.location       = New-Object System.Drawing.Point(89,559)
     $perform_onedrive.Font           = New-Object System.Drawing.Font('Microsoft Sans Serif',12,[System.Drawing.FontStyle]([System.Drawing.FontStyle]::Bold))
     $perform_onedrive.ForeColor      = [System.Drawing.ColorTranslator]::FromHtml("#ffffff")
+
     $ReinstallOneDrive               = New-Object system.Windows.Forms.Button
     $ReinstallOneDrive.text          = "Reinstall OneDrive"
     $ReinstallOneDrive.width         = 268
@@ -289,6 +323,7 @@ Function GUI() {
     $ReinstallOneDrive.Font          = New-Object System.Drawing.Font('Microsoft PhagsPa',11,[System.Drawing.FontStyle]([System.Drawing.FontStyle]::Bold))
     $ReinstallOneDrive.ForeColor     = [System.Drawing.ColorTranslator]::FromHtml("#ffffff")
     $ReinstallOneDrive.BackColor     = [System.Drawing.ColorTranslator]::FromHtml("#6b6767")
+
     $perform_debloat                 = New-Object system.Windows.Forms.CheckBox
     $perform_debloat.text            = "Debloat Computer"
     $perform_debloat.AutoSize        = $true
@@ -298,6 +333,7 @@ Function GUI() {
     $perform_debloat.location        = New-Object System.Drawing.Point(31,534)
     $perform_debloat.Font            = New-Object System.Drawing.Font('Microsoft Sans Serif',12,[System.Drawing.FontStyle]([System.Drawing.FontStyle]::Bold))
     $perform_debloat.ForeColor       = [System.Drawing.ColorTranslator]::FromHtml("#ffffff")
+
     $perform_apps                    = New-Object system.Windows.Forms.CheckBox
     $perform_apps.text               = "Install Apps"
     $perform_apps.AutoSize           = $true
@@ -307,6 +343,7 @@ Function GUI() {
     $perform_apps.location           = New-Object System.Drawing.Point(196,534)
     $perform_apps.Font               = New-Object System.Drawing.Font('Microsoft Sans Serif',12,[System.Drawing.FontStyle]([System.Drawing.FontStyle]::Bold))
     $perform_apps.ForeColor          = [System.Drawing.ColorTranslator]::FromHtml("#ffffff")
+
     $reinstalldefault                = New-Object system.Windows.Forms.Button
     $reinstalldefault.text           = "Reinstall Default Apps"
     $reinstalldefault.width          = 268
@@ -315,12 +352,14 @@ Function GUI() {
     $reinstalldefault.Font           = New-Object System.Drawing.Font('Microsoft PhagsPa',10,[System.Drawing.FontStyle]([System.Drawing.FontStyle]::Bold))
     $reinstalldefault.ForeColor      = [System.Drawing.ColorTranslator]::FromHtml("#ffffff")
     $reinstalldefault.BackColor      = [System.Drawing.ColorTranslator]::FromHtml("#6b6767")
+
     $restartexplorer                 = New-Object system.Windows.Forms.PictureBox
     $restartexplorer.width           = 32
     $restartexplorer.height          = 32
     $restartexplorer.location        = New-Object System.Drawing.Point(9,608)
     $restartexplorer.imageLocation   = "https://filestore.community.support.microsoft.com/api/images/097670f5-ede5-4260-86c9-1189c9e8aa2b"
     $restartexplorer.SizeMode        = [System.Windows.Forms.PictureBoxSizeMode]::zoom
+
     $Mobo_TextBox                    = New-Object system.Windows.Forms.TextBox
     $Mobo_TextBox.text               = (Get-WmiObject win32_baseboard).Product
     $Mobo_TextBox.multiline          = $false
@@ -331,6 +370,7 @@ Function GUI() {
     $Mobo_TextBox.Font               = New-Object System.Drawing.Font('Microsoft PhagsPa',10,[System.Drawing.FontStyle]([System.Drawing.FontStyle]::Bold))
     $Mobo_TextBox.ForeColor          = [System.Drawing.ColorTranslator]::FromHtml("#ffffff")
     $Mobo_TextBox.BackColor          = [System.Drawing.ColorTranslator]::FromHtml("#6b6767")
+
     $mobo_label                      = New-Object system.Windows.Forms.Label
     $mobo_label.text                 = "Motherboard"
     $mobo_label.AutoSize             = $true
@@ -339,6 +379,7 @@ Function GUI() {
     $mobo_label.location             = New-Object System.Drawing.Point(36,5)
     $mobo_label.Font                 = New-Object System.Drawing.Font('Microsoft JhengHei UI',10,[System.Drawing.FontStyle]([System.Drawing.FontStyle]::Bold))
     $mobo_label.ForeColor            = [System.Drawing.ColorTranslator]::FromHtml("#ffffff")
+
     $gpu_textbox                     = New-Object system.Windows.Forms.TextBox
     $GPU_TextBox.text                = (Get-WmiObject win32_videocontroller).Name
     $GPU_TextBox.multiline           = $false
@@ -349,6 +390,7 @@ Function GUI() {
     $gpu_textbox.Font                = New-Object System.Drawing.Font('Microsoft PhagsPa',10,[System.Drawing.FontStyle]([System.Drawing.FontStyle]::Bold))
     $gpu_textbox.ForeColor           = [System.Drawing.ColorTranslator]::FromHtml("#ffffff")
     $gpu_textbox.BackColor           = [System.Drawing.ColorTranslator]::FromHtml("#6b6767")
+
     $GPU_Label                       = New-Object system.Windows.Forms.Label
     $GPU_Label.text                  = "Graphics Card"
     $GPU_Label.AutoSize              = $true
@@ -357,6 +399,7 @@ Function GUI() {
     $GPU_Label.location              = New-Object System.Drawing.Point(36,48)
     $GPU_Label.Font                  = New-Object System.Drawing.Font('Microsoft JhengHei UI',10,[System.Drawing.FontStyle]([System.Drawing.FontStyle]::Bold))
     $GPU_Label.ForeColor             = [System.Drawing.ColorTranslator]::FromHtml("#ffffff")
+
     $SetWallpaper                    = New-Object system.Windows.Forms.PictureBox
     $SetWallpaper.width              = 27
     $SetWallpaper.height             = 27
@@ -366,6 +409,7 @@ Function GUI() {
     $SetWallpaperToolTip             = New-Object system.Windows.Forms.ToolTip
     $SetWallpaperToolTip.ToolTipTitle = "Set Wallpaper"
     $SetWallpaperToolTip.isBalloon   = $true
+
     $ExplorerTooltip                 = New-Object system.Windows.Forms.ToolTip
     $ExplorerTooltip.ToolTipTitle    = "Restarts Explorer"
     $ExplorerTooltip.isBalloon       = $true
@@ -382,16 +426,24 @@ Function GUI() {
     StartMenu
     Write-Host 
     }
+
     $customclean.add_click{
+        Write-Status -Types "+" -Status "Launching Custom Debloat Window"
+        Write-Caption -Text "Select packages to REMOVE."
+        Write-Caption -Text "Use CTRL or SHIFT to select multiple packages."  
+        Write-Caption -Text "Press OK to mark SELECTED PACKAGES for REMOVAL"  
+
         [reflection.assembly]::loadwithpartialname("System.Windows.Forms") | Out-Null 
-        [System.Windows.Forms.MessageBox]::Show('                User Specified Debloating Utility
-    
-                        Selected apps will be removed
-                        
-                    Select multiple apps using <CTRL>','New Loads')
+        [System.Windows.Forms.MessageBox]::Show("                            Custom Debloat Utility          `
+                                                        `
+                                    How to Use:             `
+                     Selected apps will be removed      `
+                                                        `
+                   Select multiple apps using <CTRL>    ",'New Loads','YesNoCancel')
         Get-AppxPackage -AllUsers | Out-GridView -PassThru | Remove-AppxPackage -Verbose -ErrorAction SilentlyContinue
         JC
     }
+
     $mssu.add_click{
         Write-Status -Types "+" -Status "Triggering a Microsoft Store Application Update Check"
         $namespaceName = "root\cimv2\mdm\dmmap"
@@ -402,86 +454,103 @@ Function GUI() {
         JC
         
     }
+
     $themebutton.Add_Click{
         Write-Status -Types "+" -Status "Opening Windows 7 Themes Page"
         Start-Process Explorer.exe "shell:::{ED834ED6-4B5A-4bfe-8F11-A626DCB6A921}"
         JC
     
     }
+
     $appwiz.Add_Click{
         Write-Status -Types "+" -Status "Opening Programs and Features"
         Start-Process appwiz.cpl
         JC
         
     }
+
     $installedapps.Add_click{
         Write-Status -Types "+" -Status "Opening Installed Apps"
         Start-Process ms-settings:appsfeatures	
         JC
     }
+
     $updatesbutton.Add_Click{
         Write-Status -Types "+" -Status "Opening Windows Updates"
         Start-Process ms-settings:windowsupdate
         JC
     }
+
     $oldscpanel.add_click{
         Write-Status -Types "+" -Status "Opening Windows 7 Sound Panel"
         Start-Process mmsys.cpl
         JC
     }
+
     $activationbutton.Add_Click{
         Write-Status -Types "+" -Status "Opening Activation"
         Start-Process slui -ArgumentList '3'
         JC
     }
+
     $msishortcut.Add_Click{
         Write-Status -Types "+" -Status "Opening MSI's Website"
         Start-Process "https://www.msi.com/support/download"
         JC
     }
+
     $asusshortcut.Add_Click{
         Write-Status -Types "+" -Status "Opening ASUS Websites"
         Start-Process "https://www.asus.com/ca-en/support/download-center/"
         JC
     }
+
     $nvidiashortcut.Add_Click{
         Write-Status -Types "+" -Status "Opening NVIDIA's Website"
         Start-Process "https://www.nvidia.com/Download/index.aspx?lang=en-us"
         JC
     }
+
     $amdshortcut.Add_Click{
         Write-Status -Types "+" -Status "Opening AMD's Website"
         Start-Process "https://www.amd.com/en/support"
         JC
     }
+
     $intelshortcut.Add_Click{
         Write-Status -Types "+" -Status "Opening Intel's Website"
         Start-Process "https://www.intel.com/content/www/us/en/download-center/home.html"
     }
+
     $DeviceManager.Add_Click{
         Write-Status -Types "+" -Status "Opening Device Manager"
         Start-Process devmgmt.msc
         JC
     }
+
     $branding.Add_click{
         Write-Status -Types "+" -Status "Applying Branding for Mother Computers"
         OEMInfo
         Visuals
         JC
     }
+
     $ReinstallOneDrive.Add_Click{
         #UndoOneDrive
         Write-Status -Types ":(" -Status "This Section has been Disabled Temporarily"
         JC
     }
+
     $debloat_button.add_click{
         Debloat
         JC
     }
+
     $Install_apps.add_click{
         Programs
         JC
     }
+
     $RegistryButton.add_click{
         AdvRegistry
         Optimize-Performance
@@ -492,24 +561,26 @@ Function GUI() {
         JC
     
     }
+
     $reinstalldefault.add_click{
         Write-Status -Types "+", "Bloat" -Status "Reinstalling Default Appxmanifest.xml Packages..."
         Get-AppxPackage -allusers | ForEach-Object {Add-AppxPackage -register "$($_.InstallLocation)\appxmanifest.xml" -DisableDevelopmentMode -Verbose -ErrorAction SilentlyContinue} | Out-Host
         JC
     }
+
     $restartExplorer.Add_Click{
         RestartExplorer
     }
+
     $Reboot.add_click{
         [reflection.assembly]::loadwithpartialname("System.Windows.Forms") | Out-NULL
         $msgBoxInput = [System.Windows.Forms.MessageBox]::Show('Do you want to reboot the computer?','New Loads','YesNo','Question')
-        
         switch ($msgBoxInput) {
         'Yes'{        shutdown -r -t 0        }
         'No' {                                }
         }
-    
     }
+
     $LightMode.Add_Click{
     
         Write-Status "+","Visual" -Status "Applying Light Mode for System"
@@ -518,6 +589,7 @@ Function GUI() {
         Set-ItemProperty -Path "$PathToRegPersonalize" -Name "AppsUseLightTheme" -Value 1
         JC
     }    
+
     $DarkMode.Add_Click{
         Write-Status "+","Visual" -Status "Applying Dark Mode for System"
         Set-ItemProperty -Path "$PathToRegPersonalize" -Name "SystemUsesLightTheme" -Value 0
@@ -525,12 +597,15 @@ Function GUI() {
         Set-ItemProperty -Path "$PathToRegPersonalize" -Name "AppsUseLightTheme" -Value 0
         JC
     }
+
     $SetWallpaper.Add_Click{
         Visuals
         JC
     }
+
     $RunScript.Add_click{
-        Start-Transcript -Path $Log ; $StartTime = $(get-date)
+        Start-Transcript -Path $Log
+        $Global:StartTime = Get-Date -DisplayHint Time
         Write-Status -Types "?" , "Activation" -Status "Checking Windows Activation Status.." -Warning
         $ActiStat = (Get-CimInstance -ClassName SoftwareLicensingProduct -Filter "Name like 'Windows%'" | Where-Object PartialProductKey).LicenseStatus
         If ($ActiStat -ne 1) { Write-CaptionFailed -Text "Windows is not activated. Feel free to Activate Windows while New Loads runs.."; Start-Sleep -Seconds 3 ; Start-Process slui -ArgumentList '3' }else { Write-CaptionSucceed -Text "Windows is Activated. Proceeding" }
@@ -547,14 +622,6 @@ Function GUI() {
         Optimize-Security
         Optimize-ServicesRunning
         Optimize-TaskScheduler
-        <#
-        AdvRegistry
-        #Optimize-Performance
-        #Optimize-Privacy
-        #Optimize-Security
-        #Optimize-ServicesRunning
-        #Optimize-TaskScheduler
-        #>
         BitlockerDecryption
         New-RestorePoint
         Backup-HostsFile
@@ -564,11 +631,13 @@ Function GUI() {
         Request-PcRestart
         JC
     }
+
     $RunNoOEM.Add_Click{
+            Start-Transcript -Path $Log
+            $Global:StartTime = Get-Date -DisplayHint Time
             Write-Status -Types "?" , "Activation" -Status "Checking Windows Activation Status.." -Warning
             $ActiStat = (Get-CimInstance -ClassName SoftwareLicensingProduct -Filter "Name like 'Windows%'" | Where-Object PartialProductKey).LicenseStatus
             If ($ActiStat -ne 1) { Write-CaptionFailed -Text "Windows is not activated. Feel free to Activate Windows while New Loads runs.."; Start-Sleep -Seconds 3 ; Start-Process slui -ArgumentList '3' }else { Write-CaptionSucceed -Text "Windows is Activated. Proceeding" }
-            Start-Transcript -Path $Log ; $StartTime = $(get-date)
             ScriptInfo
             CheckFiles
             If ($Perform_apps.checked -eq $True){Programs} else {Write-Status -Types "WARNING" -Status "Application Installation has been DISABLED in the GUI"}
@@ -591,6 +660,7 @@ Function GUI() {
             Request-PcRestart
             JC
     }
+
     $UndoScript.Add_Click{
             Start-Transcript -LiteralPath "$log"
             Write-Title -Text "Undoing Most Changes made by New Loads"
@@ -654,17 +724,20 @@ Function GUI() {
             Request-PcRestart
             JC
     }
+
     $ExitButton.Add_Click{
         $Form.Close()
     }
     
+
     Write-Status -Types "+","GUI" -Status "Ready for Selection. "
 
     [void]$Form.ShowDialog()
     $stream.Dispose()
     $Form.Dispose()
-    }
+}
     
+
     Function JC() {
         Write-Host ""
         Write-Status "+" -Status "Ready for Next Selection"

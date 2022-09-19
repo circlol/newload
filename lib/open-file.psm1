@@ -67,6 +67,9 @@ Open-PowerShellFilesCollection -RelativeLocation "src\scripts" -Scripts @("scrip
 Open-RegFilesCollection -RelativeLocation "src\scripts" -Scripts "script.reg" -NoDialog
 Open-RegFilesCollection -RelativeLocation "src\scripts" -Scripts @("script1.reg", "script2.reg") -DoneTitle "Title" -DoneMessage "Message"
 #>
+
+####
+
 # SIG # Begin signature block
 # MIIGiwYJKoZIhvcNAQcCoIIGfDCCBngCAQExCzAJBgUrDgMCGgUAMGkGCisGAQQB
 # gjcCAQSgWzBZMDQGCisGAQQBgjcCAR4wJgIDAQAABBAfzDtgWUsITrck0sYpfvNR
