@@ -311,8 +311,19 @@ Write-Caption -Text "Notifications"
 Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\CapabilityAccessManager\ConsentStore\userNotificationListener" -Name "Value" -Value "Deny"
 
 Write-Caption -Text "App Diagnostics"
-Set-ItemProperty -Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\CapabilityAccessManager\ConsentStore\appDiagnostics" -Name "Value" -Value "Deny"
-Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\CapabilityAccessManager\ConsentStore\appDiagnostics" -Name "Value" -Value "Deny"
+Try {
+
+    If (!(Test-Path 'HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\CapabilityAccessManager\ConsentStore')){
+        New-Item -Path 'HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\CapabilityAccessManager' -Name 'ConsentStore'}
+    If (!(Test-Path 'HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\CapabilityAccessManager\ConsentStore\appDiagnostics')){
+        New-item -Path 'HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\CapabilityAccessManager\ConsentStore' -Name appDiagnostics -Force}
+    Set-ItemProperty -Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\CapabilityAccessManager\ConsentStore\appDiagnostics" -Name "Value" -Value "Deny" -Type String
+    
+    If (!(Test-Path 'HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\CapabilityAccessManager\ConsentStore\appDiagnostics')){
+        New-item -Path 'HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\CapabilityAccessManager\ConsentStore' -Name appDiagnostics -Force}
+    Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\CapabilityAccessManager\ConsentStore\appDiagnostics" -Name "Value" -Value "Deny" -Type String
+}Catch{}
+
 
 Write-Caption -Text "Account Info Access"
 Set-ItemProperty -Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\CapabilityAccessManager\ConsentStore\userAccountInformation" -Name "Value" -Value "Deny"
@@ -322,7 +333,7 @@ If (Test-Path $PathToVoiceActivation){
     Write-Caption -Text "Voice Activation"
     Write-Status -Types $EnableStatus[0].Symbol, $TweakType -Status "$($EnableStatus[0].Status) Voice Activation"
     Set-ItemProperty -Path $PathToVoiceActivation -Name "AgentActivationEnabled" -Value $Zero -Type DWord -Force
-}
+} 
 
 Write-Caption -Text "Background Apps"
 Write-Status -Types $EnableStatus[0].Symbol, $TweakType -Status "$($EnableStatus[0].Status) Background Apps"
@@ -755,8 +766,8 @@ Set-ScheduledTaskState -Ready -ScheduledTask $EnableScheduledTasks
 # SIG # Begin signature block
 # MIIGiwYJKoZIhvcNAQcCoIIGfDCCBngCAQExCzAJBgUrDgMCGgUAMGkGCisGAQQB
 # gjcCAQSgWzBZMDQGCisGAQQBgjcCAR4wJgIDAQAABBAfzDtgWUsITrck0sYpfvNR
-# AgEAAgEAAgEAAgEAAgEAMCEwCQYFKw4DAhoFAAQUdxpS/t2sWaquzmMc5xWeuetu
-# 30CgggPGMIIDwjCCAqqgAwIBAgIQG23ehsglIKxDyVeFlzqJzzANBgkqhkiG9w0B
+# AgEAAgEAAgEAAgEAAgEAMCEwCQYFKw4DAhoFAAQU2Xfh/3v+mfOi5NL3HQE8cp4I
+# gg2gggPGMIIDwjCCAqqgAwIBAgIQG23ehsglIKxDyVeFlzqJzzANBgkqhkiG9w0B
 # AQsFADB5MScwJQYJKoZIhvcNAQkBFhhtaWtlQG1vdGhlcmNvbXB1dGVycy5jb20x
 # JDAiBgNVBAsMG2h0dHBzOi8vbW90aGVyY29tcHV0ZXJzLmNvbTESMBAGA1UECgwJ
 # TmV3IExvYWRzMRQwEgYDVQQDDAtNaWtlIEl2aXNvbjAeFw0yMjAyMjYwMjA4MjFa
@@ -781,11 +792,11 @@ Set-ScheduledTaskState -Ready -ScheduledTask $EnableScheduledTasks
 # bXB1dGVycy5jb20xEjAQBgNVBAoMCU5ldyBMb2FkczEUMBIGA1UEAwwLTWlrZSBJ
 # dmlzb24CEBtt3obIJSCsQ8lXhZc6ic8wCQYFKw4DAhoFAKB4MBgGCisGAQQBgjcC
 # AQwxCjAIoAKAAKECgAAwGQYJKoZIhvcNAQkDMQwGCisGAQQBgjcCAQQwHAYKKwYB
-# BAGCNwIBCzEOMAwGCisGAQQBgjcCARUwIwYJKoZIhvcNAQkEMRYEFAHPVakN0xfQ
-# ArGAH6aDFZ3upnr6MA0GCSqGSIb3DQEBAQUABIIBAJZzENIqNpqHNVsjSMO3QC3Y
-# g43t29mYpzmD9iAM1hXFcyBWuGOaVpifg+FoiOYi4b7rSNkPNN96CunXcFx1W6Hf
-# nnAWvQlo53kf5dKnkfKTeuyO+2yz/bo/bVcpWCoXxHmaUjUMWSEK988B0E5FeyLG
-# puIU7TfktyBrtnqkVL4DGTnNGTxkDOUCOY6b6cWoUMNntCCPZ6tzy258jwGIPT6j
-# lIIMszOkJSoUTOskkeRWyaMyr2e+rRjt2BlMQnuXi38erGhpfRZd+PoEAzXqKg+K
-# 2h6+2sZU27eICGR7z9ELtmnx6SxoFQGJ/Q30G6JhYpsUTgVbdmDnKQ7phyJJK1g=
+# BAGCNwIBCzEOMAwGCisGAQQBgjcCARUwIwYJKoZIhvcNAQkEMRYEFGWVkYA1tIBT
+# noZkzEb61zat//I5MA0GCSqGSIb3DQEBAQUABIIBAKIay2EnA8Nx9RlqiTQHgc0b
+# LAgiiCOWaU2oejAr3TINPErzcH1LLQeCT+DGYqFkodicEg1f9G1F57PDCbFWxgVu
+# 1EdTabvepSJWyf3yof1mufnFUmOLFNvABm/+CacFpUkLPgm8VVg0Hz7Of488yn5m
+# obtH0KHDZww9m4ie1lePKPTXiyHaMGlGMpLMY20lWcPPt4OGvhVUu4jHr2hUlWvo
+# ltHCzCx1lykQBqRzn8QRf4xUVPXaa/TjHoWXk+rSDaSD6Q48jzP4xG3wvlDxfKA7
+# nOxcuA0OopXewXAf8HLdO9MiNjuMh7CTSxYQQ68GlukBI4qI2mVLe8SRQEyUx4s=
 # SIG # End signature block
