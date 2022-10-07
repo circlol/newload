@@ -22,7 +22,7 @@ Function Office_Removal_AskUser() {
             Start-BitsTransfer -Source:https://aka.ms/SaRA_CommandLineVersionFiles -Destination:"$SaRA" | Out-Host
             Expand-Archive -Path "$SaRA" -DestinationPath "$Sexp" -Force
             Check
-            Start-Process ".\SaRA\SaRAcmd.exe" -ArgumentList "-S OfficeScrubScenario -AcceptEula -OfficeVersion All" -NoNewWindow | Out-Host
+            Start-Process ".\SaRA\SaRAcmd.exe" -ArgumentList "-S OfficeScrubScenario -AcceptEula -OfficeVersion All" -NoNewWindow -Wait | Out-Host
         }
     
         'No' {
