@@ -1,4 +1,5 @@
-Function Programs() {
+Function Programs() { 
+    Try {
     $TweakType = "Apps"
     Write-Host "`n" ; Write-TitleCounter -Counter '2' -MaxLength $MaxLength -Text "Program Installation"
     Write-Title -Text "Downloading Applications"
@@ -93,8 +94,12 @@ Function Programs() {
     Write-Status -Types "+" -Status "Adding support to HEVC/H.265 video codec (MUST HAVE)..."
     Add-AppPackage -Path ".\assets\Microsoft.HEVCVideoExtension_2.0.51121.0_x64__8wekyb3d8bbwe.appx" -ErrorAction SilentlyContinue
     Check
+}Catch{ "Error: $($_.Exception)" | Out-File "$ErrorLog" -Append
+Write-Host "$($_.Exception)"
 }
-Function Visuals() {
+}
+Function Visuals() { 
+    Try {
     $TweakType = "Visual"
     Write-Host "`n" ; Write-TitleCounter -Counter '3' -MaxLength $MaxLength -Text "Visuals"
     If ($BuildNumber -Ge '22000') {
@@ -130,8 +135,12 @@ Function Visuals() {
         Write-Host " REMINDER " -BackgroundColor Red -ForegroundColor White -NoNewLine ; Write-Host ": Wallpaper might not Apply UNTIL System is Rebooted"
         $Status = ($?) ; If ($Status) { Write-Status -Types "+", "Visual" -Status "Wallpaper Set" } elseif (!$Status) { Write-Status -Types "?", "Visual" -Status "Error Applying Wallpaper" -Warning } else { Write-Host " idk wtf happened" }
     }
+}Catch{ "Error: $($_.Exception)" | Out-File "$ErrorLog" -Append
+Write-Host "$($_.Exception)"
 }
-Function Branding() {
+}
+Function Branding() { 
+    Try {
     Write-Host "`n" ; Write-TitleCounter -Counter '4' -MaxLength $MaxLength -Text "Mothers Branding"
     $TweakType = "Branding"
     If ((Get-ItemProperty -Path $PathToOEMInfo).Manufacturer -eq "$store") {
@@ -178,8 +187,12 @@ Function Branding() {
         Set-ItemProperty -Path $PathToOEMInfo -Name $page -Type String -Value "$Model"
         Check
     }
+}Catch{ "Error: $($_.Exception)" | Out-File "$ErrorLog" -Append
+Write-Host "$($_.Exception)"
 }
-Function StartMenu() {
+}
+Function StartMenu() { 
+    Try {
     Write-Host "`n" ; Write-TitleCounter -Counter '5' -MaxLength $MaxLength -Text "StartMenuLayout.xml Modification"
     Write-Title -Text "Applying Taskbar Layout"
     $StartLayout = @"
@@ -247,8 +260,12 @@ Function StartMenu() {
     
     #Restarts Explorer and removes layout file
     Remove-Item $layoutFile -Verbose
+}Catch{ "Error: $($_.Exception)" | Out-File "$ErrorLog" -Append
+Write-Host "$($_.Exception)"
 }
-Function Debloat() {
+}
+Function Debloat() { 
+    Try {
     $TweakType = "Debloat"
     Write-Host "`n" ; Write-TitleCounter -Counter '6' -MaxLength $MaxLength -Text "Debloat"
     
@@ -373,7 +390,7 @@ Function Debloat() {
         "*BubbleWitch3Saga*"                        # Bubble Witch 3 Saga
         #"*CaesarsSlotsFreeCasino*"
         "*CandyCrush*"                              # Candy Crush
-        "*Clipchamp*"                               # ClipChamp Video Editor
+        #"*Clipchamp*"                               # ClipChamp Video Editor
         #"*COOKINGFEVER*"
         "*CyberLinkMediaSuiteEssentials*"
         "*DisneyMagicKingdoms*"
@@ -477,49 +494,55 @@ Function Debloat() {
         # Apps which other apps depend on
         #"Microsoft.Advertising.Xaml"
         )
-        Remove-UWPAppx -AppxPackages $Programs
+
+            Remove-UWPAppx -AppxPackages $Programs
+        }Catch{ "Error: $($_.Exception)" | Out-File "$ErrorLog" -Append
+        Write-Host "$($_.Exception)"
+        }
 
 }
-Function OneDriveRemoval() {
-    Write-Host "`n" ; Write-TitleCounter -Counter '8' -MaxLength $MaxLength -Text "OneDrive Removal"
-    If (Test-Path $Location5 -ErrorAction SilentlyContinue) {
+Function OneDriveRemoval() { 
+    Try {
+        Write-Host "`n" ; Write-TitleCounter -Counter '8' -MaxLength $MaxLength -Text "OneDrive Removal"
+        Write-Status -Types "?" -Status "Disabled for now."
+        <#
         If (Test-Path $Location5 -ErrorAction SilentlyContinue) {
-            If (Get-Process -Name OneDrive -ErrorAction SilentlyContinue) {
-                Stop-Process -Name "OneDrive" -Verbose -ErrorAction SilentlyContinue
-                Write-Status -Types "-" -Status "Removing OneDrive."
+                If (Get-Process -Name OneDrive -ErrorAction SilentlyContinue) {
+                    Stop-Process -Name "OneDrive" -Verbose -ErrorAction SilentlyContinue
+                    Write-Status -Types "-" -Status "Removing OneDrive."
+                }
+                    Start-Process -FilePath $Location5 -ArgumentList /uninstall -Verbose
             }
-            Start-Process -FilePath $Location5 -ArgumentList /uninstall -Verbose
+        
+        #Start-Process -FilePath $Location5 -ArgumentList /uninstall -Verbose
+        If ($env:OneDrive){
+            If (Test-Path -Path $env:OneDrive -ErrorAction SilentlyContinue | Out-Null) { 
+                Remove-Item -Path $env:OneDrive -Force -Recurse -ErrorAction SilentlyContinue ; Check
+            }
+        }
+        If (Test-Path "$env:PROGRAMDATA\Microsoft OneDrive") { Remove-Item -Path "$env:PROGRAMDATA\Microsoft OneDrive" -Force -Recurse -ErrorAction SilentlyContinue ; Check}
+        If (Test-Path "$env:SYSTEMDRIVE\OneDriveTemp") { Remove-Item -Path "$env:SYSTEMDRIVE\OneDriveTemp" -Force -Recurse  -ErrorAction SilentlyContinue ; Check}
+        
+        Write-Output "Removing scheduled task"
+        Get-ScheduledTask -TaskPath '\' -TaskName 'OneDrive*' -ea SilentlyContinue | Unregister-ScheduledTask -Confirm:$false -Verbose -ErrorAction SilentlyContinue
+        
 
+        Write-Status -Types "-","$TweakType" -Status "Removing OneDrive Installation Hook for New Users"
+        # Thank you Matthew Israelsson
+        reg load "hku\Default" "C:\Users\Default\NTUSER.DAT"
+        If (Get-ItemProperty -Path REGISTRY::HKEY_USERS\Default\SOFTWARE\Microsoft\Windows\CurrentVersion\Run -Name "OneDriveSetup" -ErrorAction SilentlyContinue){
+            reg delete "HKEY_USERS\Default\SOFTWARE\Microsoft\Windows\CurrentVersion\Run" /v "OneDriveSetup" /f 2> $Null | Out-Null
         }
-        If (Get-Process -Name OneDrive -ErrorAction SilentlyContinue) {
-            Stop-Process -Name "OneDrive" -Verbose -ErrorAction SilentlyContinue
-            Write-Status -Types "-" -Status "Removing OneDrive."
-        }
-        Start-Process -FilePath $Location5 -ArgumentList /uninstall -Verbose
-    }
-    
-    Start-Process -FilePath $Location5 -ArgumentList /uninstall -Verbose
-    If ($env:OneDrive){
-        If (Test-Path -Path $env:OneDrive -ErrorAction SilentlyContinue | Out-Null) { 
-            Remove-Item -Path $env:OneDrive -Force -Recurse -ErrorAction SilentlyContinue ; Check
-        }
-    }
-    If (Test-Path "$env:PROGRAMDATA\Microsoft OneDrive") { Remove-Item -Path "$env:PROGRAMDATA\Microsoft OneDrive" -Force -Recurse -ErrorAction SilentlyContinue ; Check}
-    If (Test-Path "$env:SYSTEMDRIVE\OneDriveTemp") { Remove-Item -Path "$env:SYSTEMDRIVE\OneDriveTemp" -Force -Recurse  -ErrorAction SilentlyContinue ; Check}
-    
-    Write-Output "Removing scheduled task"
-    Get-ScheduledTask -TaskPath '\' -TaskName 'OneDrive*' -ea SilentlyContinue | Unregister-ScheduledTask -Confirm:$false -Verbose -ErrorAction SilentlyContinue
-    
+        reg unload "hku\Default" 
+        ##>
 
-    Write-Status -Types "-","$TweakType" -Status "Removing OneDrive Installation Hook for New Users"
-    # Thank you Matthew Israelsson
-    reg load "hku\Default" "C:\Users\Default\NTUSER.DAT"
-    If (Get-ItemProperty -Path REGISTRY::HKEY_USERS\Default\SOFTWARE\Microsoft\Windows\CurrentVersion\Run -Name "OneDriveSetup" -ErrorAction SilentlyContinue){
-        reg delete "HKEY_USERS\Default\SOFTWARE\Microsoft\Windows\CurrentVersion\Run" /v "OneDriveSetup" /f 2> $Null | Out-Null
+    }Catch{ "Error: $($_.Exception)" | Out-File "$ErrorLog" -Append
+    Write-Host "$($_.Exception)"
     }
-    reg unload "hku\Default" 
+    
 }
 Function BitlockerDecryption() { 
+    Try {
     Write-Host "`n" ; Write-TitleCounter -Counter '15' -MaxLength $MaxLength -Text "Bitlocker Decryption"
 
     If ((Get-BitLockerVolume -MountPoint "C:").ProtectionStatus -eq "On") {
@@ -529,8 +552,12 @@ Function BitlockerDecryption() {
     else {
         Write-Status -Types "?" -Status "Bitlocker is not enabled on this machine" -Warning
     }
+}Catch{ "Error: $($_.Exception)" | Out-File "$ErrorLog" -Append
+Write-Host "$($_.Exception)"
 }
-Function Cleanup() {
+}
+Function Cleanup() { 
+    Try {
     Write-Host "`n" ; Write-TitleCounter -Counter '17' -MaxLength $MaxLength -Text "Cleaning Up"
     $TweakType = 'Cleanup'
     Restart-Explorer
@@ -575,17 +602,24 @@ Function Cleanup() {
         Write-Status -Types "-" , $TweakType -Status "Removing C:\Temp"
         Remove-Item $ctemp -Force -Recurse -Confirm:$false -ErrorAction SilentlyContinue 2> $NULL | Out-Null
     }
-
-    
+}Catch{ "Error: $($_.Exception)" | Out-File "$ErrorLog" -Append
+Write-Host "$($_.Exception)"
 }
-Function New-RestorePoint() {
+}
+Function New-RestorePoint() { 
+    Try {
     $TweakType = "Backup"
     Write-Host "`n" ; Write-TitleCounter -Counter '16' -MaxLength $MaxLength -Text "Creating Restore Point"
     Write-Status -Types "+", $TweakType -Status "Enabling system drive Restore Point..."
     Enable-ComputerRestore -Drive "$env:SystemDrive\"
     Checkpoint-Computer -Description "Mother Computers Courtesy Restore Point" -RestorePointType "MODIFY_SETTINGS"
+
+}Catch{ "Error: $($_.Exception)" | Out-File "$ErrorLog" -Append
+Write-Host "$($_.Exception)"
 }
-Function Backup-HostsFile() {
+}
+Function Backup-HostsFile() { 
+    Try {
     $PathToHostsFile = "$env:SystemRoot\System32\drivers\etc"
 
     Write-Status -Types "+" -Status "Doing Backup on Hosts file..."
@@ -602,8 +636,12 @@ Function Backup-HostsFile() {
 
     Pop-Location
     Pop-Location
+}Catch{ "Error: $($_.Exception)" | Out-File "$ErrorLog" -Append
+        Write-Host "$($_.Exception)"
+        }
 }
-Function EmailLog() {
+Function EmailLog() { 
+    Try {
     $EndTime = Get-Date -DisplayHint Time
     $ElapsedTime = $EndTime - $StartTime
 
@@ -642,7 +680,11 @@ $elapsedTime = $(Get-Date -Format "HHmmss") - $StartTime
 $totalTime = "{0:HH:mm:ss}" -f ([datetime]$elapsedTime.Ticks)
 #>
 
-
+    $CheckIfErrorLogCreated = Test-path -Path ".\" -Include "ErrorLog.txt"
+    If ($CheckIfErrorLogCreated -eq $True){
+        $ErrorLog = .\"ErrorLog.txt"
+        $Log = $($Log,$ErrorLog)
+    }
 
     $Displayversion = (Get-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion" -Name "DisplayVersion").DisplayVersion
     $WindowsVersion = (Get-WmiObject -class Win32_OperatingSystem).Caption
@@ -670,14 +712,16 @@ $totalTime = "{0:HH:mm:ss}" -f ([datetime]$elapsedTime.Ticks)
     Visuals: [$visualsyn]
     Network Information of this PC: 
     $ipinfo"
-
+}Catch{ "Error: $($_.Exception)" | Out-File "$ErrorLog" -Append
+Write-Host "$($_.Exception)"
+}
 }
 Function JC() {
     Write-Host ""
     Write-Status "+" -Status "Ready for Next Selection"
 }
 
-    If (!($GUI)){
+    If (!$GUI){
 
         #$MaxLength = '17'
         #Variables
@@ -712,8 +756,11 @@ Function JC() {
         Write-Status -Types "WAITING" -Status "User action needed - You may have to ALT + TAB "
         Request-PcRestart
 
-    }elseif ($GUI -eq $True){
-        CheckNetworkStatus ; GUI
+    }else{
+
+        CheckNetworkStatus
+        GUI
+
 }
 
 ### END OF SCRIPT ###
