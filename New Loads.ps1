@@ -98,6 +98,7 @@ Function Programs() {
 Write-Host "$($_.Exception)"
 }
 }
+
 Function Visuals() { 
     Try {
     $TweakType = "Visual"
@@ -266,6 +267,7 @@ Write-Host "$($_.Exception)"
 }
 Function Debloat() { 
     Try {
+    Stop-Transcript
     $TweakType = "Debloat"
     Write-Host "`n" ; Write-TitleCounter -Counter '6' -MaxLength $MaxLength -Text "Debloat"
     
@@ -535,7 +537,7 @@ Function OneDriveRemoval() {
         }
         reg unload "hku\Default" 
         ##>
-
+        Start-Transcript -Path $Log -Append
     }Catch{ "Error: $($_.Exception)" | Out-File "$ErrorLog" -Append
     Write-Host "$($_.Exception)"
     }
