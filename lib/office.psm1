@@ -1,4 +1,4 @@
-$Global:OfficeLastUpdated = '20220829'
+$Global:OfficeLastUpdated = '20221014'
 Import-Module -DisableNameChecking $PSScriptRoot\..\lib\"templates.psm1"
 Function OfficeCheck() {
     Write-Host "`n" ; Write-TitleCounter -Counter '7' -MaxLength $MaxLength -Text "Office Removal"
@@ -22,7 +22,8 @@ Function Office_Removal_AskUser() {
             Start-BitsTransfer -Source:https://aka.ms/SaRA_CommandLineVersionFiles -Destination:"$SaRA" | Out-Host
             Expand-Archive -Path "$SaRA" -DestinationPath "$Sexp" -Force
             Check
-            Start-Process ".\SaRA\SaRAcmd.exe" -ArgumentList "-S OfficeScrubScenario -AcceptEula -OfficeVersion All" -NoNewWindow -Wait | Out-Host
+            Write-Status "+", $TweakType -Status "Starting SaRAcmd with -OfficeScrubScenario -OfficeVersion All"
+            Start-Process ".\SaRA\SaRAcmd.exe" -ArgumentList "-S OfficeScrubScenario -AcceptEula -OfficeVersion All" -NoNewWindow | Out-Host
         }
     
         'No' {

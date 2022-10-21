@@ -1,4 +1,3 @@
-$Global:RemoveUWPLastUpdated = '20220829'
 Import-Module -DisableNameChecking $PSScriptRoot\..\lib\"templates.psm1"
 function Remove-UWPAppx() {
     [CmdletBinding()]
@@ -12,6 +11,8 @@ function Remove-UWPAppx() {
             Write-Status -Types "-", $TweakType -Status "Trying to remove $AppxPackage from ALL users ..."
             Get-AppxPackage -AllUsers -Name $AppxPackage | Remove-AppxPackage # App
             Get-AppxProvisionedPackage -Online | Where-Object DisplayName -like $AppxPackage | Remove-AppxProvisionedPackage -Online -AllUsers # Payload
+            $Global:PackagesRemoved = $PackagesRemoved + "`n" + $AppxPackage
+            [Int]$Global:PackagesRemovedCount = $PackagesRemovedCount + 1
         } Else {
             Write-Status -Types "?", $TweakType -Status "$AppxPackage was already removed or not found ..." -Warning
         }
