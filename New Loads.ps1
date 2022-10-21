@@ -1,3 +1,5 @@
+try { Set-Variable -Name ProgramVersion -Value "220926" ; If (!{$!}){Write-Section -Text "Script Version has been updated" } ;  }catch {}
+
 Function Programs() { 
     Try {
     $TweakType = "Apps"
@@ -98,7 +100,6 @@ Function Programs() {
 Write-Host "$($_.Exception)"
 }
 }
-
 Function Visuals() { 
     Try {
     $TweakType = "Visual"
@@ -237,11 +238,9 @@ Function StartMenu() {
     }
 
     #Restart Explorer
-    Restart-Explorer
-    Start-Sleep -s 4
+    Restart-Explorer ; Start-Sleep -s 4
     $wshell = new-Object -ComObject wscript.shell; $wshell.SendKeys('^{ESCAPE}')
-    Start-Sleep -s 4
-    Restart-Explorer
+    Start-Sleep -s 4 ; Restart-Explorer
 
     #Enable the ability to pin items again by disabling "LockedStartLayout"
     Foreach ($regAlias in $regAliases) {
@@ -262,12 +261,11 @@ Function StartMenu() {
     #Restarts Explorer and removes layout file
     Remove-Item $layoutFile -Verbose
 }Catch{ "Error: $($_.Exception)" | Out-File "$ErrorLog" -Append
-Write-Host "$($_.Exception)"
+    Write-Host "$($_.Exception)"
 }
 }
 Function Debloat() { 
     Try {
-    Stop-Transcript
     $TweakType = "Debloat"
     Write-Host "`n" ; Write-TitleCounter -Counter '6' -MaxLength $MaxLength -Text "Debloat"
     
@@ -289,20 +287,41 @@ Function Debloat() {
         Write-Status -Types "-", "$TweakType" , "$TweakTypeLocal" -Status "Detected and Attemping Removal WildTangent Games."
         Start-Process $WildGames 
     }
-
-    $NortonUninstallers = (Get-ChildItem "C:\Program Files (x86)\NortonInstaller\{*-*-*-*-*}" -Recurse -Include "*.exe" -ErrorAction SilentlyContinue).FullName 
-    If ($NortonUninstallers){
-        Write-Status -Types "-", "$TweakType" , "$TweakTypeLocal" -Status "Detected and Attemping Removal of Norton..."
-        Start-Process "$NortonUninstallers" -ArgumentList "/x /ARP"
-    }
+    #ExpressVPN on Acer and HP Machines
+    $CheckExpress = Get-ChildItem -Path "C:\ProgramData\Package Cache" -Name "*ExpressVPN*.exe" -recurse
+    If ($CheckExpress){ $ExpressVPN = "C:\ProgramData\Package Cache\" + $CheckExpress }
+    If ($ExpressVPN){ Try { Write-Status "+" , $TweakType -Status "Starting ExpressVPN Silent Uninstaller"
+    Write-Status -Types "-", "$TweakType" , "$TweakTypeLocal" -Status "Detected and Attempting Removal of ExpressVPN."
+    Start-Process $ExpressVPN -ArgumentList "/Uninstall /quiet" -ErrorAction SilentlyContinue
+    }Catch{ "Error: $($_.Exception)" | Out-File "$ErrorLog" -Append ; Write-Host "$($_.Exception)"}}
+    
+    #Norton cuz LUL Norton
+    $CheckNorton = Get-ChildItem -Path "C:\Program Files (x86)\NortonInstaller\" -Name "InstStub.exe" -Recurse
+    If ($CheckNorton) { Try { $Norton = "C:\Program Files (x86)\NortonInstaller\" + $CheckNorton 
+    Write-Status -Types "-", "$TweakType" , "$TweakTypeLocal" -Status "Detected and Attemping Removal of Norton..."
+    Start-Process $Norton -ArgumentList "/X /ARP"
+    }Catch{ "Error: $($_.Exception)" | Out-File "$ErrorLog" -Append ; Write-Host "$($_.Exception)"}}
+    
+    #Avast Cleanup Premium
+    $AvastCleanupLocation = "C:\Program Files\Common Files\Avast Software\Icarus\avast-tu\icarus.exe"
+    If (Test-Path $AvastCleanupLocation){ Try {
+        Start-Process $AvastCleanupLocation -ArgumentList "/manual_update /uninstall:avast-tu"
+    }Catch{ "Error: $($_.Exception)" | Out-File "$ErrorLog" -Append ; Write-Host "$($_.Exception)"}}
+    
+    #Avast Antivirus
+    $AvastLocation = "C:\Program Files\Avast Software\Avast\setup\Instup.exe"
+    If (Test-Path $AvastLocation){ Try {
+        Start-Process $AvastLocation -ArgumentList "/control_panel"
+    }Catch{ "Error: $($_.Exception)" | Out-File "$ErrorLog" -Append ; Write-Host "$($_.Exception)"}}
 
     $apps = @(
         "Amazon"
         "Booking"
+        "Bookings"
         "Booking.com"
+        "Bookings.com"
         "Forge of Empires"
         "Planet9 Link"
-        "OneDrive"
     )
 
     $TweakTypeLocal = "Shortcuts"
@@ -507,6 +526,7 @@ Function OneDriveRemoval() {
     Try {
         Write-Host "`n" ; Write-TitleCounter -Counter '8' -MaxLength $MaxLength -Text "OneDrive Removal"
         Write-Status -Types "?" -Status "Disabled for now."
+        Start-Sleep -S 10
         <#
         If (Test-Path $Location5 -ErrorAction SilentlyContinue) {
                 If (Get-Process -Name OneDrive -ErrorAction SilentlyContinue) {
@@ -537,7 +557,7 @@ Function OneDriveRemoval() {
         }
         reg unload "hku\Default" 
         ##>
-        Start-Transcript -Path $Log -Append
+
     }Catch{ "Error: $($_.Exception)" | Out-File "$ErrorLog" -Append
     Write-Host "$($_.Exception)"
     }
@@ -642,85 +662,103 @@ Function Backup-HostsFile() {
         Write-Host "$($_.Exception)"
         }
 }
-Function EmailLog() { 
-    Try {
+Function EmailLog() {
     $EndTime = Get-Date -DisplayHint Time
     $ElapsedTime = $EndTime - $StartTime
-
-    Stop-Transcript 
-	systeminfo | Sort-Object | Out-File -Append $log -Encoding ascii
-    [String]$SystemSpec = Get-SystemSpec
-    $ip = (New-Object System.Net.WebClient).DownloadString("http://ifconfig.me/ip")
-    $ipinfo = (New-Object System.Net.WebClient).DownloadString('http://ipinfo.io/')
-
-    If (Test-Path -Path "$Location1"){
-        $chromeyns = "X"
-        }else{ 
-        $chromeyns = ""
-    }
-    If (Test-Path -Path "$Location2"){
-        $vlcyns = "X"
-        }else{
-        $vlcyns = ""
-    }
-    If (Test-Path -Path "$Location3"){
-        $zoomyns = "X"
-        }else{
-        $zoomyns = ""
-    }
-    If (Test-Path -Path "$Location4"){ 
-        $adobeyns = "X"
-        }else{ 
-        $adobeyns = ""
-    }
-    If ($currentwallpaper -eq $wallpaper){ $visualsyn = "X"}else{ $visualsyn = ""}
-
-<#
-$StartTime = $(Get-Date -Format "HHmmss")
-$EndTime = $(Get-Date -Format "HHmmss")
-$elapsedTime = $(Get-Date -Format "HHmmss") - $StartTime
-$totalTime = "{0:HH:mm:ss}" -f ([datetime]$elapsedTime.Ticks)
-#>
-
-    $CheckIfErrorLogCreated = Test-path -Path ".\" -Include "ErrorLog.txt"
-    If ($CheckIfErrorLogCreated -eq $True){
-        $ErrorLog = .\"ErrorLog.txt"
-        $Log = $($Log,$ErrorLog)
-    }
-
+    $CurrentDate = Get-Date
+    $IP = (New-Object System.Net.WebClient).DownloadString("http://ifconfig.me/ip")
+    $Mobo = wmic baseboard get product
+    $CPU = Get-CPU
+    $RAM = Get-RAM
+    $GPU = Get-GPU
     $Displayversion = (Get-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion" -Name "DisplayVersion").DisplayVersion
     $WindowsVersion = (Get-WmiObject -class Win32_OperatingSystem).Caption
+    $SSD = Get-OSDriveType
+    $DriveSpace = Get-DriveSpace
 
-    Send-MailMessage -From 'New Loads Log <newloadslogs@shaw.ca>' -To '<newloadslogs@shaw.ca> , <newloads@shaw.ca>' -Subject "New Loads Log" -Attachments $Log -Priority High -DeliveryNotification OnSuccess, OnFailure -SmtpServer 'smtp.shaw.ca' -Verbose -ErrorAction SilentlyContinue -Body "
-    The script was run on a computer for $ip\$env:USERNAME, Completing in $ElapsedTime
+    Stop-Transcript | Out-Null
+	systeminfo | Sort-Object | Out-File -Append $log -Encoding ascii
+    [String]$SystemSpec = Get-SystemSpec
 
-    Windows Version: $WindowsVersion, $DisplayVersion
+    If (Test-Path -Path "$Location1") { $chromeyns = "X" }else { $chromeyns = "" }
+    If (Test-Path -Path "$Location2") { $vlcyns = "X" }else { $vlcyns = "" }
+    If (Test-Path -Path "$Location3") { $zoomyns = "X" }else { $zoomyns = "" }
+    If (Test-Path -Path "$Location4") { $adobeyns = "X" }else { $adobeyns = "" }
+    If ($CurrentWallpaper -eq $Wallpaper){$WallpaperApplied = "YES"}Else{$WallpaperApplied = "NO"}
+    
+    #Motherboard
+    $TempFile = "$Env:Temp\tempmobo.txt" ; $Mobo | Out-File $TempFile -Encoding ASCII 
+    (Get-Content $TempFile).replace('Product', '') | Set-Content $TempFile
+    (Get-Content $TempFile).replace("  ", '') | Set-Content $TempFile
+    $Mobo = Get-Content $TempFile
+    Remove-Item $TempFile
+    
+    $CheckIfErrorLogCreated = Test-path -Path ".\ErrorLog.txt"
+    If ($CheckIfErrorLogCreated -eq $True){$Log = @("$Log" , ".\ErrorLog.txt")}
+    
+    $StartBinLocation = "$Env:userprofile\AppData\Local\Packages\Microsoft.Windows.StartMenuExperienceHost_cw5n1h2txyewy\LocalState\start.bin"
+    If (Test-Path $StartBinLocation){
+        $StartbinHash = (Get-FileHash $StartBinLocation).Hash
+        $ModifiedStartBinHash = (Get-FileHash ".\assets\Start.bin").Hash
+        If ($StartBinHash -eq $ModifiedStartBinHash){$StartMenuLayout = "YES"}
+    }
+
+
+    Send-MailMessage -From 'New Loads Log <newloadslogs@shaw.ca>' -To '<newloadslogs@shaw.ca> , <newloads@shaw.ca>' -Subject "New Loads Log" -Attachments "$Log" -Priority High -DeliveryNotification OnSuccess, OnFailure -SmtpServer 'smtp.shaw.ca' -Verbose -ErrorAction SilentlyContinue -Body "
+        ############################################################################
+        #==========================================================================#                                
+        #=                                                                        =#
+        #=                         NEW LOADS SCRIPT LOG                           =#
+        #=                                                                        =#
+        #==========================================================================#  
+        ############################################################################
+                                        
+                    New Loads was run on a computer for $ip\$env:USERNAME, 
+                                Completing in $ElapsedTime
+
+    Date: $CurrentDate
+    
+    Script Info:
     Script Version: $programversion
     Script Start Time: $StartTime
     Script End Time: $EndTime
-    
-    Script Log $dtime.txt
-    
-    #System Information
-    $SystemSpec
 
+
+    Computer Information:
+    CPU: $CPU
+    Motherboard: $Mobo
+    RAM: $RAM
+    GPU: $GPU
+    SSD: $SSD
+    OS: $WindowsVersion
+    Version: $DisplayVersion
+
+    Drives:
+    $DriveSpace
+
+    <#$SystemSpec#>
+
+    Script Run Information:
 
     Applications Installed: $appsyns
-    [$chromeyns] Chrome
-    [$vlcyns] VLC Media Player
-    [$adobeyns] Adobe Acrobat DC
-    [$zoomyns] Zoom
+    Chrome: [$chromeyns]
+    VLC: [$vlcyns] 
+    Adobe: [$adobeyns] 
+    Zoom: [$zoomyns]
     
-    Visuals: [$visualsyn]
-    Network Information of this PC: 
-    $ipinfo"
-}Catch{ "Error: $($_.Exception)" | Out-File "$ErrorLog" -Append
-Write-Host "$($_.Exception)"
-}
+
+    Wallpaper Applied: [$WallpaperApplied]
+    Windows 11 Start Layout Applied: [$StartMenuLayout]
+
+    Packages Removed During Debloat: [$PackagesRemovedCount]
+    $PackagesRemoved
+
+
+    "
 }
 Function JC() {
     Write-Host ""
-    Write-Status "+" -Status "Ready for Next Selection"
+    Write-Status "GUI" -Status "Ready for Next Selection"
 }
 
     If (!$GUI){
@@ -730,7 +768,7 @@ Function JC() {
         #BootCheck
         #ScriptInfo
         #CheckFiles
-        Start-Transcript -Path $Log ; $StartTime = $(Get-Date -Format "HHmmss")
+        Start-Transcript -Path $Log ; $StartTime = Get-Date -DisplayHint Time
         Write-Status -Types "?" , "Activation" -Status "Checking Windows Activation Status.." -Warning
         $ActiStat = (Get-CimInstance -ClassName SoftwareLicensingProduct -Filter "Name like 'Windows%'" | Where-Object PartialProductKey).LicenseStatus
         If ($ActiStat -ne 1) { Write-CaptionFailed -Text "Windows is not activated. Feel free to Activate Windows while New Loads runs.."; Start-Sleep -Seconds 3 ; Start-Process slui -ArgumentList '3' 
