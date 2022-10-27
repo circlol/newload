@@ -1,4 +1,4 @@
-try { Set-Variable -Name ProgramVersion -Value "220926" ; If (!{$!}){Write-Section -Text "Script Version has been updated" } ;  }catch {}
+try { Set-Variable -Name ScriptVersion -Value "2201027" ; If (!{$!}){Write-Section -Text "Script Version has been updated" } ;  }catch {}
 
 Function Programs() { 
     Try {
@@ -720,7 +720,8 @@ Function EmailLog() {
     Date: $CurrentDate
     
     Script Info:
-    Script Version: $programversion
+    Program Version: $programversion
+    Script Version: $ScriptVersion
     Script Start Time: $StartTime
     Script End Time: $EndTime
 
