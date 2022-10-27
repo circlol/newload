@@ -273,22 +273,22 @@ Function Debloat() {
     $TweakTypeLocal = "Win32"
 
     #McAfee Live Safe Removal
-    If (Test-Path -Path $livesafe -ErrorAction SilentlyContinue) {
+    If (Test-Path -Path $livesafe -ErrorAction SilentlyContinue | Out-Null) {
         Write-Status -Types "-", "$TweakType" , "$TweakTypeLocal" -Status "Detected and Attemping Removal of McAfee Live Safe..."
         Start-Process "$livesafe"
     }
     #WebAdvisor Removal
-    If (Test-Path -Path $webadvisor -ErrorAction SilentlyContinue) {
+    If (Test-Path -Path $webadvisor -ErrorAction SilentlyContinue | Out-Null) {
         Write-Status -Types "-", "$TweakType" , "$TweakTypeLocal" -Status "Detected and Attemping Removal of McAfee WebAdvisor Uninstall."
         Start-Process "$webadvisor"
     }
     #Preinsatlled on Acer machines primarily WildTangent Games
-    If (Test-Path -Path $WildGames -ErrorAction SilentlyContinue) {
+    If (Test-Path -Path $WildGames -ErrorAction SilentlyContinue | Out-Null) {
         Write-Status -Types "-", "$TweakType" , "$TweakTypeLocal" -Status "Detected and Attemping Removal WildTangent Games."
         Start-Process $WildGames 
     }
     #ExpressVPN on Acer and HP Machines
-    $CheckExpress = Get-ChildItem -Path "C:\ProgramData\Package Cache" -Name "*ExpressVPN*.exe" -recurse
+    $CheckExpress = Get-ChildItem -Path "C:\ProgramData\Package Cache" -Name "*ExpressVPN*.exe" -recurse -ErrorAction SilentlyContinue | Out-Null
     If ($CheckExpress){ $ExpressVPN = "C:\ProgramData\Package Cache\" + $CheckExpress }
     If ($ExpressVPN){ Try { Write-Status "+" , $TweakType -Status "Starting ExpressVPN Silent Uninstaller"
     Write-Status -Types "-", "$TweakType" , "$TweakTypeLocal" -Status "Detected and Attempting Removal of ExpressVPN."
@@ -296,7 +296,7 @@ Function Debloat() {
     }Catch{ "Error: $($_.Exception)" | Out-File "$ErrorLog" -Append ; Write-Host "$($_.Exception)"}}
     
     #Norton cuz LUL Norton
-    $CheckNorton = Get-ChildItem -Path "C:\Program Files (x86)\NortonInstaller\" -Name "InstStub.exe" -Recurse
+    $CheckNorton = Get-ChildItem -Path "C:\Program Files (x86)\NortonInstaller\" -Name "InstStub.exe" -Recurse -ErrorAction SilentlyContinue | Out-Null
     If ($CheckNorton) { Try { $Norton = "C:\Program Files (x86)\NortonInstaller\" + $CheckNorton 
     Write-Status -Types "-", "$TweakType" , "$TweakTypeLocal" -Status "Detected and Attemping Removal of Norton..."
     Start-Process $Norton -ArgumentList "/X /ARP"
@@ -569,7 +569,8 @@ Function BitlockerDecryption() {
 
     If ((Get-BitLockerVolume -MountPoint "C:").ProtectionStatus -eq "On") {
         Write-CaptionWarning -Text "Alert: Bitlocker is enabled. Starting the decryption process"
-        manage-bde -off "C:"
+        Disable-Bitlocker -MountPoint C:\
+        #manage-bde -off "C:"
     }
     else {
         Write-Status -Types "?" -Status "Bitlocker is not enabled on this machine" -Warning

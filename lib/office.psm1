@@ -19,7 +19,8 @@ Function Office_Removal_AskUser() {
         'Yes' {
             CheckNetworkStatus
             Write-Status "+", $TweakType -Status "Downloading Microsoft Support and Recovery Assistant (SaRA)"
-            Start-BitsTransfer -Source:https://aka.ms/SaRA_CommandLineVersionFiles -Destination:"$SaRA" | Out-Host
+            #Start-BitsTransfer -Source:https://aka.ms/SaRA_CommandLineVersionFiles -Destination:"$SaRA" | Out-Host
+            Start-BitsTransfer -Source:https://github.com/circlol/newload/raw/main/SaRA_17_0_9167.015.zip -Destination:"$SaRA" | Out-Host
             Expand-Archive -Path "$SaRA" -DestinationPath "$Sexp" -Force
             Check
             Write-Status "+", $TweakType -Status "Starting SaRAcmd with -OfficeScrubScenario -OfficeVersion All"
