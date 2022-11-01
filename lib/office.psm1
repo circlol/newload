@@ -13,7 +13,8 @@ Function OfficeCheck() {
 }
 Function Office_Removal_AskUser() {
     $TweakType = "Office"
-    
+    $SaRAURL = "https://github.com/circlol/newload/raw/main/SaRACmd_17_0_9246_0.zip"
+
     [reflection.assembly]::loadwithpartialname("System.Windows.Forms") | Out-Null
     $msgBoxInput = [System.Windows.Forms.MessageBox]::Show('  OFFICE EXISTS ON THIS PC:  SHALL I REMOVE IT?', 'New Loads', 'YesNoCancel', 'Question')
     switch ($msgBoxInput) {
@@ -22,8 +23,8 @@ Function Office_Removal_AskUser() {
             CheckNetworkStatus
             Write-Status "+", $TweakType -Status "Downloading Microsoft Support and Recovery Assistant (SaRA)..."
             #Start-BitsTransfer -Source:https://aka.ms/SaRA_CommandLineVersionFiles -Destination:"$SaRA" | Out-Host
-            Start-BitsTransfer -Source:https://github.com/circlol/newload/raw/main/SaRA_17_0_9167.015.zip -Destination:"$SaRA" -TransferType Download -Dynamic | Out-Host
-            Expand-Archive -Path "$SaRA" -DestinationPath "$Sexp" -Force
+            Start-BitsTransfer -Source:$SaRAURL -Destination:$SaRA -TransferType Download -Dynamic | Out-Host
+            Expand-Archive -Path $SaRA -DestinationPath $Sexp -Force
             Check
             Write-Status "+", $TweakType -Status "Starting OfficeScrubScenario via Microsoft Support and Recovery Assistant (SaRA)... "
             Start-Process ".\SaRA\SaRAcmd.exe" -ArgumentList "-S OfficeScrubScenario -AcceptEula -OfficeVersion All" -NoNewWindow | Out-Host
