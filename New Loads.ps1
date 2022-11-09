@@ -96,9 +96,10 @@ Function Programs() {
     Write-Status -Types "+" -Status "Adding support to HEVC/H.265 video codec (MUST HAVE)..."
     Add-AppPackage -Path ".\assets\Microsoft.HEVCVideoExtension_2.0.51121.0_x64__8wekyb3d8bbwe.appx" -ErrorAction SilentlyContinue
     Check
-}Catch{ "Error: $($_.Exception)" | Out-File "$ErrorLog" -Append
-Write-Host "$($_.Exception)"
-}
+    }Catch{ "Error: $($_.Exception)" | Out-File "$ErrorLog" -Append
+        Write-Host "$($_.Exception)"
+        Continue
+    }
 }
 Function Visuals() { 
     Try {
@@ -137,9 +138,10 @@ Function Visuals() {
         Write-Host " REMINDER " -BackgroundColor Red -ForegroundColor White -NoNewLine ; Write-Host ": Wallpaper might not Apply UNTIL System is Rebooted"
         $Status = ($?) ; If ($Status) { Write-Status -Types "+", "Visual" -Status "Wallpaper Set" } elseif (!$Status) { Write-Status -Types "?", "Visual" -Status "Error Applying Wallpaper" -Warning } else { Write-Host " idk wtf happened" }
     }
-}Catch{ "Error: $($_.Exception)" | Out-File "$ErrorLog" -Append
-Write-Host "$($_.Exception)"
-}
+    }Catch{ "Error: $($_.Exception)" | Out-File "$ErrorLog" -Append
+        Write-Host "$($_.Exception)"
+        Continue
+    }
 }
 Function Branding() { 
     Try {
@@ -189,9 +191,10 @@ Function Branding() {
         Set-ItemProperty -Path $PathToOEMInfo -Name $page -Type String -Value "$Model"
         Check
     }
-}Catch{ "Error: $($_.Exception)" | Out-File "$ErrorLog" -Append
-Write-Host "$($_.Exception)"
-}
+    }Catch{ "Error: $($_.Exception)" | Out-File "$ErrorLog" -Append
+        Write-Host "$($_.Exception)"
+        Continue
+    }
 }
 Function StartMenu() { 
     Try {
@@ -222,7 +225,7 @@ Function StartMenu() {
     $layoutFile = "C:\Windows\StartMenuLayout.xml"
     #Deletes the Layout file if one exists already.
     If (Test-Path $layoutFile) { Remove-Item $layoutFile -Verbose | Out-Null }
-
+    
     #Creates a new layout file
     $StartLayout | Out-File $layoutFile -Encoding ASCII
 
@@ -236,17 +239,16 @@ Function StartMenu() {
         Set-ItemProperty -Path $keyPath -Name "LockedStartLayout" -Value 1
         Set-ItemProperty -Path $keyPath -Name "StartLayoutFile" -Value $layoutFile
     }
-
+    
     #Restart Explorer
     Restart-Explorer ; Start-Sleep -s 4
     $wshell = new-Object -ComObject wscript.shell; $wshell.SendKeys('^{ESCAPE}')
     Start-Sleep -s 4 ; Restart-Explorer
-
+    
     #Enable the ability to pin items again by disabling "LockedStartLayout"
     Foreach ($regAlias in $regAliases) {
-        $basePath = $regAlias + ":\SOFTWARE\Policies\Microsoft\Windows"
-        $keyPath = $basePath + "\Explorer" 
         Set-ItemProperty -Path $keyPath -Name "LockedStartLayout" -Value 0
+        Set-ItemProperty -Path $keyPath -Name "StartLayoutFile" -Value ""
     }
 
     If ($BuildNumber -Ge $Win11){
@@ -258,11 +260,31 @@ Function StartMenu() {
     #the next line makes clean start menu default for all new users
     Import-StartLayout -LayoutPath $layoutFile -MountPath $env:SystemDrive\
     
+    $StartLayout = @"
+    <LayoutModificationTemplate xmlns:defaultlayout="http://schemas.microsoft.com/Start/2014/FullDefaultLayout" xmlns:start="http://schemas.microsoft.com/Start/2014/StartLayout" Version="1" xmlns:taskbar="http://schemas.microsoft.com/Start/2014/TaskbarLayout" xmlns="http://schemas.microsoft.com/Start/2014/LayoutModification">
+    <LayoutOptions StartTileGroupCellWidth="6" />
+    <DefaultLayoutOverride>
+    <StartLayoutCollection>
+    <defaultlayout:StartLayout GroupCellWidth="6" />
+    </StartLayoutCollection>
+    </DefaultLayoutOverride>
+    <CustomTaskbarLayoutCollection PinListPlacement="Add">
+    <defaultlayout:TaskbarLayout>
+    <taskbar:TaskbarPinList>
+    </taskbar:TaskbarPinList>
+    </defaultlayout:TaskbarLayout>
+    </CustomTaskbarLayoutCollection>
+    </LayoutModificationTemplate>
+"@
+    
     #Restarts Explorer and removes layout file
+    $StartLayout | Out-File $layoutFile -Encoding ASCII
     Remove-Item $layoutFile -Verbose
-}Catch{ "Error: $($_.Exception)" | Out-File "$ErrorLog" -Append
-    Write-Host "$($_.Exception)"
-}
+
+    }Catch{ "Error: $($_.Exception)" | Out-File "$ErrorLog" -Append
+        Write-Host "$($_.Exception)"
+        Continue
+    }
 }
 Function Debloat() { 
     Try {
@@ -517,9 +539,10 @@ Function Debloat() {
         )
 
             Remove-UWPAppx -AppxPackages $Programs
-        }Catch{ "Error: $($_.Exception)" | Out-File "$ErrorLog" -Append
+    }Catch{ "Error: $($_.Exception)" | Out-File "$ErrorLog" -Append
         Write-Host "$($_.Exception)"
-        }
+        Continue
+    }
 
 }
 Function OneDriveRemoval() { 
@@ -559,7 +582,8 @@ Function OneDriveRemoval() {
         ##>
 
     }Catch{ "Error: $($_.Exception)" | Out-File "$ErrorLog" -Append
-    Write-Host "$($_.Exception)"
+        Write-Host "$($_.Exception)"
+        Continue
     }
     
 }
@@ -575,9 +599,10 @@ Function BitlockerDecryption() {
     else {
         Write-Status -Types "?" -Status "Bitlocker is not enabled on this machine" -Warning
     }
-}Catch{ "Error: $($_.Exception)" | Out-File "$ErrorLog" -Append
-Write-Host "$($_.Exception)"
-}
+    }Catch{ "Error: $($_.Exception)" | Out-File "$ErrorLog" -Append
+        Write-Host "$($_.Exception)"
+        Continue
+    }
 }
 Function Cleanup() { 
     Try {
@@ -625,9 +650,10 @@ Function Cleanup() {
         Write-Status -Types "-" , $TweakType -Status "Removing C:\Temp"
         Remove-Item $ctemp -Force -Recurse -Confirm:$false -ErrorAction SilentlyContinue 2> $NULL | Out-Null
     }
-}Catch{ "Error: $($_.Exception)" | Out-File "$ErrorLog" -Append
-Write-Host "$($_.Exception)"
-}
+    }Catch{ "Error: $($_.Exception)" | Out-File "$ErrorLog" -Append
+        Write-Host "$($_.Exception)"
+        Continue
+    }
 }
 Function New-RestorePoint() { 
     Try {
@@ -637,9 +663,10 @@ Function New-RestorePoint() {
     Enable-ComputerRestore -Drive "$env:SystemDrive\"
     Checkpoint-Computer -Description "Mother Computers Courtesy Restore Point" -RestorePointType "MODIFY_SETTINGS"
 
-}Catch{ "Error: $($_.Exception)" | Out-File "$ErrorLog" -Append
-Write-Host "$($_.Exception)"
-}
+    }Catch{ "Error: $($_.Exception)" | Out-File "$ErrorLog" -Append
+        Write-Host "$($_.Exception)"
+        Continue
+    }
 }
 Function Backup-HostsFile() { 
     Try {
@@ -659,9 +686,10 @@ Function Backup-HostsFile() {
 
     Pop-Location
     Pop-Location
-}Catch{ "Error: $($_.Exception)" | Out-File "$ErrorLog" -Append
+    }Catch{ "Error: $($_.Exception)" | Out-File "$ErrorLog" -Append
         Write-Host "$($_.Exception)"
-        }
+        Continue
+    }
 }
 Function EmailLog() {
     $EndTime = Get-Date -DisplayHint Time
@@ -763,7 +791,7 @@ Function JC() {
     Write-Status "GUI" -Status "Ready for Next Selection"
 }
 
-    If (!$GUI){
+If (!$GUI){
 
         #$MaxLength = '17'
         #Variables
@@ -771,10 +799,12 @@ Function JC() {
         #ScriptInfo
         #CheckFiles
         Start-Transcript -Path $Log ; $StartTime = Get-Date -DisplayHint Time
+
         Write-Status -Types "?" , "Activation" -Status "Checking Windows Activation Status.." -Warning
         $ActiStat = (Get-CimInstance -ClassName SoftwareLicensingProduct -Filter "Name like 'Windows%'" | Where-Object PartialProductKey).LicenseStatus
         If ($ActiStat -ne 1) { Write-CaptionFailed -Text "Windows is not activated. Feel free to Activate Windows while New Loads runs.."; Start-Sleep -Seconds 3 ; Start-Process slui -ArgumentList '3' 
         }else {Write-CaptionSucceed -Text "Windows is Activated. Proceeding"}
+
         Programs
         Visuals
         Branding
@@ -785,20 +815,23 @@ Function JC() {
         OfficeCheck
         OneDriveRemoval
         AdvRegistry
+
         Optimize-Performance
         Optimize-Privacy
         Optimize-Security
         Optimize-ServicesRunning
         Optimize-TaskScheduler
+
         BitlockerDecryption
         New-RestorePoint
         Backup-HostsFile
         EmailLog
         Cleanup
-        Write-Status -Types "WAITING" -Status "User action needed - You may have to ALT + TAB "
-        Request-PcRestart
 
-    }else{
+        Write-Status -Types "WAITING" -Status "User action needed - You may have to ALT + TAB "
+        Request-PCRestart
+
+}else{
 
         CheckNetworkStatus
         GUI
