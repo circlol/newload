@@ -98,7 +98,7 @@ Function Programs() {
     Check
     }Catch{ "Error: $($_.Exception)" | Out-File "$ErrorLog" -Append
         Write-Host "$($_.Exception)"
-        Continue
+        
     }
 }
 Function Visuals() { 
@@ -140,7 +140,7 @@ Function Visuals() {
     }
     }Catch{ "Error: $($_.Exception)" | Out-File "$ErrorLog" -Append
         Write-Host "$($_.Exception)"
-        Continue
+        
     }
 }
 Function Branding() { 
@@ -193,7 +193,7 @@ Function Branding() {
     }
     }Catch{ "Error: $($_.Exception)" | Out-File "$ErrorLog" -Append
         Write-Host "$($_.Exception)"
-        Continue
+        
     }
 }
 Function StartMenu() { 
@@ -283,7 +283,7 @@ Function StartMenu() {
 
     }Catch{ "Error: $($_.Exception)" | Out-File "$ErrorLog" -Append
         Write-Host "$($_.Exception)"
-        Continue
+        
     }
 }
 Function Debloat() { 
@@ -541,7 +541,7 @@ Function Debloat() {
             Remove-UWPAppx -AppxPackages $Programs
     }Catch{ "Error: $($_.Exception)" | Out-File "$ErrorLog" -Append
         Write-Host "$($_.Exception)"
-        Continue
+        
     }
 
 }
@@ -583,7 +583,7 @@ Function OneDriveRemoval() {
 
     }Catch{ "Error: $($_.Exception)" | Out-File "$ErrorLog" -Append
         Write-Host "$($_.Exception)"
-        Continue
+        
     }
     
 }
@@ -601,7 +601,7 @@ Function BitlockerDecryption() {
     }
     }Catch{ "Error: $($_.Exception)" | Out-File "$ErrorLog" -Append
         Write-Host "$($_.Exception)"
-        Continue
+        
     }
 }
 Function Cleanup() { 
@@ -652,7 +652,7 @@ Function Cleanup() {
     }
     }Catch{ "Error: $($_.Exception)" | Out-File "$ErrorLog" -Append
         Write-Host "$($_.Exception)"
-        Continue
+        
     }
 }
 Function New-RestorePoint() { 
@@ -665,7 +665,7 @@ Function New-RestorePoint() {
 
     }Catch{ "Error: $($_.Exception)" | Out-File "$ErrorLog" -Append
         Write-Host "$($_.Exception)"
-        Continue
+        
     }
 }
 Function Backup-HostsFile() { 
@@ -688,7 +688,7 @@ Function Backup-HostsFile() {
     Pop-Location
     }Catch{ "Error: $($_.Exception)" | Out-File "$ErrorLog" -Append
         Write-Host "$($_.Exception)"
-        Continue
+        
     }
 }
 Function EmailLog() {
