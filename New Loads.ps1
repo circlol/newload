@@ -791,7 +791,7 @@ Function JC() {
     Write-Status "GUI" -Status "Ready for Next Selection"
 }
 
-If (!$GUI){
+If (!($GUI)){
 
         #$MaxLength = '17'
         #Variables
@@ -832,10 +832,8 @@ If (!$GUI){
         Request-PCRestart
 
 }else{
-
         CheckNetworkStatus
         GUI
-
 }
 
 ### END OF SCRIPT ###
