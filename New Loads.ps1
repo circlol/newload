@@ -1,7 +1,6 @@
 try { Set-Variable -Name ScriptVersion -Value "2201027" ; If (!{$!}){Write-Section -Text "Script Version has been updated" } ;  }catch {}
 
 Function Programs() { 
-    Try {
     $TweakType = "Apps"
     Write-Host "`n" ; Write-TitleCounter -Counter '2' -MaxLength $MaxLength -Text "Program Installation"
     Write-Title -Text "Downloading Applications"
@@ -9,13 +8,19 @@ Function Programs() {
     #Google
     If (!(Test-Path -Path:$Location1)) {
         If (Test-Path -Path:$gcoi) {
+            Try{ If ($Global:Valid = $True){
             Write-Status -Types "+", $TweakType -Status "Google Chrome"
             Start-Process -FilePath:$gcoi -ArgumentList /passive -Verbose -Wait
             Write-Status -Types "+", "Registry" -Status "Flagging Google Chrome to Install UBlock Origin"
             REG ADD $PathToChromeExtensions /v update_url /t REG_SZ /d $PathToChromeLink /f | Out-Null
             Check
-        }
-        else {
+            }}Catch{
+                "$(Get-Date)  [$TweakType]  Error: $($_.Exception.Message)" | 
+                    Out-File "$ErrorLog" -Append
+                "$(Get-Date)  [$TweakType]  Exception on Line Number: $($_.InvocationInfo.ScriptLineNumber)" |
+                    Out-File "$ErrorLog" -Append
+        }}else {
+            Try{ If ($Global:Valid = $True){
             CheckNetworkStatus
             Write-Status -Types "+", $TweakType -Status "Downloading Google Chrome"
             Start-BitsTransfer -Source $package1dl -Destination $package1lc -TransferType Download -RetryInterval 60 -RetryTimeout 60 -Verbose | Out-Host
@@ -25,9 +30,12 @@ Function Programs() {
             Write-Status -Types "+", "Registry" -Status "Flagging Google Chrome to Install UBlock Origin"
             REG ADD $PathToChromeExtensions /v update_url /t REG_SZ /d $PathToChromeLink /f | Out-Null
             Check
-        }
-    }
-    else {
+            }}Catch{
+                "$(Get-Date)  [$TweakType]  Error: $($_.Exception.Message)" | 
+                    Out-File "$ErrorLog" -Append
+                "$(Get-Date)  [$TweakType]  Exception on Line Number: $($_.InvocationInfo.ScriptLineNumber)" |
+                    Out-File "$ErrorLog" -Append
+    }}}else {
         Write-Status -Types "?", $TweakType -Status "Google Chrome is already Installed on this PC." -warning
     }
 
@@ -35,50 +43,75 @@ Function Programs() {
     #VLC
     If (!(Test-Path -Path:$Location2)) {
         If (Test-Path -Path:$vlcoi) {
+            Try{ If ($Global:Valid = $True){
             Write-Status -Types "+", $TweakType -Status "Installing VLC Media Player"
             Start-Process -FilePath:$vlcoi -ArgumentList /quiet -Verbose -Wait
-        }
-        else {
+            }}Catch{
+                "$(Get-Date)  [$TweakType]  Error: $($_.Exception.Message)" | 
+                    Out-File "$ErrorLog" -Append
+                "$(Get-Date)  [$TweakType]  Exception on Line Number: $($_.InvocationInfo.ScriptLineNumber)" |
+                    Out-File "$ErrorLog" -Append
+        }}else {
+            Try{ If ($Global:Valid = $True){
             CheckNetworkStatus
             Write-Status -Types "+", $TweakType -Status "Downloading VLC Media Player"
             Start-BitsTransfer -Source $Package2dl -Destination $package2lc -TransferType Download -RetryInterval 60 -RetryTimeout 60 -Verbose | Out-Host
             Check
             Write-Status -Types "+", $TweakType -Status "Installing VLC Media Player"
             Start-Process -FilePath:$package2lc -ArgumentList /quiet -Verbose -Wait
-        }
-    }
-    else {
+            }}Catch{
+                "$(Get-Date)  [$TweakType]  Error: $($_.Exception.Message)" | 
+                    Out-File "$ErrorLog" -Append
+                "$(Get-Date)  [$TweakType]  Exception on Line Number: $($_.InvocationInfo.ScriptLineNumber)" |
+                    Out-File "$ErrorLog" -Append
+        }}}else {
         Write-Status -Types "?", $TweakType -Status "VLC Media Player is already Installed on this PC." -Warning
     }
         
     Write-Section -Text "Zoom"
     #Zoom
     If (!(Test-Path -Path:$Location3)) {
+        Try{ If ($Global:Valid = $True){
         If (Test-Path -Path:$zoomoi) {
             Write-Status -Types "+", $tweaktype -Status "Installing Zoom"
             Start-Process -FilePath:$zoomoi -ArgumentList /quiet -Verbose -Wait
-        }
-        else {
+        }}}Catch{
+            "$(Get-Date)  [$TweakType]  Error: $($_.Exception.Message)" | 
+                Out-File "$ErrorLog" -Append
+            "$(Get-Date)  [$TweakType]  Exception on Line Number: $($_.InvocationInfo.ScriptLineNumber)" |
+                Out-File "$ErrorLog" -Append
+        }else {
+            Try{ If ($Global:Valid = $True){
             CheckNetworkStatus
             Write-Status -Types "+", $TweakType -Status "Downloading Zoom"
             Start-BitsTransfer -Source $Package3dl -Destination $package3lc -TransferType Download -RetryInterval 60 -RetryTimeout 60  -Verbose | Out-Host
             Check
             Write-Status -Types "+", $TweakType -Status "Installing Zoom"
             Start-Process -FilePath:$package3lc -ArgumentList /quiet -Verbose -Wait
-        }
-    }
-    else {
+            }}Catch{
+                "$(Get-Date)  [$TweakType]  Error: $($_.Exception.Message)" | 
+                    Out-File "$ErrorLog" -Append
+                "$(Get-Date)  [$TweakType]  Exception on Line Number: $($_.InvocationInfo.ScriptLineNumber)" |
+                    Out-File "$ErrorLog" -Append
+        }}}else {
         Write-Status -Types "?", $TweakType -Status "Zoom is already Installed on this PC." -Warning
     }
         
     Write-Section -Text "Adobe Acrobat"
     #Adobe
     If (!(Test-Path -Path:$Location4)) {
+        Try{ If ($Global:Valid = $True){
         If (Test-Path -Path:$aroi) {
             Write-Status -Types "+", $TweakType -Status "Installing Adobe Acrobat Reader x64" 
             Start-Process -FilePath:$aroi -ArgumentList /sPB -Verbose
         }
-        else {
+        }}Catch{
+            "$(Get-Date)  [$TweakType]  Error: $($_.Exception.Message)" | 
+                Out-File "$ErrorLog" -Append
+            "$(Get-Date)  [$TweakType]  Exception on Line Number: $($_.InvocationInfo.ScriptLineNumber)" |
+                Out-File "$ErrorLog" -Append
+        }else {
+            Try{ If ($Global:Valid = $True){
             CheckNetworkStatus
             Write-Status -Types "+", $TweakType -Status "Downloading Adobe Acrobat Reader x64"
             Start-BitsTransfer -Source $Package4dl -Destination $package4lc -TransferType Download -RetryInterval 60 -RetryTimeout 60 -Verbose | Out-Host
@@ -86,26 +119,31 @@ Function Programs() {
             If ($? -eq $true){
                 Write-Status -Types "+", $TweakType -Status "Installing Adobe Acrobat Reader x64"
                 Start-Process -FilePath:$package4lc -ArgumentList /sPB -Verbose    
-            }
-        }
-    }
-    else {
+            }}}Catch{
+                "$(Get-Date)  [$TweakType]  Error: $($_.Exception.Message)" | 
+                    Out-File "$ErrorLog" -Append
+                "$(Get-Date)  [$TweakType]  Exception on Line Number: $($_.InvocationInfo.ScriptLineNumber)" |
+                    Out-File "$ErrorLog" -Append
+        }}}else {
         Write-Status -Types "?", $TweakType -Status "Adobe Acrobat is already Installed on this PC." -warning
     }
 
+    Try{ If ($Global:Valid = $True){
     Write-Status -Types "+" -Status "Adding support to HEVC/H.265 video codec (MUST HAVE)..."
     Add-AppPackage -Path ".\assets\Microsoft.HEVCVideoExtension_2.0.51121.0_x64__8wekyb3d8bbwe.appx" -ErrorAction SilentlyContinue
     Check
-    }Catch{ "Error: $($_.Exception)" | Out-File "$ErrorLog" -Append
-        Write-Host "$($_.Exception)"
-        
+    }}Catch{
+        "$(Get-Date)  [$TweakType]  Error: $($_.Exception.Message)" | 
+            Out-File "$ErrorLog" -Append
+        "$(Get-Date)  [$TweakType]  Exception on Line Number: $($_.InvocationInfo.ScriptLineNumber)" |
+            Out-File "$ErrorLog" -Append
     }
 }
 Function Visuals() { 
-    Try {
     $TweakType = "Visual"
     Write-Host "`n" ; Write-TitleCounter -Counter '3' -MaxLength $MaxLength -Text "Visuals"
     If ($BuildNumber -Ge '22000') {
+        Try{ If ($Global:Valid = $True){
         Write-Title -Text "Detected Windows 11"
         Write-Status -Types "+", "$TweakType" -Status "Applying Wallpaper for Windows 11"
         $PathToFile = Get-ChildItem -Path ".\Assets" -Recurse -Filter "11.jpg" | ForEach-Object { $_.FullName }
@@ -120,9 +158,15 @@ Function Visuals() {
         RUNDLL32.EXE user32.dll, UpdatePerUserSystemParameters
         Write-Host " REMINDER " -BackgroundColor Red -ForegroundColor White -NoNewLine ; Write-Host ": Wallpaper might not Apply UNTIL System is Rebooted"
         $Status = ($?) ; If ($Status) { Write-Status -Types "+", "Visual" -Status "Wallpaper Set" } elseif (!$Status) { Write-Status -Types "?", "Visual" -Status "Error Applying Wallpaper" -Warning } else { Write-Host " idk wtf happened" }
-        
+        }}Catch{
+            "$(Get-Date)  [$TweakType]  Error: $($_.Exception.Message)" | 
+                Out-File "$ErrorLog" -Append
+            "$(Get-Date)  [$TweakType]  Exception on Line Number: $($_.InvocationInfo.ScriptLineNumber)" |
+                Out-File "$ErrorLog" -Append
+        }
     }
     elseif ($BuildNumber -Lt '22000') {
+        Try{ If ($Global:Valid = $True){
         Write-Title -Text "Detected Windows 10"
         Write-Status -Types "+", "$TweakType" -Status "Applying Wallpaper for Windows 10"
         $PathToFile = Get-ChildItem -Path ".\Assets" -Recurse -Filter "10.jpg" | ForEach-Object { $_.FullName }
@@ -137,67 +181,93 @@ Function Visuals() {
         RUNDLL32.EXE user32.dll, UpdatePerUserSystemParameters
         Write-Host " REMINDER " -BackgroundColor Red -ForegroundColor White -NoNewLine ; Write-Host ": Wallpaper might not Apply UNTIL System is Rebooted"
         $Status = ($?) ; If ($Status) { Write-Status -Types "+", "Visual" -Status "Wallpaper Set" } elseif (!$Status) { Write-Status -Types "?", "Visual" -Status "Error Applying Wallpaper" -Warning } else { Write-Host " idk wtf happened" }
-    }
-    }Catch{ "Error: $($_.Exception)" | Out-File "$ErrorLog" -Append
-        Write-Host "$($_.Exception)"
-        
+        }}Catch{
+            "$(Get-Date)  [$TweakType]  Error: $($_.Exception.Message)" | 
+                Out-File "$ErrorLog" -Append
+            "$(Get-Date)  [$TweakType]  Exception on Line Number: $($_.InvocationInfo.ScriptLineNumber)" |
+                Out-File "$ErrorLog" -Append
+        }
     }
 }
 Function Branding() { 
-    Try {
     Write-Host "`n" ; Write-TitleCounter -Counter '4' -MaxLength $MaxLength -Text "Mothers Branding"
     $TweakType = "Branding"
     If ((Get-ItemProperty -Path $PathToOEMInfo).Manufacturer -eq "$store") {
         Write-Status -Types "?" -Status "Skipping" -Warning
-    }
-    else {
+    }else {
+        Try{ If ($Global:Valid = $True){
         Write-Status -Types "+", $TweakType -Status "Adding Mother Computers to Support Page"
         Set-ItemProperty -Path $PathToOEMInfo -Name "Manufacturer" -Type String -Value "$store"
         Check
+        }}Catch{
+            "$(Get-Date)  [$TweakType]  Error: $($_.Exception.Message)" | 
+                Out-File "$ErrorLog" -Append
+            "$(Get-Date)  [$TweakType]  Exception on Line Number: $($_.InvocationInfo.ScriptLineNumber)" |
+                Out-File "$ErrorLog" -Append
+        }
     }
 
     If ((Get-ItemProperty -Path $PathToOEMInfo).SupportPhone -eq $phone) {
         Write-Status -Types "?" -Status "Skipping" -Warning
-    }
-    else {
+    }else {
+        Try{ If ($Global:Valid = $True){
         Write-Status -Types "+", $TweakType -Status "Adding Mothers Number to Support Page"
         Set-ItemProperty -Path $PathToOEMInfo -Name "SupportPhone" -Type String -Value "$phone"
         Check
-        
+        }}Catch{
+            "$(Get-Date)  [$TweakType]  Error: $($_.Exception.Message)" | 
+                Out-File "$ErrorLog" -Append
+            "$(Get-Date)  [$TweakType]  Exception on Line Number: $($_.InvocationInfo.ScriptLineNumber)" |
+                Out-File "$ErrorLog" -Append
+        }
     }
 
     If ((Get-ItemProperty -Path $PathToOEMInfo).SupportHours -eq "$hours") {
         Write-Status -Types "?" -Status "Skipping" -Warning
-    }
-    else {
+    }else {
+        Try{ If ($Global:Valid = $True){
         Write-Status -Types "+", $TweakType -Status "Adding Store Hours to Support Page"
         Set-ItemProperty -Path $PathToOEMInfo -Name "SupportHours" -Type String -Value "$hours"
         Check
+        }}Catch{
+            "$(Get-Date)  [$TweakType]  Error: $($_.Exception.Message)" | 
+                Out-File "$ErrorLog" -Append
+            "$(Get-Date)  [$TweakType]  Exception on Line Number: $($_.InvocationInfo.ScriptLineNumber)" |
+                Out-File "$ErrorLog" -Append
+        }
     }
     
     If ((Get-ItemProperty -Path $PathToOEMInfo).SupportURL -eq $website) {
         Write-Status -Types "?" -Status "Skipping" -Warning
-    }
-    else {
+    }else {
+        Try{ If ($Global:Valid = $True){
         Write-Status -Types "+", $TweakType -Status "Adding Store Hours to Support Page"
         Set-ItemProperty -Path $PathToOEMInfo -Name "SupportURL" -Type String -Value $website
         Check
+        }}Catch{
+            "$(Get-Date)  [$TweakType]  Error: $($_.Exception.Message)" | 
+                Out-File "$ErrorLog" -Append
+            "$(Get-Date)  [$TweakType]  Exception on Line Number: $($_.InvocationInfo.ScriptLineNumber)" |
+                Out-File "$ErrorLog" -Append
+        }
     }
+
     If ((Get-ItemProperty -Path $PathToOEMInfo).Model -eq "$model") {
         Write-Status -Types "?" -Status "Skipping" -Warning
-    }
-    else {
+    }else {
+        Try{ If ($Global:Valid = $True){
         Write-Status -Types "+", $TweakType -Status "Adding Store Number to Settings Page"
         Set-ItemProperty -Path $PathToOEMInfo -Name $page -Type String -Value "$Model"
         Check
-    }
-    }Catch{ "Error: $($_.Exception)" | Out-File "$ErrorLog" -Append
-        Write-Host "$($_.Exception)"
-        
+        }}Catch{
+            "$(Get-Date)  [$TweakType]  Error: $($_.Exception.Message)" | 
+                Out-File "$ErrorLog" -Append
+            "$(Get-Date)  [$TweakType]  Exception on Line Number: $($_.InvocationInfo.ScriptLineNumber)" |
+                Out-File "$ErrorLog" -Append
+        }
     }
 }
 Function StartMenu() { 
-    Try {
     Write-Host "`n" ; Write-TitleCounter -Counter '5' -MaxLength $MaxLength -Text "StartMenuLayout.xml Modification"
     Write-Title -Text "Applying Taskbar Layout"
     $StartLayout = @"
@@ -223,9 +293,17 @@ Function StartMenu() {
 "@
 
     $layoutFile = "C:\Windows\StartMenuLayout.xml"
+
     #Deletes the Layout file if one exists already.
-    If (Test-Path $layoutFile) { Remove-Item $layoutFile -Verbose | Out-Null }
-    
+    Try{ If ($Global:Valid = $True){
+        If (Test-Path $layoutFile) { Remove-Item $layoutFile -Verbose | Out-Null }
+    }}Catch{
+        "$(Get-Date)  [$TweakType]  Error: $($_.Exception.Message)" | 
+            Out-File "$ErrorLog" -Append
+        "$(Get-Date)  [$TweakType]  Exception on Line Number: $($_.InvocationInfo.ScriptLineNumber)" |
+            Out-File "$ErrorLog" -Append
+    }
+
     #Creates a new layout file
     $StartLayout | Out-File $layoutFile -Encoding ASCII
 
@@ -235,9 +313,16 @@ Function StartMenu() {
     foreach ($regAlias in $regAliases) {
         $basePath = $regAlias + ":\SOFTWARE\Policies\Microsoft\Windows"
         $keyPath = $basePath + "\Explorer" 
+        Try{ If ($Global:Valid = $True){
         If (!(Test-Path -Path $keyPath)) { New-Item -Path $basePath -Name "Explorer" -Verbose | Out-Null }
         Set-ItemProperty -Path $keyPath -Name "LockedStartLayout" -Value 1
         Set-ItemProperty -Path $keyPath -Name "StartLayoutFile" -Value $layoutFile
+        }}Catch{
+            "$(Get-Date)  [$TweakType]  Error: $($_.Exception.Message)" | 
+                Out-File "$ErrorLog" -Append
+            "$(Get-Date)  [$TweakType]  Exception on Line Number: $($_.InvocationInfo.ScriptLineNumber)" |
+                Out-File "$ErrorLog" -Append
+        }
     }
     
     #Restart Explorer
@@ -247,8 +332,15 @@ Function StartMenu() {
     
     #Enable the ability to pin items again by disabling "LockedStartLayout"
     Foreach ($regAlias in $regAliases) {
+        Try{ If ($Global:Valid = $True){
         Set-ItemProperty -Path $keyPath -Name "LockedStartLayout" -Value 0
         Set-ItemProperty -Path $keyPath -Name "StartLayoutFile" -Value ""
+        }}Catch{
+            "$(Get-Date)  [$TweakType]  Error: $($_.Exception.Message)" | 
+                Out-File "$ErrorLog" -Append
+            "$(Get-Date)  [$TweakType]  Exception on Line Number: $($_.InvocationInfo.ScriptLineNumber)" |
+                Out-File "$ErrorLog" -Append
+        }
     }
 
     If ($BuildNumber -Ge $Win11){
@@ -258,8 +350,16 @@ Function StartMenu() {
     }
     
     #the next line makes clean start menu default for all new users
-    Import-StartLayout -LayoutPath $layoutFile -MountPath $env:SystemDrive\
-    
+    Try{ If ($Global:Valid = $True){
+        Import-StartLayout -LayoutPath $layoutFile -MountPath $env:SystemDrive\
+    }}Catch{
+        "$(Get-Date)  [$TweakType]  Error: $($_.Exception.Message)" | 
+            Out-File "$ErrorLog" -Append
+        "$(Get-Date)  [$TweakType]  Exception on Line Number: $($_.InvocationInfo.ScriptLineNumber)" |
+            Out-File "$ErrorLog" -Append
+    }
+
+
     $StartLayout = @"
     <LayoutModificationTemplate xmlns:defaultlayout="http://schemas.microsoft.com/Start/2014/FullDefaultLayout" xmlns:start="http://schemas.microsoft.com/Start/2014/StartLayout" Version="1" xmlns:taskbar="http://schemas.microsoft.com/Start/2014/TaskbarLayout" xmlns="http://schemas.microsoft.com/Start/2014/LayoutModification">
     <LayoutOptions StartTileGroupCellWidth="6" />
@@ -277,17 +377,18 @@ Function StartMenu() {
     </LayoutModificationTemplate>
 "@
     
-    #Restarts Explorer and removes layout file
-    $StartLayout | Out-File $layoutFile -Encoding ASCII
-    Remove-Item $layoutFile -Verbose
-
-    }Catch{ "Error: $($_.Exception)" | Out-File "$ErrorLog" -Append
-        Write-Host "$($_.Exception)"
-        
+    Try{ If ($Global:Valid = $True){
+        #Restarts Explorer and removes layout file
+        $StartLayout | Out-File $layoutFile -Encoding ASCII
+        Remove-Item $layoutFile -Verbose
+    }}Catch{
+        "$(Get-Date)  [$TweakType]  Error: $($_.Exception.Message)" | 
+            Out-File "$ErrorLog" -Append
+        "$(Get-Date)  [$TweakType]  Exception on Line Number: $($_.InvocationInfo.ScriptLineNumber)" |
+            Out-File "$ErrorLog" -Append
     }
 }
 Function Debloat() { 
-    Try {
     $TweakType = "Debloat"
     Write-Host "`n" ; Write-TitleCounter -Counter '6' -MaxLength $MaxLength -Text "Debloat"
     
@@ -296,70 +397,120 @@ Function Debloat() {
 
     #McAfee Live Safe Removal
     If (Test-Path -Path $livesafe -ErrorAction SilentlyContinue | Out-Null) {
-        Write-Status -Types "-", "$TweakType" , "$TweakTypeLocal" -Status "Detected and Attemping Removal of McAfee Live Safe..."
-        Start-Process "$livesafe"
-    }
+        Try{ If ($Global:Valid = $True){
+            Write-Status -Types "-", "$TweakType" , "$TweakTypeLocal" -Status "Detected and Attemping Removal of McAfee Live Safe..."
+            Start-Process "$livesafe"
+    }}Catch{
+            "$(Get-Date)  [$TweakType]  Error: $($_.Exception.Message)" | 
+                Out-File "$ErrorLog" -Append
+            "$(Get-Date)  [$TweakType]  Exception on Line Number: $($_.InvocationInfo.ScriptLineNumber)" |
+                Out-File "$ErrorLog" -Append
+    }}
     #WebAdvisor Removal
-    If (Test-Path -Path $webadvisor -ErrorAction SilentlyContinue | Out-Null) {
+    If (Test-Path -Path $webadvisor -ErrorAction SilentlyContinue | Out-Null) { 
+        Try{ If ($Global:Valid = $True){
         Write-Status -Types "-", "$TweakType" , "$TweakTypeLocal" -Status "Detected and Attemping Removal of McAfee WebAdvisor Uninstall."
         Start-Process "$webadvisor"
-    }
+    }}Catch{
+        "$(Get-Date)  [$TweakType]  Error: $($_.Exception.Message)" | 
+            Out-File "$ErrorLog" -Append
+        "$(Get-Date)  [$TweakType]  Exception on Line Number: $($_.InvocationInfo.ScriptLineNumber)" |
+            Out-File "$ErrorLog" -Append
+    }}
+
     #Preinsatlled on Acer machines primarily WildTangent Games
     If (Test-Path -Path $WildGames -ErrorAction SilentlyContinue | Out-Null) {
+        Try{ If ($Global:Valid = $True){
         Write-Status -Types "-", "$TweakType" , "$TweakTypeLocal" -Status "Detected and Attemping Removal WildTangent Games."
         Start-Process $WildGames 
-    }
+    }}Catch{
+        "$(Get-Date)  [$TweakType]  Error: $($_.Exception.Message)" | 
+            Out-File "$ErrorLog" -Append
+        "$(Get-Date)  [$TweakType]  Exception on Line Number: $($_.InvocationInfo.ScriptLineNumber)" |
+            Out-File "$ErrorLog" -Append
+    }}
+
     #ExpressVPN on Acer and HP Machines
-    $CheckExpress = Get-ChildItem -Path "C:\ProgramData\Package Cache" -Name "*ExpressVPN*.exe" -recurse -ErrorAction SilentlyContinue | Out-Null
+    $CheckExpress = Get-ChildItem -Path "C:\ProgramData\Package Cache\" -Name "ExpressVPN_*_release.exe" -Recurse | Out-Null
     If ($CheckExpress){ $ExpressVPN = "C:\ProgramData\Package Cache\" + $CheckExpress }
-    If ($ExpressVPN){ Try { Write-Status "+" , $TweakType -Status "Starting ExpressVPN Silent Uninstaller"
-    Write-Status -Types "-", "$TweakType" , "$TweakTypeLocal" -Status "Detected and Attempting Removal of ExpressVPN."
-    Start-Process $ExpressVPN -ArgumentList "/Uninstall /quiet" -ErrorAction SilentlyContinue
-    }Catch{ "Error: $($_.Exception)" | Out-File "$ErrorLog" -Append ; Write-Host "$($_.Exception)"}}
-    
+    If ($ExpressVPN){ Write-Status "@" , $TweakType -Status "Detected ExpressVPN" }
+    Try{ If ($Global:Valid = $True){
+    Write-Status -Types "-", "$TweakType" , "$TweakTypeLocal" -Status "Attempting Removal of ExpressVPN."
+    Start-Process $ExpressVPN -ArgumentList "/Uninstall"
+    }}Catch{
+    "$(Get-Date)  [$TweakType]  Error: $($_.Exception.Message)" | 
+        Out-File "$ErrorLog" -Append
+    "$(Get-Date)  [$TweakType]  Exception on Line Number: $($_.InvocationInfo.ScriptLineNumber)" |
+        Out-File "$ErrorLog" -Append
+    }
+
     #Norton cuz LUL Norton
     $CheckNorton = Get-ChildItem -Path "C:\Program Files (x86)\NortonInstaller\" -Name "InstStub.exe" -Recurse -ErrorAction SilentlyContinue | Out-Null
-    If ($CheckNorton) { Try { $Norton = "C:\Program Files (x86)\NortonInstaller\" + $CheckNorton 
+    If ($CheckNorton) { $Norton = "C:\Program Files (x86)\NortonInstaller\" + $CheckNorton 
+    Try{ If ($Global:Valid = $True){
     Write-Status -Types "-", "$TweakType" , "$TweakTypeLocal" -Status "Detected and Attemping Removal of Norton..."
     Start-Process $Norton -ArgumentList "/X /ARP"
-    }Catch{ "Error: $($_.Exception)" | Out-File "$ErrorLog" -Append ; Write-Host "$($_.Exception)"}}
-    
+    }}Catch{
+        "$(Get-Date)  [$TweakType]  Error: $($_.Exception.Message)" | 
+            Out-File "$ErrorLog" -Append
+        "$(Get-Date)  [$TweakType]  Exception on Line Number: $($_.InvocationInfo.ScriptLineNumber)" |
+            Out-File "$ErrorLog" -Append
+    }}
+
     #Avast Cleanup Premium
     $AvastCleanupLocation = "C:\Program Files\Common Files\Avast Software\Icarus\avast-tu\icarus.exe"
-    If (Test-Path $AvastCleanupLocation){ Try {
+    If (Test-Path $AvastCleanupLocation){
+        Try{ If ($Global:Valid = $True){
         Start-Process $AvastCleanupLocation -ArgumentList "/manual_update /uninstall:avast-tu"
-    }Catch{ "Error: $($_.Exception)" | Out-File "$ErrorLog" -Append ; Write-Host "$($_.Exception)"}}
+    }}Catch{
+        "$(Get-Date)  [$TweakType]  Error: $($_.Exception.Message)" | 
+        Out-File "$ErrorLog" -Append
+        "$(Get-Date)  [$TweakType]  Exception on Line Number: $($_.InvocationInfo.ScriptLineNumber)" |
+        Out-File "$ErrorLog" -Append
+    }}
     
     #Avast Antivirus
     $AvastLocation = "C:\Program Files\Avast Software\Avast\setup\Instup.exe"
-    If (Test-Path $AvastLocation){ Try {
+    If (Test-Path $AvastLocation){
+        Try{ If ($Global:Valid = $True){
         Start-Process $AvastLocation -ArgumentList "/control_panel"
-    }Catch{ "Error: $($_.Exception)" | Out-File "$ErrorLog" -Append ; Write-Host "$($_.Exception)"}}
+    }}Catch{
+        "$(Get-Date)  [$TweakType]  Error: $($_.Exception.Message)" | 
+            Out-File "$ErrorLog" -Append
+        "$(Get-Date)  [$TweakType]  Exception on Line Number: $($_.InvocationInfo.ScriptLineNumber)" |
+            Out-File "$ErrorLog" -Append   
+    }}
 
     $apps = @(
+        "Adobe offers"
         "Amazon"
         "Booking"
-        "Bookings"
         "Booking.com"
-        "Bookings.com"
+        "ExpressVPN"
         "Forge of Empires"
+        "Free Trials"
         "Planet9 Link"
+        "Utomik - Play over 1000 games"
     )
 
     $TweakTypeLocal = "Shortcuts"
 
     ForEach ($app in $apps) {
-        
+        Try{ If ($Global:Valid = $True){
         If (Test-Path -Path "$commonapps\$app.url") {
             Write-Status -Types "-", "$TweakType" , "$TweakTypeLocal" -Status "Removing $app.url"
             Remove-Item -Path "$commonapps\$app.url" -Force
         }
-
         If (Test-Path -Path "$commonapps\$app.lnk") {
             Write-Status -Types "-", "$TweakType" , "$TweakTypeLocal" -Status "Removing $app.lnk"
             Remove-Item -Path "$commonapps\$app.lnk" -Force
-        }
-    }
+        }}}Catch{
+        "$(Get-Date)  [$TweakType]  Error: $($_.Exception.Message)" | 
+            Out-File "$ErrorLog" -Append
+        "$(Get-Date)  [$TweakType]  Exception on Line Number: $($_.InvocationInfo.ScriptLineNumber)" |
+            Out-File "$ErrorLog" -Append
+            Continue 
+        }}
     Write-Host "" ; Write-Section -Text "Removing UWP Apps"
     $TweakTypeLocal = "UWP"
     $Programs = @(
@@ -537,13 +688,14 @@ Function Debloat() {
         # Apps which other apps depend on
         #"Microsoft.Advertising.Xaml"
         )
-
-            Remove-UWPAppx -AppxPackages $Programs
-    }Catch{ "Error: $($_.Exception)" | Out-File "$ErrorLog" -Append
-        Write-Host "$($_.Exception)"
-        
-    }
-
+        Try{ If ($Global:Valid = $True){
+        Remove-UWPAppx -AppxPackages $Programs
+        }}Catch{
+            "$(Get-Date)  [$TweakType]  Error: $($_.Exception.Message)" | 
+                Out-File "$ErrorLog" -Append
+            "$(Get-Date)  [$TweakType]  Exception on Line Number: $($_.InvocationInfo.ScriptLineNumber)" |
+                Out-File "$ErrorLog" -Append   
+        }
 }
 Function OneDriveRemoval() { 
     Try {
@@ -722,8 +874,8 @@ Function EmailLog() {
     $Mobo = Get-Content $TempFile
     Remove-Item $TempFile
     
-    $CheckIfErrorLogCreated = Test-path -Path ".\ErrorLog.txt"
-    If ($CheckIfErrorLogCreated -eq $True){$Log = @("$Log" , ".\ErrorLog.txt")}
+    $CheckIfErrorLogCreated = Test-Path -Path "$ErrorLog"
+    If ($CheckIfErrorLogCreated -eq $True){$Log = @("$Log" , "$ErrorLog")}
     
     $StartBinLocation = "$Env:userprofile\AppData\Local\Packages\Microsoft.Windows.StartMenuExperienceHost_cw5n1h2txyewy\LocalState\start.bin"
     If (Test-Path $StartBinLocation){
@@ -733,7 +885,7 @@ Function EmailLog() {
     }
 
 
-    Send-MailMessage -From 'New Loads Log <newloadslogs@shaw.ca>' -To '<newloadslogs@shaw.ca> , <newloads@shaw.ca>' -Subject "New Loads Log" -Attachments "$Log" -Priority High -DeliveryNotification OnSuccess, OnFailure -SmtpServer 'smtp.shaw.ca' -Verbose -ErrorAction SilentlyContinue -Body "
+    Send-MailMessage -From 'New Loads Log <newloadslogs@shaw.ca>' -To '<newloadslogs@shaw.ca> , <newloads@shaw.ca>' -Subject "New Loads Log" -Attachments "$Log","$ErrorLog" -Priority High -DeliveryNotification OnSuccess, OnFailure -SmtpServer 'smtp.shaw.ca' -Verbose -ErrorAction SilentlyContinue -Body "
         ############################################################################
         #==========================================================================#                                
         #=                                                                        =#
