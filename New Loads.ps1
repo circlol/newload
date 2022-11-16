@@ -885,8 +885,8 @@ Function EmailLog() {
     $Mobo = Get-Content $TempFile
     Remove-Item $TempFile
     
-    $CheckIfErrorLogCreated = Test-Path -Path "$ErrorLog"
-    If ($CheckIfErrorLogCreated -eq $True){$Log = @("$Log" , "$ErrorLog")}
+    #$CheckIfErrorLogCreated = Test-Path -Path "$ErrorLog"
+    #If ($CheckIfErrorLogCreated -eq $True){$Log = @("$Log" , "$ErrorLog")}
     
     $StartBinLocation = "$Env:userprofile\AppData\Local\Packages\Microsoft.Windows.StartMenuExperienceHost_cw5n1h2txyewy\LocalState\start.bin"
     If (Test-Path $StartBinLocation){
