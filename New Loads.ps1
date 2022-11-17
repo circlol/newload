@@ -71,16 +71,16 @@ Function Programs() {
     Write-Section -Text "Zoom"
     #Zoom
     If (!(Test-Path -Path:$Location3)) {
-        Try{ If ($Global:Valid -eq $True){
         If (Test-Path -Path:$zoomoi) {
+        Try{ If ($Global:Valid -eq $True){
             Write-Status -Types "+", $tweaktype -Status "Installing Zoom"
             Start-Process -FilePath:$zoomoi -ArgumentList /quiet -Verbose -Wait
-        }}}Catch{
+        }}Catch{
             "$(Get-Date)  [$TweakType]  Error: $($_.Exception.Message)" | 
                 Out-File "$ErrorLog" -Append
             "$(Get-Date)  [$TweakType]  Exception on Line Number: $($_.InvocationInfo.ScriptLineNumber)" |
                 Out-File "$ErrorLog" -Append
-        }else {
+        }} else {
             Try{ If ($Global:Valid -eq $True){
             CheckNetworkStatus
             Write-Status -Types "+", $TweakType -Status "Downloading Zoom"
@@ -88,7 +88,7 @@ Function Programs() {
             Check
             Write-Status -Types "+", $TweakType -Status "Installing Zoom"
             Start-Process -FilePath:$package3lc -ArgumentList /quiet -Verbose -Wait
-            }}Catch{
+            }} Catch {
                 "$(Get-Date)  [$TweakType]  Error: $($_.Exception.Message)" | 
                     Out-File "$ErrorLog" -Append
                 "$(Get-Date)  [$TweakType]  Exception on Line Number: $($_.InvocationInfo.ScriptLineNumber)" |
@@ -100,17 +100,16 @@ Function Programs() {
     Write-Section -Text "Adobe Acrobat"
     #Adobe
     If (!(Test-Path -Path:$Location4)) {
-        Try{ If ($Global:Valid -eq $True){
         If (Test-Path -Path:$aroi) {
+        Try{ If ($Global:Valid -eq $True){
             Write-Status -Types "+", $TweakType -Status "Installing Adobe Acrobat Reader x64" 
             Start-Process -FilePath:$aroi -ArgumentList /sPB -Verbose
-        }
         }}Catch{
             "$(Get-Date)  [$TweakType]  Error: $($_.Exception.Message)" | 
                 Out-File "$ErrorLog" -Append
             "$(Get-Date)  [$TweakType]  Exception on Line Number: $($_.InvocationInfo.ScriptLineNumber)" |
                 Out-File "$ErrorLog" -Append
-        }else {
+        }}else {
             Try{ If ($Global:Valid -eq $True){
             CheckNetworkStatus
             Write-Status -Types "+", $TweakType -Status "Downloading Adobe Acrobat Reader x64"
@@ -430,20 +429,22 @@ Function Debloat() {
             Out-File "$ErrorLog" -Append
     }}
 
+    <#
     #ExpressVPN on Acer and HP Machines
-    $CheckExpress = Get-ChildItem -Path "C:\ProgramData\Package Cache\" -Name "ExpressVPN_*_release.exe" -Recurse | Out-Null
+    $CheckExpress = Get-ChildItem -Path "C:\ProgramData\Package Cache\" -Name "ExpressVPN_*_release.exe" -Recurse 2> $ErrorLog | Out-Null
     If ($CheckExpress){ $ExpressVPN = "C:\ProgramData\Package Cache\" + $CheckExpress }
     If ($ExpressVPN){ Write-Status "@" , $TweakType -Status "Detected ExpressVPN" }
     Try{ If ($Global:Valid -eq $True){
-    Write-Status -Types "-", "$TweakType" , "$TweakTypeLocal" -Status "Attempting Removal of ExpressVPN."
-    Start-Process $ExpressVPN -ArgumentList "/Uninstall"
+        Write-Status -Types "-", "$TweakType" , "$TweakTypeLocal" -Status "Attempting Removal of ExpressVPN."
+        Start-Process $ExpressVPN -ArgumentList "/Uninstall"
     }}Catch{
-    "$(Get-Date)  [$TweakType]  Error: $($_.Exception.Message)" | 
+        "$(Get-Date)  [$TweakType]  Error: $($_.Exception.Message)" | 
         Out-File "$ErrorLog" -Append
-    "$(Get-Date)  [$TweakType]  Exception on Line Number: $($_.InvocationInfo.ScriptLineNumber)" |
+        "$(Get-Date)  [$TweakType]  Exception on Line Number: $($_.InvocationInfo.ScriptLineNumber)" |
         Out-File "$ErrorLog" -Append
     }
-
+    #>
+    
     #Norton cuz LUL Norton
     $CheckNorton = Get-ChildItem -Path "C:\Program Files (x86)\NortonInstaller\" -Name "InstStub.exe" -Recurse -ErrorAction SilentlyContinue | Out-Null
     If ($CheckNorton) { $Norton = "C:\Program Files (x86)\NortonInstaller\" + $CheckNorton 
