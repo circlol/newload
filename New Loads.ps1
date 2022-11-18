@@ -19,6 +19,8 @@ Function Programs() {
                     Out-File "$ErrorLog" -Append
                 "$(Get-Date)  [$TweakType]  Exception on Line Number: $($_.InvocationInfo.ScriptLineNumber)" |
                     Out-File "$ErrorLog" -Append
+                "$(Get-Date)  [$TweakType]  Exception from Script: $($_.InvocationInfo.ScriptName)" |
+                    Out-File "$ErrorLog" -Append
         }}else {
             Try{ If ($Global:Valid -eq $True){
             CheckNetworkStatus
@@ -35,9 +37,13 @@ Function Programs() {
                     Out-File "$ErrorLog" -Append
                 "$(Get-Date)  [$TweakType]  Exception on Line Number: $($_.InvocationInfo.ScriptLineNumber)" |
                     Out-File "$ErrorLog" -Append
+                "$(Get-Date)  [$TweakType]  Exception from Script: $($_.InvocationInfo.ScriptName)" |
+                    Out-File "$ErrorLog" -Append
     }}}else {
         Write-Status -Types "?", $TweakType -Status "Google Chrome is already Installed on this PC." -warning
     }
+
+
 
     Write-Section -Text "VLC Media Player"
     #VLC
@@ -51,6 +57,8 @@ Function Programs() {
                     Out-File "$ErrorLog" -Append
                 "$(Get-Date)  [$TweakType]  Exception on Line Number: $($_.InvocationInfo.ScriptLineNumber)" |
                     Out-File "$ErrorLog" -Append
+                "$(Get-Date)  [$TweakType]  Exception from Script: $($_.InvocationInfo.ScriptName)" |
+                    Out-File "$ErrorLog" -Append
         }}else {
             Try{ If ($Global:Valid -eq $True){
             CheckNetworkStatus
@@ -63,6 +71,8 @@ Function Programs() {
                 "$(Get-Date)  [$TweakType]  Error: $($_.Exception.Message)" | 
                     Out-File "$ErrorLog" -Append
                 "$(Get-Date)  [$TweakType]  Exception on Line Number: $($_.InvocationInfo.ScriptLineNumber)" |
+                    Out-File "$ErrorLog" -Append
+                "$(Get-Date)  [$TweakType]  Exception from Script: $($_.InvocationInfo.ScriptName)" |
                     Out-File "$ErrorLog" -Append
         }}}else {
         Write-Status -Types "?", $TweakType -Status "VLC Media Player is already Installed on this PC." -Warning
@@ -80,6 +90,8 @@ Function Programs() {
                 Out-File "$ErrorLog" -Append
             "$(Get-Date)  [$TweakType]  Exception on Line Number: $($_.InvocationInfo.ScriptLineNumber)" |
                 Out-File "$ErrorLog" -Append
+            "$(Get-Date)  [$TweakType]  Exception from Script: $($_.InvocationInfo.ScriptName)" |
+                Out-File "$ErrorLog" -Append
         }} else {
             Try{ If ($Global:Valid -eq $True){
             CheckNetworkStatus
@@ -92,6 +104,8 @@ Function Programs() {
                 "$(Get-Date)  [$TweakType]  Error: $($_.Exception.Message)" | 
                     Out-File "$ErrorLog" -Append
                 "$(Get-Date)  [$TweakType]  Exception on Line Number: $($_.InvocationInfo.ScriptLineNumber)" |
+                    Out-File "$ErrorLog" -Append
+                "$(Get-Date)  [$TweakType]  Exception from Script: $($_.InvocationInfo.ScriptName)" |
                     Out-File "$ErrorLog" -Append
         }}}else {
         Write-Status -Types "?", $TweakType -Status "Zoom is already Installed on this PC." -Warning
@@ -109,6 +123,8 @@ Function Programs() {
                 Out-File "$ErrorLog" -Append
             "$(Get-Date)  [$TweakType]  Exception on Line Number: $($_.InvocationInfo.ScriptLineNumber)" |
                 Out-File "$ErrorLog" -Append
+            "$(Get-Date)  [$TweakType]  Exception from Script: $($_.InvocationInfo.ScriptName)" |
+                Out-File "$ErrorLog" -Append
         }}else {
             Try{ If ($Global:Valid -eq $True){
             CheckNetworkStatus
@@ -123,6 +139,8 @@ Function Programs() {
                     Out-File "$ErrorLog" -Append
                 "$(Get-Date)  [$TweakType]  Exception on Line Number: $($_.InvocationInfo.ScriptLineNumber)" |
                     Out-File "$ErrorLog" -Append
+                "$(Get-Date)  [$TweakType]  Exception from Script: $($_.InvocationInfo.ScriptName)" |
+                    Out-File "$ErrorLog" -Append
         }}}else {
         Write-Status -Types "?", $TweakType -Status "Adobe Acrobat is already Installed on this PC." -warning
     }
@@ -135,6 +153,8 @@ Function Programs() {
         "$(Get-Date)  [$TweakType]  Error: $($_.Exception.Message)" | 
             Out-File "$ErrorLog" -Append
         "$(Get-Date)  [$TweakType]  Exception on Line Number: $($_.InvocationInfo.ScriptLineNumber)" |
+            Out-File "$ErrorLog" -Append
+        "$(Get-Date)  [$TweakType]  Exception from Script: $($_.InvocationInfo.ScriptName)" |
             Out-File "$ErrorLog" -Append
     }
 }
@@ -162,6 +182,8 @@ Function Visuals() {
                 Out-File "$ErrorLog" -Append
             "$(Get-Date)  [$TweakType]  Exception on Line Number: $($_.InvocationInfo.ScriptLineNumber)" |
                 Out-File "$ErrorLog" -Append
+            "$(Get-Date)  [$TweakType]  Exception from Script: $($_.InvocationInfo.ScriptName)" |
+                Out-File "$ErrorLog" -Append
         }
     }
     elseif ($BuildNumber -Lt '22000') {
@@ -185,6 +207,8 @@ Function Visuals() {
                 Out-File "$ErrorLog" -Append
             "$(Get-Date)  [$TweakType]  Exception on Line Number: $($_.InvocationInfo.ScriptLineNumber)" |
                 Out-File "$ErrorLog" -Append
+            "$(Get-Date)  [$TweakType]  Exception from Script: $($_.InvocationInfo.ScriptName)" |
+                Out-File "$ErrorLog" -Append
         }
     }
 }
@@ -203,6 +227,8 @@ Function Branding() {
                 Out-File "$ErrorLog" -Append
             "$(Get-Date)  [$TweakType]  Exception on Line Number: $($_.InvocationInfo.ScriptLineNumber)" |
                 Out-File "$ErrorLog" -Append
+            "$(Get-Date)  [$TweakType]  Exception from Script: $($_.InvocationInfo.ScriptName)" |
+                Out-File "$ErrorLog" -Append
         }
     }
 
@@ -217,6 +243,8 @@ Function Branding() {
             "$(Get-Date)  [$TweakType]  Error: $($_.Exception.Message)" | 
                 Out-File "$ErrorLog" -Append
             "$(Get-Date)  [$TweakType]  Exception on Line Number: $($_.InvocationInfo.ScriptLineNumber)" |
+                Out-File "$ErrorLog" -Append
+            "$(Get-Date)  [$TweakType]  Exception from Script: $($_.InvocationInfo.ScriptName)" |
                 Out-File "$ErrorLog" -Append
         }
     }
@@ -233,6 +261,8 @@ Function Branding() {
                 Out-File "$ErrorLog" -Append
             "$(Get-Date)  [$TweakType]  Exception on Line Number: $($_.InvocationInfo.ScriptLineNumber)" |
                 Out-File "$ErrorLog" -Append
+            "$(Get-Date)  [$TweakType]  Exception from Script: $($_.InvocationInfo.ScriptName)" |
+                Out-File "$ErrorLog" -Append
         }
     }
     
@@ -248,6 +278,8 @@ Function Branding() {
                 Out-File "$ErrorLog" -Append
             "$(Get-Date)  [$TweakType]  Exception on Line Number: $($_.InvocationInfo.ScriptLineNumber)" |
                 Out-File "$ErrorLog" -Append
+            "$(Get-Date)  [$TweakType]  Exception from Script: $($_.InvocationInfo.ScriptName)" |
+                Out-File "$ErrorLog" -Append
         }
     }
 
@@ -262,6 +294,8 @@ Function Branding() {
             "$(Get-Date)  [$TweakType]  Error: $($_.Exception.Message)" | 
                 Out-File "$ErrorLog" -Append
             "$(Get-Date)  [$TweakType]  Exception on Line Number: $($_.InvocationInfo.ScriptLineNumber)" |
+                Out-File "$ErrorLog" -Append
+            "$(Get-Date)  [$TweakType]  Exception from Script: $($_.InvocationInfo.ScriptName)" |
                 Out-File "$ErrorLog" -Append
         }
     }
@@ -301,6 +335,8 @@ Function StartMenu() {
             Out-File "$ErrorLog" -Append
         "$(Get-Date)  [$TweakType]  Exception on Line Number: $($_.InvocationInfo.ScriptLineNumber)" |
             Out-File "$ErrorLog" -Append
+        "$(Get-Date)  [$TweakType]  Exception from Script: $($_.InvocationInfo.ScriptName)" |
+            Out-File "$ErrorLog" -Append
     }
 
     #Creates a new layout file
@@ -321,6 +357,8 @@ Function StartMenu() {
                 Out-File "$ErrorLog" -Append
             "$(Get-Date)  [$TweakType]  Exception on Line Number: $($_.InvocationInfo.ScriptLineNumber)" |
                 Out-File "$ErrorLog" -Append
+            "$(Get-Date)  [$TweakType]  Exception from Script: $($_.InvocationInfo.ScriptName)" |
+                Out-File "$ErrorLog" -Append
         }
     }
     
@@ -339,6 +377,8 @@ Function StartMenu() {
                 Out-File "$ErrorLog" -Append
             "$(Get-Date)  [$TweakType]  Exception on Line Number: $($_.InvocationInfo.ScriptLineNumber)" |
                 Out-File "$ErrorLog" -Append
+            "$(Get-Date)  [$TweakType]  Exception from Script: $($_.InvocationInfo.ScriptName)" |
+                Out-File "$ErrorLog" -Append
         }
     }
 
@@ -355,6 +395,8 @@ Function StartMenu() {
         "$(Get-Date)  [$TweakType]  Error: $($_.Exception.Message)" | 
             Out-File "$ErrorLog" -Append
         "$(Get-Date)  [$TweakType]  Exception on Line Number: $($_.InvocationInfo.ScriptLineNumber)" |
+            Out-File "$ErrorLog" -Append
+        "$(Get-Date)  [$TweakType]  Exception from Script: $($_.InvocationInfo.ScriptName)" |
             Out-File "$ErrorLog" -Append
     }
 
@@ -385,6 +427,8 @@ Function StartMenu() {
             Out-File "$ErrorLog" -Append
         "$(Get-Date)  [$TweakType]  Exception on Line Number: $($_.InvocationInfo.ScriptLineNumber)" |
             Out-File "$ErrorLog" -Append
+        "$(Get-Date)  [$TweakType]  Exception from Script: $($_.InvocationInfo.ScriptName)" |
+            Out-File "$ErrorLog" -Append
     }
 }
 Function Debloat() { 
@@ -404,6 +448,8 @@ Function Debloat() {
                 Out-File "$ErrorLog" -Append
             "$(Get-Date)  [$TweakType]  Exception on Line Number: $($_.InvocationInfo.ScriptLineNumber)" |
                 Out-File "$ErrorLog" -Append
+            "$(Get-Date)  [$TweakType]  Exception from Script: $($_.InvocationInfo.ScriptName)" |
+                Out-File "$ErrorLog" -Append
     }}
     #WebAdvisor Removal
     If (Test-Path -Path $webadvisor -ErrorAction SilentlyContinue | Out-Null) { 
@@ -414,6 +460,8 @@ Function Debloat() {
         "$(Get-Date)  [$TweakType]  Error: $($_.Exception.Message)" | 
             Out-File "$ErrorLog" -Append
         "$(Get-Date)  [$TweakType]  Exception on Line Number: $($_.InvocationInfo.ScriptLineNumber)" |
+            Out-File "$ErrorLog" -Append
+        "$(Get-Date)  [$TweakType]  Exception from Script: $($_.InvocationInfo.ScriptName)" |
             Out-File "$ErrorLog" -Append
     }}
 
@@ -427,6 +475,9 @@ Function Debloat() {
             Out-File "$ErrorLog" -Append
         "$(Get-Date)  [$TweakType]  Exception on Line Number: $($_.InvocationInfo.ScriptLineNumber)" |
             Out-File "$ErrorLog" -Append
+        "$(Get-Date)  [$TweakType]  Exception from Script: $($_.InvocationInfo.ScriptName)" |
+            Out-File "$ErrorLog" -Append
+        ""
     }}
 
     <#
@@ -456,6 +507,8 @@ Function Debloat() {
             Out-File "$ErrorLog" -Append
         "$(Get-Date)  [$TweakType]  Exception on Line Number: $($_.InvocationInfo.ScriptLineNumber)" |
             Out-File "$ErrorLog" -Append
+        "$(Get-Date)  [$TweakType]  Exception from Script: $($_.InvocationInfo.ScriptName)" |
+            Out-File "$ErrorLog" -Append
     }}
 
     #Avast Cleanup Premium
@@ -467,6 +520,8 @@ Function Debloat() {
         "$(Get-Date)  [$TweakType]  Error: $($_.Exception.Message)" | 
         Out-File "$ErrorLog" -Append
         "$(Get-Date)  [$TweakType]  Exception on Line Number: $($_.InvocationInfo.ScriptLineNumber)" |
+        Out-File "$ErrorLog" -Append
+        "$(Get-Date)  [$TweakType]  Exception from Script: $($_.InvocationInfo.ScriptName)" |
         Out-File "$ErrorLog" -Append
     }}
     
@@ -480,6 +535,8 @@ Function Debloat() {
             Out-File "$ErrorLog" -Append
         "$(Get-Date)  [$TweakType]  Exception on Line Number: $($_.InvocationInfo.ScriptLineNumber)" |
             Out-File "$ErrorLog" -Append   
+        "$(Get-Date)  [$TweakType]  Exception from Script: $($_.InvocationInfo.ScriptName)" |
+            Out-File "$ErrorLog" -Append
     }}
 
     $apps = @(
@@ -509,6 +566,8 @@ Function Debloat() {
         "$(Get-Date)  [$TweakType]  Error: $($_.Exception.Message)" | 
             Out-File "$ErrorLog" -Append
         "$(Get-Date)  [$TweakType]  Exception on Line Number: $($_.InvocationInfo.ScriptLineNumber)" |
+            Out-File "$ErrorLog" -Append
+        "$(Get-Date)  [$TweakType]  Exception from Script: $($_.InvocationInfo.ScriptName)" |
             Out-File "$ErrorLog" -Append
             Continue 
         }}
@@ -695,7 +754,9 @@ Function Debloat() {
             "$(Get-Date)  [$TweakType]  Error: $($_.Exception.Message)" | 
                 Out-File "$ErrorLog" -Append
             "$(Get-Date)  [$TweakType]  Exception on Line Number: $($_.InvocationInfo.ScriptLineNumber)" |
-                Out-File "$ErrorLog" -Append   
+                Out-File "$ErrorLog" -Append
+            "$(Get-Date)  [$TweakType]  Exception from Script: $($_.InvocationInfo.ScriptName)" |
+                Out-File "$ErrorLog" -Append
         }
 }
 Function OneDriveRemoval() { 
@@ -739,6 +800,8 @@ Function OneDriveRemoval() {
             Out-File ".\ErrorLog.txt" -Append
         "$(Get-Date)  [$TweakType]  Exception on Line Number: $($_.InvocationInfo.ScriptLineNumber)" |
             Out-File ".\ErrorLog.txt" -Append
+        "$(Get-Date)  [$TweakType]  Exception from Script: $($_.InvocationInfo.ScriptName)" |
+            Out-File "$ErrorLog" -Append
     }
     
 }
@@ -759,6 +822,8 @@ Function BitlockerDecryption() {
         Out-File ".\ErrorLog.txt" -Append
     "$(Get-Date)  [$TweakType]  Exception on Line Number: $($_.InvocationInfo.ScriptLineNumber)" |
         Out-File ".\ErrorLog.txt" -Append
+    "$(Get-Date)  [$TweakType]  Exception from Script: $($_.InvocationInfo.ScriptName)" |
+        Out-File "$ErrorLog" -Append
     }
 }
 Function Cleanup() { 
@@ -812,6 +877,8 @@ Function Cleanup() {
         Out-File ".\ErrorLog.txt" -Append
     "$(Get-Date)  [$TweakType]  Exception on Line Number: $($_.InvocationInfo.ScriptLineNumber)" |
         Out-File ".\ErrorLog.txt" -Append
+    "$(Get-Date)  [$TweakType]  Exception from Script: $($_.InvocationInfo.ScriptName)" |
+        Out-File "$ErrorLog" -Append
     }
 }
 
@@ -828,6 +895,8 @@ Function New-RestorePoint() {
         Out-File ".\ErrorLog.txt" -Append
     "$(Get-Date)  [$TweakType]  Exception on Line Number: $($_.InvocationInfo.ScriptLineNumber)" |
         Out-File ".\ErrorLog.txt" -Append
+    "$(Get-Date)  [$TweakType]  Exception from Script: $($_.InvocationInfo.ScriptName)" |
+        Out-File "$ErrorLog" -Append
     }
 }
 Function Backup-HostsFile() { 
@@ -853,6 +922,8 @@ Function Backup-HostsFile() {
             Out-File ".\ErrorLog.txt" -Append
         "$(Get-Date)  [$TweakType]  Exception on Line Number: $($_.InvocationInfo.ScriptLineNumber)" |
             Out-File ".\ErrorLog.txt" -Append
+        "$(Get-Date)  [$TweakType]  Exception from Script: $($_.InvocationInfo.ScriptName)" |
+            Out-File "$ErrorLog" -Append
     }
 }
 Function EmailLog() {
