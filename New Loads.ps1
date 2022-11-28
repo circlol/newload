@@ -3,9 +3,10 @@ try { Set-Variable -Name ScriptVersion -Value "2201027" ; If (!{$!}){Write-Secti
 Function Programs() { 
     $TweakType = "Apps"
     Write-Host "`n" ; Write-TitleCounter -Counter '2' -MaxLength $MaxLength -Text "Program Installation"
-    Write-Title -Text "Downloading Applications"
-    Write-Section -Text "Google Chrome"
+    Write-Title -Text "Application Installation"
+
     #Google
+    Write-Section -Text "Google Chrome"
     If (!(Test-Path -Path:$Location1)) {
         If (Test-Path -Path:$gcoi) {
             Try{ If ($Global:Valid -eq $True){
@@ -45,8 +46,8 @@ Function Programs() {
 
 
 
-    Write-Section -Text "VLC Media Player"
     #VLC
+    Write-Section -Text "VLC Media Player"
     If (!(Test-Path -Path:$Location2)) {
         If (Test-Path -Path:$vlcoi) {
             Try{ If ($Global:Valid -eq $True){
@@ -78,8 +79,8 @@ Function Programs() {
         Write-Status -Types "?", $TweakType -Status "VLC Media Player is already Installed on this PC." -Warning
     }
         
-    Write-Section -Text "Zoom"
     #Zoom
+    Write-Section -Text "Zoom"
     If (!(Test-Path -Path:$Location3)) {
         If (Test-Path -Path:$zoomoi) {
         Try{ If ($Global:Valid -eq $True){
@@ -111,8 +112,8 @@ Function Programs() {
         Write-Status -Types "?", $TweakType -Status "Zoom is already Installed on this PC." -Warning
     }
         
-    Write-Section -Text "Adobe Acrobat"
     #Adobe
+    Write-Section -Text "Adobe Acrobat"
     If (!(Test-Path -Path:$Location4)) {
         If (Test-Path -Path:$aroi) {
         Try{ If ($Global:Valid -eq $True){
@@ -343,11 +344,11 @@ Function StartMenu() {
     $StartLayout | Out-File $layoutFile -Encoding ASCII
 
     $regAliases = @("HKLM", "HKCU")
+    $basePath = $regAlias + ":\SOFTWARE\Policies\Microsoft\Windows"
+    $keyPath = $basePath + "\Explorer" 
 
     #Assign the start layout and force it to apply with "LockedStartLayout" at both the machine and user level
     foreach ($regAlias in $regAliases) {
-        $basePath = $regAlias + ":\SOFTWARE\Policies\Microsoft\Windows"
-        $keyPath = $basePath + "\Explorer" 
         Try{ If ($Global:Valid -eq $True){
         If (!(Test-Path -Path $keyPath)) { New-Item -Path $basePath -Name "Explorer" -Verbose | Out-Null }
         Set-ItemProperty -Path $keyPath -Name "LockedStartLayout" -Value 1
@@ -404,17 +405,17 @@ Function StartMenu() {
     $StartLayout = @"
     <LayoutModificationTemplate xmlns:defaultlayout="http://schemas.microsoft.com/Start/2014/FullDefaultLayout" xmlns:start="http://schemas.microsoft.com/Start/2014/StartLayout" Version="1" xmlns:taskbar="http://schemas.microsoft.com/Start/2014/TaskbarLayout" xmlns="http://schemas.microsoft.com/Start/2014/LayoutModification">
     <LayoutOptions StartTileGroupCellWidth="6" />
-    <DefaultLayoutOverride>
-    <StartLayoutCollection>
-    <defaultlayout:StartLayout GroupCellWidth="6" />
-    </StartLayoutCollection>
-    </DefaultLayoutOverride>
-    <CustomTaskbarLayoutCollection PinListPlacement="Add">
-    <defaultlayout:TaskbarLayout>
-    <taskbar:TaskbarPinList>
-    </taskbar:TaskbarPinList>
-    </defaultlayout:TaskbarLayout>
-    </CustomTaskbarLayoutCollection>
+        <DefaultLayoutOverride>
+            <StartLayoutCollection>
+                <defaultlayout:StartLayout GroupCellWidth="6" />
+            </StartLayoutCollection>
+        </DefaultLayoutOverride>
+            <CustomTaskbarLayoutCollection PinListPlacement="Add">
+                <defaultlayout:TaskbarLayout>
+                    <taskbar:TaskbarPinList>
+                    </taskbar:TaskbarPinList>
+            </defaultlayout:TaskbarLayout>
+        </CustomTaskbarLayoutCollection>
     </LayoutModificationTemplate>
 "@
     
@@ -500,8 +501,8 @@ Function Debloat() {
     $CheckNorton = Get-ChildItem -Path "C:\Program Files (x86)\NortonInstaller\" -Name "InstStub.exe" -Recurse -ErrorAction SilentlyContinue | Out-Null
     If ($CheckNorton) { $Norton = "C:\Program Files (x86)\NortonInstaller\" + $CheckNorton 
     Try{ If ($Global:Valid -eq $True){
-    Write-Status -Types "-", "$TweakType" , "$TweakTypeLocal" -Status "Detected and Attemping Removal of Norton..."
-    Start-Process $Norton -ArgumentList "/X /ARP"
+        Write-Status -Types "-", "$TweakType" , "$TweakTypeLocal" -Status "Detected and Attemping Removal of Norton..."
+        Start-Process $Norton -ArgumentList "/X /ARP"
     }}Catch{
         "$(Get-Date)  [$TweakType]  Error: $($_.Exception.Message)" | 
             Out-File "$ErrorLog" -Append
@@ -559,7 +560,7 @@ Function Debloat() {
             Write-Status -Types "-", "$TweakType" , "$TweakTypeLocal" -Status "Removing $app.url"
             Remove-Item -Path "$commonapps\$app.url" -Force
         }
-        If (Test-Path -Path "$commonapps\$app.lnk") {
+        If (Test-Path -Path "$commonapps\$app.lnk") { 
             Write-Status -Types "-", "$TweakType" , "$TweakTypeLocal" -Status "Removing $app.lnk"
             Remove-Item -Path "$commonapps\$app.lnk" -Force
         }}}Catch{
@@ -605,29 +606,29 @@ Function Debloat() {
         "Microsoft.OneConnect"
         "Microsoft.OneDriveSync"
         "Microsoft.People"                          # People
-        #"Microsoft.MSPaint"                         # Paint 3D (Where every artist truly start as a kid, i mean, on original Paint, not this 3D)
-        #"Microsoft.Print3D"                         # Print 3D
         "Microsoft.SkypeApp"                        # Skype (Who still uses Skype? Use Discord)
         "Microsoft.Todos"                           # Microsoft To Do
         "Microsoft.Wallet"
         "Microsoft.Whiteboard"                      # Microsoft Whiteboard
-        #"Microsoft.WindowsAlarms"                   # Alarms
-        #"microsoft.windowscommunicationsapps"
         "Microsoft.WindowsMaps"                     # Maps
         "Microsoft.WindowsPhone"
         "Microsoft.WindowsReadingList"
         "Microsoft.WindowsSoundRecorder"
+        "Microsoft.YourPhone"                       # Your Phone
+        "MicrosoftTeams"                            # Microsoft Teams / Preview
+        #"Microsoft.MSPaint"                         # Paint 3D (Where every artist truly start as a kid, i mean, on original Paint, not this 3D)
+        #"Microsoft.Print3D"                         # Print 3D
+        #"Microsoft.WindowsAlarms"                   # Alarms
+        #"microsoft.windowscommunicationsapps"
         #"Microsoft.XboxApp"                         # Xbox Console Companion (Replaced by new App)
         #"Microsoft.XboxGameCallableUI"
         #"Microsoft.XboxGameOverlay"
         #"Microsoft.XboxSpeechToTextOverlay"
-        "Microsoft.YourPhone"                       # Your Phone
         #"Microsoft.ZuneMusic"                       # Groove Music / (New) Windows Media Player
         #"Microsoft.ZuneVideo"                       # Movies & TV
         
         # Default Windows 11 apps
         #"MicrosoftWindows.Client.WebExperience"     # Taskbar Widgets
-        "MicrosoftTeams"                            # Microsoft Teams / Preview
         
         # 3rd party Apps
         #"*ACGMediaPlayer*"
@@ -763,8 +764,9 @@ Function OneDriveRemoval() {
     Try{ If ($Global:Valid -eq $True){
         Write-Host "`n" ; Write-TitleCounter -Counter '8' -MaxLength $MaxLength -Text "OneDrive Removal"
         Write-Status -Types "?" -Status "Disabled for now."
-        Start-Sleep -S 10
-        <#
+        Start-Sleep -Seconds 4
+        $Disabled = $True
+        If ($Disabled -eq $False){
         If (Test-Path $Location5 -ErrorAction SilentlyContinue) {
                 If (Get-Process -Name OneDrive -ErrorAction SilentlyContinue) {
                     Stop-Process -Name "OneDrive" -Verbose -ErrorAction SilentlyContinue
@@ -793,9 +795,7 @@ Function OneDriveRemoval() {
             reg delete "HKEY_USERS\Default\SOFTWARE\Microsoft\Windows\CurrentVersion\Run" /v "OneDriveSetup" /f 2> $Null | Out-Null
         }
         reg unload "hku\Default" 
-        ##>
-
-    }}Catch{
+    }}}Catch{
         "$(Get-Date)  [$TweakType]  Error: $($_.Exception.Message)" | 
             Out-File ".\ErrorLog.txt" -Append
         "$(Get-Date)  [$TweakType]  Exception on Line Number: $($_.InvocationInfo.ScriptLineNumber)" |
@@ -813,11 +813,9 @@ Function BitlockerDecryption() {
         Write-CaptionWarning -Text "Alert: Bitlocker is enabled. Starting the decryption process"
         Disable-Bitlocker -MountPoint C:\
         #manage-bde -off "C:"
-    }
-    else {
+    } else {
         Write-Status -Types "?" -Status "Bitlocker is not enabled on this machine" -Warning
-    }
-    }}Catch{
+    }}}Catch{
     "$(Get-Date)  [$TweakType]  Error: $($_.Exception.Message)" | 
         Out-File ".\ErrorLog.txt" -Append
     "$(Get-Date)  [$TweakType]  Exception on Line Number: $($_.InvocationInfo.ScriptLineNumber)" |
@@ -834,42 +832,34 @@ Function Cleanup() {
     Write-Status -Types "+" , $TweakType -Status "Enabling F8 boot menu options"
     #    bcdedit /set {bootmgr} displaybootmenu yes | Out-Null
     bcdedit /set "{CURRENT}" bootmenupolicy legacy
-    If (Test-Path $location1) {
-        Write-Status -Types "+", $TweakType -Status "Launching Google Chrome"
+    If (Test-Path $location1) { Write-Status -Types "+", $TweakType -Status "Launching Google Chrome"
         Start-Process Chrome
     }    
 
     Write-Section -Text "Cleanup"
-
     Write-Status -Types "-", $TweakType -Status "Cleaning Temp Folder"
 
     Remove-Item "$env:localappdata\temp\*.*" -Force -Recurse -Confirm:$false -ErrorAction SilentlyContinue  -Exclude "New Loads" 2>$NULL
-    If (Test-Path $vlcsc) { 
-        Write-Status -Types "-", $TweakType -Status "Removing VLC Media Player Desktop Icon"
+    If (Test-Path $vlcsc) { Write-Status -Types "-", $TweakType -Status "Removing VLC Media Player Desktop Icon"
         Remove-Item $vlcsc -Force -Recurse -Confirm:$false -ErrorAction SilentlyContinue 2> $NULL | Out-Null
     }
-    If (Test-Path $acrosc) { 
-        Write-Status -Types "-" , $TweakType -Status "Removing Acrobat Desktop Icon"
+    If (Test-Path $acrosc) { Write-Status -Types "-" , $TweakType -Status "Removing Acrobat Desktop Icon"
         Remove-Item $acrosc -Force -Recurse -Confirm:$false -ErrorAction SilentlyContinue 2> $NULL | Out-Null
     }
-    If (Test-Path $zoomsc) {
-        Write-Status -Types "-", $TweakType -Status "Removing Zoom Desktop Icon"
+    If (Test-Path $zoomsc) { Write-Status -Types "-", $TweakType -Status "Removing Zoom Desktop Icon"
         Remove-Item -path $zoomsc -force | Out-Null
     }
 
     Remove-Item "$env:Userprofile\AppData\Local\Temp\*.*" -Force -Recurse -Confirm:$false -ErrorAction SilentlyContinue -Exclude "New Loads" | Out-Null
     
     
-    If (Test-Path $EdgeShortcut) { 
-        Write-Status -Types "-" , $TweakType -Status "Removing Edge Shortcut in User Folder"
+    If (Test-Path $EdgeShortcut) { Write-Status -Types "-" , $TweakType -Status "Removing Edge Shortcut in User Folder"
         Remove-Item $EdgeShortcut -Force -Recurse -Confirm:$false -ErrorAction SilentlyContinue 2> $NULL | Out-Null
     }
-    If (Test-Path $edgescpub) { 
-        Write-Status -Types "-" , $TweakType -Status "Removing Edge Shortcut in Public Desktop"
+    If (Test-Path $edgescpub) { Write-Status -Types "-" , $TweakType -Status "Removing Edge Shortcut in Public Desktop"
         Remove-Item $edgescpub -Force -Recurse -Confirm:$false -ErrorAction SilentlyContinue 2> $NULL | Out-Null
     }
-    If (Test-Path $ctemp) { 
-        Write-Status -Types "-" , $TweakType -Status "Removing C:\Temp"
+    If (Test-Path $ctemp) { Write-Status -Types "-" , $TweakType -Status "Removing C:\Temp"
         Remove-Item $ctemp -Force -Recurse -Confirm:$false -ErrorAction SilentlyContinue 2> $NULL | Out-Null
     }
     }}Catch{
@@ -907,8 +897,7 @@ Function Backup-HostsFile() {
     $Date = Get-Date -Format "yyyy-MM-dd_HH-mm-ss"
     Push-Location "$PathToHostsFile"
 
-    If (!(Test-Path "$PathToHostsFile\Hosts_Backup")) {
-        Write-Status -Types "?" -Status "Backup folder not found! Creating a new one..."
+    If (!(Test-Path "$PathToHostsFile\Hosts_Backup")) { Write-Status -Types "?" -Status "Backup folder not found! Creating a new one..."
         mkdir -Path "$PathToHostsFile\Hosts_Backup"
     }
     Push-Location "Hosts_Backup"
@@ -969,54 +958,52 @@ Function EmailLog() {
 
 
     Send-MailMessage -From 'New Loads Log <newloadslogs@shaw.ca>' -To '<newloadslogs@shaw.ca> , <newloads@shaw.ca>' -Subject "New Loads Log" -Attachments "$Log","$ErrorLog" -Priority High -DeliveryNotification OnSuccess, OnFailure -SmtpServer 'smtp.shaw.ca' -Verbose -ErrorAction SilentlyContinue -Body "
-        ############################################################################
-        #==========================================================================#                                
-        #=                                                                        =#
-        #=                         NEW LOADS SCRIPT LOG                           =#
-        #=                                                                        =#
-        #==========================================================================#  
-        ############################################################################
+        ############################
+        #==========================#                                
+        #=                        =#
+        #=  NEW LOADS SCRIPT LOG  =#
+        #=                        =#
+        #==========================#  
+        ############################
                                         
-                    New Loads was run on a computer for $ip\$env:USERNAME, 
-                                Completing in $ElapsedTime
+New Loads was run on a computer for $ip\$env:computername\$env:USERNAME, 
 
-    Date: $CurrentDate
-    
-    Script Info:
-    Program Version: $programversion
-    Script Version: $ScriptVersion
-    Script Start Time: $StartTime
-    Script End Time: $EndTime
+Completing in $ElapsedTime
+
+Date: $CurrentDate
+Script Info:
+Program Version: $programversion
+Script Version: $ScriptVersion
+Script Start Time: $StartTime
+Script End Time: $EndTime
 
 
-    Computer Information:
-    CPU: $CPU
-    Motherboard: $Mobo
-    RAM: $RAM
-    GPU: $GPU
-    SSD: $SSD
-    OS: $WindowsVersion
-    Version: $DisplayVersion
+Computer Information:
+CPU: $CPU
+Motherboard: $Mobo
+RAM: $RAM
+GPU: $GPU
+SSD: $SSD
+OS: $WindowsVersion
+Version: $DisplayVersion
 
-    Drives:
-    $DriveSpace
+Drives:
+$DriveSpace
 
-    <#$SystemSpec#>
 
-    Script Run Information:
+Script Run Information:
+Applications Installed: $appsyns
+Chrome: [$chromeyns]
+VLC: [$vlcyns] 
+Adobe: [$adobeyns] 
+Zoom: [$zoomyns]
 
-    Applications Installed: $appsyns
-    Chrome: [$chromeyns]
-    VLC: [$vlcyns] 
-    Adobe: [$adobeyns] 
-    Zoom: [$zoomyns]
-    
 
-    Wallpaper Applied: [$WallpaperApplied]
-    Windows 11 Start Layout Applied: [$StartMenuLayout]
+Wallpaper Applied: [$WallpaperApplied]
+Windows 11 Start Layout Applied: [$StartMenuLayout]
 
-    Packages Removed During Debloat: [$PackagesRemovedCount]
-    $PackagesRemoved
+Packages Removed During Debloat: [$PackagesRemovedCount]
+$PackagesRemoved
 
 
     "
