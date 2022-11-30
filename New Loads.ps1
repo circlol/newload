@@ -344,13 +344,17 @@ Function StartMenu() {
     $StartLayout | Out-File $layoutFile -Encoding ASCII
 
     $regAliases = @("HKLM", "HKCU")
-    $basePath = $regAlias + ":\SOFTWARE\Policies\Microsoft\Windows"
-    $keyPath = $basePath + "\Explorer" 
+    ForEach ($RegAlias in $regAliases) {
+        $basePath = $regAlias + ":\SOFTWARE\Policies\Microsoft\Windows"
+        $keyPath = $basePath + "\Explorer" 
+        If (!(Test-Path -Path $keyPath)) { New-Item -Path $basePath -Name "Explorer" -Verbose | Out-Null }
+    }
     
     #Assign the start layout and force it to apply with "LockedStartLayout" at both the machine and user level
     foreach ($regAlias in $regAliases) {
         Try{ If ($Global:Valid -eq $True){
-            If (!(Test-Path -Path $keyPath)) { New-Item -Path $basePath -Name "Explorer" -Verbose | Out-Null }
+            $basePath = $regAlias + ":\SOFTWARE\Policies\Microsoft\Windows"
+            $keyPath = $basePath + "\Explorer" 
             Set-ItemProperty -Path $keyPath -Name "LockedStartLayout" -Value 1
             Set-ItemProperty -Path $keyPath -Name "StartLayoutFile" -Value $layoutFile
         }}Catch{
