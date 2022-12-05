@@ -53,21 +53,21 @@ function Install-Software() {
 
         Try {
             Invoke-Expression "$InstallBlock" | Out-Host
-            If (($LASTEXITCODE)) { throw $Err } # 0 = False, 1 = True
+            If (($LASTEXITCODE)) { throw "Couldn't install package." } # 0 = False, 1 = True
 
             If ($ViaMSStore) {
-                $DoneMessage += " + $PackageName ($Package)`n"
+                $DoneMessage += "+ $PackageName ($Package)`n"
             } Else {
-                $DoneMessage += " + $Package`n"
+                $DoneMessage += "+ $Package`n"
             }
         } Catch {
             Write-Status -Types "!" -Status "Failed to install package via $PkgMngr" -Warning
 
             If ($ViaMSStore) {
                 Start-Process "ms-windows-store://pdp/?ProductId=$Package"
-                $DoneMessage += "[!] $PackageName ($Package)`n"
+                $DoneMessage += "! $PackageName ($Package)`n"
             } Else {
-                $DoneMessage += "[!] $Package`n"
+                $DoneMessage += "! $Package`n"
             }
         }
     }
@@ -131,20 +131,20 @@ function Uninstall-Software() {
 
         Try {
             Invoke-Expression "$UninstallBlock" | Out-Host
-            If (($LASTEXITCODE)) { throw $Err } # 0 = False, 1 = True
+            If (($LASTEXITCODE)) { throw "Couldn't uninstall package." } # 0 = False, 1 = True
 
             If ($ViaMSStore) {
-                $DoneMessage += " - $PackageName ($Package)`n"
+                $DoneMessage += "- $PackageName ($Package)`n"
             } Else {
-                $DoneMessage += " - $Package`n"
+                $DoneMessage += "- $Package`n"
             }
         } Catch {
             Write-Status -Types "!" -Status "Failed to uninstall package via $PkgMngr" -Warning
 
             If ($ViaMSStore) {
-                $DoneMessage += "[!] $PackageName ($Package)`n"
+                $DoneMessage += "! $PackageName ($Package)`n"
             } Else {
-                $DoneMessage += "[!] $Package`n"
+                $DoneMessage += "! $Package`n"
             }
         }
     }
@@ -179,43 +179,35 @@ Uninstall-Software -Name "Ubuntu" -Packages "Ubuntu" -ViaWSL
 Uninstall-Software -Name "Ubuntu" -Packages "Ubuntu" -ViaWSL -NoDialog
 #>
 
-###
-
-
 # SIG # Begin signature block
-# MIIGiwYJKoZIhvcNAQcCoIIGfDCCBngCAQExCzAJBgUrDgMCGgUAMGkGCisGAQQB
+# MIIFeQYJKoZIhvcNAQcCoIIFajCCBWYCAQExCzAJBgUrDgMCGgUAMGkGCisGAQQB
 # gjcCAQSgWzBZMDQGCisGAQQBgjcCAR4wJgIDAQAABBAfzDtgWUsITrck0sYpfvNR
-# AgEAAgEAAgEAAgEAAgEAMCEwCQYFKw4DAhoFAAQUfwqNAKLrc/3zDf2rN1e26a+g
-# Uw+gggPGMIIDwjCCAqqgAwIBAgIQG23ehsglIKxDyVeFlzqJzzANBgkqhkiG9w0B
-# AQsFADB5MScwJQYJKoZIhvcNAQkBFhhtaWtlQG1vdGhlcmNvbXB1dGVycy5jb20x
-# JDAiBgNVBAsMG2h0dHBzOi8vbW90aGVyY29tcHV0ZXJzLmNvbTESMBAGA1UECgwJ
-# TmV3IExvYWRzMRQwEgYDVQQDDAtNaWtlIEl2aXNvbjAeFw0yMjAyMjYwMjA4MjFa
-# Fw0yMzAxMDEwODAwMDBaMHkxJzAlBgkqhkiG9w0BCQEWGG1pa2VAbW90aGVyY29t
-# cHV0ZXJzLmNvbTEkMCIGA1UECwwbaHR0cHM6Ly9tb3RoZXJjb21wdXRlcnMuY29t
-# MRIwEAYDVQQKDAlOZXcgTG9hZHMxFDASBgNVBAMMC01pa2UgSXZpc29uMIIBIjAN
-# BgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAqfJhHWoMaoTvauUnS1yhV8oTyjqf
-# fO+OQrN8ysjIv3THM74mgPFnAYSkMxl2MCSOgZXOmeyiEZJdIyZQIEZuv/JeX6ud
-# 77m5HylKT7Y73Xqb6nL6Z1latXyR+Jj9ZeIo6omJWPHLqLRpBJUxniPuXVOYdiYu
-# Ahp3R3vX8JPmFAgDqjuYvOhQzEJ4ZkJGb+gYoaM34AaPv51aenN3EwqVKLNfCse0
-# 2qDqDHEh84I7xZU0pjFWPR2oZPodJD71wWLQ02f2sj2ggcH1kiyzt+oBCGAIf/Vg
-# 3KGhpDrWCdlv5yCeIK5N4GNmKGNkV7rh75//n8ieKD7dbEradkiEqa0PNQIDAQAB
-# o0YwRDAOBgNVHQ8BAf8EBAMCBaAwEwYDVR0lBAwwCgYIKwYBBQUHAwMwHQYDVR0O
-# BBYEFCtXFGsxQLT0r4rik3dDQ059x5dXMA0GCSqGSIb3DQEBCwUAA4IBAQAYPL43
-# 0hOONDAMC3sD2H6MfSeo+5MZgt3xpeRhGm0xQ9f6KWGWsSnM+fQsmXAquKS3dCHf
-# BzDgBYFuOdHJMq+lACZMUD2zPUlPwvUFY/40ScaO/3MzrPU1qd8TW8UdvTaBDywa
-# KAkXx2OkEw+NvMFD5Bz8fH1up2dT0BPN+4eX5lsWJcdsD4sOTOXOnWBj3x3mu11Z
-# YO25XmA9TFerTVBVszRmfchQ3T01V9/WAo0VM2inP8iBWKfMCIv3sJdtVVbInQW+
-# Sybg4NaAQV9HTFeSVI4BC/F0G2zo7WysE1K35s9uEhM4giO9ZPbAcMpfWsl/nJ27
-# VK1ykVYYVsfiBSiXMYICLzCCAisCAQEwgY0weTEnMCUGCSqGSIb3DQEJARYYbWlr
-# ZUBtb3RoZXJjb21wdXRlcnMuY29tMSQwIgYDVQQLDBtodHRwczovL21vdGhlcmNv
-# bXB1dGVycy5jb20xEjAQBgNVBAoMCU5ldyBMb2FkczEUMBIGA1UEAwwLTWlrZSBJ
-# dmlzb24CEBtt3obIJSCsQ8lXhZc6ic8wCQYFKw4DAhoFAKB4MBgGCisGAQQBgjcC
-# AQwxCjAIoAKAAKECgAAwGQYJKoZIhvcNAQkDMQwGCisGAQQBgjcCAQQwHAYKKwYB
-# BAGCNwIBCzEOMAwGCisGAQQBgjcCARUwIwYJKoZIhvcNAQkEMRYEFICjP/uvFmVd
-# iU9N8WzKwtYZMeePMA0GCSqGSIb3DQEBAQUABIIBAFxs6nqSZ8YhfM9hqjCMl/Wn
-# 2cU4VOzKLoEy02DAjMxsjTMiDD3NPKaODNlPBxFe71F25Fn80r0PpWlj4/g+z/QN
-# bX3s7vXEUbDOKQVchZrVppfLX+YiJor6ii5rc7pDskgjWiFJX1tCy52D0Xjv116y
-# +99RzZ3DUOmdOv7bg69W17OCnx4CUymbdp2XjFlE5gXtZwHJ9cdNf+RUKfVnPDLh
-# STL1C4gpwDi4q/5plePevygY0Iv37XrunvVAHlFdVA28BRWnYWQ/pKevugUFWoYD
-# Bs9Knbl4oJsDy76zFGv3K6MFAzkvtW4XWH9w+JIIjau26K5ssnK+xXW5fjnOQMc=
+# AgEAAgEAAgEAAgEAAgEAMCEwCQYFKw4DAhoFAAQUx4yha1AIisx5uQHcJ76RWEVc
+# WvWgggMQMIIDDDCCAfSgAwIBAgIQcugDkTMWcphI4F8edmMLrTANBgkqhkiG9w0B
+# AQsFADAeMRwwGgYDVQQDDBNOZXcgTG9hZHMgQ29kZSBTaWduMB4XDTIyMTIwNTA1
+# NTgyMFoXDTIzMTIwNTA2MTgyMFowHjEcMBoGA1UEAwwTTmV3IExvYWRzIENvZGUg
+# U2lnbjCCASIwDQYJKoZIhvcNAQEBBQADggEPADCCAQoCggEBANLmTQ9JLXGTbz4O
+# zrXJeDbJAso5/80NUs/iCJ19a79QHoi5RQZRFrZbJ2uu1+Dx3ui0LOqJeKe0/Or+
+# 9L3EqEf2hAlThM3JEZCtx5KRUVqF6zk+dztJ/JqkSZQPzSyZF1KqosBCTb/tAQcH
+# c4Bi1JggjX/fhMwxuGfyLBUGNp6WDRMoZby2tfUXe+5grsHFKXcgDHNPNcZo6bZY
+# zKQYT3iEEATiLsyXtBt7YzcSrrP5D0l8qrRna8EKCmVCX9wgIGAXHwQKeays50sN
+# LIwPIrG5GYwwQVGbjOtVeUo3aneLBArGdmcKPKyHVKZn1t49exN92/no96cPYtWn
+# kq15EN0CAwEAAaNGMEQwDgYDVR0PAQH/BAQDAgeAMBMGA1UdJQQMMAoGCCsGAQUF
+# BwMDMB0GA1UdDgQWBBR9LgSDHkiaRBLzTyX1lAvCIUlW4DANBgkqhkiG9w0BAQsF
+# AAOCAQEAQS8ax4uhVvT8tvhADRQX/oNxwjR7xuZTt4ABOkRMTTQRddwlEOOJiwAc
+# MhJlBHtvaCrnNN/0FYtL7df3q/FQvvouIDvfnNZgAZrcrBvEWjZZAd+mXrXb4r/w
+# sef73iq341OOSLeZ8sLk6digbNGS6EJjYuzsYUrlAEpG5fP9yW+gpYDmerttKtoY
+# xo2V7Wtuhnbx4i5VQEK/7tXgaJKNB2Ue3RJi52g1PQ/ZNkS66tIsnF3iIR5WmxdO
+# mNWoJ3ZIa1Bn98WYEiJoWT+yTH/ZfZ1k786Cz2hzSolhV3eur/HWwVZ7NmeH35zT
+# X0MABZ2lKEBHit+AOYH/r3SN5aMHjzGCAdMwggHPAgEBMDIwHjEcMBoGA1UEAwwT
+# TmV3IExvYWRzIENvZGUgU2lnbgIQcugDkTMWcphI4F8edmMLrTAJBgUrDgMCGgUA
+# oHgwGAYKKwYBBAGCNwIBDDEKMAigAoAAoQKAADAZBgkqhkiG9w0BCQMxDAYKKwYB
+# BAGCNwIBBDAcBgorBgEEAYI3AgELMQ4wDAYKKwYBBAGCNwIBFTAjBgkqhkiG9w0B
+# CQQxFgQUoX+t7g4kuBmgUsaiBobzvlA5+WkwDQYJKoZIhvcNAQEBBQAEggEAKsGU
+# YVtWKO1qTmc/YqeTKUYSzQmE5ajfcvSKWKNiwMq/RD9qxft4pnpBhMmRtASl/1CA
+# AXRz3phjHTJLuFJL6BGEXmvgU0TPTk/Xx6Ix5Z5dICS9Xs48uTfcAeklEgX5ypio
+# Aw2/iY9TbItiDOBPpXTXPCRiQPln4RDqkSsHHo5K7mriH78Wn9YdXsczx4fmKr37
+# Ausp/zXMmBmxiL4L8bPJJ9BmnmR1EeFamUXNzIe2ZHgX896SJ4TcpV5JY1QojbJZ
+# Bpjx5p/wG4a0K4vLdS09Gfs7Ml+wh8VrBEbUHKPCHTmT0HHdUHHJnxH7XpeLHs6j
+# Gbx40LL6Ig9U9AUDcw==
 # SIG # End signature block

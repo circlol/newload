@@ -1,8 +1,5 @@
-$Global:OpenFileLastUpdated = '20220829'
-Import-Module -DisableNameChecking $PSScriptRoot\..\lib\"templates.psm1"
 Import-Module -DisableNameChecking $PSScriptRoot\..\lib\"show-dialog-window.psm1"
 
-#$PSScriptRoot\
 function Open-PowerShellFilesCollection {
     [CmdletBinding()]
     param (
@@ -15,12 +12,12 @@ function Open-PowerShellFilesCollection {
         [Switch] $NoDialog
     )
 
-    Push-Location -Path "$PSScriptRoot\..\..\$RelativeLocation"
+    Push-Location -Path $(Join-Path -Path "$PSScriptRoot\..\.." -ChildPath "$RelativeLocation")
     Get-ChildItem -Recurse *.ps*1 | Unblock-File
 
     ForEach ($FileName in $Scripts) {
         $LastAccessUtc = "v$((Get-Item "$FileName").LastWriteTimeUtc | Get-Date -Format "yyyy-MM-dd")"
-        $Private:Counter = Write-TitleCounter -Text "$FileName ( $LastAccessUtc )" -Counter $Counter -MaxLength $Scripts.Length
+        $Private:Counter = Write-TitleCounter -Text "$FileName ($LastAccessUtc)" -Counter $Counter -MaxLength $Scripts.Length
         If ($OpenFromGUI) {
             Import-Module -DisableNameChecking .\"$FileName" -Force
         } Else {
@@ -45,11 +42,11 @@ function Open-RegFilesCollection {
         [Switch] $NoDialog
     )
 
-    Push-Location -Path "$PSScriptRoot\..\..\$RelativeLocation"
+    Push-Location -Path $(Join-Path -Path "$PSScriptRoot\..\.." -ChildPath "$RelativeLocation")
 
     ForEach ($FileName in $Scripts) {
         $LastAccessUtc = "v$((Get-Item "$FileName").LastWriteTimeUtc | Get-Date -Format "yyyy-MM-dd")"
-        $Private:Counter = Write-TitleCounter -Text "$FileName ( $LastAccessUtc )" -Counter $Counter -MaxLength $Scripts.Length
+        $Private:Counter = Write-TitleCounter -Text "$FileName ($LastAccessUtc)" -Counter $Counter -MaxLength $Scripts.Length
         regedit /s "$FileName"
     }
 
@@ -67,43 +64,35 @@ Open-PowerShellFilesCollection -RelativeLocation "src\scripts" -Scripts @("scrip
 Open-RegFilesCollection -RelativeLocation "src\scripts" -Scripts "script.reg" -NoDialog
 Open-RegFilesCollection -RelativeLocation "src\scripts" -Scripts @("script1.reg", "script2.reg") -DoneTitle "Title" -DoneMessage "Message"
 #>
-
-####
-
 # SIG # Begin signature block
-# MIIGiwYJKoZIhvcNAQcCoIIGfDCCBngCAQExCzAJBgUrDgMCGgUAMGkGCisGAQQB
+# MIIFeQYJKoZIhvcNAQcCoIIFajCCBWYCAQExCzAJBgUrDgMCGgUAMGkGCisGAQQB
 # gjcCAQSgWzBZMDQGCisGAQQBgjcCAR4wJgIDAQAABBAfzDtgWUsITrck0sYpfvNR
-# AgEAAgEAAgEAAgEAAgEAMCEwCQYFKw4DAhoFAAQU7ZfZxrLd2EKi/Dr6cc+wSqQg
-# dtagggPGMIIDwjCCAqqgAwIBAgIQG23ehsglIKxDyVeFlzqJzzANBgkqhkiG9w0B
-# AQsFADB5MScwJQYJKoZIhvcNAQkBFhhtaWtlQG1vdGhlcmNvbXB1dGVycy5jb20x
-# JDAiBgNVBAsMG2h0dHBzOi8vbW90aGVyY29tcHV0ZXJzLmNvbTESMBAGA1UECgwJ
-# TmV3IExvYWRzMRQwEgYDVQQDDAtNaWtlIEl2aXNvbjAeFw0yMjAyMjYwMjA4MjFa
-# Fw0yMzAxMDEwODAwMDBaMHkxJzAlBgkqhkiG9w0BCQEWGG1pa2VAbW90aGVyY29t
-# cHV0ZXJzLmNvbTEkMCIGA1UECwwbaHR0cHM6Ly9tb3RoZXJjb21wdXRlcnMuY29t
-# MRIwEAYDVQQKDAlOZXcgTG9hZHMxFDASBgNVBAMMC01pa2UgSXZpc29uMIIBIjAN
-# BgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAqfJhHWoMaoTvauUnS1yhV8oTyjqf
-# fO+OQrN8ysjIv3THM74mgPFnAYSkMxl2MCSOgZXOmeyiEZJdIyZQIEZuv/JeX6ud
-# 77m5HylKT7Y73Xqb6nL6Z1latXyR+Jj9ZeIo6omJWPHLqLRpBJUxniPuXVOYdiYu
-# Ahp3R3vX8JPmFAgDqjuYvOhQzEJ4ZkJGb+gYoaM34AaPv51aenN3EwqVKLNfCse0
-# 2qDqDHEh84I7xZU0pjFWPR2oZPodJD71wWLQ02f2sj2ggcH1kiyzt+oBCGAIf/Vg
-# 3KGhpDrWCdlv5yCeIK5N4GNmKGNkV7rh75//n8ieKD7dbEradkiEqa0PNQIDAQAB
-# o0YwRDAOBgNVHQ8BAf8EBAMCBaAwEwYDVR0lBAwwCgYIKwYBBQUHAwMwHQYDVR0O
-# BBYEFCtXFGsxQLT0r4rik3dDQ059x5dXMA0GCSqGSIb3DQEBCwUAA4IBAQAYPL43
-# 0hOONDAMC3sD2H6MfSeo+5MZgt3xpeRhGm0xQ9f6KWGWsSnM+fQsmXAquKS3dCHf
-# BzDgBYFuOdHJMq+lACZMUD2zPUlPwvUFY/40ScaO/3MzrPU1qd8TW8UdvTaBDywa
-# KAkXx2OkEw+NvMFD5Bz8fH1up2dT0BPN+4eX5lsWJcdsD4sOTOXOnWBj3x3mu11Z
-# YO25XmA9TFerTVBVszRmfchQ3T01V9/WAo0VM2inP8iBWKfMCIv3sJdtVVbInQW+
-# Sybg4NaAQV9HTFeSVI4BC/F0G2zo7WysE1K35s9uEhM4giO9ZPbAcMpfWsl/nJ27
-# VK1ykVYYVsfiBSiXMYICLzCCAisCAQEwgY0weTEnMCUGCSqGSIb3DQEJARYYbWlr
-# ZUBtb3RoZXJjb21wdXRlcnMuY29tMSQwIgYDVQQLDBtodHRwczovL21vdGhlcmNv
-# bXB1dGVycy5jb20xEjAQBgNVBAoMCU5ldyBMb2FkczEUMBIGA1UEAwwLTWlrZSBJ
-# dmlzb24CEBtt3obIJSCsQ8lXhZc6ic8wCQYFKw4DAhoFAKB4MBgGCisGAQQBgjcC
-# AQwxCjAIoAKAAKECgAAwGQYJKoZIhvcNAQkDMQwGCisGAQQBgjcCAQQwHAYKKwYB
-# BAGCNwIBCzEOMAwGCisGAQQBgjcCARUwIwYJKoZIhvcNAQkEMRYEFIxzj7DI8YjO
-# QBK0qPoj5o0Q0lO/MA0GCSqGSIb3DQEBAQUABIIBAKbfLb3U9R+GolfpSkgQT5cV
-# /oONbSMHcBVllLnHh17LbxtZ7179fckxO0Q3zcC26U8n9WUVVI/70FyuKsYp3LCB
-# tCoRkmfoHENNa1N2dVJ5VF2iAXRobAAjNiAO45AOdRK2rPYNIm9DKSnN4ygbATVu
-# q2N3qn4twuUtS1vfoHH3cP47AJekfG62vGzL+GTPd4jHMLsP9sa6UV6LbeCJrJwe
-# jTkSVELKGxuRzLqbzmOOxsib+5l4DDnseMtG69aSdqkOn3fxTiHaJngCw8fmqxGg
-# 30srVRxmlHgb+9ohsrqlfCkBf0+6XutgMX4JU9MaYmYqtB6MKpnfpESJpMfW7aU=
+# AgEAAgEAAgEAAgEAAgEAMCEwCQYFKw4DAhoFAAQUdScFpp5H4Ddg6ZUjO5UeAuqp
+# tC2gggMQMIIDDDCCAfSgAwIBAgIQcugDkTMWcphI4F8edmMLrTANBgkqhkiG9w0B
+# AQsFADAeMRwwGgYDVQQDDBNOZXcgTG9hZHMgQ29kZSBTaWduMB4XDTIyMTIwNTA1
+# NTgyMFoXDTIzMTIwNTA2MTgyMFowHjEcMBoGA1UEAwwTTmV3IExvYWRzIENvZGUg
+# U2lnbjCCASIwDQYJKoZIhvcNAQEBBQADggEPADCCAQoCggEBANLmTQ9JLXGTbz4O
+# zrXJeDbJAso5/80NUs/iCJ19a79QHoi5RQZRFrZbJ2uu1+Dx3ui0LOqJeKe0/Or+
+# 9L3EqEf2hAlThM3JEZCtx5KRUVqF6zk+dztJ/JqkSZQPzSyZF1KqosBCTb/tAQcH
+# c4Bi1JggjX/fhMwxuGfyLBUGNp6WDRMoZby2tfUXe+5grsHFKXcgDHNPNcZo6bZY
+# zKQYT3iEEATiLsyXtBt7YzcSrrP5D0l8qrRna8EKCmVCX9wgIGAXHwQKeays50sN
+# LIwPIrG5GYwwQVGbjOtVeUo3aneLBArGdmcKPKyHVKZn1t49exN92/no96cPYtWn
+# kq15EN0CAwEAAaNGMEQwDgYDVR0PAQH/BAQDAgeAMBMGA1UdJQQMMAoGCCsGAQUF
+# BwMDMB0GA1UdDgQWBBR9LgSDHkiaRBLzTyX1lAvCIUlW4DANBgkqhkiG9w0BAQsF
+# AAOCAQEAQS8ax4uhVvT8tvhADRQX/oNxwjR7xuZTt4ABOkRMTTQRddwlEOOJiwAc
+# MhJlBHtvaCrnNN/0FYtL7df3q/FQvvouIDvfnNZgAZrcrBvEWjZZAd+mXrXb4r/w
+# sef73iq341OOSLeZ8sLk6digbNGS6EJjYuzsYUrlAEpG5fP9yW+gpYDmerttKtoY
+# xo2V7Wtuhnbx4i5VQEK/7tXgaJKNB2Ue3RJi52g1PQ/ZNkS66tIsnF3iIR5WmxdO
+# mNWoJ3ZIa1Bn98WYEiJoWT+yTH/ZfZ1k786Cz2hzSolhV3eur/HWwVZ7NmeH35zT
+# X0MABZ2lKEBHit+AOYH/r3SN5aMHjzGCAdMwggHPAgEBMDIwHjEcMBoGA1UEAwwT
+# TmV3IExvYWRzIENvZGUgU2lnbgIQcugDkTMWcphI4F8edmMLrTAJBgUrDgMCGgUA
+# oHgwGAYKKwYBBAGCNwIBDDEKMAigAoAAoQKAADAZBgkqhkiG9w0BCQMxDAYKKwYB
+# BAGCNwIBBDAcBgorBgEEAYI3AgELMQ4wDAYKKwYBBAGCNwIBFTAjBgkqhkiG9w0B
+# CQQxFgQUapA3LrJDqCVeiqR9c+ZoW52j25owDQYJKoZIhvcNAQEBBQAEggEAtwO6
+# 6tAAOQmPa6sUDQIkxxfbro3zccCg7hswAT0tqyBnX5SrqIvOaxrLAw7TleM7tZCa
+# H7hBTl/kYqVPaMuxAKO2gEdL2zjEc8c/ZPTK4n6+B2KdBSxuuADLYD4OfhBjKkBw
+# 4rOyjolFGmrz1h8NtvXd/R/mG0uSZ1guP/GlZL63Ck6WsXBHLxdmexaS8e72M7X6
+# qnpIYFVuZTPXj72MecADPZYCm/N4eStv3CnqUD4jEwEkMGX4Uxho0QdzJbN7/Srn
+# kVHoWDgq9tXpU9iJjXiX6M3JKxVpgohXyjd9PQANkZ36kTrDjQoC4YPwF4xCJ7rJ
+# 30xPk+0GDUoBcmReqA==
 # SIG # End signature block
