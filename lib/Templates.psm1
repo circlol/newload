@@ -21,7 +21,7 @@ Function Write-Title() {
     Write-Host "$Text " -NoNewline -ForegroundColor White -BackgroundColor Black
     Write-Host "[" -NoNewline -ForegroundColor DarkYellow -BackgroundColor Black
     Write-Host "====================" -NoNewline -ForegroundColor White -BackgroundColor Black
-    Write-Host ">" -NoNewline -ForegroundColor DarkYellow -BackgroundColor Black
+    Write-Host ">`n" -ForegroundColor DarkYellow -BackgroundColor Black
 }
 Function Write-Section() {
     [CmdletBinding()]
@@ -35,7 +35,7 @@ Function Write-Section() {
     Write-Host "$Text " -NoNewline -ForegroundColor White -BackgroundColor Black
     Write-Host "[" -NoNewline -ForegroundColor DarkYellow -BackgroundColor Black
     Write-Host "====================" -NoNewline -ForegroundColor White -BackgroundColor Black
-    Write-Host ">`n" -NoNewline -ForegroundColor DarkYellow -BackgroundColor Black
+    Write-Host ">`n" -ForegroundColor DarkYellow -BackgroundColor Black
 }
 Function Write-Caption() {
     [CmdletBinding()]
