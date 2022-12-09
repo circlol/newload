@@ -6,6 +6,7 @@ Function Logo(){
     Write-Host "| . `` |/ _ \ \ /\ / / | |    / _ \ / _`` |/ _``  / __|" -ForegroundColor White -BackgroundColor Black
     Write-Host "| |\  |  __/\ V  V /  | |___| (_) | (_| | (_| \__ \" -ForegroundColor White -BackgroundColor Black
     Write-Host "\_| \_/\___| \_/\_/   \_____/\___/ \__,_|\__,_|___/" -ForegroundColor White -BackgroundColor Black
+    Write-Host ""
 }
 
 Function Write-Title() {
@@ -34,7 +35,7 @@ Function Write-Section() {
     Write-Host "$Text " -NoNewline -ForegroundColor White -BackgroundColor Black
     Write-Host "[" -NoNewline -ForegroundColor DarkYellow -BackgroundColor Black
     Write-Host "====================" -NoNewline -ForegroundColor White -BackgroundColor Black
-    Write-Host ">" -NoNewline -ForegroundColor DarkYellow -BackgroundColor Black
+    Write-Host ">`n" -NoNewline -ForegroundColor DarkYellow -BackgroundColor Black
 }
 Function Write-Caption() {
     [CmdletBinding()]
@@ -121,7 +122,7 @@ Function Write-TitleCounter() {
     Write-Host "} " -NoNewline -ForegroundColor DarkYellow -BackgroundColor Black
     Write-Host "[" -NoNewline -ForegroundColor DarkYellow -BackgroundColor Black
     Write-Host "====================" -NoNewline -ForegroundColor White -BackgroundColor Black
-    Write-Host ">" -NoNewline -ForegroundColor DarkYellow -BackgroundColor Black
+    Write-Host ">`n" -NoNewline -ForegroundColor DarkYellow -BackgroundColor Black
 
 }
 Function Write-Break(){
