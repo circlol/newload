@@ -1,13 +1,12 @@
 $Global:TemplatesLastUpdated = '20220829'
 Function Logo(){
-    Write-Host " _   _                 _                     _     " -ForegroundColor Cyan -BackgroundColor Black
-    Write-Host "| \ | |               | |                   | |    " -ForegroundColor Cyan -BackgroundColor Black
-    Write-Host "|  \| | _____      __ | |     ___   __ _  __| |___ " -ForegroundColor Cyan -BackgroundColor Black
-    Write-Host "| . `` |/ _ \ \ /\ / / | |    / _ \ / _`` |/ _``  / __|" -ForegroundColor Cyan -BackgroundColor Black
-    Write-Host "| |\  |  __/\ V  V /  | |___| (_) | (_| | (_| \__ \" -ForegroundColor Cyan -BackgroundColor Black
-    Write-Host "\_| \_/\___| \_/\_/   \_____/\___/ \__,_|\__,_|___/" -ForegroundColor Cyan -BackgroundColor Black
-    Write-Host "`n                 Created by " -NoNewLine -ForegroundColor white -BackgroundColor Black
-    Write-Host "circ" -ForegroundColor Cyan -BackgroundColor Black
+    Write-Host " _   _                 _                     _     " -ForegroundColor White -BackgroundColor Black
+    Write-Host "| \ | |               | |                   | |    " -ForegroundColor White -BackgroundColor Black
+    Write-Host "|  \| | _____      __ | |     ___   __ _  __| |___ " -ForegroundColor White -BackgroundColor Black
+    Write-Host "| . `` |/ _ \ \ /\ / / | |    / _ \ / _`` |/ _``  / __|" -ForegroundColor White -BackgroundColor Black
+    Write-Host "| |\  |  __/\ V  V /  | |___| (_) | (_| | (_| \__ \" -ForegroundColor White -BackgroundColor Black
+    Write-Host "\_| \_/\___| \_/\_/   \_____/\___/ \__,_|\__,_|___/" -ForegroundColor White -BackgroundColor Black
+    Write-Host ""
 }
 
 Function Write-Title() {
@@ -16,9 +15,13 @@ Function Write-Title() {
         [String] $Text = "No Text"
     )
 
-    Write-Host "`n<====================] " -NoNewline -ForegroundColor Cyan -BackgroundColor Black
+    Write-Host "`n<" -NoNewline -ForegroundColor DarkYellow -BackgroundColor Black
+    Write-Host "====================" -NoNewline -ForegroundColor White -BackgroundColor Black
+    Write-Host "] " -NoNewline -ForegroundColor DarkYellow -BackgroundColor Black
     Write-Host "$Text " -NoNewline -ForegroundColor White -BackgroundColor Black
-    Write-Host "[====================>" -ForegroundColor Cyan -BackgroundColor Black
+    Write-Host "[" -NoNewline -ForegroundColor DarkYellow -BackgroundColor Black
+    Write-Host "====================" -NoNewline -ForegroundColor White -BackgroundColor Black
+    Write-Host ">`n" -ForegroundColor DarkYellow -BackgroundColor Black
 }
 Function Write-Section() {
     [CmdletBinding()]
@@ -26,9 +29,13 @@ Function Write-Section() {
         [String] $Text = "No Text"
     )
 
-    Write-Host "`n<==========] " -NoNewline -ForegroundColor Cyan -BackgroundColor Black
+    Write-Host "`n<" -NoNewline -ForegroundColor DarkYellow -BackgroundColor Black
+    Write-Host "====================" -NoNewline -ForegroundColor White -BackgroundColor Black
+    Write-Host "] " -NoNewline -ForegroundColor DarkYellow -BackgroundColor Black
     Write-Host "$Text " -NoNewline -ForegroundColor White -BackgroundColor Black
-    Write-Host "[==========>`n" -ForegroundColor Cyan -BackgroundColor Black
+    Write-Host "[" -NoNewline -ForegroundColor DarkYellow -BackgroundColor Black
+    Write-Host "====================" -NoNewline -ForegroundColor White -BackgroundColor Black
+    Write-Host ">" -ForegroundColor DarkYellow -BackgroundColor Black
 }
 Function Write-Caption() {
     [CmdletBinding()]
@@ -36,7 +43,8 @@ Function Write-Caption() {
         [String] $Text = "No Text"
     )
 
-    Write-Host "==> " -NoNewline -ForegroundColor Cyan -BackgroundColor Black
+    Write-Host "==" -NoNewline -ForegroundColor White -BackgroundColor Black
+    Write-Host "> " -NoNewline -ForegroundColor DarkYellow -BackgroundColor Black
     Write-Host "$Text" -ForegroundColor White -BackgroundColor Black
 }
 
@@ -81,9 +89,9 @@ Function Write-Status() {
     )
 
     ForEach ($Type in $Types) {
-        Write-Host "[" -NoNewline -ForegroundColor Cyan -BackgroundColor Black
-        Write-Host "$Type" -NoNewline -ForegroundColor Red -BackgroundColor Black
-        Write-Host "] " -NoNewline -ForegroundColor Cyan -BackgroundColor Black
+        Write-Host "[" -NoNewline -ForegroundColor DarkYellow -BackgroundColor Black
+        Write-Host "$Type" -NoNewline -ForegroundColor White -BackgroundColor Black
+        Write-Host "] " -NoNewline -ForegroundColor DarkYellow -BackgroundColor Black
     }
 
     If ($Warning) {
@@ -102,15 +110,25 @@ Function Write-TitleCounter() {
     )
 
     #$Counter += 1
-    Write-Host "`n<====================] " -NoNewline -ForegroundColor Cyan -BackgroundColor Black
-    Write-Host "( $Counter/$MaxLength ) - { $Text } " -NoNewline -ForegroundColor White -BackgroundColor Black
-    Write-Host "[====================>" -ForegroundColor Cyan -BackgroundColor Black
+    Write-Host "`n<" -NoNewline -ForegroundColor DarkYellow -BackgroundColor Black
+    Write-Host "====================" -NoNewline -ForegroundColor White -BackgroundColor Black
+    Write-Host "] " -NoNewline -ForegroundColor DarkYellow -BackgroundColor Black
+    Write-Host "(" -NoNewline -ForegroundColor DarkYellow -BackgroundColor Black
+    Write-Host " $Counter/$MaxLength " -NoNewline -ForegroundColor White -BackgroundColor Black
+    Write-Host ") " -NoNewline -ForegroundColor DarkYellow -BackgroundColor Black
+    Write-Host "- " -NoNewline -ForegroundColor White -BackgroundColor Black
+    Write-Host "{ " -NoNewline -ForegroundColor DarkYellow -BackgroundColor Black
+    Write-Host "$Text " -NoNewline -ForegroundColor White -BackgroundColor Black
+    Write-Host "} " -NoNewline -ForegroundColor DarkYellow -BackgroundColor Black
+    Write-Host "[" -NoNewline -ForegroundColor DarkYellow -BackgroundColor Black
+    Write-Host "====================" -NoNewline -ForegroundColor White -BackgroundColor Black
+    Write-Host ">" -ForegroundColor DarkYellow -BackgroundColor Black
 
 }
 Function Write-Break(){
-    Write-Host "`n`n[" -NoNewline -ForegroundColor Cyan -Backgroundcolor Black
-    Write-Host "================================================================================================" -NoNewLine -ForegroundColor RED -BackgroundColor Black
-    Write-Host "]`n" -ForegroundColor Cyan -BackgroundColor Black
+    Write-Host "`n`n[" -NoNewline -ForegroundColor DarkYellow -Backgroundcolor Black
+    Write-Host "================================================================================================" -NoNewLine -ForegroundColor White -BackgroundColor Black
+    Write-Host "]`n" -ForegroundColor DarkYellow -BackgroundColor Black
 }
 Function ScriptInfo(){
     Write-Break
