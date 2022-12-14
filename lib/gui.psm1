@@ -607,6 +607,12 @@ Function GUI() {
         Start-Transcript -Path $Log
         $Global:StartTime = Get-Date -DisplayHint Time
         Write-Status -Types "?" , "Activation" -Status "Checking Windows Activation Status.." -Warning
+        Write-Host " : Loading System Specs : "
+        Write-Host "CPU:" -NoNewLine -ForegroundColor White -BackgroundColor RED ; Write-Host " " -NoNewLine ; Get-CPU
+        Write-Host "GPU:" -NoNewLine -ForegroundColor White -BackgroundColor Green ; Write-Host " " -NoNewLine ; Get-GPU
+        Write-Host "RAM:" -NoNewLine -ForegroundColor White -BackgroundColor RED ; Write-Host " " -NoNewLine ; Get-RAM
+        Write-Host "Free Space on" -NoNewLine -ForegroundColor White -BackgroundColor Green ; Write-Host " " -NoNewLine ; Get-DriveSpace
+        Write-Host "Type" -NoNewLine -ForegroundColor White -BackgroundColor RED ; Write-Host " " -NoNewLine ;  Get-OSDriveType
         $ActiStat = (Get-CimInstance -ClassName SoftwareLicensingProduct -Filter "Name like 'Windows%'" | Where-Object PartialProductKey).LicenseStatus
         If ($ActiStat -ne 1) { Write-CaptionFailed -Text "Windows is not activated. Feel free to Activate Windows while New Loads runs.."; Start-Sleep -Seconds 3 ; Start-Process slui -ArgumentList '3' }else { Write-CaptionSucceed -Text "Windows is Activated. Proceeding" }
         If ($Perform_apps.checked -eq $True){Programs} else {Write-Status -Types "WARNING" -Status "Application Installation has been DISABLED in the GUI"}
@@ -636,6 +642,12 @@ Function GUI() {
     $RunNoOEM.Add_Click{
             Start-Transcript -Path $Log
             $Global:StartTime = Get-Date -DisplayHint Time
+            Write-Host " : Loading System Specs : "
+            Write-Host "CPU:" -NoNewLine -ForegroundColor White -BackgroundColor RED ; Write-Host " " -NoNewLine ; Get-CPU
+            Write-Host "GPU:" -NoNewLine -ForegroundColor White -BackgroundColor Green ; Write-Host " " -NoNewLine ; Get-GPU
+            Write-Host "RAM:" -NoNewLine -ForegroundColor White -BackgroundColor RED ; Write-Host " " -NoNewLine ; Get-RAM
+            Write-Host "Free Space on" -NoNewLine -ForegroundColor White -BackgroundColor Green ; Write-Host " " -NoNewLine ; Get-DriveSpace
+            Write-Host "Type" -NoNewLine -ForegroundColor White -BackgroundColor RED ; Write-Host " " -NoNewLine ;  Get-OSDriveType
             Write-Status -Types "?" , "Activation" -Status "Checking Windows Activation Status.." -Warning
             $ActiStat = (Get-CimInstance -ClassName SoftwareLicensingProduct -Filter "Name like 'Windows%'" | Where-Object PartialProductKey).LicenseStatus
             If ($ActiStat -ne 1) { Write-CaptionFailed -Text "Windows is not activated. Feel free to Activate Windows while New Loads runs.."; Start-Sleep -Seconds 3 ; Start-Process slui -ArgumentList '3' }else { Write-CaptionSucceed -Text "Windows is Activated. Proceeding" }
