@@ -596,9 +596,7 @@ $PackagesRemoved
     "
 }
 Function Request-PcRestart() {
-    $Ask = "Reboot?"
-
-    switch (Show-Question -Title "New Loads" -Message $Ask) {
+    switch (Show-YesNoCancelDialog -YesNoCancel -Message "Would you like to reboot the system now? ") {
         'Yes' {
             Write-Host "You choose to Restart now"
             Restart-Computer
