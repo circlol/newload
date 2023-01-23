@@ -56,7 +56,7 @@ Function Programs() {
                 Write-Status "+", "Apps" -Status "Adding UBlock Origin to Google Chrome"
                 REG ADD "HKLM\Software\Wow6432Node\Google\Chrome\Extensions\cjpalhdlnbpafiamejdnhcphjbkeiagm" /v update_url /t REG_SZ /d "https://clients2.google.com/service/update2/crx" /f
             }
-            If ($(Program.Name) -eq "VLC Media Player"){
+            If ($($Program.Name) -eq "VLC Media Player"){
                 Write-Status -Types "+" -Status "Adding support to HEVC/H.265 video codec (MUST HAVE)..."
                 Add-AppPackage -Path ".\assets\Microsoft.HEVCVideoExtension_2.0.51121.0_x64__8wekyb3d8bbwe.appx" -ErrorAction SilentlyContinue
             }
@@ -69,43 +69,38 @@ Function Programs() {
 }
 Function Visuals() {
     $TweakType = "Visual"
-    $WindowTitle = "New Loads - Visuals"; $host.UI.RawUI.WindowTitle = $WindowTitle
-    Write-Host "`n" ; Write-TitleCounter -Counter '3' -MaxLength $MaxLength -Text "Visuals"
+    $WindowTitle = "New Loads - Visuals"
+    $host.UI.RawUI.WindowTitle = $WindowTitle
 
+    Write-Host "`n" 
+    Write-TitleCounter -Counter '3' -MaxLength $MaxLength -Text "Visuals"
 
-
-    If ($BuildNumber -Ge "22000") {
+    # Check Windows version
+    if ($BuildNumber -ge "22000") {
         Write-Title -Text "Detected Windows 11"
-        Write-Status -Types "+", "$TweakType" -Status "Applying Wallpaper for Windows 11"
-        $PathToFile = Get-ChildItem -Path ".\Assets" -Recurse -Filter "11.jpg" | ForEach-Object { $_.FullName }
-        $WallpaperDestination = "$env:appdata\Microsoft\Windows\Themes\11.jpg"
-        If (!(Test-Path $WallpaperDestination)) {
-            Copy-Item -Path $PathToFile -Destination $WallpaperDestination -Force -Confirm:$False
-        }
-        Set-ItemProperty -Path "HKCU:\Control Panel\Desktop" -Name WallpaperStyle -Value '2' -Force
-        Set-ItemProperty -Path "HKCU:\Control Panel\Desktop" -Name Wallpaper -Value $WallpaperDestination
-        Set-ItemProperty -Path $PathToRegPersonalize -Name "SystemUsesLightTheme" -Value 0
-        Set-ItemProperty -Path $PathToRegPersonalize -Name "AppsUseLightTheme" -Value 1
-        RUNDLL32.EXE user32.dll, UpdatePerUserSystemParameters
-        Write-Host " REMINDER " -BackgroundColor Red -ForegroundColor White -NoNewLine ; Write-Host ": Wallpaper might not Apply UNTIL System is Rebooted"
-        $Status = ($?) ; If ($Status) { Write-Status -Types "+", "Visual" -Status "Wallpaper Set" } elseif (!$Status) { Write-Status -Types "?", "Visual" -Status "Error Applying Wallpaper" -Warning } else { Write-Host " idk wtf happened" }
+        $wallpaperPath = ".\Assets\11.jpg"
     }
-    elseif ($BuildNumber -LT '22000') {
+    else {
         Write-Title -Text "Detected Windows 10"
-        Write-Status -Types "+", "$TweakType" -Status "Applying Wallpaper for Windows 10"
-        $PathToFile = Get-ChildItem -Path ".\Assets" -Recurse -Filter "10.jpg" | ForEach-Object { $_.FullName }
-        $WallpaperDestination = "$env:appdata\Microsoft\Windows\Themes\10.jpg"
-        If (!(Test-Path $WallpaperDestination)) {
-            Copy-Item -Path $PathToFile -Destination $WallpaperDestination -Force -Confirm:$False
-        }
-        Set-ItemProperty -Path "HKCU:\Control Panel\Desktop" -Name WallpaperStyle -Value '2' -Force
-        Set-ItemProperty -Path "HKCU:\Control Panel\Desktop" -Name Wallpaper -Value $WallpaperDestination
-        Set-ItemProperty -Path $PathToRegPersonalize -Name "SystemUsesLightTheme" -Value 0
-        Set-ItemProperty -Path $PathToRegPersonalize -Name "AppsUseLightTheme" -Value 1
-        RUNDLL32.EXE user32.dll, UpdatePerUserSystemParameters
-        Write-Host " REMINDER " -BackgroundColor Red -ForegroundColor White -NoNewLine ; Write-Host ": Wallpaper might not Apply UNTIL System is Rebooted"
-        $Status = ($?) ; If ($Status) { Write-Status -Types "+", "Visual" -Status "Wallpaper Set" } elseif (!$Status) { Write-Status -Types "?", "Visual" -Status "Error Applying Wallpaper" -Warning } else { }
+        $wallpaperPath = ".\Assets\10.jpg"
     }
+
+    Write-Status -Types "+", $TweakType -Status "Applying Wallpaper"
+    # Copy wallpaper file
+    $wallpaperDestination = "$env:appdata\Microsoft\Windows\Themes\wallpaper.jpg"
+    Copy-Item -Path $wallpaperPath -Destination $wallpaperDestination -Force -Confirm:$False
+
+    # Update wallpaper settings
+    Set-ItemProperty -Path "HKCU:\Control Panel\Desktop" -Name WallpaperStyle -Value '2' -Force
+    Set-ItemProperty -Path "HKCU:\Control Panel\Desktop" -Name Wallpaper -Value $wallpaperDestination
+    Set-ItemProperty -Path $PathToRegPersonalize -Name "SystemUsesLightTheme" -Value 0
+    Set-ItemProperty -Path $PathToRegPersonalize -Name "AppsUseLightTheme" -Value 1
+    Invoke-Expression "RUNDLL32.EXE user32.dll, UpdatePerUserSystemParameters"
+    $Status = ($?) ; If ($Status) { Write-Status -Types "+", "Visual" -Status "Wallpaper Set`n" } elseif (!$Status) { Write-Status -Types "?", "Visual" -Status "Error Applying Wallpaper`n" -Warning } else { }
+
+    Write-Host " REMINDER " -BackgroundColor Red -ForegroundColor White -NoNewLine
+    Write-Host ": Wallpaper might not Apply UNTIL System is Rebooted`n"
+
 }
 Function Branding() {
     $WindowTitle = "New Loads - Branding"; $host.UI.RawUI.WindowTitle = $WindowTitle
@@ -479,29 +474,29 @@ Function Cleanup() {
     Try{
         If (Test-Path $location1) {
             Write-Status -Types "+", $TweakType -Status "Launching Google Chrome"
-            Start-Process Chrome
+            Start-Process Chrome -ErrorAction SilentlyContinue | Out-Null
         }
         Write-Section -Text "Cleanup"
         Write-Status -Types "-", $TweakType -Status "Cleaning Temp Folder"
-        Remove-Item "$env:Userprofile\AppData\Local\Temp\*.*" -Force -Recurse -Confirm:$false -Exclude "New Loads"
+        Remove-Item "$env:Userprofile\AppData\Local\Temp\*.*" -Force -Recurse -Confirm:$false -Exclude "New Loads" -ErrorAction SilentlyContinue | Out-Null
 
         Write-Status -Types "-", $TweakType -Status "Removing VLC Media Player Desktop Icon"
-        Remove-Item $vlcsc -Force -Recurse -Confirm:$false
+        Remove-Item $vlcsc -Force -Recurse -Confirm:$false -ErrorAction SilentlyContinue | Out-Null
 
         Write-Status -Types "-" , $TweakType -Status "Removing Acrobat Desktop Icon"
-        Remove-Item $acrosc -Force -Recurse -Confirm:$false
+        Remove-Item $acrosc -Force -Recurse -Confirm:$false -ErrorAction SilentlyContinue | Out-Null
 
         Write-Status -Types "-", $TweakType -Status "Removing Zoom Desktop Icon"
-        Remove-Item -path $zoomsc -force | Out-Null
+        Remove-Item -path $zoomsc -force -ErrorAction SilentlyContinue | Out-Null
 
         Write-Status -Types "-" , $TweakType -Status "Removing Edge Shortcut in User Folder"
-        Remove-Item $EdgeShortcut -Force -Recurse -Confirm:$false 
+        Remove-Item $EdgeShortcut -Force -Recurse -Confirm:$false -ErrorAction SilentlyContinue | Out-Null
         
         Write-Status -Types "-" , $TweakType -Status "Removing Edge Shortcut in Public Desktop"
-        Remove-Item $edgescpub -Force -Recurse -Confirm:$false 
+        Remove-Item $edgescpub -Force -Recurse -Confirm:$false -ErrorAction SilentlyContinue | Out-Null
 
         Write-Status -Types "-" , $TweakType -Status "Removing C:\Temp"
-        Remove-Item $ctemp -Force -Recurse -Confirm:$false 
+        Remove-Item $ctemp -Force -Recurse -Confirm:$false -ErrorAction SilentlyContinue | Out-Null
     }Catch{ (Continue)}
 }
 Function CreateRestorePoint() {
@@ -526,7 +521,7 @@ Function EmailLog() {
     $DriveSpace = Get-DriveSpace
 
     Stop-Transcript | Out-Null
-    systeminfo | Sort-Object | Out-File -Append $log -Encoding ascii
+    Get-ComputerInfo | Out-File -Append $log -Encoding ascii
     [String]$SystemSpec = Get-SystemSpec
     $SystemSpec | Out-Null
 
@@ -541,15 +536,13 @@ Function EmailLog() {
     (Get-Content $TempFile).replace("  ", '') | Set-Content $TempFile
     $Mobo = Get-Content $TempFile
     Remove-Item $TempFile
-    #$CheckIfErrorLogCreated = Test-Path -Path "$ErrorLog"
-    #If ($CheckIfErrorLogCreated -eq $True){$Log = @("$Log" , "$ErrorLog")}
-    $StartBinLocation = "$Env:userprofile\AppData\Local\Packages\Microsoft.Windows.StartMenuExperienceHost_cw5n1h2txyewy\LocalState\start.bin"
-    If (Test-Path $StartBinLocation) {
-        $StartbinHash = (Get-FileHash $StartBinLocation).Hash
-        $ModifiedStartBinHash = (Get-FileHash ".\assets\Start.bin").Hash
-        If ($StartBinHash -eq $ModifiedStartBinHash) { $StartMenuLayout = "YES" }
-    }
 
+    $TempFile = "$Env:Temp\tempmobo.txt"
+    $Mobo -replace 'Product','' -replace '════════════════════','' -Replace '(','' -replace ')','' -Replace '{','}' | Out-File $TempFile -Encoding ASCII
+    $Mobo -replace 'Product','' -replace '  ','' | Out-File $TempFile -Encoding ASCII
+    $Mobo = Get-Content $TempFile
+    Remove-Item $TempFile
+    
 
     Send-MailMessage -From 'New Loads Log <newloadslogs@shaw.ca>' -To '<newloadslogs@shaw.ca> , <newloads@shaw.ca>' -Subject "New Loads Log" -Attachments "$Log", "$ErrorLog" -Priority High -DeliveryNotification OnSuccess, OnFailure -SmtpServer 'smtp.shaw.ca' -Verbose -ErrorAction SilentlyContinue -Body "
         ############################
@@ -601,10 +594,6 @@ $PackagesRemoved
 
 
     "
-}
-Function JC() {
-    Write-Host ""
-    Write-Status "GUI" -Status "Ready for Next Selection"
 }
 Function Request-PcRestart() {
     $Ask = "Reboot?"
