@@ -698,7 +698,10 @@ Function GUI() {
     $Form.Dispose()
 }
     
-
+Function JC() {
+    Write-Host ""
+    Write-Status "GUI" -Status "Ready for Next Selection"
+}
 
 # SIG # Begin signature block
 # MIIFeQYJKoZIhvcNAQcCoIIFajCCBWYCAQExCzAJBgUrDgMCGgUAMGkGCisGAQQB
