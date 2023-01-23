@@ -517,7 +517,7 @@ Function Cleanup() {
 
         Write-Status -Types "-" , $TweakType -Status "Removing C:\Temp"
         Remove-Item $ctemp -Force -Recurse -Confirm:$false -ErrorAction SilentlyContinue | Out-Null
-    }Catch{ (Continue)}
+    }Catch{}
 }
 Function CreateRestorePoint() {
     $TweakType = "Backup"
@@ -557,11 +557,13 @@ Function EmailLog() {
     $Mobo = Get-Content $TempFile
     Remove-Item $TempFile
 
+    <#
     $TempFile = "$Env:Temp\tempmobo.txt"
     $Mobo -replace 'Product','' -replace '════════════════════','' -Replace '(','' -replace ')','' -Replace '{','}' | Out-File $TempFile -Encoding ASCII
     $Mobo -replace 'Product','' -replace '  ','' | Out-File $TempFile -Encoding ASCII
     $Mobo = Get-Content $TempFile
     Remove-Item $TempFile
+    #>
     
 
     Send-MailMessage -From 'New Loads Log <newloadslogs@shaw.ca>' -To '<newloadslogs@shaw.ca> , <newloads@shaw.ca>' -Subject "New Loads Log" -Attachments "$Log" -Priority High -DeliveryNotification OnSuccess, OnFailure -SmtpServer 'smtp.shaw.ca' -Verbose -ErrorAction SilentlyContinue -Body "
