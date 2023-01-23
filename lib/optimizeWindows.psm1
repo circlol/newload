@@ -1,14 +1,14 @@
 Function Optimize-Windows() {
-    [CmdletBinding()]
     param(
         [Switch] $Revert,
         [Int]    $Zero = 0,
-    [Int]    $One = 1,
-    [Array]  $EnableStatus = @(
+        [Int]    $One = 1
+    )
+    
+    $EnableStatus = @(
         @{ Symbol = "-"; Status = "Disabling"; }
         @{ Symbol = "+"; Status = "Enabling"; }
     )
-)
     
     If (($Revert)) {
         Write-Status -Types "<", $TweakType -Status "Reverting the tweaks is set to '$Revert'." -Warning
@@ -33,10 +33,11 @@ If ($One -ne '0'){
     Remove-Printer -Name "OneNote" -ErrorAction SilentlyContinue
     If ($?) {Write-Status -Types "-","Printer" -Status "Removed OneNote..."} elseif (!($?)){Write-Status -Types "?","Printer" -Status "Failed to Remove Microsoft XPS Document Writer..." -warning }
 }
+$os = Get-CimInstance -ClassName Win32_OperatingSystem
+$osVersion = $os.Caption
 
-
-If ($BuildNumber -lt $Win11) {
-    ## Windows 10
+If ($osVersion -like "*10*") {
+    # code for Windows 10
     Write-Section -Text "Applying Windows 10 Specific Reg Keys"
     ## Changes search box to an icon
     If ((Get-ItemProperty -Path $PathToRegSearch).SearchBoxTaskbarMode -eq 1) { } Else {
@@ -89,10 +90,8 @@ If ($BuildNumber -lt $Win11) {
         Write-Status -Types $EnableStatus[0].Symbol, $TweakType -Status "$($EnableStatus[0].Status) Dynamic Content in Windows Search..."
         Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Feeds\DSB" -Name "ShowDynamicContent" -Value $Zero -type DWORD -Force 
         Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\SearchSettings" -Name "IsDynamicSearchBoxEnabled" -Value $Zero -Type DWORD -Force    
-    }
-    
-    if ($BuildNumber -ge $Win11) {
-        ## Windows 11
+}elseif ($osVersion -like "*11*") {
+        ## Code for Windows 11
         Write-Section -Text "Applying Windows 11 Specific Reg Keys"
         If ($BuildNumber -GE $22H2) {
             Write-Status -Types "+","$TweakType" -Status "Setting Start Layout to More Icons.."
@@ -115,8 +114,12 @@ If ($BuildNumber -lt $Win11) {
             Write-Status -Types $EnableStatus[0].Symbol, $TweakType -Status "$($EnableStatus[0].Status) Meet Now from the Taskbar..."
             Set-ItemProperty -Path $PathToRegCurrentVersion\Policies\Explorer -Name "HideSCAMeetNow" -Type DWORD -Value $One 
         }
-    }
-
+}else {
+    # code for other operating systems
+    # Check Windows version
+    Throw{"
+    Don't know what happened. Closing" ; exit}
+}
 
     Write-Section -Text "Explorer Related"
 

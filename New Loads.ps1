@@ -74,16 +74,24 @@ Function Visuals() {
 
     Write-Host "`n" 
     Write-TitleCounter -Counter '3' -MaxLength $MaxLength -Text "Visuals"
-
-    # Check Windows version
-    if ($BuildNumber -ge "22000") {
-        Write-Title -Text "Detected Windows 11"
-        $wallpaperPath = ".\Assets\11.jpg"
-    }
-    else {
+    $os = Get-CimInstance -ClassName Win32_OperatingSystem
+    $osVersion = $os.Caption
+    
+    If ($osVersion -like "*10*") {
+        # code for Windows 10
         Write-Title -Text "Detected Windows 10"
         $wallpaperPath = ".\Assets\10.jpg"
+    }elseif ($osVersion -like "*11*") {
+        # code for Windows 11
+        Write-Title -Text "Detected Windows 11"
+        $wallpaperPath = ".\Assets\11.jpg"
+    }else {
+        # code for other operating systems
+        # Check Windows version
+        Throw{"
+        Don't know what happened. Closing"
     }
+}
 
     Write-Status -Types "+", $TweakType -Status "Applying Wallpaper"
     # Copy wallpaper file
@@ -525,10 +533,10 @@ Function EmailLog() {
     [String]$SystemSpec = Get-SystemSpec
     $SystemSpec | Out-Null
 
-    If (Test-Path -Path "$Location1") { $chromeyns = "X" }else { $chromeyns = "" }
-    If (Test-Path -Path "$Location2") { $vlcyns = "X" }else { $vlcyns = "" }
-    If (Test-Path -Path "$Location3") { $zoomyns = "X" }else { $zoomyns = "" }
-    If (Test-Path -Path "$Location4") { $adobeyns = "X" }else { $adobeyns = "" }
+    #If (Test-Path -Path "$Location1") { $chromeyns = "X" }else { $chromeyns = "" }
+    #If (Test-Path -Path "$Location2") { $vlcyns = "X" }else { $vlcyns = "" }
+    #If (Test-Path -Path "$Location3") { $zoomyns = "X" }else { $zoomyns = "" }
+    #If (Test-Path -Path "$Location4") { $adobeyns = "X" }else { $adobeyns = "" }
     If ($CurrentWallpaper -eq $Wallpaper) { $WallpaperApplied = "YES" }Else { $WallpaperApplied = "NO" }
     #Motherboard
     $TempFile = "$Env:Temp\tempmobo.txt" ; $Mobo | Out-File $TempFile -Encoding ASCII
@@ -544,7 +552,7 @@ Function EmailLog() {
     Remove-Item $TempFile
     
 
-    Send-MailMessage -From 'New Loads Log <newloadslogs@shaw.ca>' -To '<newloadslogs@shaw.ca> , <newloads@shaw.ca>' -Subject "New Loads Log" -Attachments "$Log", "$ErrorLog" -Priority High -DeliveryNotification OnSuccess, OnFailure -SmtpServer 'smtp.shaw.ca' -Verbose -ErrorAction SilentlyContinue -Body "
+    Send-MailMessage -From 'New Loads Log <newloadslogs@shaw.ca>' -To '<newloadslogs@shaw.ca> , <newloads@shaw.ca>' -Subject "New Loads Log" -Attachments "$Log" -Priority High -DeliveryNotification OnSuccess, OnFailure -SmtpServer 'smtp.shaw.ca' -Verbose -ErrorAction SilentlyContinue -Body "
         ############################
         #==========================#
         #=                        =#
