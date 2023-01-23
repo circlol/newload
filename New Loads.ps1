@@ -57,7 +57,7 @@ Function Programs() {
                 REG ADD "HKLM\Software\Wow6432Node\Google\Chrome\Extensions\cjpalhdlnbpafiamejdnhcphjbkeiagm" /v update_url /t REG_SZ /d "https://clients2.google.com/service/update2/crx" /f
             }
             If ($($Program.Name) -eq "VLC Media Player"){
-                Write-Status -Types "+" -Status "Adding support to HEVC/H.265 video codec (MUST HAVE)..."
+                Write-Status -Types "+", "Apps" -Status "Adding support to HEVC/H.265 video codec (MUST HAVE)..."
                 Add-AppPackage -Path ".\assets\Microsoft.HEVCVideoExtension_2.0.51121.0_x64__8wekyb3d8bbwe.appx" -ErrorAction SilentlyContinue
             }
         } else {
