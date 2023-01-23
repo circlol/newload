@@ -85,6 +85,18 @@ Function Visuals() {
         # code for Windows 11
         Write-Title -Text "Detected Windows 11"
         $wallpaperPath = ".\Assets\11.jpg"
+        $StartBinDefault = "$Env:SystemDrive\Users\Default\AppData\Local\Packages\Microsoft.Windows.StartMenuExperienceHost_cw5n1h2txyewy\LocalState\"
+        $StartBinCurrent = "$Env:userprofile\AppData\Local\Packages\Microsoft.Windows.StartMenuExperienceHost_cw5n1h2txyewy\LocalState"
+        $StartBinFiles = @(
+            ".\assets\start.bin"
+            ".\assets\start2.bin"
+        )
+        Foreach ($StartBinFile in $StartBinFiles){
+            xcopy $StartBinFile $StartBinDefault /y
+            xcopy $StartBinFile $StartBinCurrent /y
+        }
+
+        Taskkill /f /im StartMenuExperienceHost.exe
     }else {
         # code for other operating systems
         # Check Windows version
