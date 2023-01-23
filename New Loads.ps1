@@ -620,7 +620,7 @@ If (!($GUI)) {
     Debloat
     OfficeCheck
     #OneDriveRemoval
-    CheckForMsStoreUpdtes
+    CheckForMsStoreUpdates
     Optimize-Windows
     BitlockerDecryption
     CreateRestorePoint
