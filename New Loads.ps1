@@ -1,307 +1,165 @@
-try { Set-Variable -Name ScriptVersion -Value "2201027" ; If (!{$!}){Write-Section -Text "Script Version has been updated" } ;  }catch {}
-
-Function Programs() { 
-    $TweakType = "Apps"
-    Write-Host "`n" ; Write-TitleCounter -Counter '2' -MaxLength $MaxLength -Text "Program Installation"
-    Write-Title -Text "Application Installation"
-
-    #Google
-    Write-Section -Text "Google Chrome"
-    If (!(Test-Path -Path:$Location1)) {
-        If (Test-Path -Path:$gcoi) {
-            Try{ If ($Global:Valid -eq $True){
-            Write-Status -Types "+", $TweakType -Status "Google Chrome"
-            Start-Process -FilePath:$gcoi -ArgumentList /passive -Verbose -Wait
-            Write-Status -Types "+", "Registry" -Status "Flagging Google Chrome to Install UBlock Origin"
-            REG ADD $PathToChromeExtensions /v update_url /t REG_SZ /d $PathToChromeLink /f | Out-Null
-            Check
-            }}Catch{
-                "$(Get-Date)  [$TweakType]  Error: $($_.Exception.Message)" | 
-                    Out-File "$ErrorLog" -Append
-                "$(Get-Date)  [$TweakType]  Exception on Line Number: $($_.InvocationInfo.ScriptLineNumber)" |
-                    Out-File "$ErrorLog" -Append
-                "$(Get-Date)  [$TweakType]  Exception from Script: $($_.InvocationInfo.ScriptName)" |
-                    Out-File "$ErrorLog" -Append
-        }}else {
-            Try{ If ($Global:Valid -eq $True){
-            CheckNetworkStatus
-            Write-Status -Types "+", $TweakType -Status "Downloading Google Chrome"
-            Start-BitsTransfer -Source $package1dl -Destination $package1lc -TransferType Download -RetryInterval 60 -RetryTimeout 60 -Verbose | Out-Host
-            Check
-            Write-Status -Types "+", $TweakType -Status "Installing Google Chrome"
-            Start-Process -FilePath:$package1lc -ArgumentList /passive -Verbose -Wait
-            Write-Status -Types "+", "Registry" -Status "Flagging Google Chrome to Install UBlock Origin"
-            REG ADD $PathToChromeExtensions /v update_url /t REG_SZ /d $PathToChromeLink /f | Out-Null
-            Check
-            }}Catch{
-                "$(Get-Date)  [$TweakType]  Error: $($_.Exception.Message)" | 
-                    Out-File "$ErrorLog" -Append
-                "$(Get-Date)  [$TweakType]  Exception on Line Number: $($_.InvocationInfo.ScriptLineNumber)" |
-                    Out-File "$ErrorLog" -Append
-                "$(Get-Date)  [$TweakType]  Exception from Script: $($_.InvocationInfo.ScriptName)" |
-                    Out-File "$ErrorLog" -Append
-    }}}else {
-        Write-Status -Types "?", $TweakType -Status "Google Chrome is already Installed on this PC." -warning
+#Requires -RunAsAdministrator
+try { Set-Variable -Name ScriptVersion -Value "230111" ; If (! { $! }) { Write-Section -Text "Script Version has been updated" } ; }catch {throw}
+# Declare variables for each program
+Function Programs() {
+    # Set Window Title
+    $WindowTitle = "New Loads - Programs"; $host.UI.RawUI.WindowTitle = $WindowTitle
+    "" ; Write-TitleCounter -Counter '2' -MaxLength $MaxLength -Text "Program Installation"
+    Write-Section -Text "Application Installation"
+    $chrome = @{
+        Name = "Google Chrome"
+        Location = "$Env:PROGRAMFILES\Google\Chrome\Application\chrome.exe"
+        DownloadURL = "https://dl.google.com/dl/chrome/install/googlechromestandaloneenterprise64.msi"
+        Installer = ".\bin\googlechromestandaloneenterprise64.msi"
+        ArgumentList = "/passive"
     }
-
-
-
-    #VLC
-    Write-Section -Text "VLC Media Player"
-    If (!(Test-Path -Path:$Location2)) {
-        If (Test-Path -Path:$vlcoi) {
-            Try{ If ($Global:Valid -eq $True){
-            Write-Status -Types "+", $TweakType -Status "Installing VLC Media Player"
-            Start-Process -FilePath:$vlcoi -ArgumentList /quiet -Verbose -Wait
-            }}Catch{
-                "$(Get-Date)  [$TweakType]  Error: $($_.Exception.Message)" | 
-                    Out-File "$ErrorLog" -Append
-                "$(Get-Date)  [$TweakType]  Exception on Line Number: $($_.InvocationInfo.ScriptLineNumber)" |
-                    Out-File "$ErrorLog" -Append
-                "$(Get-Date)  [$TweakType]  Exception from Script: $($_.InvocationInfo.ScriptName)" |
-                    Out-File "$ErrorLog" -Append
-        }}else {
-            Try{ If ($Global:Valid -eq $True){
-            CheckNetworkStatus
-            Write-Status -Types "+", $TweakType -Status "Downloading VLC Media Player"
-            Start-BitsTransfer -Source $Package2dl -Destination $package2lc -TransferType Download -RetryInterval 60 -RetryTimeout 60 -Verbose | Out-Host
-            Check
-            Write-Status -Types "+", $TweakType -Status "Installing VLC Media Player"
-            Start-Process -FilePath:$package2lc -ArgumentList /quiet -Verbose -Wait
-            }}Catch{
-                "$(Get-Date)  [$TweakType]  Error: $($_.Exception.Message)" | 
-                    Out-File "$ErrorLog" -Append
-                "$(Get-Date)  [$TweakType]  Exception on Line Number: $($_.InvocationInfo.ScriptLineNumber)" |
-                    Out-File "$ErrorLog" -Append
-                "$(Get-Date)  [$TweakType]  Exception from Script: $($_.InvocationInfo.ScriptName)" |
-                    Out-File "$ErrorLog" -Append
-        }}}else {
-        Write-Status -Types "?", $TweakType -Status "VLC Media Player is already Installed on this PC." -Warning
+    $vlc = @{
+        Name = "VLC Media Player"
+        Location = "$Env:PROGRAMFILES\VideoLAN\VLC\vlc.exe"
+        DownloadURL = "https://get.videolan.org/vlc/3.0.18/win64/vlc-3.0.18-win64.exe"
+        Installer = ".\bin\vlc-3.0.18-win64.exe"
+        ArgumentList = "/S /L=1033"
     }
-        
-    #Zoom
-    Write-Section -Text "Zoom"
-    If (!(Test-Path -Path:$Location3)) {
-        If (Test-Path -Path:$zoomoi) {
-        Try{ If ($Global:Valid -eq $True){
-            Write-Status -Types "+", $tweaktype -Status "Installing Zoom"
-            Start-Process -FilePath:$zoomoi -ArgumentList /quiet -Verbose -Wait
-        }}Catch{
-            "$(Get-Date)  [$TweakType]  Error: $($_.Exception.Message)" | 
-                Out-File "$ErrorLog" -Append
-            "$(Get-Date)  [$TweakType]  Exception on Line Number: $($_.InvocationInfo.ScriptLineNumber)" |
-                Out-File "$ErrorLog" -Append
-            "$(Get-Date)  [$TweakType]  Exception from Script: $($_.InvocationInfo.ScriptName)" |
-                Out-File "$ErrorLog" -Append
-        }} else {
-            Try{ If ($Global:Valid -eq $True){
-            CheckNetworkStatus
-            Write-Status -Types "+", $TweakType -Status "Downloading Zoom"
-            Start-BitsTransfer -Source $Package3dl -Destination $package3lc -TransferType Download -RetryInterval 60 -RetryTimeout 60  -Verbose | Out-Host
-            Check
-            Write-Status -Types "+", $TweakType -Status "Installing Zoom"
-            Start-Process -FilePath:$package3lc -ArgumentList /quiet -Verbose -Wait
-            }} Catch {
-                "$(Get-Date)  [$TweakType]  Error: $($_.Exception.Message)" | 
-                    Out-File "$ErrorLog" -Append
-                "$(Get-Date)  [$TweakType]  Exception on Line Number: $($_.InvocationInfo.ScriptLineNumber)" |
-                    Out-File "$ErrorLog" -Append
-                "$(Get-Date)  [$TweakType]  Exception from Script: $($_.InvocationInfo.ScriptName)" |
-                    Out-File "$ErrorLog" -Append
-        }}}else {
-        Write-Status -Types "?", $TweakType -Status "Zoom is already Installed on this PC." -Warning
+    $zoom = @{
+        Name = "Zoom"
+        Location = "$Env:PROGRAMFILES\Zoom\bin\Zoom.exe"
+        DownloadURL = "https://zoom.us/client/5.13.5.12053/ZoomInstallerFull.msi?archType=x64"
+        Installer = ".\bin\ZoomInstallerFull.msi"
+        ArgumentList = "/quiet"
     }
-        
-    #Adobe
-    Write-Section -Text "Adobe Acrobat"
-    If (!(Test-Path -Path:$Location4)) {
-        If (Test-Path -Path:$aroi) {
-        Try{ If ($Global:Valid -eq $True){
-            Write-Status -Types "+", $TweakType -Status "Installing Adobe Acrobat Reader x64" 
-            Start-Process -FilePath:$aroi -ArgumentList /sPB -Verbose
-        }}Catch{
-            "$(Get-Date)  [$TweakType]  Error: $($_.Exception.Message)" | 
-                Out-File "$ErrorLog" -Append
-            "$(Get-Date)  [$TweakType]  Exception on Line Number: $($_.InvocationInfo.ScriptLineNumber)" |
-                Out-File "$ErrorLog" -Append
-            "$(Get-Date)  [$TweakType]  Exception from Script: $($_.InvocationInfo.ScriptName)" |
-                Out-File "$ErrorLog" -Append
-        }}else {
-            Try{ If ($Global:Valid -eq $True){
-            CheckNetworkStatus
-            Write-Status -Types "+", $TweakType -Status "Downloading Adobe Acrobat Reader x64"
-            Start-BitsTransfer -Source $Package4dl -Destination $package4lc -TransferType Download -RetryInterval 60 -RetryTimeout 60 -Verbose | Out-Host
-            Check
-            If ($? -eq $true){
-                Write-Status -Types "+", $TweakType -Status "Installing Adobe Acrobat Reader x64"
-                Start-Process -FilePath:$package4lc -ArgumentList /sPB -Verbose    
-            }}}Catch{
-                "$(Get-Date)  [$TweakType]  Error: $($_.Exception.Message)" | 
-                    Out-File "$ErrorLog" -Append
-                "$(Get-Date)  [$TweakType]  Exception on Line Number: $($_.InvocationInfo.ScriptLineNumber)" |
-                    Out-File "$ErrorLog" -Append
-                "$(Get-Date)  [$TweakType]  Exception from Script: $($_.InvocationInfo.ScriptName)" |
-                    Out-File "$ErrorLog" -Append
-        }}}else {
-        Write-Status -Types "?", $TweakType -Status "Adobe Acrobat is already Installed on this PC." -warning
+    $acrobat = @{
+        Name = "Adobe Acrobat Reader"
+        Location = "${Env:Programfiles(x86)}\Adobe\Acrobat Reader DC\Reader\AcroRd32.exe"
+        DownloadURL = "https://ardownload2.adobe.com/pub/adobe/reader/win/AcrobatDC/2200120169/AcroRdrDC2200120169_en_US.exe"
+        Installer = ".\bin\AcroRdrDCx642200120085_MUI.exe"
+        ArgumentList = "/sPB"
     }
-
-    Try{ If ($Global:Valid -eq $True){
-    Write-Status -Types "+" -Status "Adding support to HEVC/H.265 video codec (MUST HAVE)..."
-    Add-AppPackage -Path ".\assets\Microsoft.HEVCVideoExtension_2.0.51121.0_x64__8wekyb3d8bbwe.appx" -ErrorAction SilentlyContinue
-    Check
-    }}Catch{
-        "$(Get-Date)  [$TweakType]  Error: $($_.Exception.Message)" | 
-            Out-File "$ErrorLog" -Append
-        "$(Get-Date)  [$TweakType]  Exception on Line Number: $($_.InvocationInfo.ScriptLineNumber)" |
-            Out-File "$ErrorLog" -Append
-        "$(Get-Date)  [$TweakType]  Exception from Script: $($_.InvocationInfo.ScriptName)" |
-            Out-File "$ErrorLog" -Append
+    foreach ($program in $chrome, $vlc, $zoom, $acrobat) {
+        Write-Section -Text $program.Name
+        If (!(Test-Path -Path:$program.Location)) {
+            If (!(Test-Path -Path:$program.Installer)) {
+                CheckNetworkStatus
+                Write-Status -Types "+", "Apps" -Status "Downloading $($program.Name)"
+                Start-BitsTransfer -Source $program.DownloadURL -Destination $program.Installer -TransferType Download -Dynamic
+            }
+        Write-Status -Types "+", "Apps" -Status "Installing $($program.Name)"
+        If ($($program.Name) -eq "Google Chrome"){
+                Start-Process -FilePath:$program.Installer -ArgumentList $program.ArgumentList -Wait
+                Write-Status "+", "Apps" -Status "Adding UBlock Origin to Google Chrome"
+                REG ADD "HKLM\Software\Wow6432Node\Google\Chrome\Extensions\cjpalhdlnbpafiamejdnhcphjbkeiagm" /v update_url /t REG_SZ /d "https://clients2.google.com/service/update2/crx" /f
+            }Else {
+                Start-Process -FilePath:$program.Installer -ArgumentList $program.ArgumentList 
+            }
+        If ($($Program.Name) -eq "VLC Media Player"){
+            Write-Status -Types "+", "Apps" -Status "Adding support to HEVC/H.265 video codec (MUST HAVE)..."
+            Add-AppPackage -Path ".\assets\Microsoft.HEVCVideoExtension_2.0.51121.0_x64__8wekyb3d8bbwe.appx" -ErrorAction SilentlyContinue
+        }
+        } else {
+            Write-Status -Types "@", "Apps" -Status "$($program.Name) already seems to be installed on this system.. Skipping Installation"
+        }
     }
+    $WindowTitle = "New Loads"; $host.UI.RawUI.WindowTitle = $WindowTitle
 }
-Function Visuals() { 
-    $TweakType = "Visual"
+Function Visuals() {
+    $TweakType = "Visual" ; $WindowTitle = "New Loads - Visuals" ; $host.UI.RawUI.WindowTitle = $WindowTitle
     Write-Host "`n" ; Write-TitleCounter -Counter '3' -MaxLength $MaxLength -Text "Visuals"
-    If ($BuildNumber -Ge '22000') {
-        Try{ If ($Global:Valid -eq $True){
-        Write-Title -Text "Detected Windows 11"
-        Write-Status -Types "+", "$TweakType" -Status "Applying Wallpaper for Windows 11"
-        $PathToFile = Get-ChildItem -Path ".\Assets" -Recurse -Filter "11.jpg" | ForEach-Object { $_.FullName }
-        $WallpaperDestination = "$env:appdata\Microsoft\Windows\Themes\11.jpg"
-        If (!(Test-Path $WallpaperDestination)){
-            Copy-Item -Path $PathToFile -Destination $WallpaperDestination -Force -Confirm:$False
-        }
-        Set-ItemProperty -Path "HKCU:\Control Panel\Desktop" -Name WallpaperStyle -Value '2' -Force
-        Set-ItemProperty -Path "HKCU:\Control Panel\Desktop" -Name Wallpaper -Value $WallpaperDestination
-        Set-ItemProperty -Path $PathToRegPersonalize -Name "SystemUsesLightTheme" -Value 0
-        Set-ItemProperty -Path $PathToRegPersonalize -Name "AppsUseLightTheme" -Value 1
-        RUNDLL32.EXE user32.dll, UpdatePerUserSystemParameters
-        Write-Host " REMINDER " -BackgroundColor Red -ForegroundColor White -NoNewLine ; Write-Host ": Wallpaper might not Apply UNTIL System is Rebooted"
-        $Status = ($?) ; If ($Status) { Write-Status -Types "+", "Visual" -Status "Wallpaper Set" } elseif (!$Status) { Write-Status -Types "?", "Visual" -Status "Error Applying Wallpaper" -Warning } else { Write-Host " idk wtf happened" }
-        }}Catch{
-            "$(Get-Date)  [$TweakType]  Error: $($_.Exception.Message)" | 
-                Out-File "$ErrorLog" -Append
-            "$(Get-Date)  [$TweakType]  Exception on Line Number: $($_.InvocationInfo.ScriptLineNumber)" |
-                Out-File "$ErrorLog" -Append
-            "$(Get-Date)  [$TweakType]  Exception from Script: $($_.InvocationInfo.ScriptName)" |
-                Out-File "$ErrorLog" -Append
-        }
-    }
-    elseif ($BuildNumber -Lt '22000') {
-        Try{ If ($Global:Valid -eq $True){
+    $os = Get-CimInstance -ClassName Win32_OperatingSystem
+    $osVersion = $os.Caption
+    If ($osVersion -like "*10*") {
+        # code for Windows 10
         Write-Title -Text "Detected Windows 10"
-        Write-Status -Types "+", "$TweakType" -Status "Applying Wallpaper for Windows 10"
-        $PathToFile = Get-ChildItem -Path ".\Assets" -Recurse -Filter "10.jpg" | ForEach-Object { $_.FullName }
-        $WallpaperDestination = "$env:appdata\Microsoft\Windows\Themes\11.jpg"
-        If (!(Test-Path $WallpaperDestination)){
-        Copy-Item -Path $PathToFile -Destination $WallpaperDestination -Force -Confirm:$False
+        $wallpaperPath = ".\Assets\10.jpg"
+    }elseif ($osVersion -like "*11*") {
+        # code for Windows 11
+        Write-Title -Text "Detected Windows 11"
+        $wallpaperPath = ".\Assets\11.jpg"
+        $StartBinDefault = "$Env:SystemDrive\Users\Default\AppData\Local\Packages\Microsoft.Windows.StartMenuExperienceHost_cw5n1h2txyewy\LocalState\"
+        $StartBinCurrent = "$Env:userprofile\AppData\Local\Packages\Microsoft.Windows.StartMenuExperienceHost_cw5n1h2txyewy\LocalState"
+        $StartBinFiles = @(
+            ".\assets\start.bin"
+            ".\assets\start2.bin"
+        )
+        Foreach ($StartBinFile in $StartBinFiles){
+            xcopy $StartBinFile $StartBinDefault /y
+            xcopy $StartBinFile $StartBinCurrent /y
         }
-        Set-ItemProperty -Path "HKCU:\Control Panel\Desktop" -Name WallpaperStyle -Value '2' -Force
-        Set-ItemProperty -Path "HKCU:\Control Panel\Desktop" -Name Wallpaper -Value $WallpaperDestination
-        Set-ItemProperty -Path $PathToRegPersonalize -Name "SystemUsesLightTheme" -Value 0
-        Set-ItemProperty -Path $PathToRegPersonalize -Name "AppsUseLightTheme" -Value 1
-        RUNDLL32.EXE user32.dll, UpdatePerUserSystemParameters
-        Write-Host " REMINDER " -BackgroundColor Red -ForegroundColor White -NoNewLine ; Write-Host ": Wallpaper might not Apply UNTIL System is Rebooted"
-        $Status = ($?) ; If ($Status) { Write-Status -Types "+", "Visual" -Status "Wallpaper Set" } elseif (!$Status) { Write-Status -Types "?", "Visual" -Status "Error Applying Wallpaper" -Warning } else { Write-Host " idk wtf happened" }
-        }}Catch{
-            "$(Get-Date)  [$TweakType]  Error: $($_.Exception.Message)" | 
-                Out-File "$ErrorLog" -Append
-            "$(Get-Date)  [$TweakType]  Exception on Line Number: $($_.InvocationInfo.ScriptLineNumber)" |
-                Out-File "$ErrorLog" -Append
-            "$(Get-Date)  [$TweakType]  Exception from Script: $($_.InvocationInfo.ScriptName)" |
-                Out-File "$ErrorLog" -Append
-        }
+        Taskkill /f /im StartMenuExperienceHost.exe
+    }else {
+        # code for other operating systems
+        # Check Windows version
+        Throw{"
+        Don't know what happened. Closing"
     }
 }
-Function Branding() { 
+    Write-Status -Types "+", $TweakType -Status "Applying Wallpaper"
+    # Copy wallpaper file
+    $wallpaperDestination = "$env:appdata\Microsoft\Windows\Themes\wallpaper.jpg"
+    Copy-Item -Path $wallpaperPath -Destination $wallpaperDestination -Force -Confirm:$False
+
+    # Update wallpaper settings
+    Set-ItemProperty -Path "HKCU:\Control Panel\Desktop" -Name WallpaperStyle -Value '2' -Force
+    Set-ItemProperty -Path "HKCU:\Control Panel\Desktop" -Name Wallpaper -Value $wallpaperDestination
+    Set-ItemProperty -Path $PathToRegPersonalize -Name "SystemUsesLightTheme" -Value 0
+    Set-ItemProperty -Path $PathToRegPersonalize -Name "AppsUseLightTheme" -Value 1
+    #Invoke-Expression "RUNDLL32.EXE user32.dll, UpdatePerUserSystemParameters"
+    Start-Process "RUNDLL32.EXE" "user32.dll, UpdatePerUserSystemParameters"
+    $Status = ($?) ; If ($Status) { Write-Status -Types "+", "Visual" -Status "Wallpaper Set`n" } elseif (!$Status) { Write-Status -Types "?", "Visual" -Status "Error Applying Wallpaper`n" -Warning } else { }
+
+    Write-Host " REMINDER " -BackgroundColor Red -ForegroundColor White -NoNewLine
+    Write-Host ": Wallpaper might not Apply UNTIL System is Rebooted`n"
+
+}
+Function Branding() {
+    $WindowTitle = "New Loads - Branding"; $host.UI.RawUI.WindowTitle = $WindowTitle
     Write-Host "`n" ; Write-TitleCounter -Counter '4' -MaxLength $MaxLength -Text "Mothers Branding"
     $TweakType = "Branding"
     If ((Get-ItemProperty -Path $PathToOEMInfo).Manufacturer -eq "$store") {
         Write-Status -Types "?" -Status "Skipping" -Warning
-    }else {
-        Try{ If ($Global:Valid -eq $True){
+    }
+    else {
         Write-Status -Types "+", $TweakType -Status "Adding Mother Computers to Support Page"
         Set-ItemProperty -Path $PathToOEMInfo -Name "Manufacturer" -Type String -Value "$store"
         Check
-        }}Catch{
-            "$(Get-Date)  [$TweakType]  Error: $($_.Exception.Message)" | 
-                Out-File "$ErrorLog" -Append
-            "$(Get-Date)  [$TweakType]  Exception on Line Number: $($_.InvocationInfo.ScriptLineNumber)" |
-                Out-File "$ErrorLog" -Append
-            "$(Get-Date)  [$TweakType]  Exception from Script: $($_.InvocationInfo.ScriptName)" |
-                Out-File "$ErrorLog" -Append
-        }
     }
 
     If ((Get-ItemProperty -Path $PathToOEMInfo).SupportPhone -eq $phone) {
         Write-Status -Types "?" -Status "Skipping" -Warning
-    }else {
-        Try{ If ($Global:Valid -eq $True){
+    }
+    else {
         Write-Status -Types "+", $TweakType -Status "Adding Mothers Number to Support Page"
         Set-ItemProperty -Path $PathToOEMInfo -Name "SupportPhone" -Type String -Value "$phone"
         Check
-        }}Catch{
-            "$(Get-Date)  [$TweakType]  Error: $($_.Exception.Message)" | 
-                Out-File "$ErrorLog" -Append
-            "$(Get-Date)  [$TweakType]  Exception on Line Number: $($_.InvocationInfo.ScriptLineNumber)" |
-                Out-File "$ErrorLog" -Append
-            "$(Get-Date)  [$TweakType]  Exception from Script: $($_.InvocationInfo.ScriptName)" |
-                Out-File "$ErrorLog" -Append
-        }
     }
 
     If ((Get-ItemProperty -Path $PathToOEMInfo).SupportHours -eq "$hours") {
         Write-Status -Types "?" -Status "Skipping" -Warning
-    }else {
-        Try{ If ($Global:Valid -eq $True){
+    }
+    else {
         Write-Status -Types "+", $TweakType -Status "Adding Store Hours to Support Page"
         Set-ItemProperty -Path $PathToOEMInfo -Name "SupportHours" -Type String -Value "$hours"
         Check
-        }}Catch{
-            "$(Get-Date)  [$TweakType]  Error: $($_.Exception.Message)" | 
-                Out-File "$ErrorLog" -Append
-            "$(Get-Date)  [$TweakType]  Exception on Line Number: $($_.InvocationInfo.ScriptLineNumber)" |
-                Out-File "$ErrorLog" -Append
-            "$(Get-Date)  [$TweakType]  Exception from Script: $($_.InvocationInfo.ScriptName)" |
-                Out-File "$ErrorLog" -Append
-        }
     }
-    
+
     If ((Get-ItemProperty -Path $PathToOEMInfo).SupportURL -eq $website) {
         Write-Status -Types "?" -Status "Skipping" -Warning
-    }else {
-        Try{ If ($Global:Valid -eq $True){
+    }
+    else {
         Write-Status -Types "+", $TweakType -Status "Adding Store Hours to Support Page"
         Set-ItemProperty -Path $PathToOEMInfo -Name "SupportURL" -Type String -Value $website
         Check
-        }}Catch{
-            "$(Get-Date)  [$TweakType]  Error: $($_.Exception.Message)" | 
-                Out-File "$ErrorLog" -Append
-            "$(Get-Date)  [$TweakType]  Exception on Line Number: $($_.InvocationInfo.ScriptLineNumber)" |
-                Out-File "$ErrorLog" -Append
-            "$(Get-Date)  [$TweakType]  Exception from Script: $($_.InvocationInfo.ScriptName)" |
-                Out-File "$ErrorLog" -Append
-        }
     }
 
     If ((Get-ItemProperty -Path $PathToOEMInfo).Model -eq "$model") {
         Write-Status -Types "?" -Status "Skipping" -Warning
-    }else {
-        Try{ If ($Global:Valid -eq $True){
+    }
+    else {
         Write-Status -Types "+", $TweakType -Status "Adding Store Number to Settings Page"
         Set-ItemProperty -Path $PathToOEMInfo -Name $page -Type String -Value "$Model"
         Check
-        }}Catch{
-            "$(Get-Date)  [$TweakType]  Error: $($_.Exception.Message)" | 
-                Out-File "$ErrorLog" -Append
-            "$(Get-Date)  [$TweakType]  Exception on Line Number: $($_.InvocationInfo.ScriptLineNumber)" |
-                Out-File "$ErrorLog" -Append
-            "$(Get-Date)  [$TweakType]  Exception from Script: $($_.InvocationInfo.ScriptName)" |
-                Out-File "$ErrorLog" -Append
-        }
     }
 }
-Function StartMenu() { 
+Function StartMenu() {
+    $WindowTitle = "New Loads - Start Menu"; $host.UI.RawUI.WindowTitle = $WindowTitle
     Write-Host "`n" ; Write-TitleCounter -Counter '5' -MaxLength $MaxLength -Text "StartMenuLayout.xml Modification"
     Write-Title -Text "Applying Taskbar Layout"
     $StartLayout = @"
@@ -315,11 +173,11 @@ Function StartMenu() {
         <CustomTaskbarLayoutCollection PinListPlacement="Replace">
             <defaultlayout:TaskbarLayout>
             <taskbar:TaskbarPinList>
-                <taskbar:UWA AppUserModelID="windows.immersivecontrolpanel_cw5n1h2txyewy!Microsoft.Windows.ImmersiveControlPanel" />
-                <taskbar:UWA AppUserModelID="Microsoft.Windows.SecHealthUI_cw5n1h2txyewy!SecHealthUI" />
-                <taskbar:UWA AppUserModelID="Microsoft.SecHealthUI_8wekyb3d8bbwe!SecHealthUI" />
-                <taskbar:DesktopApp DesktopApplicationID="Chrome" />
-                <taskbar:DesktopApp DesktopApplicationID="Microsoft.Windows.Explorer"/>
+                    <taskbar:UWA AppUserModelID="windows.immersivecontrolpanel_cw5n1h2txyewy!Microsoft.Windows.ImmersiveControlPanel" />
+                    <taskbar:UWA AppUserModelID="Microsoft.Windows.SecHealthUI_cw5n1h2txyewy!SecHealthUI" />
+                    <taskbar:UWA AppUserModelID="Microsoft.SecHealthUI_8wekyb3d8bbwe!SecHealthUI" />
+                    <taskbar:DesktopApp DesktopApplicationID="Chrome" />
+                    <taskbar:DesktopApp DesktopApplicationID="Microsoft.Windows.Explorer"/>
                 </taskbar:TaskbarPinList>
             </defaultlayout:TaskbarLayout>
         </CustomTaskbarLayoutCollection>
@@ -329,84 +187,47 @@ Function StartMenu() {
     $layoutFile = "C:\Windows\StartMenuLayout.xml"
 
     #Deletes the Layout file if one exists already.
-    Try{ If ($Global:Valid -eq $True){
-        If (Test-Path $layoutFile) { Remove-Item $layoutFile -Verbose | Out-Null }
-    }}Catch{
-        "$(Get-Date)  [$TweakType]  Error: $($_.Exception.Message)" | 
-            Out-File "$ErrorLog" -Append
-        "$(Get-Date)  [$TweakType]  Exception on Line Number: $($_.InvocationInfo.ScriptLineNumber)" |
-            Out-File "$ErrorLog" -Append
-        "$(Get-Date)  [$TweakType]  Exception from Script: $($_.InvocationInfo.ScriptName)" |
-            Out-File "$ErrorLog" -Append
-    }
-
+    If (Test-Path $layoutFile) { Remove-Item $layoutFile -Verbose | Out-Null }
     #Creates a new layout file
     $StartLayout | Out-File $layoutFile -Encoding ASCII
 
     $regAliases = @("HKLM", "HKCU")
     ForEach ($RegAlias in $regAliases) {
         $basePath = $regAlias + ":\SOFTWARE\Policies\Microsoft\Windows"
-        $keyPath = $basePath + "\Explorer" 
+        $keyPath = $basePath + "\Explorer"
         If (!(Test-Path -Path $keyPath)) { New-Item -Path $basePath -Name "Explorer" -Verbose | Out-Null }
     }
-    
+
     #Assign the start layout and force it to apply with "LockedStartLayout" at both the machine and user level
     foreach ($regAlias in $regAliases) {
-        Try{ If ($Global:Valid -eq $True){
-            $basePath = $regAlias + ":\SOFTWARE\Policies\Microsoft\Windows"
-            $keyPath = $basePath + "\Explorer" 
-            Set-ItemProperty -Path $keyPath -Name "LockedStartLayout" -Value 1
-            Set-ItemProperty -Path $keyPath -Name "StartLayoutFile" -Value $layoutFile
-        }}Catch{
-            "$(Get-Date)  [$TweakType]  Error: $($_.Exception.Message)" | 
-                Out-File "$ErrorLog" -Append
-            "$(Get-Date)  [$TweakType]  Exception on Line Number: $($_.InvocationInfo.ScriptLineNumber)" |
-                Out-File "$ErrorLog" -Append
-            "$(Get-Date)  [$TweakType]  Exception from Script: $($_.InvocationInfo.ScriptName)" |
-                Out-File "$ErrorLog" -Append
-        }
+        $basePath = $regAlias + ":\SOFTWARE\Policies\Microsoft\Windows"
+        $keyPath = $basePath + "\Explorer"
+        Set-ItemProperty -Path $keyPath -Name "LockedStartLayout" -Value 1
+        Set-ItemProperty -Path $keyPath -Name "StartLayoutFile" -Value $layoutFile
     }
-    
+
     #Restart Explorer
     Restart-Explorer ; Start-Sleep -s 4
     $wshell = new-Object -ComObject wscript.shell; $wshell.SendKeys('^{ESCAPE}')
     Start-Sleep -s 4 ; Restart-Explorer
-    
+
     #Enable the ability to pin items again by disabling "LockedStartLayout"
     Foreach ($regAlias in $regAliases) {
-        Try{ If ($Global:Valid -eq $True){
-            $basePath = $regAlias + ":\SOFTWARE\Policies\Microsoft\Windows"
-            $keyPath = $basePath + "\Explorer" 
-            Set-ItemProperty -Path $keyPath -Name "LockedStartLayout" -Value 0
-            Set-ItemProperty -Path $keyPath -Name "StartLayoutFile" -Value ""
-        }}Catch{
-            "$(Get-Date)  [$TweakType]  Error: $($_.Exception.Message)" | 
-                Out-File "$ErrorLog" -Append
-            "$(Get-Date)  [$TweakType]  Exception on Line Number: $($_.InvocationInfo.ScriptLineNumber)" |
-                Out-File "$ErrorLog" -Append
-            "$(Get-Date)  [$TweakType]  Exception from Script: $($_.InvocationInfo.ScriptName)" |
-                Out-File "$ErrorLog" -Append
-        }
+        $basePath = $regAlias + ":\SOFTWARE\Policies\Microsoft\Windows"
+        $keyPath = $basePath + "\Explorer"
+        Set-ItemProperty -Path $keyPath -Name "LockedStartLayout" -Value 0
+        Set-ItemProperty -Path $keyPath -Name "StartLayoutFile" -Value ""
     }
 
-    If ($BuildNumber -Ge $Win11){
+    If ($BuildNumber -Ge $Win11) {
         xcopy ".\assets\start.bin" "$Env:SystemDrive\Users\Default\AppData\Local\Packages\Microsoft.Windows.StartMenuExperienceHost_cw5n1h2txyewy\LocalState\" /y
+        xcopy ".\assets\start2.bin" "$Env:SystemDrive\Users\Default\AppData\Local\Packages\Microsoft.Windows.StartMenuExperienceHost_cw5n1h2txyewy\LocalState\" /y
         xcopy ".\assets\start.bin" "$Env:userprofile\AppData\Local\Packages\Microsoft.Windows.StartMenuExperienceHost_cw5n1h2txyewy\LocalState" /y
-        #Copy-Item -Path .\Assets\start.bin -Destination "$env:userprofile\AppData\Local\Packages\Microsoft.Windows.StartMenuExperienceHost_cw5n1h2txyewy\LocalState"
-    }
-    
-    #the next line makes clean start menu default for all new users
-    Try{ If ($Global:Valid -eq $True){
-        Import-StartLayout -LayoutPath $layoutFile -MountPath $env:SystemDrive\
-    }}Catch{
-        "$(Get-Date)  [$TweakType]  Error: $($_.Exception.Message)" | 
-            Out-File "$ErrorLog" -Append
-        "$(Get-Date)  [$TweakType]  Exception on Line Number: $($_.InvocationInfo.ScriptLineNumber)" |
-            Out-File "$ErrorLog" -Append
-        "$(Get-Date)  [$TweakType]  Exception from Script: $($_.InvocationInfo.ScriptName)" |
-            Out-File "$ErrorLog" -Append
+        xcopy ".\assets\start2.bin" "$Env:userprofile\AppData\Local\Packages\Microsoft.Windows.StartMenuExperienceHost_cw5n1h2txyewy\LocalState" /y
     }
 
+    #the next line makes clean start menu default for all new users
+    Import-StartLayout -LayoutPath $layoutFile -MountPath $env:SystemDrive\
 
     $StartLayout = @"
     <LayoutModificationTemplate xmlns:defaultlayout="http://schemas.microsoft.com/Start/2014/FullDefaultLayout" xmlns:start="http://schemas.microsoft.com/Start/2014/StartLayout" Version="1" xmlns:taskbar="http://schemas.microsoft.com/Start/2014/TaskbarLayout" xmlns="http://schemas.microsoft.com/Start/2014/LayoutModification">
@@ -424,71 +245,37 @@ Function StartMenu() {
         </CustomTaskbarLayoutCollection>
     </LayoutModificationTemplate>
 "@
-    
-    Try{ If ($Global:Valid -eq $True){
-        #Restarts Explorer and removes layout file
-        $StartLayout | Out-File $layoutFile -Encoding ASCII
-        Remove-Item $layoutFile -Verbose
-    }}Catch{
-        "$(Get-Date)  [$TweakType]  Error: $($_.Exception.Message)" | 
-            Out-File "$ErrorLog" -Append
-        "$(Get-Date)  [$TweakType]  Exception on Line Number: $($_.InvocationInfo.ScriptLineNumber)" |
-            Out-File "$ErrorLog" -Append
-        "$(Get-Date)  [$TweakType]  Exception from Script: $($_.InvocationInfo.ScriptName)" |
-            Out-File "$ErrorLog" -Append
-    }
+
+    #Restarts Explorer and removes layout file
+    $StartLayout | Out-File $layoutFile -Encoding ASCII
+    Remove-Item $layoutFile -Verbose
 }
-Function Debloat() { 
+Function Debloat() {
     $TweakType = "Debloat"
+    $WindowTitle = "New Loads - Debloat"; $host.UI.RawUI.WindowTitle = $WindowTitle
     Write-Host "`n" ; Write-TitleCounter -Counter '6' -MaxLength $MaxLength -Text "Debloat"
-    
+
     Write-Section -Text "Checking for Win32 Pre-Installed Bloat"
     $TweakTypeLocal = "Win32"
 
     #McAfee Live Safe Removal
     If (Test-Path -Path $livesafe -ErrorAction SilentlyContinue | Out-Null) {
-        Try{ If ($Global:Valid -eq $True){
-            Write-Status -Types "-", "$TweakType" , "$TweakTypeLocal" -Status "Detected and Attemping Removal of McAfee Live Safe..."
-            Start-Process "$livesafe"
-    }}Catch{
-            "$(Get-Date)  [$TweakType]  Error: $($_.Exception.Message)" | 
-                Out-File "$ErrorLog" -Append
-            "$(Get-Date)  [$TweakType]  Exception on Line Number: $($_.InvocationInfo.ScriptLineNumber)" |
-                Out-File "$ErrorLog" -Append
-            "$(Get-Date)  [$TweakType]  Exception from Script: $($_.InvocationInfo.ScriptName)" |
-                Out-File "$ErrorLog" -Append
-    }}
-    #WebAdvisor Removal
-    If (Test-Path -Path $webadvisor -ErrorAction SilentlyContinue | Out-Null) { 
-        Try{ If ($Global:Valid -eq $True){
+        Write-Status -Types "-", "$TweakType" , "$TweakTypeLocal" -Status "Detected and Attemping Removal of McAfee Live Safe..."
+        Start-Process "$livesafe"
+    }    #WebAdvisor Removal
+    If (Test-Path -Path $webadvisor -ErrorAction SilentlyContinue | Out-Null) {
         Write-Status -Types "-", "$TweakType" , "$TweakTypeLocal" -Status "Detected and Attemping Removal of McAfee WebAdvisor Uninstall."
         Start-Process "$webadvisor"
-    }}Catch{
-        "$(Get-Date)  [$TweakType]  Error: $($_.Exception.Message)" | 
-            Out-File "$ErrorLog" -Append
-        "$(Get-Date)  [$TweakType]  Exception on Line Number: $($_.InvocationInfo.ScriptLineNumber)" |
-            Out-File "$ErrorLog" -Append
-        "$(Get-Date)  [$TweakType]  Exception from Script: $($_.InvocationInfo.ScriptName)" |
-            Out-File "$ErrorLog" -Append
-    }}
+    }
 
     #Preinsatlled on Acer machines primarily WildTangent Games
     If (Test-Path -Path $WildGames -ErrorAction SilentlyContinue | Out-Null) {
-        Try{ If ($Global:Valid -eq $True){
         Write-Status -Types "-", "$TweakType" , "$TweakTypeLocal" -Status "Detected and Attemping Removal WildTangent Games."
-        Start-Process $WildGames 
-    }}Catch{
-        "$(Get-Date)  [$TweakType]  Error: $($_.Exception.Message)" | 
-            Out-File "$ErrorLog" -Append
-        "$(Get-Date)  [$TweakType]  Exception on Line Number: $($_.InvocationInfo.ScriptLineNumber)" |
-            Out-File "$ErrorLog" -Append
-        "$(Get-Date)  [$TweakType]  Exception from Script: $($_.InvocationInfo.ScriptName)" |
-            Out-File "$ErrorLog" -Append
-        ""
-    }}
+        Start-Process $WildGames
+    }
 
     <#
-    #ExpressVPN on Acer and HP Machines
+    #Detects and removes ExpressVPN on Acer and HP Machines
     $CheckExpress = Get-ChildItem -Path "C:\ProgramData\Package Cache\" -Name "ExpressVPN_*_release.exe" -Recurse 2> $ErrorLog | Out-Null
     If ($CheckExpress){ $ExpressVPN = "C:\ProgramData\Package Cache\" + $CheckExpress }
     If ($ExpressVPN){ Write-Status "@" , $TweakType -Status "Detected ExpressVPN" }
@@ -496,55 +283,32 @@ Function Debloat() {
         Write-Status -Types "-", "$TweakType" , "$TweakTypeLocal" -Status "Attempting Removal of ExpressVPN."
         Start-Process $ExpressVPN -ArgumentList "/Uninstall"
     }}Catch{
-        "$(Get-Date)  [$TweakType]  Error: $($_.Exception.Message)" | 
+        "$(Get-Date)  [$TweakType]  Error: $($_.Exception.Message)" |
         Out-File "$ErrorLog" -Append
         "$(Get-Date)  [$TweakType]  Exception on Line Number: $($_.InvocationInfo.ScriptLineNumber)" |
         Out-File "$ErrorLog" -Append
     }
     #>
-    
+
     #Norton cuz LUL Norton
     $CheckNorton = Get-ChildItem -Path "C:\Program Files (x86)\NortonInstaller\" -Name "InstStub.exe" -Recurse -ErrorAction SilentlyContinue | Out-Null
-    If ($CheckNorton) { $Norton = "C:\Program Files (x86)\NortonInstaller\" + $CheckNorton 
-    Try{ If ($Global:Valid -eq $True){
+    If ($CheckNorton) {
+        $Norton = "C:\Program Files (x86)\NortonInstaller\" + $CheckNorton
         Write-Status -Types "-", "$TweakType" , "$TweakTypeLocal" -Status "Detected and Attemping Removal of Norton..."
         Start-Process $Norton -ArgumentList "/X /ARP"
-    }}Catch{
-        "$(Get-Date)  [$TweakType]  Error: $($_.Exception.Message)" | 
-            Out-File "$ErrorLog" -Append
-        "$(Get-Date)  [$TweakType]  Exception on Line Number: $($_.InvocationInfo.ScriptLineNumber)" |
-            Out-File "$ErrorLog" -Append
-        "$(Get-Date)  [$TweakType]  Exception from Script: $($_.InvocationInfo.ScriptName)" |
-            Out-File "$ErrorLog" -Append
-    }}
+    }
 
     #Avast Cleanup Premium
     $AvastCleanupLocation = "C:\Program Files\Common Files\Avast Software\Icarus\avast-tu\icarus.exe"
-    If (Test-Path $AvastCleanupLocation){
-        Try{ If ($Global:Valid -eq $True){
+    If (Test-Path $AvastCleanupLocation) {
         Start-Process $AvastCleanupLocation -ArgumentList "/manual_update /uninstall:avast-tu"
-    }}Catch{
-        "$(Get-Date)  [$TweakType]  Error: $($_.Exception.Message)" | 
-        Out-File "$ErrorLog" -Append
-        "$(Get-Date)  [$TweakType]  Exception on Line Number: $($_.InvocationInfo.ScriptLineNumber)" |
-        Out-File "$ErrorLog" -Append
-        "$(Get-Date)  [$TweakType]  Exception from Script: $($_.InvocationInfo.ScriptName)" |
-        Out-File "$ErrorLog" -Append
-    }}
-    
+    }
+
     #Avast Antivirus
     $AvastLocation = "C:\Program Files\Avast Software\Avast\setup\Instup.exe"
-    If (Test-Path $AvastLocation){
-        Try{ If ($Global:Valid -eq $True){
+    If (Test-Path $AvastLocation) {
         Start-Process $AvastLocation -ArgumentList "/control_panel"
-    }}Catch{
-        "$(Get-Date)  [$TweakType]  Error: $($_.Exception.Message)" | 
-            Out-File "$ErrorLog" -Append
-        "$(Get-Date)  [$TweakType]  Exception on Line Number: $($_.InvocationInfo.ScriptLineNumber)" |
-            Out-File "$ErrorLog" -Append   
-        "$(Get-Date)  [$TweakType]  Exception from Script: $($_.InvocationInfo.ScriptName)" |
-            Out-File "$ErrorLog" -Append
-    }}
+    }
 
     $apps = @(
         "Adobe offers"
@@ -561,23 +325,16 @@ Function Debloat() {
     $TweakTypeLocal = "Shortcuts"
 
     ForEach ($app in $apps) {
-        Try{ If ($Global:Valid -eq $True){
         If (Test-Path -Path "$commonapps\$app.url") {
             Write-Status -Types "-", "$TweakType" , "$TweakTypeLocal" -Status "Removing $app.url"
             Remove-Item -Path "$commonapps\$app.url" -Force
         }
-        If (Test-Path -Path "$commonapps\$app.lnk") { 
+        If (Test-Path -Path "$commonapps\$app.lnk") {
             Write-Status -Types "-", "$TweakType" , "$TweakTypeLocal" -Status "Removing $app.lnk"
             Remove-Item -Path "$commonapps\$app.lnk" -Force
-        }}}Catch{
-        "$(Get-Date)  [$TweakType]  Error: $($_.Exception.Message)" | 
-            Out-File "$ErrorLog" -Append
-        "$(Get-Date)  [$TweakType]  Exception on Line Number: $($_.InvocationInfo.ScriptLineNumber)" |
-            Out-File "$ErrorLog" -Append
-        "$(Get-Date)  [$TweakType]  Exception from Script: $($_.InvocationInfo.ScriptName)" |
-            Out-File "$ErrorLog" -Append
-            Continue 
-        }}
+        }
+    }
+
     Write-Host "" ; Write-Section -Text "Removing UWP Apps"
     $TweakTypeLocal = "UWP"
     $Programs = @(
@@ -593,9 +350,6 @@ Function Debloat() {
         "Microsoft.BingWeather"                     # Weather
         "Microsoft.CommsPhone"
         "Microsoft.ConnectivityStore"
-        #"Microsoft.GamingServices"
-        "Microsoft.GetHelp"
-        "Microsoft.Getstarted"
         "Microsoft.Messaging"
         "Microsoft.Microsoft3DViewer"
         "Microsoft.MicrosoftOfficeHub"
@@ -613,98 +367,46 @@ Function Debloat() {
         "Microsoft.OneDriveSync"
         "Microsoft.People"                          # People
         "Microsoft.SkypeApp"                        # Skype (Who still uses Skype? Use Discord)
+        "MicrosoftTeams"                            # Microsoft Teams / Preview
         "Microsoft.Todos"                           # Microsoft To Do
         "Microsoft.Wallet"
         "Microsoft.Whiteboard"                      # Microsoft Whiteboard
-        "Microsoft.WindowsMaps"                     # Maps
         "Microsoft.WindowsPhone"
         "Microsoft.WindowsReadingList"
         "Microsoft.WindowsSoundRecorder"
-        "Microsoft.YourPhone"                       # Your Phone
-        "MicrosoftTeams"                            # Microsoft Teams / Preview
-        #"Microsoft.MSPaint"                         # Paint 3D (Where every artist truly start as a kid, i mean, on original Paint, not this 3D)
-        #"Microsoft.Print3D"                         # Print 3D
-        #"Microsoft.WindowsAlarms"                   # Alarms
-        #"microsoft.windowscommunicationsapps"
-        #"Microsoft.XboxApp"                         # Xbox Console Companion (Replaced by new App)
-        #"Microsoft.XboxGameCallableUI"
-        #"Microsoft.XboxGameOverlay"
-        #"Microsoft.XboxSpeechToTextOverlay"
-        #"Microsoft.ZuneMusic"                       # Groove Music / (New) Windows Media Player
-        #"Microsoft.ZuneVideo"                       # Movies & TV
-        
-        # Default Windows 11 apps
-        #"MicrosoftWindows.Client.WebExperience"     # Taskbar Widgets
-        
+        "Microsoft.ZuneMusic"                       # Groove Music / (New) Windows Media Player
+        "Microsoft.ZuneVideo"                       # Movies & TV
+
         # 3rd party Apps
-        #"*ACGMediaPlayer*"
-        #"*ActiproSoftwareLLC*"
         "*AdobePhotoshopExpress*"                   # Adobe Photoshop Express
         "AdobeSystemsIncorporated.AdobeLightroom"   # Adobe Lightroom
         "AdobeSystemsIncorporated.AdobeCreativeCloudExpress"    # Adobe Creative Cloud Express
         "*Amazon.com.Amazon*"                       # Amazon
         "AmazonVideo.PrimeVideo"                    # Amazon Prime Video
         "57540AMZNMobileLLC.AmazonAlexa"            # Amazon Alexa
-        #"*Asphalt8Airborne*"                       # Asphalt 8 Airbone
-        "89006A2E.AutodeskSketchBook"               # SketchBook
-        "*AutodeskSketchBook*"
         "*BubbleWitch3Saga*"                        # Bubble Witch 3 Saga
-        #"*CaesarsSlotsFreeCasino*"
         "*CandyCrush*"                              # Candy Crush
-        #"*Clipchamp*"                               # ClipChamp Video Editor
-        #"*COOKINGFEVER*"
-        "*CyberLinkMediaSuiteEssentials*"
         "*DisneyMagicKingdoms*"
         "Disney.37853FC22B2CE"
         "*Disney*"
         "*Dolby*"                                   # Dolby Products (Like Atmos)
-        #"*DrawboardPDF*"
         "*DropboxOEM*"
-        #"*Duolingo-LearnLanguagesforFree*"          # Duolingo
-        "*EclipseManager*"
         "Evernote.Evernote"
+        "*ExpressVPN*"
         "*Facebook*"                                # Facebook
-        "*FarmVille2CountryEscape*"
-        "*FitbitCoach*"
         "*Flipboard*"                               # Flipboard
-        "*HiddenCity*"
         "*Hulu*"
-        "*iHeartRadio*"
-        "*LinkedInforWindows*"
-        #"*MarchofEmpires*"
         "*McAfee*"
         "5A894077.McAfeeSecurity"
         "4DF9E0F8.Netflix"
-        #"*NYTCrossword*"
-        #"*OneCalendar*"
-        #"*PandoraMediaInc*"
-        #"*PhototasticCollage*"
         "*PicsArt-PhotoStudio*"
         "*Pinterest*"
         "1424566A.147190DF3DE79"
-        #"*Plex*"                                   # Plex
-        "*PolarrPhotoEditorAcademicEdition*"
-        #*RoyalRevolt*"                             # Royal Revolt
-        #"*Shazam*"
-        #"*Sidia.LiveWallpaper*"                     # Live Wallpaper
-        #"*SlingTV*"
-        #"*Speed Test*"
         "SpotifyAB.SpotifyMusic"
-        "SpotifyAB.SpotifyMusic_zpdnekdrzrea0"
-        "*Sway*"
-        "*TuneInRadio*"
         "*Twitter*"                                 # Twitter
         "*TikTok*"
-        #"*Viber*"
-        #"*WinZipUniversal*"
-        "5319275A.WhatsAppDesktop" 
-        #"*Wunderlist*"
-        #"*XING*"
-        
-        # Lenovo Bloat
+        "5319275A.WhatsAppDesktop"
 
-        "E0469640.LenovoUtility"
-        
         # Acer OEM Bloat
         "AcerIncorporated.AcerRegistration"
         "AcerIncorporated.QuickAccess"
@@ -720,7 +422,7 @@ Function Debloat() {
         "AD2F1837.HPPrivacySettings"
         "AD2F1837.HPInc.EnergyStar"
         "AD2F1837.HPAudioCenter"
-        
+
         # Common HP & Acer Bloat
         "CyberLinkCorp.ac.PowerDirectorforacerDesktop"
         "CyberLinkCorp.ac.PhotoDirectorforacerDesktop"
@@ -730,7 +432,7 @@ Function Debloat() {
         "26720RandomSaladGamesLLC.SimpleMahjong"
         "26720RandomSaladGamesLLC.Spades"
 
-        # Samsung Bloat                 -  More Samsung bloat available in #Disabled
+        # Samsung Bloat
         "SAMSUNGELECTRONICSCO.LTD.1412377A9806A"
         "SAMSUNGELECTRONICSCO.LTD.NewVoiceNote"
         "SAMSUNGELECTRONICSCO.LTD.SamsungWelcome"
@@ -741,238 +443,126 @@ Function Debloat() {
         "SAMSUNGELECTRONICSCO.LTD.SamsungPCCleaner"
         "SAMSUNGELECTRONICSCO.LTD.SamsungCloudBluetoothSync"
         "SAMSUNGELECTRONICSCO.LTD.OnlineSupportSService"
-        
-        
-        # DISABLED BLOAT
-        # SAMSUNG Bloat
-        #"SAMSUNGELECTRONICSCO.LTD.SamsungSettings1.2"          # Allow user to Tweak some hardware settings
-        #"SAMSUNGELECTRONICSCoLtd.SamsungNotes"
-        #"SAMSUNGELECTRONICSCoLtd.SamsungFlux"
-        #SAMSUNGELECTRONICSCO.LTD.StudioPlus"
-        #"SAMSUNGELECTRONICSCO.LTD.SamsungRecovery"             # Used to Factory Reset
-        #"SAMSUNGELECTRONICSCO.LTD.PCGallery"
-        #"4AE8B7C2.BOOKING.COMPARTNERAPPSAMSUNGEDITION"
-        # Apps which other apps depend on
-        #"Microsoft.Advertising.Xaml"
-        )
-        Try{ If ($Global:Valid -eq $True){
-        Remove-UWPAppx -AppxPackages $Programs
-        }}Catch{
-            "$(Get-Date)  [$TweakType]  Error: $($_.Exception.Message)" | 
-                Out-File "$ErrorLog" -Append
-            "$(Get-Date)  [$TweakType]  Exception on Line Number: $($_.InvocationInfo.ScriptLineNumber)" |
-                Out-File "$ErrorLog" -Append
-            "$(Get-Date)  [$TweakType]  Exception from Script: $($_.InvocationInfo.ScriptName)" |
-                Out-File "$ErrorLog" -Append
-        }
-}
-Function OneDriveRemoval() { 
-    Try{ If ($Global:Valid -eq $True){
-        Write-Host "`n" ; Write-TitleCounter -Counter '8' -MaxLength $MaxLength -Text "OneDrive Removal"
-        Write-Status -Types "?" -Status "Disabled for now."
-        Start-Sleep -Seconds 4
-        $Disabled = $True
-        If ($Disabled -eq $False){
-        If (Test-Path $Location5 -ErrorAction SilentlyContinue) {
-                If (Get-Process -Name OneDrive -ErrorAction SilentlyContinue) {
-                    Stop-Process -Name "OneDrive" -Verbose -ErrorAction SilentlyContinue
-                    Write-Status -Types "-" -Status "Removing OneDrive."
-                }
-                    Start-Process -FilePath $Location5 -ArgumentList /uninstall -Verbose
-            }
-        
-        #Start-Process -FilePath $Location5 -ArgumentList /uninstall -Verbose
-        If ($env:OneDrive){
-            If (Test-Path -Path $env:OneDrive -ErrorAction SilentlyContinue | Out-Null) { 
-                Remove-Item -Path $env:OneDrive -Force -Recurse -ErrorAction SilentlyContinue ; Check
-            }
-        }
-        If (Test-Path "$env:PROGRAMDATA\Microsoft OneDrive") { Remove-Item -Path "$env:PROGRAMDATA\Microsoft OneDrive" -Force -Recurse -ErrorAction SilentlyContinue ; Check}
-        If (Test-Path "$env:SYSTEMDRIVE\OneDriveTemp") { Remove-Item -Path "$env:SYSTEMDRIVE\OneDriveTemp" -Force -Recurse  -ErrorAction SilentlyContinue ; Check}
-        
-        Write-Output "Removing scheduled task"
-        Get-ScheduledTask -TaskPath '\' -TaskName 'OneDrive*' -ea SilentlyContinue | Unregister-ScheduledTask -Confirm:$false -Verbose -ErrorAction SilentlyContinue
-        
+    )
 
-        Write-Status -Types "-","$TweakType" -Status "Removing OneDrive Installation Hook for New Users"
-        # Thank you Matthew Israelsson
-        reg load "hku\Default" "C:\Users\Default\NTUSER.DAT"
-        If (Get-ItemProperty -Path REGISTRY::HKEY_USERS\Default\SOFTWARE\Microsoft\Windows\CurrentVersion\Run -Name "OneDriveSetup" -ErrorAction SilentlyContinue){
-            reg delete "HKEY_USERS\Default\SOFTWARE\Microsoft\Windows\CurrentVersion\Run" /v "OneDriveSetup" /f 2> $Null | Out-Null
-        }
-        reg unload "hku\Default" 
-    }}}Catch{
-        "$(Get-Date)  [$TweakType]  Error: $($_.Exception.Message)" | 
-            Out-File ".\ErrorLog.txt" -Append
-        "$(Get-Date)  [$TweakType]  Exception on Line Number: $($_.InvocationInfo.ScriptLineNumber)" |
-            Out-File ".\ErrorLog.txt" -Append
-        "$(Get-Date)  [$TweakType]  Exception from Script: $($_.InvocationInfo.ScriptName)" |
-            Out-File "$ErrorLog" -Append
-    }
-    
+
+    Remove-UWPAppx -AppxPackages $Programs
 }
-Function BitlockerDecryption() { 
-    Try{ If ($Global:Valid -eq $True) {
-    Write-Host "`n" ; Write-TitleCounter -Counter '15' -MaxLength $MaxLength -Text "Bitlocker Decryption"
+Function BitlockerDecryption() {
+    $WindowTitle = "New Loads - Bitlocker Decryption"; $host.UI.RawUI.WindowTitle = $WindowTitle
+    Write-Host "`n" ; Write-TitleCounter -Counter '10' -MaxLength $MaxLength -Text "Bitlocker Decryption"
 
     If ((Get-BitLockerVolume -MountPoint "C:").ProtectionStatus -eq "On") {
         Write-CaptionWarning -Text "Alert: Bitlocker is enabled. Starting the decryption process"
         Disable-Bitlocker -MountPoint C:\
         #manage-bde -off "C:"
-    } else {
+    }
+    else {
         Write-Status -Types "?" -Status "Bitlocker is not enabled on this machine" -Warning
-    }}}Catch{
-    "$(Get-Date)  [$TweakType]  Error: $($_.Exception.Message)" | 
-        Out-File ".\ErrorLog.txt" -Append
-    "$(Get-Date)  [$TweakType]  Exception on Line Number: $($_.InvocationInfo.ScriptLineNumber)" |
-        Out-File ".\ErrorLog.txt" -Append
-    "$(Get-Date)  [$TweakType]  Exception from Script: $($_.InvocationInfo.ScriptName)" |
-        Out-File "$ErrorLog" -Append
     }
 }
-Function Cleanup() { 
-    Try{ If ($Global:Valid -eq $True){
-    Write-Host "`n" ; Write-TitleCounter -Counter '17' -MaxLength $MaxLength -Text "Cleaning Up"
+Function CheckForMsStoreUpdates() {
+    Write-Status -Types "+" -Status "Checking for updates in Microsoft Store"
+    $wmiObj = Get-WmiObject -Namespace "root\cimv2\mdm\dmmap" -Class "MDM_EnterpriseModernAppManagement_AppManagement01"
+    $result = $wmiObj.UpdateScanMethod()
+    if ($result.ReturnValue -eq 0) {
+    Write-Status -Types "+" -Status "Microsoft Store updates check successful"
+    } else {
+    Write-Status -Types "?" -Status "Error checking for Microsoft Store updates" -Warning
+    }
+}
+Function Cleanup() {
+    $WindowTitle = "New Loads - Cleanup"; $host.UI.RawUI.WindowTitle = $WindowTitle
+    Write-Host "`n" ; Write-TitleCounter -Counter '12' -MaxLength $MaxLength -Text "Cleaning Up"
     $TweakType = 'Cleanup'
     Restart-Explorer
     Write-Status -Types "+" , $TweakType -Status "Enabling F8 boot menu options"
-    #    bcdedit /set {bootmgr} displaybootmenu yes | Out-Null
     bcdedit /set "{CURRENT}" bootmenupolicy legacy
-    If (Test-Path $location1) { Write-Status -Types "+", $TweakType -Status "Launching Google Chrome"
-        Start-Process Chrome
-    }    
+    Try{
+        If (Test-Path $location1) {
+            Write-Status -Types "+", $TweakType -Status "Launching Google Chrome"
+            Start-Process Chrome -ErrorAction SilentlyContinue | Out-Null
+        }
+        Write-Section -Text "Cleanup"
+        Write-Status -Types "-", $TweakType -Status "Cleaning Temp Folder"
+        Remove-Item "$env:Userprofile\AppData\Local\Temp\*.*" -Force -Recurse -Confirm:$false -Exclude "New Loads" -ErrorAction SilentlyContinue | Out-Null
 
-    Write-Section -Text "Cleanup"
-    Write-Status -Types "-", $TweakType -Status "Cleaning Temp Folder"
+        Write-Status -Types "-", $TweakType -Status "Removing VLC Media Player Desktop Icon"
+        Remove-Item $vlcsc -Force -Recurse -Confirm:$false -ErrorAction SilentlyContinue | Out-Null
 
-    Remove-Item "$env:localappdata\temp\*.*" -Force -Recurse -Confirm:$false -ErrorAction SilentlyContinue  -Exclude "New Loads" 2>$NULL
-    If (Test-Path $vlcsc) { Write-Status -Types "-", $TweakType -Status "Removing VLC Media Player Desktop Icon"
-        Remove-Item $vlcsc -Force -Recurse -Confirm:$false -ErrorAction SilentlyContinue 2> $NULL | Out-Null
-    }
-    If (Test-Path $acrosc) { Write-Status -Types "-" , $TweakType -Status "Removing Acrobat Desktop Icon"
-        Remove-Item $acrosc -Force -Recurse -Confirm:$false -ErrorAction SilentlyContinue 2> $NULL | Out-Null
-    }
-    If (Test-Path $zoomsc) { Write-Status -Types "-", $TweakType -Status "Removing Zoom Desktop Icon"
-        Remove-Item -path $zoomsc -force | Out-Null
-    }
+        Write-Status -Types "-" , $TweakType -Status "Removing Acrobat Desktop Icon"
+        Remove-Item $acrosc -Force -Recurse -Confirm:$false -ErrorAction SilentlyContinue | Out-Null
 
-    Remove-Item "$env:Userprofile\AppData\Local\Temp\*.*" -Force -Recurse -Confirm:$false -ErrorAction SilentlyContinue -Exclude "New Loads" | Out-Null
-    
-    
-    If (Test-Path $EdgeShortcut) { Write-Status -Types "-" , $TweakType -Status "Removing Edge Shortcut in User Folder"
-        Remove-Item $EdgeShortcut -Force -Recurse -Confirm:$false -ErrorAction SilentlyContinue 2> $NULL | Out-Null
-    }
-    If (Test-Path $edgescpub) { Write-Status -Types "-" , $TweakType -Status "Removing Edge Shortcut in Public Desktop"
-        Remove-Item $edgescpub -Force -Recurse -Confirm:$false -ErrorAction SilentlyContinue 2> $NULL | Out-Null
-    }
-    If (Test-Path $ctemp) { Write-Status -Types "-" , $TweakType -Status "Removing C:\Temp"
-        Remove-Item $ctemp -Force -Recurse -Confirm:$false -ErrorAction SilentlyContinue 2> $NULL | Out-Null
-    }
-    }}Catch{
-    "$(Get-Date)  [$TweakType]  Error: $($_.Exception.Message)" | 
-        Out-File ".\ErrorLog.txt" -Append
-    "$(Get-Date)  [$TweakType]  Exception on Line Number: $($_.InvocationInfo.ScriptLineNumber)" |
-        Out-File ".\ErrorLog.txt" -Append
-    "$(Get-Date)  [$TweakType]  Exception from Script: $($_.InvocationInfo.ScriptName)" |
-        Out-File "$ErrorLog" -Append
-    }
+        Write-Status -Types "-", $TweakType -Status "Removing Zoom Desktop Icon"
+        Remove-Item -path $zoomsc -force -ErrorAction SilentlyContinue | Out-Null
+
+        Write-Status -Types "-" , $TweakType -Status "Removing Edge Shortcut in User Folder"
+        Remove-Item $EdgeShortcut -Force -Recurse -Confirm:$false -ErrorAction SilentlyContinue | Out-Null
+        
+        Write-Status -Types "-" , $TweakType -Status "Removing Edge Shortcut in Public Desktop"
+        Remove-Item $edgescpub -Force -Recurse -Confirm:$false -ErrorAction SilentlyContinue | Out-Null
+
+        Write-Status -Types "-" , $TweakType -Status "Removing C:\Temp"
+        Remove-Item $ctemp -Force -Recurse -Confirm:$false -ErrorAction SilentlyContinue | Out-Null
+    }Catch{}
 }
-
-Function New-RestorePoint() { 
-    Try{ If ($Global:Valid -eq $True){
+Function CreateRestorePoint() {
     $TweakType = "Backup"
-    Write-Host "`n" ; Write-TitleCounter -Counter '16' -MaxLength $MaxLength -Text "Creating Restore Point"
+    Write-Host "`n" ; Write-TitleCounter -Counter '11' -MaxLength $MaxLength -Text "Creating Restore Point"
     Write-Status -Types "+", $TweakType -Status "Enabling system drive Restore Point..."
     Enable-ComputerRestore -Drive "$env:SystemDrive\"
     Checkpoint-Computer -Description "Mother Computers Courtesy Restore Point" -RestorePointType "MODIFY_SETTINGS"
-
-    }}Catch{
-    "$(Get-Date)  [$TweakType]  Error: $($_.Exception.Message)" | 
-        Out-File ".\ErrorLog.txt" -Append
-    "$(Get-Date)  [$TweakType]  Exception on Line Number: $($_.InvocationInfo.ScriptLineNumber)" |
-        Out-File ".\ErrorLog.txt" -Append
-    "$(Get-Date)  [$TweakType]  Exception from Script: $($_.InvocationInfo.ScriptName)" |
-        Out-File "$ErrorLog" -Append
-    }
-}
-Function Backup-HostsFile() { 
-    Try{ If ($Global:Valid -eq $True) {
-    $PathToHostsFile = "$env:SystemRoot\System32\drivers\etc"
-
-    Write-Status -Types "+" -Status "Doing Backup on Hosts file..."
-    $Date = Get-Date -Format "yyyy-MM-dd_HH-mm-ss"
-    Push-Location "$PathToHostsFile"
-
-    If (!(Test-Path "$PathToHostsFile\Hosts_Backup")) { Write-Status -Types "?" -Status "Backup folder not found! Creating a new one..."
-        mkdir -Path "$PathToHostsFile\Hosts_Backup"
-    }
-    Push-Location "Hosts_Backup"
-
-    Copy-Item -Path ".\..\hosts" -Destination "hosts_$Date"
-
-    Pop-Location
-    Pop-Location
-    }}Catch{
-        "$(Get-Date)  [$TweakType]  Error: $($_.Exception.Message)" | 
-            Out-File ".\ErrorLog.txt" -Append
-        "$(Get-Date)  [$TweakType]  Exception on Line Number: $($_.InvocationInfo.ScriptLineNumber)" |
-            Out-File ".\ErrorLog.txt" -Append
-        "$(Get-Date)  [$TweakType]  Exception from Script: $($_.InvocationInfo.ScriptName)" |
-            Out-File "$ErrorLog" -Append
-    }
 }
 Function EmailLog() {
     $EndTime = Get-Date -DisplayHint Time
     $ElapsedTime = $EndTime - $StartTime
     $CurrentDate = Get-Date
     $IP = (New-Object System.Net.WebClient).DownloadString("http://ifconfig.me/ip")
-    $Mobo = wmic baseboard get product
+    $Mobo = (Get-CimInstance -ClassName Win32_BaseBoard).Product
     $CPU = Get-CPU
     $RAM = Get-RAM
     $GPU = Get-GPU
     $Displayversion = (Get-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion" -Name "DisplayVersion").DisplayVersion
-    $WindowsVersion = (Get-WmiObject -class Win32_OperatingSystem).Caption
+    $WindowsVersion = (Get-CimInstance -ClassName Win32_OperatingSystem).Caption
     $SSD = Get-OSDriveType
     $DriveSpace = Get-DriveSpace
 
     Stop-Transcript | Out-Null
-	systeminfo | Sort-Object | Out-File -Append $log -Encoding ascii
+    Get-ComputerInfo | Out-File -Append $log -Encoding ascii
     [String]$SystemSpec = Get-SystemSpec
+    $SystemSpec | Out-Null
 
-    If (Test-Path -Path "$Location1") { $chromeyns = "X" }else { $chromeyns = "" }
-    If (Test-Path -Path "$Location2") { $vlcyns = "X" }else { $vlcyns = "" }
-    If (Test-Path -Path "$Location3") { $zoomyns = "X" }else { $zoomyns = "" }
-    If (Test-Path -Path "$Location4") { $adobeyns = "X" }else { $adobeyns = "" }
-    If ($CurrentWallpaper -eq $Wallpaper){$WallpaperApplied = "YES"}Else{$WallpaperApplied = "NO"}
-    
+    #If (Test-Path -Path "$Location1") { $chromeyns = "X" }else { $chromeyns = "" }
+    #If (Test-Path -Path "$Location2") { $vlcyns = "X" }else { $vlcyns = "" }
+    #If (Test-Path -Path "$Location3") { $zoomyns = "X" }else { $zoomyns = "" }
+    #If (Test-Path -Path "$Location4") { $adobeyns = "X" }else { $adobeyns = "" }
+    If ($CurrentWallpaper -eq $Wallpaper) { $WallpaperApplied = "YES" }Else { $WallpaperApplied = "NO" }
     #Motherboard
-    $TempFile = "$Env:Temp\tempmobo.txt" ; $Mobo | Out-File $TempFile -Encoding ASCII 
+    $TempFile = "$Env:Temp\tempmobo.txt" ; $Mobo | Out-File $TempFile -Encoding ASCII
     (Get-Content $TempFile).replace('Product', '') | Set-Content $TempFile
     (Get-Content $TempFile).replace("  ", '') | Set-Content $TempFile
     $Mobo = Get-Content $TempFile
     Remove-Item $TempFile
-    
-    #$CheckIfErrorLogCreated = Test-Path -Path "$ErrorLog"
-    #If ($CheckIfErrorLogCreated -eq $True){$Log = @("$Log" , "$ErrorLog")}
-    
-    $StartBinLocation = "$Env:userprofile\AppData\Local\Packages\Microsoft.Windows.StartMenuExperienceHost_cw5n1h2txyewy\LocalState\start.bin"
-    If (Test-Path $StartBinLocation){
-        $StartbinHash = (Get-FileHash $StartBinLocation).Hash
-        $ModifiedStartBinHash = (Get-FileHash ".\assets\Start.bin").Hash
-        If ($StartBinHash -eq $ModifiedStartBinHash){$StartMenuLayout = "YES"}
-    }
 
+    <#
+    $TempFile = "$Env:Temp\tempmobo.txt"
+    $Mobo -replace 'Product','' -replace '════════════════════','' -Replace '(','' -replace ')','' -Replace '{','}' | Out-File $TempFile -Encoding ASCII
+    $Mobo -replace 'Product','' -replace '  ','' | Out-File $TempFile -Encoding ASCII
+    $Mobo = Get-Content $TempFile
+    Remove-Item $TempFile
+    #>
+    
 
-    Send-MailMessage -From 'New Loads Log <newloadslogs@shaw.ca>' -To '<newloadslogs@shaw.ca> , <newloads@shaw.ca>' -Subject "New Loads Log" -Attachments "$Log","$ErrorLog" -Priority High -DeliveryNotification OnSuccess, OnFailure -SmtpServer 'smtp.shaw.ca' -Verbose -ErrorAction SilentlyContinue -Body "
+    Send-MailMessage -From 'New Loads Log <newloadslogs@shaw.ca>' -To '<newloadslogs@shaw.ca> , <newloads@shaw.ca>' -Subject "New Loads Log" -Attachments "$Log" -Priority High -DeliveryNotification OnSuccess, OnFailure -SmtpServer 'smtp.shaw.ca' -Verbose -ErrorAction SilentlyContinue -Body "
         ############################
-        #==========================#                                
+        #==========================#
         #=                        =#
         #=  NEW LOADS SCRIPT LOG  =#
         #=                        =#
-        #==========================#  
+        #==========================#
         ############################
-                                        
-New Loads was run on a computer for $ip\$env:computername\$env:USERNAME, 
+
+New Loads was run on a computer for $ip\$env:computername\$env:USERNAME,
 
 Completing in $ElapsedTime
 
@@ -1000,8 +590,8 @@ $DriveSpace
 Script Run Information:
 Applications Installed: $appsyns
 Chrome: [$chromeyns]
-VLC: [$vlcyns] 
-Adobe: [$adobeyns] 
+VLC: [$vlcyns]
+Adobe: [$adobeyns]
 Zoom: [$zoomyns]
 
 
@@ -1014,93 +604,76 @@ $PackagesRemoved
 
     "
 }
-Function JC() {
-    Write-Host ""
-    Write-Status "GUI" -Status "Ready for Next Selection"
+Function Request-PcRestart() {
+    switch (Show-YesNoCancelDialog -YesNoCancel -Message "Would you like to reboot the system now? ") {
+        'Yes' {
+            Write-Host "You choose to Restart now"
+            Restart-Computer
+        }
+        'No' {
+            Write-Host "You choose to Restart later"
+        }
+        'Cancel' {
+            # With Yes, No and Cancel, the user can press Esc to exit
+            Write-Host "You choose to Restart later"
+        }
+    }
 }
 
-If (!($GUI)){
-
-        #$MaxLength = '17'
-        #Variables
-        #BootCheck
-        #ScriptInfo
-        #CheckFiles
-        Start-Transcript -Path $Log ; $StartTime = Get-Date -DisplayHint Time
-
-        Write-Status -Types "?" , "Activation" -Status "Checking Windows Activation Status.." -Warning
-        $ActiStat = (Get-CimInstance -ClassName SoftwareLicensingProduct -Filter "Name like 'Windows%'" | Where-Object PartialProductKey).LicenseStatus
-        If ($ActiStat -ne 1) { Write-CaptionFailed -Text "Windows is not activated. Feel free to Activate Windows while New Loads runs.."; Start-Sleep -Seconds 3 ; Start-Process slui -ArgumentList '3' 
-        }else {Write-CaptionSucceed -Text "Windows is Activated. Proceeding"}
-
-        Programs
-        Visuals
-        Branding
-        StartMenu
-        Debloat
-        #OOS
-        #Adw
-        OfficeCheck
-        OneDriveRemoval
-        AdvRegistry
-
-        Optimize-Performance
-        Optimize-Privacy
-        Optimize-Security
-        Optimize-ServicesRunning
-        Optimize-TaskScheduler
-
-        BitlockerDecryption
-        New-RestorePoint
-        Backup-HostsFile
-        EmailLog
-        Cleanup
-
-        Write-Status -Types "WAITING" -Status "User action needed - You may have to ALT + TAB "
-        Request-PCRestart
-
-}else{
-        CheckNetworkStatus
-        GUI
+If (!($GUI)) {
+    Start-Transcript -Path $Log ; $StartTime = Get-Date -DisplayHint Time
+    Programs
+    Visuals
+    Branding
+    StartMenu
+    Debloat
+    OfficeCheck
+    #OneDriveRemoval
+    CheckForMsStoreUpdates
+    Optimize-Windows
+    BitlockerDecryption
+    CreateRestorePoint
+    EmailLog
+    Cleanup
+    Write-Status -Types "WAITING" -Status "User action needed - You may have to ALT + TAB "
+    Request-PCRestart
+}
+else {
+    CheckNetworkStatus
+    GUI
 }
 
 ### END OF SCRIPT ###
 
-
 # SIG # Begin signature block
-# MIIGiwYJKoZIhvcNAQcCoIIGfDCCBngCAQExCzAJBgUrDgMCGgUAMGkGCisGAQQB
+# MIIFeQYJKoZIhvcNAQcCoIIFajCCBWYCAQExCzAJBgUrDgMCGgUAMGkGCisGAQQB
 # gjcCAQSgWzBZMDQGCisGAQQBgjcCAR4wJgIDAQAABBAfzDtgWUsITrck0sYpfvNR
-# AgEAAgEAAgEAAgEAAgEAMCEwCQYFKw4DAhoFAAQUKCw+FD71Gkoc11F/c0B0F7ZZ
-# M6OgggPGMIIDwjCCAqqgAwIBAgIQG23ehsglIKxDyVeFlzqJzzANBgkqhkiG9w0B
-# AQsFADB5MScwJQYJKoZIhvcNAQkBFhhtaWtlQG1vdGhlcmNvbXB1dGVycy5jb20x
-# JDAiBgNVBAsMG2h0dHBzOi8vbW90aGVyY29tcHV0ZXJzLmNvbTESMBAGA1UECgwJ
-# TmV3IExvYWRzMRQwEgYDVQQDDAtNaWtlIEl2aXNvbjAeFw0yMjAyMjYwMjA4MjFa
-# Fw0yMzAxMDEwODAwMDBaMHkxJzAlBgkqhkiG9w0BCQEWGG1pa2VAbW90aGVyY29t
-# cHV0ZXJzLmNvbTEkMCIGA1UECwwbaHR0cHM6Ly9tb3RoZXJjb21wdXRlcnMuY29t
-# MRIwEAYDVQQKDAlOZXcgTG9hZHMxFDASBgNVBAMMC01pa2UgSXZpc29uMIIBIjAN
-# BgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAqfJhHWoMaoTvauUnS1yhV8oTyjqf
-# fO+OQrN8ysjIv3THM74mgPFnAYSkMxl2MCSOgZXOmeyiEZJdIyZQIEZuv/JeX6ud
-# 77m5HylKT7Y73Xqb6nL6Z1latXyR+Jj9ZeIo6omJWPHLqLRpBJUxniPuXVOYdiYu
-# Ahp3R3vX8JPmFAgDqjuYvOhQzEJ4ZkJGb+gYoaM34AaPv51aenN3EwqVKLNfCse0
-# 2qDqDHEh84I7xZU0pjFWPR2oZPodJD71wWLQ02f2sj2ggcH1kiyzt+oBCGAIf/Vg
-# 3KGhpDrWCdlv5yCeIK5N4GNmKGNkV7rh75//n8ieKD7dbEradkiEqa0PNQIDAQAB
-# o0YwRDAOBgNVHQ8BAf8EBAMCBaAwEwYDVR0lBAwwCgYIKwYBBQUHAwMwHQYDVR0O
-# BBYEFCtXFGsxQLT0r4rik3dDQ059x5dXMA0GCSqGSIb3DQEBCwUAA4IBAQAYPL43
-# 0hOONDAMC3sD2H6MfSeo+5MZgt3xpeRhGm0xQ9f6KWGWsSnM+fQsmXAquKS3dCHf
-# BzDgBYFuOdHJMq+lACZMUD2zPUlPwvUFY/40ScaO/3MzrPU1qd8TW8UdvTaBDywa
-# KAkXx2OkEw+NvMFD5Bz8fH1up2dT0BPN+4eX5lsWJcdsD4sOTOXOnWBj3x3mu11Z
-# YO25XmA9TFerTVBVszRmfchQ3T01V9/WAo0VM2inP8iBWKfMCIv3sJdtVVbInQW+
-# Sybg4NaAQV9HTFeSVI4BC/F0G2zo7WysE1K35s9uEhM4giO9ZPbAcMpfWsl/nJ27
-# VK1ykVYYVsfiBSiXMYICLzCCAisCAQEwgY0weTEnMCUGCSqGSIb3DQEJARYYbWlr
-# ZUBtb3RoZXJjb21wdXRlcnMuY29tMSQwIgYDVQQLDBtodHRwczovL21vdGhlcmNv
-# bXB1dGVycy5jb20xEjAQBgNVBAoMCU5ldyBMb2FkczEUMBIGA1UEAwwLTWlrZSBJ
-# dmlzb24CEBtt3obIJSCsQ8lXhZc6ic8wCQYFKw4DAhoFAKB4MBgGCisGAQQBgjcC
-# AQwxCjAIoAKAAKECgAAwGQYJKoZIhvcNAQkDMQwGCisGAQQBgjcCAQQwHAYKKwYB
-# BAGCNwIBCzEOMAwGCisGAQQBgjcCARUwIwYJKoZIhvcNAQkEMRYEFBAI78SCeZTD
-# dp4Ny0kvBj2j1vaoMA0GCSqGSIb3DQEBAQUABIIBABMdO//HEUKnFyd674sKNpMf
-# Y5KCOIJUNQ6KRp1wgu8I9Nvn9/p/5ZBQLjo9RloVfuGEfV+CIWyLE2bDH57YHFzo
-# qFMqHjXSOPOdLX6+ioftVIicX3vlj0Blb4WRYyqfcKZoQDn+GrsY1oU2SyP4mh3h
-# /k4HrBgjPt+KmBAosXCA2DELa06xgUnH8Be3IzZNSQG7Pn0wuv+rx1DPYpcEEHK9
-# rgyFeKOh1F6gnjOVs7QIKLXm0TQqwVLHoUZeJ7Fm/YAhJL8JzrOmznBKyvKYY1QU
-# TQuqgoDv6UADjJB2uyB6fBwi2Ndr3ToUO0YU63GdHR7YcftNrV6+rrXzMekzlz0=
+# AgEAAgEAAgEAAgEAAgEAMCEwCQYFKw4DAhoFAAQUhuats+TR/z2r1sDh8JdaH7o1
+# XPOgggMQMIIDDDCCAfSgAwIBAgIQbsRA190DwbdBuskmJyNY4jANBgkqhkiG9w0B
+# AQsFADAeMRwwGgYDVQQDDBNOZXcgTG9hZHMgQ29kZSBTaWduMB4XDTIyMTIyNDA1
+# MDQzMloXDTIzMTIyNDA1MjQzMlowHjEcMBoGA1UEAwwTTmV3IExvYWRzIENvZGUg
+# U2lnbjCCASIwDQYJKoZIhvcNAQEBBQADggEPADCCAQoCggEBAKBzm18SMDaGJ9ft
+# 4mCIOUCCNB1afaXS8Tx2dAnJ+84pGS4prKCxc7/F+n5uqXtPZcl88tr9VR1N/BBE
+# Md4LWvD2o/k5WfkYPtBoatldnZs9d1HBgIrWJoulc3PidboCD4Xz9Z9ktfrcmhc8
+# MfDD0DfSKswyi3N9L6t8ZRdLUW+JCh/1WHbt7o3ckvijEuKh9AOnzYtkXJfE+eRd
+# DKK2sq46WlZG2Sm3J+WOo2oeoFvvYHRG9RtzSY2EhmVRYWzGFM/GCqLUbh2wZwdY
+# uG61lCrkC6ZjEYPhs5ckoijMFC6bb4zYk4lYDzartHYiMxH1Ac0jNpaq+7kB3oRF
+# QLXWc+kCAwEAAaNGMEQwDgYDVR0PAQH/BAQDAgeAMBMGA1UdJQQMMAoGCCsGAQUF
+# BwMDMB0GA1UdDgQWBBRkAPIg1GpPJcyyzANerOe2sUGidTANBgkqhkiG9w0BAQsF
+# AAOCAQEABc3czHPSCyEDQ9MzWSiW7EhjXsyyj6JfP0a2onvRPoW0EzBq3BxwpGGJ
+# btML2ST94OmT8huibh8Cp2TnbAAxIhNU0tN3XMz2AXfJT5cr4MdHGDksiMj1Hcjn
+# wxXAf6uYX3+jovGZbgpog0KUk88p2vhU1oZP0YpaRaOqnjUH+Ml4g1fOx8siBmGu
+# vs9L+Kb5w2W8TjCBuGqGY4d8chxQe8A0ViZtp4LB+/1NAkt14GTwqOdWrKNIynMz
+# Rpa+Wkey1J0tG5AhNp0hvwmAO6KFSGtXHuNWwua9IpLMJsowj2U2TmzqLSDC2YrO
+# BgC97m41lByepRPQwnnV3p8NFn4CyTGCAdMwggHPAgEBMDIwHjEcMBoGA1UEAwwT
+# TmV3IExvYWRzIENvZGUgU2lnbgIQbsRA190DwbdBuskmJyNY4jAJBgUrDgMCGgUA
+# oHgwGAYKKwYBBAGCNwIBDDEKMAigAoAAoQKAADAZBgkqhkiG9w0BCQMxDAYKKwYB
+# BAGCNwIBBDAcBgorBgEEAYI3AgELMQ4wDAYKKwYBBAGCNwIBFTAjBgkqhkiG9w0B
+# CQQxFgQUPmzaUqADH5BuIs/g9/h0zI3oR70wDQYJKoZIhvcNAQEBBQAEggEAGwik
+# gOiSY2r1Tu3h0lxI8n1ToEjfpBuhFBn03nvEF0KTovyOq396dI2nS04R7oCHkMof
+# ztiCMfX1t9AvHJPCusJM+P1VtQX5j2dDwYM5uhc8J58TvDvGeI/ATCFSwYWJ74s9
+# 1vW8+xN5c7kxBuUROGApXGrPJz1boy+MN/O6D/PjJX9T1p8gy3PJoeh9rdSnoa3Z
+# m+3nEq2T41tmlvgvb3rCdiLNvvNDxODIXZDSy0P8EKs17WxC3wB/4LAPC0+Vld2M
+# MihBeDPWNs7PdIfmE9OdywfslvMGMQ7ldtaCKM94HAYtW9mLZu+CmSnRNi0Hsb1F
+# RrbcOi6oIIOsDIyl9w==
 # SIG # End signature block
