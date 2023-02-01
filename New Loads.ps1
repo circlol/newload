@@ -1,7 +1,10 @@
 #Requires -RunAsAdministrator
 try { Set-Variable -Name ScriptVersion -Value "230111" ; If (! { $! }) { Write-Section -Text "Script Version has been updated" } ; }catch {throw}
 Function Programs() {
-    # Declare variables for each program
+    # Set Window Title
+    $WindowTitle = "New Loads - Programs"; $host.UI.RawUI.WindowTitle = $WindowTitle
+    "" ; Write-TitleCounter -Counter '2' -MaxLength $MaxLength -Text "Program Installation"
+    Write-Section -Text "Application Installation"
     $chrome = @{
         Name = "Google Chrome"
         Location = "$Env:PROGRAMFILES\Google\Chrome\Application\chrome.exe"
@@ -30,53 +33,44 @@ Function Programs() {
         Installer = ".\bin\AcroRdrDCx642200120085_MUI.exe"
         ArgumentList = "/sPB"
     }
-    
-    # Set Window Title
-    $WindowTitle = "New Loads - Programs"; $host.UI.RawUI.WindowTitle = $WindowTitle
-    "" ; Write-TitleCounter -Counter '2' -MaxLength $MaxLength -Text "Program Installation"
-    Write-Section -Text "Application Installation"
-
-    # Loop through each program and install if necessary
+    ## Initiates the program download and install process
     foreach ($program in $chrome, $vlc, $zoom, $acrobat) {
         Write-Section -Text $program.Name
+        # Checks if the Program is already installed
         If (!(Test-Path -Path:$program.Location)) {
-            # Check if installer file exists already in script folder, if it doesn't it will download it
+            # Checks if the installer isn't in the 
             If (!(Test-Path -Path:$program.Installer)) {
-                #CheckNetworkStatus
-                $WindowTitle = "New Loads - Programs - Downloading $($program.Name)"; $host.UI.RawUI.WindowTitle = $WindowTitle
+                CheckNetworkStatus
                 Write-Status -Types "+", "Apps" -Status "Downloading $($program.Name)"
-                #Invoke-WebRequest -Uri $program.DownloadURL -OutFile $program.Installer
                 Start-BitsTransfer -Source $program.DownloadURL -Destination $program.Installer -TransferType Download -Dynamic
             }
-            $WindowTitle = "New Loads - Programs - Installing $($program.Name)"; $host.UI.RawUI.WindowTitle = $WindowTitle
+        
+            # Installs Each Application - 
+            # If its Google Chrome, it will wait
+            # If its VLC Media Player, it will install the H.265 codec
             Write-Status -Types "+", "Apps" -Status "Installing $($program.Name)"
-            Start-Process -FilePath:$program.Installer -ArgumentList $program.ArgumentList 
             If ($($program.Name) -eq "Google Chrome"){
-                #Adds the UBlock Origin extension to Google Chrome
+                Start-Process -FilePath:$program.Installer -ArgumentList $program.ArgumentList -Wait
                 Write-Status "+", "Apps" -Status "Adding UBlock Origin to Google Chrome"
                 REG ADD "HKLM\Software\Wow6432Node\Google\Chrome\Extensions\cjpalhdlnbpafiamejdnhcphjbkeiagm" /v update_url /t REG_SZ /d "https://clients2.google.com/service/update2/crx" /f
+            }Else {
+                Start-Process -FilePath:$program.Installer -ArgumentList $program.ArgumentList 
             }
-            If ($($Program.Name) -eq "VLC Media Player"){
-                Write-Status -Types "+", "Apps" -Status "Adding support to HEVC/H.265 video codec (MUST HAVE)..."
-                Add-AppPackage -Path ".\assets\Microsoft.HEVCVideoExtension_2.0.51121.0_x64__8wekyb3d8bbwe.appx" -ErrorAction SilentlyContinue
-            }
+        If ($($Program.Name) -eq "VLC Media Player"){
+            Write-Status -Types "+", "Apps" -Status "Adding support to HEVC/H.265 video codec (MUST HAVE)..."
+            Add-AppPackage -Path ".\assets\Microsoft.HEVCVideoExtension_2.0.51121.0_x64__8wekyb3d8bbwe.appx" -ErrorAction SilentlyContinue
+        }
         } else {
             Write-Status -Types "@", "Apps" -Status "$($program.Name) already seems to be installed on this system.. Skipping Installation"
         }
     }
-
     $WindowTitle = "New Loads"; $host.UI.RawUI.WindowTitle = $WindowTitle
 }
 Function Visuals() {
-    $TweakType = "Visual"
-    $WindowTitle = "New Loads - Visuals"
-    $host.UI.RawUI.WindowTitle = $WindowTitle
-
-    Write-Host "`n" 
-    Write-TitleCounter -Counter '3' -MaxLength $MaxLength -Text "Visuals"
+    $TweakType = "Visual" ; $WindowTitle = "New Loads - Visuals" ; $host.UI.RawUI.WindowTitle = $WindowTitle
+    Write-Host "`n" ; Write-TitleCounter -Counter '3' -MaxLength $MaxLength -Text "Visuals"
     $os = Get-CimInstance -ClassName Win32_OperatingSystem
     $osVersion = $os.Caption
-    
     If ($osVersion -like "*10*") {
         # code for Windows 10
         Write-Title -Text "Detected Windows 10"
@@ -95,27 +89,23 @@ Function Visuals() {
             xcopy $StartBinFile $StartBinDefault /y
             xcopy $StartBinFile $StartBinCurrent /y
         }
-
         Taskkill /f /im StartMenuExperienceHost.exe
     }else {
         # code for other operating systems
         # Check Windows version
-        Throw{"
-        Don't know what happened. Closing"
-    }
+        Throw{"Error:"}
 }
-
     Write-Status -Types "+", $TweakType -Status "Applying Wallpaper"
     # Copy wallpaper file
     $wallpaperDestination = "$env:appdata\Microsoft\Windows\Themes\wallpaper.jpg"
     Copy-Item -Path $wallpaperPath -Destination $wallpaperDestination -Force -Confirm:$False
-
     # Update wallpaper settings
     Set-ItemProperty -Path "HKCU:\Control Panel\Desktop" -Name WallpaperStyle -Value '2' -Force
     Set-ItemProperty -Path "HKCU:\Control Panel\Desktop" -Name Wallpaper -Value $wallpaperDestination
     Set-ItemProperty -Path $PathToRegPersonalize -Name "SystemUsesLightTheme" -Value 0
     Set-ItemProperty -Path $PathToRegPersonalize -Name "AppsUseLightTheme" -Value 1
-    Invoke-Expression "RUNDLL32.EXE user32.dll, UpdatePerUserSystemParameters"
+    #Invoke-Expression "RUNDLL32.EXE user32.dll, UpdatePerUserSystemParameters"
+    Start-Process "RUNDLL32.EXE" "user32.dll, UpdatePerUserSystemParameters"
     $Status = ($?) ; If ($Status) { Write-Status -Types "+", "Visual" -Status "Wallpaper Set`n" } elseif (!$Status) { Write-Status -Types "?", "Visual" -Status "Error Applying Wallpaper`n" -Warning } else { }
 
     Write-Host " REMINDER " -BackgroundColor Red -ForegroundColor White -NoNewLine
@@ -126,6 +116,7 @@ Function Branding() {
     $WindowTitle = "New Loads - Branding"; $host.UI.RawUI.WindowTitle = $WindowTitle
     Write-Host "`n" ; Write-TitleCounter -Counter '4' -MaxLength $MaxLength -Text "Mothers Branding"
     $TweakType = "Branding"
+    # Applies Mother Computers Branding, Phone number, and Hours to Settings Page
     If ((Get-ItemProperty -Path $PathToOEMInfo).Manufacturer -eq "$store") {
         Write-Status -Types "?" -Status "Skipping" -Warning
     }
@@ -241,7 +232,8 @@ Function StartMenu() {
 
     #the next line makes clean start menu default for all new users
     Import-StartLayout -LayoutPath $layoutFile -MountPath $env:SystemDrive\
-
+    
+    
     $StartLayout = @"
     <LayoutModificationTemplate xmlns:defaultlayout="http://schemas.microsoft.com/Start/2014/FullDefaultLayout" xmlns:start="http://schemas.microsoft.com/Start/2014/StartLayout" Version="1" xmlns:taskbar="http://schemas.microsoft.com/Start/2014/TaskbarLayout" xmlns="http://schemas.microsoft.com/Start/2014/LayoutModification">
     <LayoutOptions StartTileGroupCellWidth="6" />
@@ -483,7 +475,7 @@ Function CheckForMsStoreUpdates() {
     } else {
     Write-Status -Types "?" -Status "Error checking for Microsoft Store updates" -Warning
     }
-    }
+}
 Function Cleanup() {
     $WindowTitle = "New Loads - Cleanup"; $host.UI.RawUI.WindowTitle = $WindowTitle
     Write-Host "`n" ; Write-TitleCounter -Counter '12' -MaxLength $MaxLength -Text "Cleaning Up"
