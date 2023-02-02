@@ -58,7 +58,8 @@ Function Programs() {
             }
         If ($($Program.Name) -eq "VLC Media Player"){
             Write-Status -Types "+", "Apps" -Status "Adding support to HEVC/H.265 video codec (MUST HAVE)..."
-            Add-AppPackage -Path ".\assets\Microsoft.HEVCVideoExtension_2.0.51121.0_x64__8wekyb3d8bbwe.appx" -ErrorAction SilentlyContinue
+            Add-AppPackage -Path $HVECCodec
+            -ErrorAction SilentlyContinue
         }
         } else {
             Write-Status -Types "@", "Apps" -Status "$($program.Name) already seems to be installed on this system.. Skipping Installation"
