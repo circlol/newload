@@ -58,8 +58,7 @@ Function Programs() {
             }
         If ($($Program.Name) -eq "VLC Media Player"){
             Write-Status -Types "+", "Apps" -Status "Adding support to HEVC/H.265 video codec (MUST HAVE)..."
-            Add-AppPackage -Path $HVECCodec
-            -ErrorAction SilentlyContinue
+            Add-AppPackage -Path $HVECCodec -ErrorAction SilentlyContinue
         }
         } else {
             Write-Status -Types "@", "Apps" -Status "$($program.Name) already seems to be installed on this system.. Skipping Installation"
@@ -83,7 +82,7 @@ Function Visuals() {
         $StartBinDefault = "$Env:SystemDrive\Users\Default\AppData\Local\Packages\Microsoft.Windows.StartMenuExperienceHost_cw5n1h2txyewy\LocalState\"
         $StartBinCurrent = "$Env:userprofile\AppData\Local\Packages\Microsoft.Windows.StartMenuExperienceHost_cw5n1h2txyewy\LocalState"
         $StartBinFiles = @(
-            ".\assets\start.bin"
+            #".\assets\start.bin"
             ".\assets\start2.bin"
         )
         Foreach ($StartBinFile in $StartBinFiles){
