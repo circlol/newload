@@ -82,7 +82,7 @@ Function Visuals() {
         $StartBinDefault = "$Env:SystemDrive\Users\Default\AppData\Local\Packages\Microsoft.Windows.StartMenuExperienceHost_cw5n1h2txyewy\LocalState\"
         $StartBinCurrent = "$Env:userprofile\AppData\Local\Packages\Microsoft.Windows.StartMenuExperienceHost_cw5n1h2txyewy\LocalState"
         $StartBinFiles = @(
-            #".\assets\start.bin"
+            ".\assets\start.bin"
             ".\assets\start2.bin"
         )
         Foreach ($StartBinFile in $StartBinFiles){
@@ -296,9 +296,10 @@ Function Debloat() {
     #>
 
     #Norton cuz LUL Norton
-    $CheckNorton = Get-ChildItem -Path "C:\Program Files (x86)\NortonInstaller\" -Name "InstStub.exe" -Recurse -ErrorAction SilentlyContinue | Out-Null
+    $NortonPath = "C:\Program Files (x86)\NortonInstaller\"
+    $CheckNorton = Get-ChildItem -Path $NortonPath -Name "InstStub.exe" -Recurse -ErrorAction SilentlyContinue | Out-Null
     If ($CheckNorton) {
-        $Norton = "C:\Program Files (x86)\NortonInstaller\" + $CheckNorton
+        $Norton = $NortonPath + $CheckNorton
         Write-Status -Types "-", "$TweakType" , "$TweakTypeLocal" -Status "Detected and Attemping Removal of Norton..."
         Start-Process $Norton -ArgumentList "/X /ARP"
     }
@@ -511,6 +512,41 @@ Function Cleanup() {
         Remove-Item $ctemp -Force -Recurse -Confirm:$false -ErrorAction SilentlyContinue | Out-Null
     }Catch{}
 }
+Function OOS10 {
+    param (
+        [switch] $Revert
+    )
+
+    $ShutUpDl = "https://dl5.oo-software.com/files/ooshutup10/OOSU10.exe"
+    $ShutUpOutput = ".\bin\OOSU10.exe"
+    Start-BitsTransfer -Source "$ShutUpDl" -Destination $ShutUpOutput
+
+    If ($Revert) {
+        Write-Status -Types "*" -Status "Running ShutUp10 and REVERTING to default settings..."
+        Start-Process -FilePath $ShutUpOutput -ArgumentList ".\Assets\settings-revert.cfg", "/quiet" -Wait
+    } Else {
+        Write-Status -Types "+" -Status "Running ShutUp10 and applying Recommended settings..."
+        Start-Process -FilePath $ShutUpOutput -ArgumentList ".\Assets\settings.cfg", "/quiet" -Wait
+    }
+
+    Remove-Item "$ShutUpOutput" -Force
+}
+Function ADWCleaner() {
+    $adwLink = "https://github.com/circlol/newload/raw/main/adwcleaner.exe"
+    $adwDestination = ".\bin\adwcleaner.exe"
+    If (!(Test-Path ".\bin\adwcleaner.exe")){
+        Write-Status -Types "+","ADWCleaner" -Status "Downloading ADWCleaner"
+        Start-BitsTransfer -Source $adwLink -Destination $adwDestination
+    }
+
+    Write-Status -Types "+","ADWCleaner" -Status "Starting ADWCleaner with ArgumentList /Scan & /Clean"
+    Start-Process -FilePath $adwDestination -ArgumentList "/EULA","/PreInstalled","/Clean" -NoNewWindow -Wait
+
+    #Removes ADWCleaner from the system
+    Write-Status -Types "-","ADWCleaner" -Status "Removing traces of ADWCleaner"
+    Start-Process -FilePath $adwDestination -ArgumentList "/Uninstall" -NoNewWindow -Wait
+    
+}
 Function CreateRestorePoint() {
     $TweakType = "Backup"
     Write-Host "`n" ; Write-TitleCounter -Counter '11' -MaxLength $MaxLength -Text "Creating Restore Point"
@@ -635,6 +671,8 @@ If (!($GUI)) {
     OfficeCheck
     #OneDriveRemoval
     CheckForMsStoreUpdates
+    OOS10
+    AdwCleaner
     Optimize-Windows
     BitlockerDecryption
     CreateRestorePoint
@@ -653,32 +691,32 @@ else {
 # SIG # Begin signature block
 # MIIFeQYJKoZIhvcNAQcCoIIFajCCBWYCAQExCzAJBgUrDgMCGgUAMGkGCisGAQQB
 # gjcCAQSgWzBZMDQGCisGAQQBgjcCAR4wJgIDAQAABBAfzDtgWUsITrck0sYpfvNR
-# AgEAAgEAAgEAAgEAAgEAMCEwCQYFKw4DAhoFAAQUhuats+TR/z2r1sDh8JdaH7o1
-# XPOgggMQMIIDDDCCAfSgAwIBAgIQbsRA190DwbdBuskmJyNY4jANBgkqhkiG9w0B
-# AQsFADAeMRwwGgYDVQQDDBNOZXcgTG9hZHMgQ29kZSBTaWduMB4XDTIyMTIyNDA1
-# MDQzMloXDTIzMTIyNDA1MjQzMlowHjEcMBoGA1UEAwwTTmV3IExvYWRzIENvZGUg
-# U2lnbjCCASIwDQYJKoZIhvcNAQEBBQADggEPADCCAQoCggEBAKBzm18SMDaGJ9ft
-# 4mCIOUCCNB1afaXS8Tx2dAnJ+84pGS4prKCxc7/F+n5uqXtPZcl88tr9VR1N/BBE
-# Md4LWvD2o/k5WfkYPtBoatldnZs9d1HBgIrWJoulc3PidboCD4Xz9Z9ktfrcmhc8
-# MfDD0DfSKswyi3N9L6t8ZRdLUW+JCh/1WHbt7o3ckvijEuKh9AOnzYtkXJfE+eRd
-# DKK2sq46WlZG2Sm3J+WOo2oeoFvvYHRG9RtzSY2EhmVRYWzGFM/GCqLUbh2wZwdY
-# uG61lCrkC6ZjEYPhs5ckoijMFC6bb4zYk4lYDzartHYiMxH1Ac0jNpaq+7kB3oRF
-# QLXWc+kCAwEAAaNGMEQwDgYDVR0PAQH/BAQDAgeAMBMGA1UdJQQMMAoGCCsGAQUF
-# BwMDMB0GA1UdDgQWBBRkAPIg1GpPJcyyzANerOe2sUGidTANBgkqhkiG9w0BAQsF
-# AAOCAQEABc3czHPSCyEDQ9MzWSiW7EhjXsyyj6JfP0a2onvRPoW0EzBq3BxwpGGJ
-# btML2ST94OmT8huibh8Cp2TnbAAxIhNU0tN3XMz2AXfJT5cr4MdHGDksiMj1Hcjn
-# wxXAf6uYX3+jovGZbgpog0KUk88p2vhU1oZP0YpaRaOqnjUH+Ml4g1fOx8siBmGu
-# vs9L+Kb5w2W8TjCBuGqGY4d8chxQe8A0ViZtp4LB+/1NAkt14GTwqOdWrKNIynMz
-# Rpa+Wkey1J0tG5AhNp0hvwmAO6KFSGtXHuNWwua9IpLMJsowj2U2TmzqLSDC2YrO
-# BgC97m41lByepRPQwnnV3p8NFn4CyTGCAdMwggHPAgEBMDIwHjEcMBoGA1UEAwwT
-# TmV3IExvYWRzIENvZGUgU2lnbgIQbsRA190DwbdBuskmJyNY4jAJBgUrDgMCGgUA
+# AgEAAgEAAgEAAgEAAgEAMCEwCQYFKw4DAhoFAAQUA7FK0z9M3CBh1IQ5xmO4DNGc
+# uRmgggMQMIIDDDCCAfSgAwIBAgIQKjMkMYkqpItNCiCURmEWWjANBgkqhkiG9w0B
+# AQsFADAeMRwwGgYDVQQDDBNOZXcgTG9hZHMgQ29kZSBTaWduMB4XDTIzMDIxMjIx
+# MjA1NloXDTI0MDIxMjIxNDA1NlowHjEcMBoGA1UEAwwTTmV3IExvYWRzIENvZGUg
+# U2lnbjCCASIwDQYJKoZIhvcNAQEBBQADggEPADCCAQoCggEBAN7IxFLVKnoz9n+b
+# QgCpdOt/nLnk3qOSUxBZR/cXmGqqRmNQDV+T8FL7XEjvj4iNAGR/A9F2Rs4QKcdW
+# OX4t2cUYHxqeft8+2b5HiZirMGAo+sfeILERHJAo5tGTVp8HlPJlvCWXzcrkZEtx
+# ib6faWMGuGYRcRHgtbW4G7cQzbQnpYReq4J+LT/wDWJSYrMhTh89u7gFU5vdXX0R
+# aBkYBsid6SVNNaZRRATGWq+SU3l5E+RzLDFF+iiDJSVX7HIUB61aYV6RkmyZsY24
+# pklxphf8njEeLu30U6aufZ1lu40xhPWFZo4R6O5XLzgXqEXTGEBl2Tm8JyPQEpyy
+# ZAryosECAwEAAaNGMEQwDgYDVR0PAQH/BAQDAgeAMBMGA1UdJQQMMAoGCCsGAQUF
+# BwMDMB0GA1UdDgQWBBQnPYNnFm4VyH3ban7w10sQvJ03ZTANBgkqhkiG9w0BAQsF
+# AAOCAQEAsR+0Q3ix62SZGte3F8ItYz4B8sVz6PSVtES/4gIf2Rux4tNlvMnrNSqi
+# rGC3ZVd8uEpJkLv2jIjTwJ/LWuf4nk2XUonA2San30l/kBf4JaDMuoQf9QsBemxN
+# ftnT+5QGu/mg7jzaiiDaw/gN/ejgtE5VJyYMcvBYyiVMqnclFThAvoTSPoejk53v
+# flmIVXp3B5Q/4DjsY0XqfhLg6n61kMfT4mTuDLennv6I7NAFW01jwzyMAX7Fef6T
+# dT9OOY7fNN8tB5nH8/bwa1mL0pyg6Ss9I2oNM1AZFYxUBKlNwPLg7ZMGYnbsbNKa
+# qe1YlgKIRI++rPnYzPbEvZMh88Eb6jGCAdMwggHPAgEBMDIwHjEcMBoGA1UEAwwT
+# TmV3IExvYWRzIENvZGUgU2lnbgIQKjMkMYkqpItNCiCURmEWWjAJBgUrDgMCGgUA
 # oHgwGAYKKwYBBAGCNwIBDDEKMAigAoAAoQKAADAZBgkqhkiG9w0BCQMxDAYKKwYB
 # BAGCNwIBBDAcBgorBgEEAYI3AgELMQ4wDAYKKwYBBAGCNwIBFTAjBgkqhkiG9w0B
-# CQQxFgQUPmzaUqADH5BuIs/g9/h0zI3oR70wDQYJKoZIhvcNAQEBBQAEggEAGwik
-# gOiSY2r1Tu3h0lxI8n1ToEjfpBuhFBn03nvEF0KTovyOq396dI2nS04R7oCHkMof
-# ztiCMfX1t9AvHJPCusJM+P1VtQX5j2dDwYM5uhc8J58TvDvGeI/ATCFSwYWJ74s9
-# 1vW8+xN5c7kxBuUROGApXGrPJz1boy+MN/O6D/PjJX9T1p8gy3PJoeh9rdSnoa3Z
-# m+3nEq2T41tmlvgvb3rCdiLNvvNDxODIXZDSy0P8EKs17WxC3wB/4LAPC0+Vld2M
-# MihBeDPWNs7PdIfmE9OdywfslvMGMQ7ldtaCKM94HAYtW9mLZu+CmSnRNi0Hsb1F
-# RrbcOi6oIIOsDIyl9w==
+# CQQxFgQUJMVJBFMxFe86glaJGO8EytMMaOowDQYJKoZIhvcNAQEBBQAEggEApUf4
+# DaXlsHAXA1osEtgS90/kOMTtPeixrBTjTA9mrQHfMdXuxQzcb7ya6SpoXQrWwf67
+# xDVth1v7J/XpIbBWJoER8eo9qwN91/d5u+ZrwpFmqld1I2zBdGlC6hjCU/2peuN3
+# pjJzChoRsGNPEwgm3Q61r3ovKZ0tmXlBXSjuZrBZm1FIi9OZkgeoWZGLl87Tk5bg
+# 2DtAIGHbAu6vhWkpVxs+MI3WztWP59EALmTVXsXMqDXsJmstGQB6AjjncJkxYcR0
+# 3k4S2gukJP3X5Oh6Ml86VKh//6mF+Bs0bqkUueg7z5Y10S3gMBt5/ew4YREiojCq
+# uqeVM4y/4Rh5ZXR02g==
 # SIG # End signature block
