@@ -540,11 +540,11 @@ Function ADWCleaner() {
     }
 
     Write-Status -Types "+","ADWCleaner" -Status "Starting ADWCleaner with ArgumentList /Scan & /Clean"
-    Start-Process -FilePath $adwDestination -ArgumentList "/EULA","/PreInstalled","/Clean" -NoNewWindow -Wait
+    Start-Process -FilePath $adwDestination -ArgumentList "/EULA","/PreInstalled","/Clean","/NoReboot" -NoNewWindow -Wait
 
     #Removes ADWCleaner from the system
     Write-Status -Types "-","ADWCleaner" -Status "Removing traces of ADWCleaner"
-    Start-Process -FilePath $adwDestination -ArgumentList "/Uninstall" -NoNewWindow -Wait
+    Start-Process -FilePath $adwDestination -ArgumentList "/Uninstall","/NoReboot" -NoNewWindow -Wait
     
 }
 Function CreateRestorePoint() {
@@ -671,8 +671,8 @@ If (!($GUI)) {
     OfficeCheck
     #OneDriveRemoval
     CheckForMsStoreUpdates
-    #OOS10
-    #AdwCleaner
+    OOS10
+    AdwCleaner
     Optimize-Windows
     BitlockerDecryption
     CreateRestorePoint
