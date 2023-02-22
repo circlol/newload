@@ -671,8 +671,8 @@ If (!($GUI)) {
     OfficeCheck
     #OneDriveRemoval
     CheckForMsStoreUpdates
-    OOS10
-    AdwCleaner
+    #OOS10
+    #AdwCleaner
     Optimize-Windows
     BitlockerDecryption
     CreateRestorePoint
