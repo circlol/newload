@@ -148,7 +148,7 @@ Function Branding() {
         Write-Status -Types "?" -Status "Skipping" -Warning
     }
     else {
-        Write-Status -Types "+", $TweakType -Status "Adding Store Hours to Support Page"
+        Write-Status -Types "+", $TweakType -Status "Adding Store URL to Support Page"
         Set-ItemProperty -Path $PathToOEMInfo -Name "SupportURL" -Type String -Value $website
         Check
     }
@@ -255,6 +255,39 @@ Function StartMenu() {
     $StartLayout | Out-File $layoutFile -Encoding ASCII
     Remove-Item $layoutFile -Verbose
 }
+Function StartMenu () {
+    $StartLayout = @"
+    <LayoutModificationTemplate xmlns="http://schemas.microsoft.com/Start/2014/LayoutModification" 
+        xmlns:defaultlayout="http://schemas.microsoft.com/Start/2014/FullDefaultLayout" 
+        xmlns:start="http://schemas.microsoft.com/Start/2014/StartLayout" 
+        xmlns:taskbar="http://schemas.microsoft.com/Start/2014/TaskbarLayout" 
+        Version="1">
+        <LayoutOptions StartTileGroupCellWidth="6" />
+        <DefaultLayoutOverride>
+            <StartLayoutCollection>
+            <defaultlayout:StartLayout GroupCellWidth="6" />
+            </StartLayoutCollection>
+        </DefaultLayoutOverride>
+        <CustomTaskbarLayoutCollection PinListPlacement="Replace">
+            <defaultlayout:TaskbarLayout>
+            <taskbar:TaskbarPinList>
+            <taskbar:DesktopApp DesktopApplicationID="Chrome" />
+            <taskbar:DesktopApp DesktopApplicationID="Microsoft.Windows.Explorer" />
+            <taskbar:UWA AppUserModelID="windows.immersivecontrolpanel_cw5n1h2txyewy!Microsoft.Windows.ImmersiveControlPanel" />
+            <taskbar:UWA AppUserModelID="Microsoft.SecHealthUI_8wekyb3d8bbwe!SecHealthUI" />
+            </taskbar:TaskbarPinList>
+        </defaultlayout:TaskbarLayout>
+        </CustomTaskbarLayoutCollection>
+    </LayoutModificationTemplate>
+"@
+        $layoutFile = "$Env:LOCALAPPDATA\Microsoft\Windows\Shell\LayoutModification.xml"
+        If (Test-Path $layoutFile) { Remove-Item $layoutFile -Verbose | Out-Null }
+        $StartLayout | Out-File $layoutFile -Encoding ASCII
+        Restart-Explorer
+        Start-Sleep -Seconds 4
+        Remove-Item $layoutFile
+}
+
 Function Debloat() {
     $TweakType = "Debloat"
     $WindowTitle = "New Loads - Debloat"; $host.UI.RawUI.WindowTitle = $WindowTitle
@@ -540,11 +573,11 @@ Function ADWCleaner() {
     }
 
     Write-Status -Types "+","ADWCleaner" -Status "Starting ADWCleaner with ArgumentList /Scan & /Clean"
-    Start-Process -FilePath $adwDestination -ArgumentList "/EULA","/PreInstalled","/Clean" -NoNewWindow -Wait
+    Start-Process -FilePath $adwDestination -ArgumentList "/EULA","/PreInstalled","/Clean","/NoReboot" -NoNewWindow -Wait
 
     #Removes ADWCleaner from the system
     Write-Status -Types "-","ADWCleaner" -Status "Removing traces of ADWCleaner"
-    Start-Process -FilePath $adwDestination -ArgumentList "/Uninstall" -NoNewWindow -Wait
+    Start-Process -FilePath $adwDestination -ArgumentList "/Uninstall","/NoReboot" -NoNewWindow -Wait
     
 }
 Function CreateRestorePoint() {
@@ -668,11 +701,11 @@ If (!($GUI)) {
     Branding
     StartMenu
     Debloat
+    #OOS10
+    AdwCleaner
     OfficeCheck
     #OneDriveRemoval
     CheckForMsStoreUpdates
-    OOS10
-    AdwCleaner
     Optimize-Windows
     BitlockerDecryption
     CreateRestorePoint
