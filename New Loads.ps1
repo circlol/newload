@@ -1,5 +1,5 @@
 #Requires -RunAsAdministrator
-try { Set-Variable -Name ScriptVersion -Value "230111" ; If (! { $! }) { Write-Section -Text "Script Version has been updated" } ; }catch {throw}
+try { Set-Variable -Name ScriptVersion -Value "230224" ; If (! { $! }) { Write-Section -Text "Script Version has been updated" } ; }catch {throw}
 Function Programs() {
     # Set Window Title
     $WindowTitle = "New Loads - Programs"; $host.UI.RawUI.WindowTitle = $WindowTitle
@@ -119,8 +119,7 @@ Function Branding() {
     # Applies Mother Computers Branding, Phone number, and Hours to Settings Page
     If ((Get-ItemProperty -Path $PathToOEMInfo).Manufacturer -eq "$store") {
         Write-Status -Types "?" -Status "Skipping" -Warning
-    }
-    else {
+    }else {
         Write-Status -Types "+", $TweakType -Status "Adding Mother Computers to Support Page"
         Set-ItemProperty -Path $PathToOEMInfo -Name "Manufacturer" -Type String -Value "$store"
         Check
@@ -128,17 +127,14 @@ Function Branding() {
 
     If ((Get-ItemProperty -Path $PathToOEMInfo).SupportPhone -eq $phone) {
         Write-Status -Types "?" -Status "Skipping" -Warning
-    }
-    else {
+    }else {
         Write-Status -Types "+", $TweakType -Status "Adding Mothers Number to Support Page"
         Set-ItemProperty -Path $PathToOEMInfo -Name "SupportPhone" -Type String -Value "$phone"
         Check
     }
-
     If ((Get-ItemProperty -Path $PathToOEMInfo).SupportHours -eq "$hours") {
         Write-Status -Types "?" -Status "Skipping" -Warning
-    }
-    else {
+    }else {
         Write-Status -Types "+", $TweakType -Status "Adding Store Hours to Support Page"
         Set-ItemProperty -Path $PathToOEMInfo -Name "SupportHours" -Type String -Value "$hours"
         Check
@@ -146,8 +142,7 @@ Function Branding() {
 
     If ((Get-ItemProperty -Path $PathToOEMInfo).SupportURL -eq $website) {
         Write-Status -Types "?" -Status "Skipping" -Warning
-    }
-    else {
+    }else {
         Write-Status -Types "+", $TweakType -Status "Adding Store URL to Support Page"
         Set-ItemProperty -Path $PathToOEMInfo -Name "SupportURL" -Type String -Value $website
         Check
@@ -155,14 +150,12 @@ Function Branding() {
 
     If ((Get-ItemProperty -Path $PathToOEMInfo).Model -eq "$model") {
         Write-Status -Types "?" -Status "Skipping" -Warning
-    }
-    else {
+    }else {
         Write-Status -Types "+", $TweakType -Status "Adding Store Number to Settings Page"
         Set-ItemProperty -Path $PathToOEMInfo -Name $page -Type String -Value "$Model"
         Check
     }
 }
-
 Function StartMenu () {
     $WindowTitle = "New Loads - Start Menu"; $host.UI.RawUI.WindowTitle = $WindowTitle
     Write-Host "`n" ; Write-TitleCounter -Counter '5' -MaxLength $MaxLength -Text "StartMenuLayout.xml Modification"
@@ -198,7 +191,34 @@ Function StartMenu () {
         Start-Sleep -Seconds 4
         Remove-Item $layoutFile
 }
+Function Remove-UWPAppx() {
+    [CmdletBinding()]
+    param (
+        [Array] $AppxPackages
+    )
+    $TweakType = "UWP"
+    # Store the original progress preference
+    $originalProgressPreference = $ProgressPreference
+    # Set the progress preference to 'SilentlyContinue' to suppress all other output
+    $ProgressPreference = 'SilentlyContinue'
 
+    ForEach ($AppxPackage in $AppxPackages) {
+        $appxPackageToRemove = Get-AppxPackage -AllUsers -Name $AppxPackage -ErrorAction SilentlyContinue
+        if ($appxPackageToRemove) {
+            $appxPackageToRemove | ForEach-Object {
+                Write-Status -Types "-", $TweakType -Status "Trying to remove $AppxPackage from ALL users..."
+                Remove-AppxPackage $_.PackageFullName  -EA SilentlyContinue -WA SilentlyContinue >$NULL | Out-Null #4>&1 | Out-Null
+                If ($?){ $Global:Removed++ } elseif (!($?)) { $Global:Failed++ }
+            }
+            Get-AppxProvisionedPackage -Online | Where-Object DisplayName -like $AppxPackage | Remove-AppxProvisionedPackage -Online -AllUsers | Out-Null
+            If ($?){ $Global:Removed++ } elseif (!($?)) { $Global:Failed++ }
+        } else {
+            $Global:NotFound++
+        }
+    }
+    # Reset the progress preference to the original value
+    $ProgressPreference = $originalProgressPreference
+}
 Function Debloat() {
     $TweakType = "Debloat"
     $WindowTitle = "New Loads - Debloat"; $host.UI.RawUI.WindowTitle = $WindowTitle
@@ -222,22 +242,6 @@ Function Debloat() {
         Write-Status -Types "-", "$TweakType" , "$TweakTypeLocal" -Status "Detected and Attemping Removal WildTangent Games."
         Start-Process $WildGames
     }
-
-    <#
-    #Detects and removes ExpressVPN on Acer and HP Machines
-    $CheckExpress = Get-ChildItem -Path "C:\ProgramData\Package Cache\" -Name "ExpressVPN_*_release.exe" -Recurse 2> $ErrorLog | Out-Null
-    If ($CheckExpress){ $ExpressVPN = "C:\ProgramData\Package Cache\" + $CheckExpress }
-    If ($ExpressVPN){ Write-Status "@" , $TweakType -Status "Detected ExpressVPN" }
-    Try{ If ($Global:Valid -eq $True){
-        Write-Status -Types "-", "$TweakType" , "$TweakTypeLocal" -Status "Attempting Removal of ExpressVPN."
-        Start-Process $ExpressVPN -ArgumentList "/Uninstall"
-    }}Catch{
-        "$(Get-Date)  [$TweakType]  Error: $($_.Exception.Message)" |
-        Out-File "$ErrorLog" -Append
-        "$(Get-Date)  [$TweakType]  Exception on Line Number: $($_.InvocationInfo.ScriptLineNumber)" |
-        Out-File "$ErrorLog" -Append
-    }
-    #>
 
     #Norton cuz LUL Norton
     $NortonPath = "C:\Program Files (x86)\NortonInstaller\"
@@ -285,8 +289,6 @@ Function Debloat() {
         }
     }
 
-    Write-Host "" ; Write-Section -Text "Removing UWP Apps"
-    $TweakTypeLocal = "UWP"
     $Programs = @(
         "Microsoft.3DBuilder"                       # 3D Builder
         "Microsoft.Appconnector"
@@ -396,7 +398,19 @@ Function Debloat() {
     )
 
 
+    $Global:Removed = 0
+    $Global:Failed = 0
+    $Global:NotFound = 0
     Remove-UWPAppx -AppxPackages $Programs
+
+    #ForEach($Program in $Programs){
+    #}
+
+    Write-Host "Debloat Results:`nTotal Packages: $TotalItems `nSuccessful: " -NoNewline -ForegroundColor Gray ; Write-Host "$Removed " -ForegroundColor Green
+    Write-Host "Not Found: " -NoNewline -ForegroundColor Gray ; Write-Host "$NotFound " -ForegroundColor Yellow -NoNewline
+    Write-Host "Failed: " -NoNewline -ForegroundColor Gray ; Write-Host "$Failed " -ForegroundColor Red
+    Write-Host ""
+    Start-Sleep -Seconds 4
 }
 Function BitlockerDecryption() {
     $WindowTitle = "New Loads - Bitlocker Decryption"; $host.UI.RawUI.WindowTitle = $WindowTitle
@@ -549,12 +563,14 @@ Function EmailLog() {
 
 New Loads was run on a computer for $ip\$env:computername\$env:USERNAME,
 
+
 Completing in $ElapsedTime
 
-Date: $CurrentDate
-Script Info:
+
 Program Version: $programversion
 Script Version: $ScriptVersion
+Date: $CurrentDate
+Script Info:
 Script Start Time: $StartTime
 Script End Time: $EndTime
 
