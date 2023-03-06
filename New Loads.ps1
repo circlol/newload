@@ -398,20 +398,18 @@ Function Debloat() {
     )
 
 
-    $TotalItems = $Programs.Count
-    $CurrentItem = 0
-    $PercentComplete = 0
-    ForEach($Program in $Programs){
-    Write-Progress -Activity "Debloating System" -Status " $PercentComplete% Complete:" -PercentComplete $PercentComplete
-    Remove-UWPAppx -AppxPackages $Program
-    $CurrentItem++
-    $PercentComplete = [int](($CurrentItem / $TotalItems) * 100)
-    }
-    
-    Write-Host "Debloat Completed!`n" -Foregroundcolor Green
-    Write-Host "Successfully Removed: " -NoNewline -ForegroundColor Gray ; Write-Host "$Removed" -ForegroundColor Green
-    Write-Host "Failed: " -NoNewline -ForegroundColor Gray ; Write-Host "$Failed" -ForegroundColor Red
-    Write-Host "Not Found: " -NoNewline -ForegroundColor Gray ; Write-Host "$NotFound`n" -ForegroundColor Yellow
+    $Global:Removed = 0
+    $Global:Failed = 0
+    $Global:NotFound = 0
+    Remove-UWPAppx -AppxPackages $Programs
+
+    #ForEach($Program in $Programs){
+    #}
+
+    Write-Host "Debloat Results:`nTotal Packages: $TotalItems `nSuccessful: " -NoNewline -ForegroundColor Gray ; Write-Host "$Removed " -ForegroundColor Green
+    Write-Host "Not Found: " -NoNewline -ForegroundColor Gray ; Write-Host "$NotFound " -ForegroundColor Yellow -NoNewline
+    Write-Host "Failed: " -NoNewline -ForegroundColor Gray ; Write-Host "$Failed " -ForegroundColor Red
+    Write-Host ""
     Start-Sleep -Seconds 4
 }
 Function BitlockerDecryption() {
