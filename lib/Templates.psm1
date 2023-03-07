@@ -1,7 +1,30 @@
-Function Write-Break(){
-    Write-Host "`n`n[" -NoNewline -ForegroundColor $ForegroundColor -Backgroundcolor $BackgroundColor
-    Write-Host "================================================================================================" -NoNewLine -ForegroundColor White -BackgroundColor $BackgroundColor
-    Write-Host "]`n" -ForegroundColor $ForegroundColor -BackgroundColor $BackgroundColor
+Function Write-Title() {
+    [CmdletBinding()]
+    param (
+        [String] $Text = "No Text"
+    )
+
+    Write-Host "`n<" -NoNewline -ForegroundColor $ForegroundColor -BackgroundColor Black
+    Write-Host "====================" -NoNewline -ForegroundColor White -BackgroundColor Black
+    Write-Host "] " -NoNewline -ForegroundColor $ForegroundColor -BackgroundColor Black
+    Write-Host "$Text " -NoNewline -ForegroundColor White -BackgroundColor Black
+    Write-Host "[" -NoNewline -ForegroundColor $ForegroundColor -BackgroundColor Black
+    Write-Host "====================" -NoNewline -ForegroundColor White -BackgroundColor Black
+    Write-Host ">`n" -ForegroundColor $ForegroundColor -BackgroundColor Black
+}
+Function Write-Section() {
+    [CmdletBinding()]
+    param (
+        [String] $Text = "No Text"
+    )
+
+    Write-Host "`n<" -NoNewline -ForegroundColor $ForegroundColor -BackgroundColor Black
+    Write-Host "====================" -NoNewline -ForegroundColor White -BackgroundColor Black
+    Write-Host "] " -NoNewline -ForegroundColor $ForegroundColor -BackgroundColor Black
+    Write-Host "$Text " -NoNewline -ForegroundColor White -BackgroundColor Black
+    Write-Host "[" -NoNewline -ForegroundColor $ForegroundColor -BackgroundColor Black
+    Write-Host "====================" -NoNewline -ForegroundColor White -BackgroundColor Black
+    Write-Host ">" -ForegroundColor $ForegroundColor -BackgroundColor Black
 }
 Function Write-Caption() {
     [CmdletBinding()]
@@ -9,46 +32,40 @@ Function Write-Caption() {
         [String] $Text = "No Text"
     )
 
-    Write-Host "==" -NoNewline -ForegroundColor White -BackgroundColor $BackgroundColor
-    Write-Host "> " -NoNewline -ForegroundColor $ForegroundColor -BackgroundColor $BackgroundColor
-    Write-Host "$Text" -ForegroundColor White -BackgroundColor $BackgroundColor
+    Write-Host "==" -NoNewline -ForegroundColor White -BackgroundColor Black
+    Write-Host "> " -NoNewline -ForegroundColor $ForegroundColor -BackgroundColor Black
+    Write-Host "$Text" -ForegroundColor White -BackgroundColor Black
 }
+
 Function Write-CaptionFailed() {
-    [CmdletBinding()]
-    param (
-        [String] $Text = "Failed"
-    )
-    Write-Host "==> " -ForegroundColor Red -BackgroundColor $BackgroundColor -NoNewline
-    Write-Host "$Text" -ForegroundColor White -BackgroundColor $BackgroundColor
-}
-Function Write-CaptionSucceed() {
-    [CmdletBinding()]
-    param (
-        [String] $Text = "Success"
-    )
-    Write-Host "==> " -NoNewline -ForegroundColor Green -BackgroundColor $BackgroundColor
-    Write-Host "$Text" -ForegroundColor White -BackgroundColor $BackgroundColor
-}
-Function Write-CaptionWarning() {
-    [CmdletBinding()]
-    param (
-        [String] $Text = "Warning"
-    )
-    Write-Host "==> " -NoNewline -ForegroundColor Yellow -BackgroundColor $BackgroundColor
-    Write-Host "$Text" -ForegroundColor White -BackgroundColor $BackgroundColor
-}
-Function Write-Section() {
     [CmdletBinding()]
     param (
         [String] $Text = "No Text"
     )
-    Write-Host "`n<" -NoNewline -ForegroundColor $ForegroundColor -BackgroundColor $BackgroundColor
-    Write-Host "====================" -NoNewline -ForegroundColor White -BackgroundColor $BackgroundColor
-    Write-Host "] " -NoNewline -ForegroundColor $ForegroundColor -BackgroundColor $BackgroundColor
-    Write-Host "$Text " -NoNewline -ForegroundColor White -BackgroundColor $BackgroundColor
-    Write-Host "[" -NoNewline -ForegroundColor $ForegroundColor -BackgroundColor $BackgroundColor
-    Write-Host "====================" -NoNewline -ForegroundColor White -BackgroundColor $BackgroundColor
-    Write-Host ">" -ForegroundColor $ForegroundColor -BackgroundColor $BackgroundColor
+
+    Write-Host "==> " -NoNewline -ForegroundColor Red -BackgroundColor Black
+    Write-Host "$Text" -ForegroundColor White -BackgroundColor Black
+    Write-Host ""
+}
+Function Write-CaptionSucceed() {
+    [CmdletBinding()]
+    param (
+        [String] $Text = "No Text"
+    )
+
+    Write-Host "==> " -NoNewline -ForegroundColor Green -BackgroundColor Black
+    Write-Host "$Text" -ForegroundColor White -BackgroundColor Black
+    Write-Host ""
+}
+Function Write-CaptionWarning() {
+    [CmdletBinding()]
+    param (
+        [String] $Text = "No Text"
+    )
+
+    Write-Host "==> " -NoNewline -ForegroundColor Yellow -BackgroundColor Black
+    Write-Host "$Text" -ForegroundColor White -BackgroundColor Black
+    Write-Host ""
 }
 Function Write-Status() {
     [CmdletBinding()]
@@ -57,46 +74,21 @@ Function Write-Status() {
         [Array]  $Types,
         [Parameter(Mandatory)]
         [String] $Status,
-        [Switch] $Warning,
-        [Switch] $NoNewLineLast
+        [Switch] $Warning
     )
 
     ForEach ($Type in $Types) {
-        Write-Host "[" -NoNewline -ForegroundColor $ForegroundColor -BackgroundColor $BackgroundColor
-        Write-Host "$Type" -NoNewline -ForegroundColor White -BackgroundColor $BackgroundColor
-        Write-Host "]" -NoNewline -ForegroundColor $ForegroundColor -BackgroundColor $BackgroundColor
+        Write-Host "[" -NoNewline -ForegroundColor $ForegroundColor -BackgroundColor Black
+        Write-Host "$Type" -NoNewline -ForegroundColor White -BackgroundColor Black
+        Write-Host "] " -NoNewline -ForegroundColor $ForegroundColor -BackgroundColor Black
     }
 
     If ($Warning) {
-        If ($NoNewLine){
-            Write-Host "-> $Status" -ForegroundColor Yellow -BackgroundColor $BackgroundColor
-        }else{
-            Write-Host "-> $Status" -ForegroundColor Yellow -BackgroundColor $BackgroundColor
-        }
+        Write-Host "$Status" -ForegroundColor Yellow -BackgroundColor Black
     } Else {
-        If ($NoNewLine){
-            Write-Host "-> $Status" -ForegroundColor White -BackgroundColor $BackgroundColor
-        }else{
-            Write-Host "-> $Status" -ForegroundColor White -BackgroundColor $BackgroundColor
-        }
+        Write-Host "$Status" -ForegroundColor White -BackgroundColor Black
     }
 }
-Function Write-Title() {
-    [CmdletBinding()]
-    param (
-        [String] $Text = "No Text",
-        [Switch] $NoNewLineLast
-    )
-    Write-Host "`n<" -NoNewline -ForegroundColor $ForegroundColor -BackgroundColor $BackgroundColor
-    Write-Host "====================" -NoNewline -ForegroundColor White -BackgroundColor $BackgroundColor
-    Write-Host "] " -NoNewline -ForegroundColor $ForegroundColor -BackgroundColor $BackgroundColor
-    Write-Host "$Text " -NoNewline -ForegroundColor White -BackgroundColor $BackgroundColor
-    Write-Host "[" -NoNewline -ForegroundColor $ForegroundColor -BackgroundColor $BackgroundColor
-    Write-Host "====================" -NoNewline -ForegroundColor White -BackgroundColor $BackgroundColor
-    Write-Host "<" -ForegroundColor $ForegroundColor -BackgroundColor $BackgroundColor
-
-}
-
 Function Write-TitleCounter() {
     [CmdletBinding()]
     [OutputType([System.Int32])]
@@ -107,24 +99,25 @@ Function Write-TitleCounter() {
     )
 
     #$Counter += 1
-    Write-Host "`n<" -NoNewline -ForegroundColor $ForegroundColor -BackgroundColor $BackgroundColor
-    #Write-Host "====================" -NoNewline -ForegroundColor White -BackgroundColor $BackgroundColor
-    #Write-Host "====================" -NoNewline -ForegroundColor White -BackgroundColor $BackgroundColor
-    Write-Host "=-=-=-=-=-=-=-=-=-=-=" -NoNewline -ForegroundColor White -BackgroundColor $BackgroundColor
-    Write-Host "]" -NoNewline -ForegroundColor $ForegroundColor -BackgroundColor $BackgroundColor
-    Write-Host " (" -NoNewline -ForegroundColor $ForegroundColor -BackgroundColor $BackgroundColor
-    Write-Host " $Counter/$MaxLength " -NoNewline -ForegroundColor White -BackgroundColor $BackgroundColor
-    Write-Host ") " -NoNewline -ForegroundColor $ForegroundColor -BackgroundColor $BackgroundColor
-    Write-Host "|" -NoNewline -ForegroundColor White -BackgroundColor $BackgroundColor
-    #Write-Host "(" -NoNewline -ForegroundColor $ForegroundColor -BackgroundColor $BackgroundColor
-    Write-Host " $Text " -NoNewline -ForegroundColor $ForegroundColor -BackgroundColor $BackgroundColor
-    #Write-Host ") " -NoNewline -ForegroundColor $ForegroundColor -BackgroundColor $BackgroundColor
-    Write-Host "[" -NoNewline -ForegroundColor $ForegroundColor -BackgroundColor $BackgroundColor
-    #Write-Host "====================" -NoNewline -ForegroundColor White -BackgroundColor $BackgroundColor
-    Write-Host "=-=-=-=-=-=-=-=-=-=-=" -NoNewline -ForegroundColor White -BackgroundColor $BackgroundColor
-    #Write-Host "ΞΞΞΞΞΞΞΞΞΞΞΞΞΞΞΞΞΞΞΞ" -NoNewline -ForegroundColor White -BackgroundColor $BackgroundColor
-    Write-Host ">" -ForegroundColor $ForegroundColor -BackgroundColor $BackgroundColor
+    Write-Host "`n<" -NoNewline -ForegroundColor $ForegroundColor -BackgroundColor Black
+    Write-Host "====================" -NoNewline -ForegroundColor White -BackgroundColor Black
+    Write-Host "] " -NoNewline -ForegroundColor $ForegroundColor -BackgroundColor Black
+    Write-Host "(" -NoNewline -ForegroundColor $ForegroundColor -BackgroundColor Black
+    Write-Host " $Counter/$MaxLength " -NoNewline -ForegroundColor White -BackgroundColor Black
+    Write-Host ") " -NoNewline -ForegroundColor $ForegroundColor -BackgroundColor Black
+    Write-Host "- " -NoNewline -ForegroundColor White -BackgroundColor Black
+    Write-Host "{ " -NoNewline -ForegroundColor $ForegroundColor -BackgroundColor Black
+    Write-Host "$Text " -NoNewline -ForegroundColor White -BackgroundColor Black
+    Write-Host "} " -NoNewline -ForegroundColor $ForegroundColor -BackgroundColor Black
+    Write-Host "[" -NoNewline -ForegroundColor $ForegroundColor -BackgroundColor Black
+    Write-Host "====================" -NoNewline -ForegroundColor White -BackgroundColor Black
+    Write-Host ">" -ForegroundColor $ForegroundColor -BackgroundColor Black
 
+}
+Function Write-Break(){
+    Write-Host "`n`n[" -NoNewline -ForegroundColor $ForegroundColor -Backgroundcolor Black
+    Write-Host "================================================================================================" -NoNewLine -ForegroundColor White -BackgroundColor Black
+    Write-Host "]`n" -ForegroundColor $ForegroundColor -BackgroundColor Black
 }
 Function ScriptInfo(){
     Write-Break
@@ -136,10 +129,16 @@ Function ScriptInfo(){
     Write-Break
 }
 Function Check() {
-    If ($?) {
-        Write-CaptionSucceed -Text "Succcessful"
-    }else{
+    if ($?) {
+        Write-CaptionSucceed -Text "Successful"
+    } else {
+        $errorMessage = $Error[0].Exception.Message
+        $lineNumber = $Error[0].InvocationInfo.ScriptLineNumber
+        $command = $Error[0].InvocationInfo.Line
+        $errorType = $Error[0].CategoryInfo.Reason
         Write-CaptionFailed -Text "Unsuccessful"
+        #Write-Host "`n$errorType`n$errorMessage`nLine Number: $lineNumber`nCommand: $command" -ForegroundColor Red
+        Write-Host "Command Run: $command `nError Type: $Errortype `nError Message: $errormessage `nLine Number: $linenumber " -ForegroundColor Red
     }
 }
 
