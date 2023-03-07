@@ -414,7 +414,7 @@ Function Debloat() {
     )
 
     Write-Section -Text "Checking for UWP Apps"
-    $TweakType = UWP
+    $TweakType = "UWP"
 
     $TotalItems = $Programs.Count
     $CurrentItem = 0
