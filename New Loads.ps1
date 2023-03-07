@@ -70,7 +70,7 @@ Function Visuals() {
     $TweakType = "Visual" ; $WindowTitle = "New Loads - Visuals" ; $host.UI.RawUI.WindowTitle = $WindowTitle
     Write-Host "`n" ; Write-TitleCounter -Counter '3' -MaxLength $MaxLength -Text "Visuals"
     $os = Get-CimInstance -ClassName Win32_OperatingSystem
-    $osVersion = $os.Caption
+    $global:osVersion = $os.Caption
     If ($osVersion -like "*10*") {
         # code for Windows 10
         Write-Title -Text "Detected Windows 10"
@@ -79,17 +79,6 @@ Function Visuals() {
         # code for Windows 11
         Write-Title -Text "Detected Windows 11"
         $wallpaperPath = ".\Assets\11.jpg"
-        $StartBinDefault = "$Env:SystemDrive\Users\Default\AppData\Local\Packages\Microsoft.Windows.StartMenuExperienceHost_cw5n1h2txyewy\LocalState\"
-        $StartBinCurrent = "$Env:userprofile\AppData\Local\Packages\Microsoft.Windows.StartMenuExperienceHost_cw5n1h2txyewy\LocalState"
-        $StartBinFiles = @(
-            ".\assets\start.bin"
-            ".\assets\start2.bin"
-        )
-        Foreach ($StartBinFile in $StartBinFiles){
-            xcopy $StartBinFile $StartBinDefault /y
-            xcopy $StartBinFile $StartBinCurrent /y
-        }
-        Taskkill /f /im StartMenuExperienceHost.exe
     }else {
         # code for other operating systems
         # Check Windows version
@@ -159,7 +148,7 @@ Function Branding() {
 Function StartMenu () {
     $WindowTitle = "New Loads - Start Menu"; $host.UI.RawUI.WindowTitle = $WindowTitle
     Write-Host "`n" ; Write-TitleCounter -Counter '5' -MaxLength $MaxLength -Text "StartMenuLayout.xml Modification"
-    Write-Title -Text "Applying Taskbar Layout"
+    Write-Section -Text "Applying Taskbar Layout"
     $StartLayout = @"
     <LayoutModificationTemplate xmlns="http://schemas.microsoft.com/Start/2014/LayoutModification" 
         xmlns:defaultlayout="http://schemas.microsoft.com/Start/2014/FullDefaultLayout" 
@@ -184,12 +173,38 @@ Function StartMenu () {
         </CustomTaskbarLayoutCollection>
     </LayoutModificationTemplate>
 "@
+        Write-Status -Types "+" -Status "Applying Taskbar Layout"
         $layoutFile = "$Env:LOCALAPPDATA\Microsoft\Windows\Shell\LayoutModification.xml"
         If (Test-Path $layoutFile) { Remove-Item $layoutFile -Verbose | Out-Null }
         $StartLayout | Out-File $layoutFile -Encoding ASCII
+        Check
         Restart-Explorer
         Start-Sleep -Seconds 4
         Remove-Item $layoutFile
+
+        If ($osVersion -like "*11*"){
+        Write-Section -Text "Applying Start Menu Layout"
+        Write-Status -Types "+" -Status "Generating Layout File"
+        $StartBinDefault = "$Env:SystemDrive\Users\Default\AppData\Local\Packages\Microsoft.Windows.StartMenuExperienceHost_cw5n1h2txyewy\LocalState\"
+        $StartBinCurrent = "$Env:userprofile\AppData\Local\Packages\Microsoft.Windows.StartMenuExperienceHost_cw5n1h2txyewy\LocalState"
+        $StartBinFiles = @(
+            ".\assets\start.bin"
+            ".\assets\start2.bin"
+            )
+            Foreach ($StartBinFile in $StartBinFiles){
+                If (Test-Path $StartBinFile){
+                    $Pass = 0
+                    Write-Status -Types "+" -Status "Copying $StartBinFile for new users ($pass/2)"
+                    xcopy $StartBinFile $StartBinDefault /y
+                    Check
+                    Write-Status -Types "+" -Status "Copying $StartBinFile to current user ($pass/2)"
+                    xcopy $StartBinFile $StartBinCurrent /y
+                    Check
+                    $pass++
+                }
+            }
+            Taskkill /f /im StartMenuExperienceHost.exe
+        }
 }
 Function Remove-UWPAppx() {
     [CmdletBinding()]
@@ -276,6 +291,7 @@ Function Debloat() {
         "Utomik - Play over 1000 games"
     )
 
+    Write-Section -Text "Checking for Start Menu Ads"
     $TweakTypeLocal = "Shortcuts"
 
     ForEach ($app in $apps) {
@@ -397,19 +413,23 @@ Function Debloat() {
         "SAMSUNGELECTRONICSCO.LTD.OnlineSupportSService"
     )
 
+    Write-Section -Text "Checking for UWP Apps"
+    $TweakType = UWP
 
-    $Global:Removed = 0
-    $Global:Failed = 0
-    $Global:NotFound = 0
-    Remove-UWPAppx -AppxPackages $Programs
-
-    #ForEach($Program in $Programs){
-    #}
-
-    Write-Host "Debloat Results:`nTotal Packages: $TotalItems `nSuccessful: " -NoNewline -ForegroundColor Gray ; Write-Host "$Removed " -ForegroundColor Green
-    Write-Host "Not Found: " -NoNewline -ForegroundColor Gray ; Write-Host "$NotFound " -ForegroundColor Yellow -NoNewline
-    Write-Host "Failed: " -NoNewline -ForegroundColor Gray ; Write-Host "$Failed " -ForegroundColor Red
-    Write-Host ""
+    $TotalItems = $Programs.Count
+    $CurrentItem = 0
+    $PercentComplete = 0
+    ForEach($Program in $Programs){
+    Write-Progress -Activity "Debloating System" -Status " $PercentComplete% Complete:" -PercentComplete $PercentComplete
+    Remove-UWPAppx -AppxPackages $Program
+    $CurrentItem++
+    $PercentComplete = [int](($CurrentItem / $TotalItems) * 100)
+    }
+    
+    Write-Host "Debloat Completed!`n" -Foregroundcolor Green
+    Write-Host "Successfully Removed: " -NoNewline -ForegroundColor Gray ; Write-Host "$Removed" -ForegroundColor Green
+    Write-Host "Failed: " -NoNewline -ForegroundColor Gray ; Write-Host "$Failed" -ForegroundColor Red
+    Write-Host "Not Found: " -NoNewline -ForegroundColor Gray ; Write-Host "$NotFound`n" -ForegroundColor Yellow
     Start-Sleep -Seconds 4
 }
 Function BitlockerDecryption() {
@@ -474,6 +494,7 @@ Function OOS10 {
     param (
         [switch] $Revert
     )
+    Write-Section -Text "O&O ShutUp 10"
 
     $ShutUpDl = "https://dl5.oo-software.com/files/ooshutup10/OOSU10.exe"
     $ShutUpOutput = ".\bin\OOSU10.exe"
@@ -490,8 +511,7 @@ Function OOS10 {
     Remove-Item "$ShutUpOutput" -Force
 }
 Function ADWCleaner() {
-    Write-Title -Text "ADWCleaner"
-    Write-Section -Text ""
+    Write-Section -Text "ADWCleaner"
     $adwLink = "https://github.com/circlol/newload/raw/main/adwcleaner.exe"
     $adwDestination = ".\bin\adwcleaner.exe"
     If (!(Test-Path ".\bin\adwcleaner.exe")){
@@ -541,41 +561,41 @@ Function EmailLog() {
     Remove-Item $TempFile
     
 
-    Send-MailMessage -From 'New Loads Log <newloadslogs@shaw.ca>' -To '<newloadslogs@shaw.ca> , <newloads@shaw.ca>' -Subject "New Loads Log" -Attachments "$Log" -DeliveryNotification OnSuccess, OnFailure -SmtpServer 'smtp.shaw.ca' -Verbose -ErrorAction SilentlyContinue -Body "
+Send-MailMessage -From 'New Loads Log <newloadslogs@shaw.ca>' -To '<newloadslogs@shaw.ca> , <newloads@shaw.ca>' -Subject "New Loads Log" -Attachments "$Log" -DeliveryNotification OnSuccess, OnFailure -SmtpServer 'smtp.shaw.ca' -Verbose -ErrorAction SilentlyContinue -Body "
     ############################
     #   NEW LOADS SCRIPT LOG   #
     ############################
-    
-    New Loads was run on a computer for $ip\$env:computername\$env:USERNAME
-    
-    - Computer Information:
-      - CPU: $CPU
-      - Motherboard: $Mobo
-      - RAM: $RAM
-      - GPU: $GPU
-      - SSD: $SSD
-      - Drive Space: $DriveSpace
-      - OS: $WindowsVersion ($DisplayVersion)
-    
-    - Script Information:
-      - Program Version: $programversion
-      - Script Version: $ScriptVersion
-      - Start Time: $StartTime
-      - End Time: $EndTime
-      - Elapsed Time: $ElapsedTime
-    
-    - Script Run Information:
-      - Applications Installed: $appsyns
-        - Chrome: $chromeyns
-        - VLC: $vlcyns
-        - Adobe: $adobeyns
-        - Zoom: $zoomyns
-      - Wallpaper Applied: $WallpaperApplied
-      - Windows 11 Start Layout Applied: $StartMenuLayout
-      - Packages Removed During Debloat: $PackagesRemovedCount
-    
-    $PackagesRemoved
-    "
+
+New Loads was run on a computer for $ip\$env:computername\$env:USERNAME
+
+- Computer Information:
+    - CPU: $CPU
+    - Motherboard: $Mobo
+    - RAM: $RAM
+    - GPU: $GPU
+    - SSD: $SSD
+    - Drive Space: $DriveSpace free
+    - OS: $WindowsVersion ($DisplayVersion)
+
+- Script Information:
+    - Program Version: $programversion
+    - Script Version: $ScriptVersion
+    - Start Time: $StartTime
+    - End Time: $EndTime
+    - Elapsed Time: $ElapsedTime
+
+- Script Run Information:
+    - Applications Installed: $appsyns
+    - Chrome: $chromeyns
+    - VLC: $vlcyns
+    - Adobe: $adobeyns
+    - Zoom: $zoomyns
+    - Wallpaper Applied: $WallpaperApplied
+    - Windows 11 Start Layout Applied: $StartMenuLayout
+    - Packages Removed During Debloat: $PackagesRemovedCount
+
+$PackagesRemoved
+"
 }
 Function Request-PcRestart() {
     switch (Show-YesNoCancelDialog -YesNoCancel -Message "Would you like to reboot the system now? ") {
