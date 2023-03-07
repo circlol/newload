@@ -198,9 +198,9 @@ Function Remove-UWPAppx() {
     )
     $TweakType = "UWP"
     # Store the original progress preference
-    $originalProgressPreference = $ProgressPreference
+    #$originalProgressPreference = $ProgressPreference
     # Set the progress preference to 'SilentlyContinue' to suppress all other output
-    $ProgressPreference = 'SilentlyContinue'
+    #$ProgressPreference = 'SilentlyContinue'
 
     ForEach ($AppxPackage in $AppxPackages) {
         $appxPackageToRemove = Get-AppxPackage -AllUsers -Name $AppxPackage -ErrorAction SilentlyContinue
@@ -217,7 +217,7 @@ Function Remove-UWPAppx() {
         }
     }
     # Reset the progress preference to the original value
-    $ProgressPreference = $originalProgressPreference
+    #$ProgressPreference = $originalProgressPreference
 }
 Function Debloat() {
     $TweakType = "Debloat"
@@ -490,6 +490,8 @@ Function OOS10 {
     Remove-Item "$ShutUpOutput" -Force
 }
 Function ADWCleaner() {
+    Write-Title -Text "ADWCleaner"
+    Write-Section -Text ""
     $adwLink = "https://github.com/circlol/newload/raw/main/adwcleaner.exe"
     $adwDestination = ".\bin\adwcleaner.exe"
     If (!(Test-Path ".\bin\adwcleaner.exe")){
@@ -498,11 +500,11 @@ Function ADWCleaner() {
     }
 
     Write-Status -Types "+","ADWCleaner" -Status "Starting ADWCleaner with ArgumentList /Scan & /Clean"
-    Start-Process -FilePath $adwDestination -ArgumentList "/EULA","/PreInstalled","/Clean","/NoReboot" -NoNewWindow -Wait
+    Start-Process -FilePath $adwDestination -ArgumentList "/EULA","/PreInstalled","/Clean","/NoReboot" -Wait
 
     #Removes ADWCleaner from the system
     Write-Status -Types "-","ADWCleaner" -Status "Removing traces of ADWCleaner"
-    Start-Process -FilePath $adwDestination -ArgumentList "/Uninstall","/NoReboot" -NoNewWindow -Wait
+    Start-Process -FilePath $adwDestination -ArgumentList "/Uninstall","/NoReboot" -Wait
     
 }
 Function CreateRestorePoint() {
@@ -526,83 +528,53 @@ Function EmailLog() {
     $SSD = Get-OSDriveType
     $DriveSpace = Get-DriveSpace
 
-    Stop-Transcript | Out-Null
+    Stop-Transcript
     Get-ComputerInfo | Out-File -Append $log -Encoding ascii
     [String]$SystemSpec = Get-SystemSpec
     $SystemSpec | Out-Null
 
-    #If (Test-Path -Path "$Location1") { $chromeyns = "X" }else { $chromeyns = "" }
-    #If (Test-Path -Path "$Location2") { $vlcyns = "X" }else { $vlcyns = "" }
-    #If (Test-Path -Path "$Location3") { $zoomyns = "X" }else { $zoomyns = "" }
-    #If (Test-Path -Path "$Location4") { $adobeyns = "X" }else { $adobeyns = "" }
     If ($CurrentWallpaper -eq $Wallpaper) { $WallpaperApplied = "YES" }Else { $WallpaperApplied = "NO" }
-    #Motherboard
     $TempFile = "$Env:Temp\tempmobo.txt" ; $Mobo | Out-File $TempFile -Encoding ASCII
     (Get-Content $TempFile).replace('Product', '') | Set-Content $TempFile
     (Get-Content $TempFile).replace("  ", '') | Set-Content $TempFile
     $Mobo = Get-Content $TempFile
     Remove-Item $TempFile
-
-    <#
-    $TempFile = "$Env:Temp\tempmobo.txt"
-    $Mobo -replace 'Product','' -replace '════════════════════','' -Replace '(','' -replace ')','' -Replace '{','}' | Out-File $TempFile -Encoding ASCII
-    $Mobo -replace 'Product','' -replace '  ','' | Out-File $TempFile -Encoding ASCII
-    $Mobo = Get-Content $TempFile
-    Remove-Item $TempFile
-    #>
     
 
-    Send-MailMessage -From 'New Loads Log <newloadslogs@shaw.ca>' -To '<newloadslogs@shaw.ca> , <newloads@shaw.ca>' -Subject "New Loads Log" -Attachments "$Log" -Priority High -DeliveryNotification OnSuccess, OnFailure -SmtpServer 'smtp.shaw.ca' -Verbose -ErrorAction SilentlyContinue -Body "
-        ############################
-        #==========================#
-        #=                        =#
-        #=  NEW LOADS SCRIPT LOG  =#
-        #=                        =#
-        #==========================#
-        ############################
-
-New Loads was run on a computer for $ip\$env:computername\$env:USERNAME,
-
-
-Completing in $ElapsedTime
-
-
-Program Version: $programversion
-Script Version: $ScriptVersion
-Date: $CurrentDate
-Script Info:
-Script Start Time: $StartTime
-Script End Time: $EndTime
-
-
-Computer Information:
-CPU: $CPU
-Motherboard: $Mobo
-RAM: $RAM
-GPU: $GPU
-SSD: $SSD
-OS: $WindowsVersion
-Version: $DisplayVersion
-
-Drives:
-$DriveSpace
-
-
-Script Run Information:
-Applications Installed: $appsyns
-Chrome: [$chromeyns]
-VLC: [$vlcyns]
-Adobe: [$adobeyns]
-Zoom: [$zoomyns]
-
-
-Wallpaper Applied: [$WallpaperApplied]
-Windows 11 Start Layout Applied: [$StartMenuLayout]
-
-Packages Removed During Debloat: [$PackagesRemovedCount]
-$PackagesRemoved
-
-
+    Send-MailMessage -From 'New Loads Log <newloadslogs@shaw.ca>' -To '<newloadslogs@shaw.ca> , <newloads@shaw.ca>' -Subject "New Loads Log" -Attachments "$Log" -DeliveryNotification OnSuccess, OnFailure -SmtpServer 'smtp.shaw.ca' -Verbose -ErrorAction SilentlyContinue -Body "
+    ############################
+    #   NEW LOADS SCRIPT LOG   #
+    ############################
+    
+    New Loads was run on a computer for $ip\$env:computername\$env:USERNAME
+    
+    - Computer Information:
+      - CPU: $CPU
+      - Motherboard: $Mobo
+      - RAM: $RAM
+      - GPU: $GPU
+      - SSD: $SSD
+      - Drive Space: $DriveSpace
+      - OS: $WindowsVersion ($DisplayVersion)
+    
+    - Script Information:
+      - Program Version: $programversion
+      - Script Version: $ScriptVersion
+      - Start Time: $StartTime
+      - End Time: $EndTime
+      - Elapsed Time: $ElapsedTime
+    
+    - Script Run Information:
+      - Applications Installed: $appsyns
+        - Chrome: $chromeyns
+        - VLC: $vlcyns
+        - Adobe: $adobeyns
+        - Zoom: $zoomyns
+      - Wallpaper Applied: $WallpaperApplied
+      - Windows 11 Start Layout Applied: $StartMenuLayout
+      - Packages Removed During Debloat: $PackagesRemovedCount
+    
+    $PackagesRemoved
     "
 }
 Function Request-PcRestart() {
