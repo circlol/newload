@@ -1,7 +1,6 @@
 #Requires -RunAsAdministrator
 try { Set-Variable -Name ScriptVersion -Value "230224" ; If (! { $! }) { Write-Section -Text "Script Version has been updated" } ; }catch {throw}
 Function Programs() {
-    Try{
     # Set Window Title
     $WindowTitle = "New Loads - Programs"; $host.UI.RawUI.WindowTitle = $WindowTitle
     "" ; Write-TitleCounter -Counter '2' -MaxLength $MaxLength -Text "Program Installation"
@@ -67,24 +66,41 @@ Function Programs() {
     }
     $WindowTitle = "New Loads"; $host.UI.RawUI.WindowTitle = $WindowTitle
 }
-catch {
-    $errorMessage = $_.Exception.Message
-    $errorType = $_.Exception.GetType().FullName
-    $lineNumber = $_.InvocationInfo.ScriptLineNumber
-    $timeOfError = Get-Date -Format "yyyy-MM-dd HH:mm:ss.fff"
-
-    $errorLogEntry = @"
-Time Of Error: $timeOfError 
-Command Run: Visuals
-Error Message: $errorMessage
-Error Type: $errorType
-Line Number: $lineNumber
-
-"@
-    $global:ErrorLog += $errorLogEntry
+Function Visuals() {
+    $TweakType = "Visual" ; $WindowTitle = "New Loads - Visuals" ; $host.UI.RawUI.WindowTitle = $WindowTitle
+    Write-Host "`n" ; Write-TitleCounter -Counter '3' -MaxLength $MaxLength -Text "Visuals"
+    $os = Get-CimInstance -ClassName Win32_OperatingSystem
+    $global:osVersion = $os.Caption
+    If ($osVersion -like "*10*") {
+        # code for Windows 10
+        Write-Title -Text "Detected Windows 10"
+        $wallpaperPath = ".\Assets\10.jpg"
+    }elseif ($osVersion -like "*11*") {
+        # code for Windows 11
+        Write-Title -Text "Detected Windows 11"
+        $wallpaperPath = ".\Assets\11.jpg"
+    }else {
+        # code for other operating systems
+        # Check Windows version
+        Throw{"Error:"}
 }
-}
+    Write-Status -Types "+", $TweakType -Status "Applying Wallpaper"
+    # Copy wallpaper file
+    $wallpaperDestination = "$env:appdata\Microsoft\Windows\Themes\wallpaper.jpg"
+    Copy-Item -Path $wallpaperPath -Destination $wallpaperDestination -Force -Confirm:$False
+    # Update wallpaper settings
+    Set-ItemProperty -Path "HKCU:\Control Panel\Desktop" -Name WallpaperStyle -Value '2' -Force
+    Set-ItemProperty -Path "HKCU:\Control Panel\Desktop" -Name Wallpaper -Value $wallpaperDestination
+    Set-ItemProperty -Path $PathToRegPersonalize -Name "SystemUsesLightTheme" -Value 0
+    Set-ItemProperty -Path $PathToRegPersonalize -Name "AppsUseLightTheme" -Value 1
+    #Invoke-Expression "RUNDLL32.EXE user32.dll, UpdatePerUserSystemParameters"
+    Start-Process "RUNDLL32.EXE" "user32.dll, UpdatePerUserSystemParameters"
+    $Status = ($?) ; If ($Status) { Write-Status -Types "+", "Visual" -Status "Wallpaper Set`n" } elseif (!$Status) { Write-Status -Types "?", "Visual" -Status "Error Applying Wallpaper`n" -Warning } else { }
 
+    Write-Host " REMINDER " -BackgroundColor Red -ForegroundColor White -NoNewLine
+    Write-Host ": Wallpaper might not Apply UNTIL System is Rebooted`n"
+
+}
 
 function Visuals() {
     try {
@@ -140,7 +156,6 @@ Line Number: $lineNumber
 }
 
 Function Branding() {
-    try{
     $WindowTitle = "New Loads - Branding"; $host.UI.RawUI.WindowTitle = $WindowTitle
     Write-Host "`n" ; Write-TitleCounter -Counter '4' -MaxLength $MaxLength -Text "Mothers Branding"
     $TweakType = "Branding"
@@ -184,25 +199,7 @@ Function Branding() {
         Check
     }
 }
-catch {
-    $errorMessage = $_.Exception.Message
-    $errorType = $_.Exception.GetType().FullName
-    $lineNumber = $_.InvocationInfo.ScriptLineNumber
-    $timeOfError = Get-Date -Format "yyyy-MM-dd HH:mm:ss.fff"
-
-    $errorLogEntry = @"
-Time Of Error: $timeOfError 
-Command Run: Visuals
-Error Message: $errorMessage
-Error Type: $errorType
-Line Number: $lineNumber
-
-"@
-    $global:ErrorLog += $errorLogEntry
-}
-}
 Function StartMenu () {
-    try{
     $WindowTitle = "New Loads - Start Menu"; $host.UI.RawUI.WindowTitle = $WindowTitle
     Write-Host "`n" ; Write-TitleCounter -Counter '5' -MaxLength $MaxLength -Text "StartMenuLayout.xml Modification"
     Write-Section -Text "Applying Taskbar Layout"
@@ -262,23 +259,6 @@ Function StartMenu () {
             }
             Taskkill /f /im StartMenuExperienceHost.exe
         }
-    }
-    catch {
-        $errorMessage = $_.Exception.Message
-        $errorType = $_.Exception.GetType().FullName
-        $lineNumber = $_.InvocationInfo.ScriptLineNumber
-        $timeOfError = Get-Date -Format "yyyy-MM-dd HH:mm:ss.fff"
-
-        $errorLogEntry = @"
-Time Of Error: $timeOfError 
-Command Run: Visuals
-Error Message: $errorMessage
-Error Type: $errorType
-Line Number: $lineNumber
-
-"@
-        $global:ErrorLog += $errorLogEntry
-    }
 }
 Function Remove-UWPAppx() {
     [CmdletBinding()]
@@ -290,7 +270,7 @@ Function Remove-UWPAppx() {
     #$originalProgressPreference = $ProgressPreference
     # Set the progress preference to 'SilentlyContinue' to suppress all other output
     #$ProgressPreference = 'SilentlyContinue'
-    try{
+
     ForEach ($AppxPackage in $AppxPackages) {
         $appxPackageToRemove = Get-AppxPackage -AllUsers -Name $AppxPackage -ErrorAction SilentlyContinue
         if ($appxPackageToRemove) {
@@ -305,28 +285,10 @@ Function Remove-UWPAppx() {
             $Global:NotFound++
         }
     }
-}
-catch {
-    $errorMessage = $_.Exception.Message
-    $errorType = $_.Exception.GetType().FullName
-    $lineNumber = $_.InvocationInfo.ScriptLineNumber
-    $timeOfError = Get-Date -Format "yyyy-MM-dd HH:mm:ss.fff"
-
-    $errorLogEntry = @"
-Time Of Error: $timeOfError 
-Command Run: Visuals
-Error Message: $errorMessage
-Error Type: $errorType
-Line Number: $lineNumber
-
-"@
-    $global:ErrorLog += $errorLogEntry
-}
     # Reset the progress preference to the original value
     #$ProgressPreference = $originalProgressPreference
 }
 Function Debloat() {
-    Try{
     $TweakType = "Debloat"
     $WindowTitle = "New Loads - Debloat"; $host.UI.RawUI.WindowTitle = $WindowTitle
     Write-Host "`n" ; Write-TitleCounter -Counter '6' -MaxLength $MaxLength -Text "Debloat"
@@ -524,25 +486,7 @@ Function Debloat() {
     Write-Host "Not Found: " -NoNewline -ForegroundColor Gray ; Write-Host "$NotFound`n" -ForegroundColor Yellow
     Start-Sleep -Seconds 4
 }
-catch {
-    $errorMessage = $_.Exception.Message
-    $errorType = $_.Exception.GetType().FullName
-    $lineNumber = $_.InvocationInfo.ScriptLineNumber
-    $timeOfError = Get-Date -Format "yyyy-MM-dd HH:mm:ss.fff"
-
-    $errorLogEntry = @"
-Time Of Error: $timeOfError 
-Command Run: Visuals
-Error Message: $errorMessage
-Error Type: $errorType
-Line Number: $lineNumber
-
-"@
-    $global:ErrorLog += $errorLogEntry
-}
-}
 Function BitlockerDecryption() {
-    try{
     $WindowTitle = "New Loads - Bitlocker Decryption"; $host.UI.RawUI.WindowTitle = $WindowTitle
     Write-Host "`n" ; Write-TitleCounter -Counter '10' -MaxLength $MaxLength -Text "Bitlocker Decryption"
 
@@ -555,25 +499,7 @@ Function BitlockerDecryption() {
         Write-Status -Types "?" -Status "Bitlocker is not enabled on this machine" -Warning
     }
 }
-catch {
-    $errorMessage = $_.Exception.Message
-    $errorType = $_.Exception.GetType().FullName
-    $lineNumber = $_.InvocationInfo.ScriptLineNumber
-    $timeOfError = Get-Date -Format "yyyy-MM-dd HH:mm:ss.fff"
-
-    $errorLogEntry = @"
-Time Of Error: $timeOfError 
-Command Run: Visuals
-Error Message: $errorMessage
-Error Type: $errorType
-Line Number: $lineNumber
-
-"@
-    $global:ErrorLog += $errorLogEntry
-}
-}
 Function CheckForMsStoreUpdates() {
-    try{
     Write-Status -Types "+" -Status "Checking for updates in Microsoft Store"
     $wmiObj = Get-WmiObject -Namespace "root\cimv2\mdm\dmmap" -Class "MDM_EnterpriseModernAppManagement_AppManagement01"
     $result = $wmiObj.UpdateScanMethod()
@@ -583,31 +509,14 @@ Function CheckForMsStoreUpdates() {
     Write-Status -Types "?" -Status "Error checking for Microsoft Store updates" -Warning
     }
 }
-catch {
-    $errorMessage = $_.Exception.Message
-    $errorType = $_.Exception.GetType().FullName
-    $lineNumber = $_.InvocationInfo.ScriptLineNumber
-    $timeOfError = Get-Date -Format "yyyy-MM-dd HH:mm:ss.fff"
-
-    $errorLogEntry = @"
-Time Of Error: $timeOfError 
-Command Run: Visuals
-Error Message: $errorMessage
-Error Type: $errorType
-Line Number: $lineNumber
-
-"@
-    $global:ErrorLog += $errorLogEntry
-}
-}
 Function Cleanup() {
-    try{
     $WindowTitle = "New Loads - Cleanup"; $host.UI.RawUI.WindowTitle = $WindowTitle
     Write-Host "`n" ; Write-TitleCounter -Counter '12' -MaxLength $MaxLength -Text "Cleaning Up"
     $TweakType = 'Cleanup'
     Restart-Explorer
     Write-Status -Types "+" , $TweakType -Status "Enabling F8 boot menu options"
     bcdedit /set "{CURRENT}" bootmenupolicy legacy
+    Try{
         If (Test-Path $location1) {
             Write-Status -Types "+", $TweakType -Status "Launching Google Chrome"
             Start-Process Chrome -ErrorAction SilentlyContinue | Out-Null
@@ -633,26 +542,9 @@ Function Cleanup() {
 
         Write-Status -Types "-" , $TweakType -Status "Removing C:\Temp"
         Remove-Item $ctemp -Force -Recurse -Confirm:$false -ErrorAction SilentlyContinue | Out-Null
-}
-catch {
-    $errorMessage = $_.Exception.Message
-    $errorType = $_.Exception.GetType().FullName
-    $lineNumber = $_.InvocationInfo.ScriptLineNumber
-    $timeOfError = Get-Date -Format "yyyy-MM-dd HH:mm:ss.fff"
-
-    $errorLogEntry = @"
-Time Of Error: $timeOfError 
-Command Run: Visuals
-Error Message: $errorMessage
-Error Type: $errorType
-Line Number: $lineNumber
-
-"@
-    $global:ErrorLog += $errorLogEntry
-}
+    }Catch{}
 }
 Function OOS10 {
-    try{
     param (
         [switch] $Revert
     )
@@ -672,25 +564,7 @@ Function OOS10 {
 
     Remove-Item "$ShutUpOutput" -Force
 }
-catch {
-    $errorMessage = $_.Exception.Message
-    $errorType = $_.Exception.GetType().FullName
-    $lineNumber = $_.InvocationInfo.ScriptLineNumber
-    $timeOfError = Get-Date -Format "yyyy-MM-dd HH:mm:ss.fff"
-
-    $errorLogEntry = @"
-Time Of Error: $timeOfError 
-Command Run: Visuals
-Error Message: $errorMessage
-Error Type: $errorType
-Line Number: $lineNumber
-
-"@
-    $global:ErrorLog += $errorLogEntry
-}
-}
 Function ADWCleaner() {
-    Try{
     Write-Section -Text "ADWCleaner"
     $adwLink = "https://github.com/circlol/newload/raw/main/adwcleaner.exe"
     $adwDestination = ".\bin\adwcleaner.exe"
@@ -705,23 +579,7 @@ Function ADWCleaner() {
     #Removes ADWCleaner from the system
     Write-Status -Types "-","ADWCleaner" -Status "Removing traces of ADWCleaner"
     Start-Process -FilePath $adwDestination -ArgumentList "/Uninstall","/NoReboot" -Wait
-}
-catch {
-    $errorMessage = $_.Exception.Message
-    $errorType = $_.Exception.GetType().FullName
-    $lineNumber = $_.InvocationInfo.ScriptLineNumber
-    $timeOfError = Get-Date -Format "yyyy-MM-dd HH:mm:ss.fff"
-
-    $errorLogEntry = @"
-Time Of Error: $timeOfError 
-Command Run: Visuals
-Error Message: $errorMessage
-Error Type: $errorType
-Line Number: $lineNumber
-
-"@
-    $global:ErrorLog += $errorLogEntry
-}
+    
 }
 Function CreateRestorePoint() {
     $TweakType = "Backup"
