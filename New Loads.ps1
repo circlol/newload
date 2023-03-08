@@ -1,6 +1,7 @@
 #Requires -RunAsAdministrator
 try { Set-Variable -Name ScriptVersion -Value "230224" ; If (! { $! }) { Write-Section -Text "Script Version has been updated" } ; }catch {throw}
 Function Programs() {
+    Try{
     # Set Window Title
     $WindowTitle = "New Loads - Programs"; $host.UI.RawUI.WindowTitle = $WindowTitle
     "" ; Write-TitleCounter -Counter '2' -MaxLength $MaxLength -Text "Program Installation"
@@ -66,42 +67,80 @@ Function Programs() {
     }
     $WindowTitle = "New Loads"; $host.UI.RawUI.WindowTitle = $WindowTitle
 }
-Function Visuals() {
-    $TweakType = "Visual" ; $WindowTitle = "New Loads - Visuals" ; $host.UI.RawUI.WindowTitle = $WindowTitle
-    Write-Host "`n" ; Write-TitleCounter -Counter '3' -MaxLength $MaxLength -Text "Visuals"
-    $os = Get-CimInstance -ClassName Win32_OperatingSystem
-    $global:osVersion = $os.Caption
-    If ($osVersion -like "*10*") {
-        # code for Windows 10
-        Write-Title -Text "Detected Windows 10"
-        $wallpaperPath = ".\Assets\10.jpg"
-    }elseif ($osVersion -like "*11*") {
-        # code for Windows 11
-        Write-Title -Text "Detected Windows 11"
-        $wallpaperPath = ".\Assets\11.jpg"
-    }else {
-        # code for other operating systems
-        # Check Windows version
-        Throw{"Error:"}
-}
-    Write-Status -Types "+", $TweakType -Status "Applying Wallpaper"
-    # Copy wallpaper file
-    $wallpaperDestination = "$env:appdata\Microsoft\Windows\Themes\wallpaper.jpg"
-    Copy-Item -Path $wallpaperPath -Destination $wallpaperDestination -Force -Confirm:$False
-    # Update wallpaper settings
-    Set-ItemProperty -Path "HKCU:\Control Panel\Desktop" -Name WallpaperStyle -Value '2' -Force
-    Set-ItemProperty -Path "HKCU:\Control Panel\Desktop" -Name Wallpaper -Value $wallpaperDestination
-    Set-ItemProperty -Path $PathToRegPersonalize -Name "SystemUsesLightTheme" -Value 0
-    Set-ItemProperty -Path $PathToRegPersonalize -Name "AppsUseLightTheme" -Value 1
-    #Invoke-Expression "RUNDLL32.EXE user32.dll, UpdatePerUserSystemParameters"
-    Start-Process "RUNDLL32.EXE" "user32.dll, UpdatePerUserSystemParameters"
-    $Status = ($?) ; If ($Status) { Write-Status -Types "+", "Visual" -Status "Wallpaper Set`n" } elseif (!$Status) { Write-Status -Types "?", "Visual" -Status "Error Applying Wallpaper`n" -Warning } else { }
+catch {
+    $errorMessage = $_.Exception.Message
+    $errorType = $_.Exception.GetType().FullName
+    $lineNumber = $_.InvocationInfo.ScriptLineNumber
+    $timeOfError = Get-Date -Format "yyyy-MM-dd HH:mm:ss.fff"
 
-    Write-Host " REMINDER " -BackgroundColor Red -ForegroundColor White -NoNewLine
-    Write-Host ": Wallpaper might not Apply UNTIL System is Rebooted`n"
+    $errorLogEntry = @"
+Time Of Error: $timeOfError 
+Command Run: Visuals
+Error Message: $errorMessage
+Error Type: $errorType
+Line Number: $lineNumber
 
+"@
+    $global:ErrorLog += $errorLogEntry
 }
+}
+
+
+function Visuals() {
+    try {
+        $TweakType = "Visual" ; $WindowTitle = "New Loads - Visuals" ; $host.UI.RawUI.WindowTitle = $WindowTitle
+        Write-Host "`n" ; Write-TitleCounter -Counter '3' -MaxLength $MaxLength -Text "Visuals"
+        $os = Get-CimInstance -ClassName Win32_OperatingSystem
+        $global:osVersion = $os.Caption
+        If ($osVersion -like "*10*") {
+            # code for Windows 10
+            Write-Title -Text "Detected Windows 10"
+            $wallpaperPath = ".\Assets\10.jpg"
+        }elseif ($osVersion -like "*11*") {
+            # code for Windows 11
+            Write-Title -Text "Detected Windows 11"
+            $wallpaperPath = ".\Assets\11.jpg"
+        }else {
+            # code for other operating systems
+            # Check Windows version
+            Throw "Unsupported operating system version."
+        }
+        Write-Status -Types "+", $TweakType -Status "Applying Wallpaper"
+        # Copy wallpaper file
+        $wallpaperDestination = "$env:appdata\Microsoft\Windows\Themes\wallpaper.jpg"
+        Copy-Item -Path $wallpaperPath -Destination $wallpaperDestination -Force -Confirm:$False
+        # Update wallpaper settings
+        Set-ItemProperty -Path "HKCU:\Control Panel\Desktop" -Name WallpaperStyle -Value '2' -Force
+        Set-ItemProperty -Path "HKCU:\Control Panel\Desktop" -Name Wallpaper -Value $wallpaperDestination
+        Set-ItemProperty -Path $PathToRegPersonalize -Name "SystemUsesLightTheme" -Value 0
+        Set-ItemProperty -Path $PathToRegPersonalize -Name "AppsUseLightTheme" -Value 1
+        #Invoke-Expression "RUNDLL32.EXE user32.dll, UpdatePerUserSystemParameters"
+        Start-Process "RUNDLL32.EXE" "user32.dll, UpdatePerUserSystemParameters"
+        $Status = ($?) ; If ($Status) { Write-Status -Types "+", "Visual" -Status "Wallpaper Set`n" } elseif (!$Status) { Write-Status -Types "?", "Visual" -Status "Error Applying Wallpaper`n" -Warning } else { }
+
+        Write-Host " REMINDER " -BackgroundColor Red -ForegroundColor White -NoNewLine
+        Write-Host ": Wallpaper might not Apply UNTIL System is Rebooted`n"
+    }
+    catch {
+        $errorMessage = $_.Exception.Message
+        $errorType = $_.Exception.GetType().FullName
+        $lineNumber = $_.InvocationInfo.ScriptLineNumber
+        $timeOfError = Get-Date -Format "yyyy-MM-dd HH:mm:ss.fff"
+
+        $errorLogEntry = @"
+Time Of Error: $timeOfError 
+Command Run: Visuals
+Error Message: $errorMessage
+Error Type: $errorType
+Line Number: $lineNumber
+
+"@
+        $global:ErrorLog += $errorLogEntry
+    }
+}
+
 Function Branding() {
+    try{
     $WindowTitle = "New Loads - Branding"; $host.UI.RawUI.WindowTitle = $WindowTitle
     Write-Host "`n" ; Write-TitleCounter -Counter '4' -MaxLength $MaxLength -Text "Mothers Branding"
     $TweakType = "Branding"
@@ -145,7 +184,25 @@ Function Branding() {
         Check
     }
 }
+catch {
+    $errorMessage = $_.Exception.Message
+    $errorType = $_.Exception.GetType().FullName
+    $lineNumber = $_.InvocationInfo.ScriptLineNumber
+    $timeOfError = Get-Date -Format "yyyy-MM-dd HH:mm:ss.fff"
+
+    $errorLogEntry = @"
+Time Of Error: $timeOfError 
+Command Run: Visuals
+Error Message: $errorMessage
+Error Type: $errorType
+Line Number: $lineNumber
+
+"@
+    $global:ErrorLog += $errorLogEntry
+}
+}
 Function StartMenu () {
+    try{
     $WindowTitle = "New Loads - Start Menu"; $host.UI.RawUI.WindowTitle = $WindowTitle
     Write-Host "`n" ; Write-TitleCounter -Counter '5' -MaxLength $MaxLength -Text "StartMenuLayout.xml Modification"
     Write-Section -Text "Applying Taskbar Layout"
@@ -205,6 +262,23 @@ Function StartMenu () {
             }
             Taskkill /f /im StartMenuExperienceHost.exe
         }
+    }
+    catch {
+        $errorMessage = $_.Exception.Message
+        $errorType = $_.Exception.GetType().FullName
+        $lineNumber = $_.InvocationInfo.ScriptLineNumber
+        $timeOfError = Get-Date -Format "yyyy-MM-dd HH:mm:ss.fff"
+
+        $errorLogEntry = @"
+Time Of Error: $timeOfError 
+Command Run: Visuals
+Error Message: $errorMessage
+Error Type: $errorType
+Line Number: $lineNumber
+
+"@
+        $global:ErrorLog += $errorLogEntry
+    }
 }
 Function Remove-UWPAppx() {
     [CmdletBinding()]
@@ -216,7 +290,7 @@ Function Remove-UWPAppx() {
     #$originalProgressPreference = $ProgressPreference
     # Set the progress preference to 'SilentlyContinue' to suppress all other output
     #$ProgressPreference = 'SilentlyContinue'
-
+    try{
     ForEach ($AppxPackage in $AppxPackages) {
         $appxPackageToRemove = Get-AppxPackage -AllUsers -Name $AppxPackage -ErrorAction SilentlyContinue
         if ($appxPackageToRemove) {
@@ -231,10 +305,28 @@ Function Remove-UWPAppx() {
             $Global:NotFound++
         }
     }
+}
+catch {
+    $errorMessage = $_.Exception.Message
+    $errorType = $_.Exception.GetType().FullName
+    $lineNumber = $_.InvocationInfo.ScriptLineNumber
+    $timeOfError = Get-Date -Format "yyyy-MM-dd HH:mm:ss.fff"
+
+    $errorLogEntry = @"
+Time Of Error: $timeOfError 
+Command Run: Visuals
+Error Message: $errorMessage
+Error Type: $errorType
+Line Number: $lineNumber
+
+"@
+    $global:ErrorLog += $errorLogEntry
+}
     # Reset the progress preference to the original value
     #$ProgressPreference = $originalProgressPreference
 }
 Function Debloat() {
+    Try{
     $TweakType = "Debloat"
     $WindowTitle = "New Loads - Debloat"; $host.UI.RawUI.WindowTitle = $WindowTitle
     Write-Host "`n" ; Write-TitleCounter -Counter '6' -MaxLength $MaxLength -Text "Debloat"
@@ -432,7 +524,25 @@ Function Debloat() {
     Write-Host "Not Found: " -NoNewline -ForegroundColor Gray ; Write-Host "$NotFound`n" -ForegroundColor Yellow
     Start-Sleep -Seconds 4
 }
+catch {
+    $errorMessage = $_.Exception.Message
+    $errorType = $_.Exception.GetType().FullName
+    $lineNumber = $_.InvocationInfo.ScriptLineNumber
+    $timeOfError = Get-Date -Format "yyyy-MM-dd HH:mm:ss.fff"
+
+    $errorLogEntry = @"
+Time Of Error: $timeOfError 
+Command Run: Visuals
+Error Message: $errorMessage
+Error Type: $errorType
+Line Number: $lineNumber
+
+"@
+    $global:ErrorLog += $errorLogEntry
+}
+}
 Function BitlockerDecryption() {
+    try{
     $WindowTitle = "New Loads - Bitlocker Decryption"; $host.UI.RawUI.WindowTitle = $WindowTitle
     Write-Host "`n" ; Write-TitleCounter -Counter '10' -MaxLength $MaxLength -Text "Bitlocker Decryption"
 
@@ -445,7 +555,25 @@ Function BitlockerDecryption() {
         Write-Status -Types "?" -Status "Bitlocker is not enabled on this machine" -Warning
     }
 }
+catch {
+    $errorMessage = $_.Exception.Message
+    $errorType = $_.Exception.GetType().FullName
+    $lineNumber = $_.InvocationInfo.ScriptLineNumber
+    $timeOfError = Get-Date -Format "yyyy-MM-dd HH:mm:ss.fff"
+
+    $errorLogEntry = @"
+Time Of Error: $timeOfError 
+Command Run: Visuals
+Error Message: $errorMessage
+Error Type: $errorType
+Line Number: $lineNumber
+
+"@
+    $global:ErrorLog += $errorLogEntry
+}
+}
 Function CheckForMsStoreUpdates() {
+    try{
     Write-Status -Types "+" -Status "Checking for updates in Microsoft Store"
     $wmiObj = Get-WmiObject -Namespace "root\cimv2\mdm\dmmap" -Class "MDM_EnterpriseModernAppManagement_AppManagement01"
     $result = $wmiObj.UpdateScanMethod()
@@ -455,14 +583,31 @@ Function CheckForMsStoreUpdates() {
     Write-Status -Types "?" -Status "Error checking for Microsoft Store updates" -Warning
     }
 }
+catch {
+    $errorMessage = $_.Exception.Message
+    $errorType = $_.Exception.GetType().FullName
+    $lineNumber = $_.InvocationInfo.ScriptLineNumber
+    $timeOfError = Get-Date -Format "yyyy-MM-dd HH:mm:ss.fff"
+
+    $errorLogEntry = @"
+Time Of Error: $timeOfError 
+Command Run: Visuals
+Error Message: $errorMessage
+Error Type: $errorType
+Line Number: $lineNumber
+
+"@
+    $global:ErrorLog += $errorLogEntry
+}
+}
 Function Cleanup() {
+    try{
     $WindowTitle = "New Loads - Cleanup"; $host.UI.RawUI.WindowTitle = $WindowTitle
     Write-Host "`n" ; Write-TitleCounter -Counter '12' -MaxLength $MaxLength -Text "Cleaning Up"
     $TweakType = 'Cleanup'
     Restart-Explorer
     Write-Status -Types "+" , $TweakType -Status "Enabling F8 boot menu options"
     bcdedit /set "{CURRENT}" bootmenupolicy legacy
-    Try{
         If (Test-Path $location1) {
             Write-Status -Types "+", $TweakType -Status "Launching Google Chrome"
             Start-Process Chrome -ErrorAction SilentlyContinue | Out-Null
@@ -488,9 +633,26 @@ Function Cleanup() {
 
         Write-Status -Types "-" , $TweakType -Status "Removing C:\Temp"
         Remove-Item $ctemp -Force -Recurse -Confirm:$false -ErrorAction SilentlyContinue | Out-Null
-    }Catch{}
+}
+catch {
+    $errorMessage = $_.Exception.Message
+    $errorType = $_.Exception.GetType().FullName
+    $lineNumber = $_.InvocationInfo.ScriptLineNumber
+    $timeOfError = Get-Date -Format "yyyy-MM-dd HH:mm:ss.fff"
+
+    $errorLogEntry = @"
+Time Of Error: $timeOfError 
+Command Run: Visuals
+Error Message: $errorMessage
+Error Type: $errorType
+Line Number: $lineNumber
+
+"@
+    $global:ErrorLog += $errorLogEntry
+}
 }
 Function OOS10 {
+    try{
     param (
         [switch] $Revert
     )
@@ -510,7 +672,25 @@ Function OOS10 {
 
     Remove-Item "$ShutUpOutput" -Force
 }
+catch {
+    $errorMessage = $_.Exception.Message
+    $errorType = $_.Exception.GetType().FullName
+    $lineNumber = $_.InvocationInfo.ScriptLineNumber
+    $timeOfError = Get-Date -Format "yyyy-MM-dd HH:mm:ss.fff"
+
+    $errorLogEntry = @"
+Time Of Error: $timeOfError 
+Command Run: Visuals
+Error Message: $errorMessage
+Error Type: $errorType
+Line Number: $lineNumber
+
+"@
+    $global:ErrorLog += $errorLogEntry
+}
+}
 Function ADWCleaner() {
+    Try{
     Write-Section -Text "ADWCleaner"
     $adwLink = "https://github.com/circlol/newload/raw/main/adwcleaner.exe"
     $adwDestination = ".\bin\adwcleaner.exe"
@@ -525,7 +705,23 @@ Function ADWCleaner() {
     #Removes ADWCleaner from the system
     Write-Status -Types "-","ADWCleaner" -Status "Removing traces of ADWCleaner"
     Start-Process -FilePath $adwDestination -ArgumentList "/Uninstall","/NoReboot" -Wait
-    
+}
+catch {
+    $errorMessage = $_.Exception.Message
+    $errorType = $_.Exception.GetType().FullName
+    $lineNumber = $_.InvocationInfo.ScriptLineNumber
+    $timeOfError = Get-Date -Format "yyyy-MM-dd HH:mm:ss.fff"
+
+    $errorLogEntry = @"
+Time Of Error: $timeOfError 
+Command Run: Visuals
+Error Message: $errorMessage
+Error Type: $errorType
+Line Number: $lineNumber
+
+"@
+    $global:ErrorLog += $errorLogEntry
+}
 }
 Function CreateRestorePoint() {
     $TweakType = "Backup"
@@ -643,32 +839,32 @@ else {
 # SIG # Begin signature block
 # MIIFeQYJKoZIhvcNAQcCoIIFajCCBWYCAQExCzAJBgUrDgMCGgUAMGkGCisGAQQB
 # gjcCAQSgWzBZMDQGCisGAQQBgjcCAR4wJgIDAQAABBAfzDtgWUsITrck0sYpfvNR
-# AgEAAgEAAgEAAgEAAgEAMCEwCQYFKw4DAhoFAAQUA7FK0z9M3CBh1IQ5xmO4DNGc
-# uRmgggMQMIIDDDCCAfSgAwIBAgIQKjMkMYkqpItNCiCURmEWWjANBgkqhkiG9w0B
-# AQsFADAeMRwwGgYDVQQDDBNOZXcgTG9hZHMgQ29kZSBTaWduMB4XDTIzMDIxMjIx
-# MjA1NloXDTI0MDIxMjIxNDA1NlowHjEcMBoGA1UEAwwTTmV3IExvYWRzIENvZGUg
-# U2lnbjCCASIwDQYJKoZIhvcNAQEBBQADggEPADCCAQoCggEBAN7IxFLVKnoz9n+b
-# QgCpdOt/nLnk3qOSUxBZR/cXmGqqRmNQDV+T8FL7XEjvj4iNAGR/A9F2Rs4QKcdW
-# OX4t2cUYHxqeft8+2b5HiZirMGAo+sfeILERHJAo5tGTVp8HlPJlvCWXzcrkZEtx
-# ib6faWMGuGYRcRHgtbW4G7cQzbQnpYReq4J+LT/wDWJSYrMhTh89u7gFU5vdXX0R
-# aBkYBsid6SVNNaZRRATGWq+SU3l5E+RzLDFF+iiDJSVX7HIUB61aYV6RkmyZsY24
-# pklxphf8njEeLu30U6aufZ1lu40xhPWFZo4R6O5XLzgXqEXTGEBl2Tm8JyPQEpyy
-# ZAryosECAwEAAaNGMEQwDgYDVR0PAQH/BAQDAgeAMBMGA1UdJQQMMAoGCCsGAQUF
-# BwMDMB0GA1UdDgQWBBQnPYNnFm4VyH3ban7w10sQvJ03ZTANBgkqhkiG9w0BAQsF
-# AAOCAQEAsR+0Q3ix62SZGte3F8ItYz4B8sVz6PSVtES/4gIf2Rux4tNlvMnrNSqi
-# rGC3ZVd8uEpJkLv2jIjTwJ/LWuf4nk2XUonA2San30l/kBf4JaDMuoQf9QsBemxN
-# ftnT+5QGu/mg7jzaiiDaw/gN/ejgtE5VJyYMcvBYyiVMqnclFThAvoTSPoejk53v
-# flmIVXp3B5Q/4DjsY0XqfhLg6n61kMfT4mTuDLennv6I7NAFW01jwzyMAX7Fef6T
-# dT9OOY7fNN8tB5nH8/bwa1mL0pyg6Ss9I2oNM1AZFYxUBKlNwPLg7ZMGYnbsbNKa
-# qe1YlgKIRI++rPnYzPbEvZMh88Eb6jGCAdMwggHPAgEBMDIwHjEcMBoGA1UEAwwT
-# TmV3IExvYWRzIENvZGUgU2lnbgIQKjMkMYkqpItNCiCURmEWWjAJBgUrDgMCGgUA
+# AgEAAgEAAgEAAgEAAgEAMCEwCQYFKw4DAhoFAAQUKzRDXuVwiXsTlrXZK3FMXsFC
+# weOgggMQMIIDDDCCAfSgAwIBAgIQEznIweLy56VByeu0DO3dHDANBgkqhkiG9w0B
+# AQsFADAeMRwwGgYDVQQDDBNOZXcgTG9hZHMgQ29kZSBTaWduMB4XDTIzMDIyNTAx
+# MTcwMFoXDTI0MDIyNTAxMzcwMFowHjEcMBoGA1UEAwwTTmV3IExvYWRzIENvZGUg
+# U2lnbjCCASIwDQYJKoZIhvcNAQEBBQADggEPADCCAQoCggEBAMOp0Oy3ZpODBBu9
+# SqwzirkvXJYu8inamkKf8D40b5DlSP78UvJxbrfqWUejfqX9pUhIS5bFazZ/3OUH
+# TdTGp2Wy85/VUL/3kWIRfRX6cScvGfA5zBHAJ5weTSM9umcogh1fWJmmYl0xgfOP
+# dZaWBmnVDJKo/JuOTOmQ0gyIk1JJStgAT8ix5PetmQ9yoCh02UfRO4dfwhEHNS7e
+# H9OavAMQStFvycJL63Lz1CqwjBwkq8mBCy1TcP3HzyqGOAulW6WocanOKZm8BoXr
+# jaFWpxU16hiVtyP9arbaW91bmFIfNMACQje/9nIdYXN7Eu1gS2Werox5YJ0vntPm
+# I3Tun8ECAwEAAaNGMEQwDgYDVR0PAQH/BAQDAgeAMBMGA1UdJQQMMAoGCCsGAQUF
+# BwMDMB0GA1UdDgQWBBSneCZHJdvBbeTvpAb04yuxIcE0MTANBgkqhkiG9w0BAQsF
+# AAOCAQEAk9ThUUX5Pjr6hbnR8B20RPRgCPkvNrF4EaMweA8uF5/A84AnxL63X+Bv
+# O/9VRCbP08c3N0uG0tkDhCFC3kld2FI77ZCwPNNKbgu8JEvB+Iq16p6DBlWCQ8Ac
+# vCLuqtUZHoQEv/+HR4VFjyV3DQdhBorGr6t+HyEEuR56W21D2W1AP+OBJ1yvArky
+# pLjWoQobtg1k3Wzwo15hIis95vz4QNjvMEX2PSe67KC4yRZv8SbAYX8okwm3VbJW
+# MOEOSfBqZ6aA8V5BvJNpqBWwRFuoutKwl37jPlKA7pZG5BT/iXRF3DgXBti3s2hZ
+# n1K1S/S3o113XkKBDsdx1JdQEGlCcTGCAdMwggHPAgEBMDIwHjEcMBoGA1UEAwwT
+# TmV3IExvYWRzIENvZGUgU2lnbgIQEznIweLy56VByeu0DO3dHDAJBgUrDgMCGgUA
 # oHgwGAYKKwYBBAGCNwIBDDEKMAigAoAAoQKAADAZBgkqhkiG9w0BCQMxDAYKKwYB
 # BAGCNwIBBDAcBgorBgEEAYI3AgELMQ4wDAYKKwYBBAGCNwIBFTAjBgkqhkiG9w0B
-# CQQxFgQUJMVJBFMxFe86glaJGO8EytMMaOowDQYJKoZIhvcNAQEBBQAEggEApUf4
-# DaXlsHAXA1osEtgS90/kOMTtPeixrBTjTA9mrQHfMdXuxQzcb7ya6SpoXQrWwf67
-# xDVth1v7J/XpIbBWJoER8eo9qwN91/d5u+ZrwpFmqld1I2zBdGlC6hjCU/2peuN3
-# pjJzChoRsGNPEwgm3Q61r3ovKZ0tmXlBXSjuZrBZm1FIi9OZkgeoWZGLl87Tk5bg
-# 2DtAIGHbAu6vhWkpVxs+MI3WztWP59EALmTVXsXMqDXsJmstGQB6AjjncJkxYcR0
-# 3k4S2gukJP3X5Oh6Ml86VKh//6mF+Bs0bqkUueg7z5Y10S3gMBt5/ew4YREiojCq
-# uqeVM4y/4Rh5ZXR02g==
+# CQQxFgQU8SKChz0L0q/R26okurZKaUyu46AwDQYJKoZIhvcNAQEBBQAEggEASm8y
+# 5BIVcUT24FuIBxFrjtaVSHja67Z63SfxePowKiFpARvBOKWNS+80PbNMbJi0i9uh
+# CacLRmZVtLTYCf/ItoR7dOjlNiKeJhKWBmNkiaT7wWUqE67otzspdFRTEX/UXWim
+# zaJEYUfBcbrtQipfEw686w6jkWOlN+tPVzs+M0QAzWG2NldovBAkfchYYANYV5uf
+# 4lQEI3cbaIq3zvl11uKumsV8Q6zWgA6PtOHBANhctFA8+P1XPJYls7Xb6UUsbCR/
+# Ufaa/cCkKUHwD5eKwkHSrPfwkM+KAb55sN22iXeqDtdRMgZ2EAPPhKSLwKmdauxa
+# wFBajsTzpUaSXAS98w==
 # SIG # End signature block
