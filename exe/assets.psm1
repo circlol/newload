@@ -1,5 +1,37 @@
 $Global:BackgroundColor = "Black"
 $Global:ForegroundColor = "DarkCyan"
+
+function Use-Command {
+    param (
+        [Parameter(Mandatory=$true)]
+        [string]$Command
+    )
+    
+    try {
+        Invoke-Expression $Command
+    }
+catch {
+    $errorMessage = $_.Exception.Message
+    $lineNumber = $_.InvocationInfo.ScriptLineNumber
+    $command = $_.InvocationInfo.Line
+    $errorType = $_.CategoryInfo.Reason
+    $ErrorLog = ".\ErrorLog.txt"
+
+$errorString = @"
+-
+Time of error: $(Get-Date -Format "yyyy-MM-dd HH:mm:ss")
+Command run was: $command
+Reason for error was: $errorType
+Offending line number: $lineNumber
+Error Message: $errorMessage
+-
+
+"@
+    Add-Content $ErrorLog $errorString
+    Write-Output $_
+    continue
+    }
+}
 Function Write-Break(){
     Write-Host "`n`n[" -NoNewline -ForegroundColor $ForegroundColor -Backgroundcolor $BackgroundColor
     Write-Host "================================================================================================" -NoNewLine -ForegroundColor White -BackgroundColor $BackgroundColor
@@ -238,6 +270,128 @@ function Get-SystemSpec() {
 
     return <#$(Get-OSDriveType), $Separator,#> $WinVer, $DisplayedVersionResult, $Separator, $(Get-RAM), $Separator, $(Get-CPU -Separator $Separator), $Separator, $(Get-GPU)
 }
+Function CheckFiles() {
+    Try {
+        $folders = @("bin", "assets", "lib")
+        $folders | ForEach-Object {
+            if (!(Test-Path ".\$_" -PathType Container -ErrorAction SilentlyContinue)) {
+                Write-Status -Types "+" -Status "Creating $_ Folder."
+                New-Item -ItemType Directory -Path ".\$_" -Force | Out-Null
+            }
+        }
+        If (Test-Path ".\tmp.txt") {
+            Write-Status -Types "-" -Status "Removing a previously runs tmp.txt."
+            Remove-Item ".\tmp.txt" -Force -ErrorAction SilentlyContinue
+        }
+        If (Test-Path .\ErrorLog.txt) {
+            Write-Status -Types "-" -Status "Removing a previous runs ErrorLog.txt."
+            Remove-Item -Path ".\ErrorLog.txt" -Force -ErrorAction SilentlyContinue
+        }
+    }
+    Catch {
+        Write-Error "An error occurred while creating folders or removing files: $_"
+    }
+    
+    #"lib\Templates.psm1",
+    #"lib\Variables.psm1",
+    #"Assets\settings-revert.cfg"
+Write-Section -Text "Scanning Exisitng Files"
+#        "assets\10.jpg",
+#        "assets\10_mGaming.png",
+#        "assets\11.png",
+#        "assets\11_mGaming.png",
+$Files = @(        
+    "assets\Mother_Computers.png"
+    "assets\Microsoft.HEVCVideoExtension_2.0.60091.0_x64__8wekyb3d8bbwe.Appx",
+    "assets\start.bin",
+    "assets\start2.bin",
+    "bin\vlc-3.0.18-win64.exe"
+    "bin\googlechromestandaloneenterprise64.msi"
+    "bin\ZoomInstallerFull.msi"
+    "lib\Set-ItemPropertyVerified.psm1",
+    "lib\Set-Scheduled-Task-State.psm1",
+    "lib\Set-ServiceStartup.psm1",
+    "lib\Set-Windows-Feature-State.psm1",
+    "lib\Optimize-GeneralTweaks.psm1",
+    "lib\Optimize-Performance.psm1",
+    "lib\Optimize-Privacy.psm1",
+    "lib\Optimize-Security.psm1",
+    "lib\Optimize-Services.psm1",
+    "lib\Optimize-TaskScheduler.psm1",
+    "lib\Optimize-WindowsOptionalFeatures.psm1",
+    "lib\Remove-Office.psm1"
+)
+    # Creates an array for missing files
+    $Items = [System.Collections.ArrayList]::new()
+
+    # Checks if each file exists on the computer #
+    ForEach ($file in $files) {
+        If (Test-Path ".\$file" -PathType Leaf -ErrorAction SilentlyContinue) {
+            Write-CaptionSucceed -Text "$file Validated"
+        }
+        else {
+            Write-CaptionFailed -Text "$file Failed to validate."
+            $Items += $file
+        }
+    }
+
+    # Validates files - Downloads missing files from github #
+    If (!($Items)) {
+        Write-Section -Text "All packages successfully validated."
+    }
+    else {
+        $ItemsFile = ".\tmp.txt"
+        $Items | Out-File $ItemsFile -Encoding ASCII 
+        (Get-Content $ItemsFile).replace('\', '/') | Set-Content $ItemsFile
+        $urls = Get-Content $ItemsFile
+        CheckNetworkStatus
+        Write-Section -Text "Downloading Missing Files"
+        ForEach ($url in $urls) {
+                $link = $NewLoadsURLMain + $url
+                Write-Status -Types "+","Modules" -Status "Attempting to Download $url"
+                Start-BitsTransfer -Dynamic -Source "$link" -Destination ".\$url" -Verbose -TransferType Download -Confirm:$False -OutVariable bitsTransfers
+                Check
+        }
+        While ((Get-BitsTransfer | Where-Object {$_.JobState -eq "Transferring"})) {
+            Write-Verbose "Waiting for downloads to complete..."
+            Start-Sleep -Seconds 1
+        }
+        $status = Get-BitsTransfer | Where-Object {$_.JobState -eq "Error"}
+        If ($status) {
+            Write-Error "An error occurred while downloading files : $status"
+        }
+        Write-Status -Types "-" -Status "Removing $ItemsFile"
+        Remove-Item $ItemsFile -Force -ErrorAction SilentlyContinue
+        }
+        
+        Write-Section "Importing Modules"
+        Get-ChildItem ".\*.psm1" -Recurse -Exclude "assets.psm1" | ForEach-Object {
+            Write-Status -Types "+","Modules" -Status "Attempting to Import Module: $($_.Name)"
+            Import-Module $_.FullName
+            Check
+        }
+    }
+    <#
+    ForEach ($url in $URLs){
+        If (Test-Path ".\$url" -Include "*.psm1" -ErrorAction SilentlyContinue) {
+            Write-Status -Types "+","Modules" -Status "Attempting to Import Module: $url"
+            Import-Module -DisableNameChecking ".\$url"
+            Check
+        }
+    }
+    #>
+Function Set-ScriptCategory() {
+    param(
+        [String]$Category
+    )
+    If (!$TweakType){
+        New-Variable -Name "TweakType" -Value "$Category" -Scope Global
+    } else{
+        Set-Variable -Name 'TweakType' -Value $Category -Scope Global
+    }
+    $WindowTitle = "New Loads - $Category"
+    $host.UI.RawUI.WindowTitle = $WindowTitle
+}
 Function Variables () {
     New-Variable -Name "newloads" -Value ".\" -Scope Global -Force
     New-Variable -Name "MaxLength" -Value '12' -Scope Global -Force
@@ -249,13 +403,13 @@ Function Variables () {
     New-Variable -Name "BuildNumber" -Value [System.Environment]::OSVersion.Version.Build -Scope Global -Force
     New-Variable -Name "NetStatus" -Value (Get-NetConnectionProfile).IPv4Connectivity -Scope Global -Force
     New-Variable -Name "Connected" -Value "Internet" -Scope Global -Force
-    New-Variable -Name "NewLoadsURL" -Value "https://raw.githubusercontent.com/circlol/newload/main/New%20Loads.ps1" -Scope Global -Force
-    New-Variable -Name "NewLoadsURLMain" -Value "https://raw.githubusercontent.com/circlol/newload/main/" -Scope Global -Force
     #New-Variable -Name "HVECCodec" -Value ".\assets\Microsoft.HEVCVideoExtension_2.0.51121.0_x64__8wekyb3d8bbwe.appx" -Scope Global    
     New-Variable -Name "HVECCodec" -Value  "Assets\Microsoft.HEVCVideoExtension_2.0.60091.0_x64__8wekyb3d8bbwe.Appx" -Scope Global -Force
     New-Variable -Name "Programs" -Value @(
+        # Microsoft Applications
+        "Microsoft.549981C3F5F10"                   # Cortana
         "Microsoft.3DBuilder"                       # 3D Builder
-        "Microsoft.Appconnector"
+        "Microsoft.Appconnector"                    # App Connector
         "Microsoft.BingFinance"                     # Finance
         "Microsoft.BingFoodAndDrink"                # Food And Drink
         "Microsoft.BingHealthAndFitness"            # Health And Fitness
@@ -264,102 +418,85 @@ Function Variables () {
         "Microsoft.BingTranslator"                  # Translator
         "Microsoft.BingTravel"                      # Travel
         "Microsoft.BingWeather"                     # Weather
-        "Microsoft.CommsPhone"
-        "Microsoft.ConnectivityStore"
-        "Microsoft.Messaging"
-        "Microsoft.Microsoft3DViewer"
-        "Microsoft.MicrosoftOfficeHub"
-        "Microsoft.MicrosoftPowerBIForWindows"
+        "Microsoft.CommsPhone"                      # Your Phone
+        "Microsoft.ConnectivityStore"               # Connectivity Store
+        "Microsoft.Messaging"                       # Messaging
+        "Microsoft.Microsoft3DViewer"               # 3D Viewer
+        "Microsoft.MicrosoftOfficeHub"              # Office
+        "Microsoft.MicrosoftPowerBIForWindows"      # Power Automate
         "Microsoft.MicrosoftSolitaireCollection"    # MS Solitaire
-        "Microsoft.MinecraftEducationEdition"
-        "Microsoft.MinecraftUWP"
-        "Microsoft.MixedReality.Portal"
-        "Microsoft.NetworkSpeedTest"
-        "Microsoft.Office.Hub"
-        "Microsoft.Office.Lens"
-        "Microsoft.Office.OneNote"                  # MS Office One Note
-        "Microsoft.Office.Sway"
-        "Microsoft.OneConnect"
-        "Microsoft.OneDriveSync"
+        "Microsoft.MinecraftEducationEdition"       # Minecraft Education Edition for Windows 10
+        "Microsoft.MinecraftUWP"                    # Minecraft
+        "Microsoft.MixedReality.Portal"             # Mixed Reality Portal
+        "Microsoft.Office.Hub"                      # Office Hub
+        "Microsoft.Office.Lens"                     # Office Lens
+        "Microsoft.Office.OneNote"                  # Office One Note
+        "Microsoft.Office.Sway"                     # Office Sway
+        "Microsoft.OneConnect"                      # OneConnect
         "Microsoft.People"                          # People
         "Microsoft.SkypeApp"                        # Skype (Who still uses Skype? Use Discord)
-        "MicrosoftTeams"                            # Microsoft Teams / Preview
-        "Microsoft.Todos"                           # Microsoft To Do
-        "Microsoft.Wallet"
+        "MicrosoftTeams"                            # Teams / Preview
+        "Microsoft.Todos"                           # To Do
+        "Microsoft.Wallet"                          # Wallet
         "Microsoft.Whiteboard"                      # Microsoft Whiteboard
-        "Microsoft.WindowsPhone"
-        "Microsoft.WindowsReadingList"
-        "Microsoft.WindowsSoundRecorder"
+        "Microsoft.WindowsPhone"                    # Your Phone Alternate
+        "Microsoft.WindowsReadingList"              # Reading List
+        #"Microsoft.WindowsSoundRecorder"            # Sound Recorder
         "Microsoft.ZuneMusic"                       # Groove Music / (New) Windows Media Player
         "Microsoft.ZuneVideo"                       # Movies & TV
         # 3rd party Apps
         "*AdobePhotoshopExpress*"                   # Adobe Photoshop Express
         "AdobeSystemsIncorporated.AdobeLightroom"   # Adobe Lightroom
         "AdobeSystemsIncorporated.AdobeCreativeCloudExpress"    # Adobe Creative Cloud Express
+        "AdobeSystemsIncorporated.AdobeExpress"    # Adobe Creative Cloud Express
         "*Amazon.com.Amazon*"                       # Amazon
         "AmazonVideo.PrimeVideo"                    # Amazon Prime Video
         "57540AMZNMobileLLC.AmazonAlexa"            # Amazon Alexa
         "*BubbleWitch3Saga*"                        # Bubble Witch 3 Saga
         "*CandyCrush*"                              # Candy Crush
-        "*DisneyMagicKingdoms*"
-        "Disney.37853FC22B2CE"
-        "*Disney*"
+        "Clipchamp.Clipchamp"                       # Clip Champ
+        "*DisneyMagicKingdoms*"                     # Disney Magic Kingdom
+        "Disney.37853FC22B2CE"                      # Disney Plus
+        "*Disney*"                                  # Disney Plus
         "*Dolby*"                                   # Dolby Products (Like Atmos)
-        "*DropboxOEM*"
-        "Evernote.Evernote"
-        "*ExpressVPN*"
+        "*DropboxOEM*"                              # Dropbox
+        "Evernote.Evernote"                         # Evernote
+        "*ExpressVPN*"                              # ExpressVPN
         "*Facebook*"                                # Facebook
         "*Flipboard*"                               # Flipboard
-        "*Hulu*"
-        "*McAfee*"
-        "5A894077.McAfeeSecurity"
-        "4DF9E0F8.Netflix"
-        "*PicsArt-PhotoStudio*"
-        "*Pinterest*"
-        "1424566A.147190DF3DE79"
-        "SpotifyAB.SpotifyMusic"
+        "*Hulu*"                                    # Hulu
+        "*Instagram*"                               # Instagram
+        "*McAfee*"                                  # McAfee
+        "5A894077.McAfeeSecurity"                   # McAfee Security
+        "4DF9E0F8.Netflix"                          # Netflix
+        "*PicsArt-PhotoStudio*"                     # PhotoStudio
+        "*Pinterest*"                               # Pinterest
+        "142F4566A.147190D3DE79"                    # Pinterest
+        "1424566A.147190DF3DE79"                    # Pinterest
+        "SpotifyAB.SpotifyMusic"                    # Spotify
         "*Twitter*"                                 # Twitter
-        "*TikTok*"
-        "5319275A.WhatsAppDesktop"
+        "*TikTok*"                                  # TikTok
+        "5319275A.WhatsAppDesktop"                  # WhatsApp
         # Acer OEM Bloat
-        "AcerIncorporated.AcerRegistration"
-        "AcerIncorporated.QuickAccess"
-        "AcerIncorporated.UserExperienceImprovementProgram"
-        "AcerIncorporated.AcerCareCe nterS"
-        "AcerIncorporated.AcerCollectionS"
+        "AcerIncorporated.AcerRegistration"         # Acer Registration
+        "AcerIncorporated.QuickAccess"              # Acer Quick Access
+        "AcerIncorporated.UserExperienceImprovementProgram"              # Acer User Experience Improvement Program
+        #"AcerIncorporated.AcerCareCenterS"         # Acer Care Center
+        "AcerIncorporated.AcerCollectionS"          # Acer Collections 
         # HP Bloat
-        "AD2F1837.HPSupportAssistant"
-        "AD2F1837.HPPrinterControl"
-        "AD2F1837.HPQuickDrop"
-        "AD2F1837.HPSystemEventUtility"
-        "AD2F1837.HPPrivacySettings"
-        "AD2F1837.HPInc.EnergyStar"
-        "AD2F1837.HPAudioCenter"
+        "AD2F1837.HPPrivacySettings"                # HP Privacy Settings
+        "AD2F1837.HPInc.EnergyStar"                 # Energy Star
+        "AD2F1837.HPAudioCenter"                    # HP Audio Center
         # Common HP & Acer Bloat
-        "CyberLinkCorp.ac.PowerDirectorforacerDesktop"
-        "CyberLinkCorp.ac.PhotoDirectorforacerDesktop"
-        "CorelCorporation.PaintShopPro"
-        "26720RandomSaladGamesLLC.HeartsDeluxe"
-        "26720RandomSaladGamesLLC.SimpleSolitaire"
-        "26720RandomSaladGamesLLC.SimpleMahjong"
-        "26720RandomSaladGamesLLC.Spades"
-        # Samsung Bloat
-        "SAMSUNGELECTRONICSCO.LTD.1412377A9806A"
-        "SAMSUNGELECTRONICSCO.LTD.NewVoiceNote"
-        "SAMSUNGELECTRONICSCO.LTD.SamsungWelcome"
-        "SAMSUNGELECTRONICSCO.LTD.SamsungUpdate"
-        "SAMSUNGELECTRONICSCO.LTD.SamsungSecurity1.2"
-        "SAMSUNGELECTRONICSCO.LTD.SamsungScreenRecording"
-        "SAMSUNGELECTRONICSCO.LTD.SamsungQuickSearch"
-        "SAMSUNGELECTRONICSCO.LTD.SamsungPCCleaner"
-        "SAMSUNGELECTRONICSCO.LTD.SamsungCloudBluetoothSync"
-        "SAMSUNGELECTRONICSCO.LTD.OnlineSupportSService"
-    ) -Scope Global -Force -Option ReadOnly
-
-
+        "CyberLinkCorp.ac.PowerDirectorforacerDesktop"          # CyberLink Power Director for Acer
+        "CorelCorporation.PaintShopPro"                         # Coral Paint Shop Pro
+        "26720RandomSaladGamesLLC.HeartsDeluxe"                 # Hearts Deluxe
+        "26720RandomSaladGamesLLC.SimpleSolitaire"              # Simple Solitaire
+        "26720RandomSaladGamesLLC.SimpleMahjong"                # Simple Mahjong
+        "26720RandomSaladGamesLLC.Spades"                       # Spades
+) -Scope Global -Force -Option ReadOnly
     New-Variable -Name "UsersFolder" -Value "{59031a47-3f72-44a7-89c5-5595fe6b30ee}" -Force -Scope Global
     New-Variable -Name "ThisPC" -Value "{20D04FE0-3AEA-1069-A2D8-08002B30309D}" -Force -Scope Global
-
     New-Variable -Name "livesafe" -Value "$Env:PROGRAMFILES\McAfee\MSC\mcuihost.exe" -Option ReadOnly -Scope Global -Force
     New-Variable -Name "webadvisor" -Value "$Env:PROGRAMFILES\McAfee\WebAdvisor\Uninstaller.exe" -Option ReadOnly -Scope Global -Force
     New-Variable -Name "WildGames" -Value "${Env:PROGRAMFILES(x86)}\WildGames\Uninstall.exe" -Option ReadOnly -Scope Global -Force
@@ -368,11 +505,10 @@ Function Variables () {
     New-Variable -Name "edgescpub" -Value "$Env:PUBLIC\Desktop\Microsoft Edge.lnk" -Option ReadOnly -Scope Global -Force
     New-Variable -Name "vlcsc" -Value "$Env:PUBLIC\Desktop\VLC Media Player.lnk" -Option ReadOnly -Scope Global -Force
     New-Variable -Name "zoomsc" -Value "$Env:PUBLIC\Desktop\Zoom.lnk" -Option ReadOnly -Scope Global -Force
-    
     New-Variable -Name "commonapps" -Value "$env:ALLUSERSPROFILE\Microsoft\Windows\Start Menu\Programs" -Option ReadOnly -Scope Global -Force
     #Wallpaper
     New-Variable -Name "wallpaper" -Value "$env:appdata\Microsoft\Windows\Themes\MotherComputersWallpaper.jpg" -Option ReadOnly -Scope Global -Force
-    New-Variable -Name "WallpaperDestination" -Value "$Env:Appdata\Microsoft\Windows\Themes\wallpaper.jpg" -Scope Global -Force
+    New-Variable -Name "WallpaperDestination" -Value "$Env:Appdata\Microsoft\Windows\Themes\MotherComputersWallpaper.jpg" -Scope Global -Force
     New-Variable -Name "currentwallpaper" -Value (Get-ItemProperty -Path "HKCU:\Control Panel\Desktop" -Name Wallpaper).Wallpaper -Option ReadOnly -Scope Global -Force
     New-Variable -Name "sysmode" -Value (Get-ItemProperty -Path HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Themes\Personalize -Name SystemUsesLightTheme).SystemUsesLightTheme -Option ReadOnly -Scope Global -Force
     New-Variable -Name "appmode" -Value (Get-ItemProperty -Path HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Themes\Personalize -Name AppsUseLightTheme).AppsUseLightTheme -Option ReadOnly -Scope Global -Force
@@ -397,8 +533,6 @@ Function Variables () {
     New-Variable -Name "store" -Value "Mother Computers" -Option ReadOnly -Scope Global -Force
     New-Variable -Name "model" -Value "Mother Computers - (250) 479-8561" -Option ReadOnly -Scope Global -Force
     New-Variable -Name "page" -Value "Model" -Option ReadOnly -Scope Global -Force
-
-
     New-Variable -Name "TimeoutScreenBattery" -Value 5 -Force -Scope Global
     New-Variable -Name "TimeoutScreenPluggedIn" -Value 10 -Force -Scope Global
     New-Variable -Name "TimeoutStandByBattery" -Value 15 -Force -Scope Global
@@ -453,115 +587,7 @@ Function Variables () {
     New-Variable -Name "PathToLMMultimediaSystemProfile" -Value "HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Multimedia\SystemProfile" -Force -Scope Global
     New-Variable -Name "PathToLMMultimediaSystemProfileOnGameTasks" -Value "HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Multimedia\SystemProfile\Tasks\Games" -Force -Scope Global
 }
-Function CheckFiles() {
-    Try {
-        $folders = @("bin", "assets", "lib")
-        $folders | ForEach-Object {
-            if (!(Test-Path ".\$_" -PathType Container -ErrorAction SilentlyContinue)) {
-                Write-Status -Types "+" -Status "Creating $_ Folder."
-                New-Item -ItemType Directory -Path ".\$_" -Force | Out-Null
-            }
-        }
-        If (Test-Path ".\tmp.txt") {
-            Write-Status -Types "-" -Status "Removing a previously runs tmp.txt."
-            Remove-Item ".\tmp.txt" -Force -ErrorAction SilentlyContinue
-        }
-        If (Test-Path .\ErrorLog.txt) {
-            Write-Status -Types "-" -Status "Removing a previous runs ErrorLog.txt."
-            Remove-Item -Path ".\ErrorLog.txt" -Force -ErrorAction SilentlyContinue
-        }
-    }
-    Catch {
-        Write-Error "An error occurred while creating folders or removing files: $_"
-    }
-    
-    #"lib\Templates.psm1",
-    #"lib\Variables.psm1",
-    #"Assets\settings-revert.cfg"
-    Write-Section -Text "Scanning Exisitng Files"
-    $Files = @(        
-        "lib\Optimize-GeneralTweaks.psm1",
-        "lib\Optimize-Performance.psm1",
-        "lib\Optimize-Privacy.psm1",
-        "lib\Optimize-Security.psm1",
-        "lib\Optimize-Services.psm1",
-        "lib\Optimize-TaskScheduler.psm1",
-        "lib\Optimize-WindowsOptionalFeatures.psm1",
-        "lib\Remove-Office.psm1",
-        "lib\Set-ItemPropertyVerified.psm1",
-        "lib\Set-Scheduled-Task-State.psm1",
-        "lib\Set-ServiceStartup.psm1",
-        "lib\Set-Windows-Feature-State.psm1",
-        "assets\10.jpg",
-        "assets\10_mGaming.png",
-        "assets\11.png",
-        "assets\11_mGaming.png",
-        "assets\Microsoft.HEVCVideoExtension_2.0.60091.0_x64__8wekyb3d8bbwe.Appx",
-#        "Assets\settings.cfg"
-        "assets\start.bin" 
-        "assets\start2.bin" 
-        )
-    # Creates an array for missing files
-    $Items = [System.Collections.ArrayList]::new()
-
-    # Checks if each file exists on the computer #
-    ForEach ($file in $files) {
-        If (Test-Path ".\$file" -PathType Leaf -ErrorAction SilentlyContinue) {
-            Write-CaptionSucceed -Text "$file Validated"
-        }
-        else {
-            Write-CaptionFailed -Text "$file Failed to validate."
-            $Items += $file
-        }
-    }
-
-    # Validates files - Downloads missing files from github #
-    If (!($Items)) {
-        Write-Section -Text "All packages successfully validated."
-    }
-    else {
-        $ItemsFile = ".\tmp.txt"
-        $Items | Out-File $ItemsFile -Encoding ASCII 
-        (Get-Content $ItemsFile).replace('\', '/') | Set-Content $ItemsFile
-        $urls = Get-Content $ItemsFile
-        CheckNetworkStatus
-        Write-Section -Text "Downloading Missing Files"
-        ForEach ($url in $urls) {
-                $link = $NewLoadsURLMain + $url
-                Write-Status -Types "+","Modules" -Status "Attempting to Download $url"
-                Start-BitsTransfer -Dynamic -Source "$link" -Destination ".\$url" -Verbose -TransferType Download -Confirm:$False -OutVariable bitsTransfers
-                Check
-        }
-        While ((Get-BitsTransfer | Where-Object {$_.JobState -eq "Transferring"})) {
-            Write-Verbose "Waiting for downloads to complete..."
-            Start-Sleep -Seconds 1
-        }
-        $status = Get-BitsTransfer | Where-Object {$_.JobState -eq "Error"}
-        If ($status) {
-            Write-Error "An error occurred while downloading files : $status"
-        }
-        Write-Status -Types "-" -Status "Removing $ItemsFile"
-        Remove-Item $ItemsFile -Force -ErrorAction SilentlyContinue
-        }
-        
-        Write-Section "Importing Modules"
-        ForEach ($url in $URLs){
-        If (Test-Path ".\$url" -Include "*.psm1" -ErrorAction SilentlyContinue) {
-            Write-Status -Types "+","Modules" -Status "Attempting to Import Module: $url"
-            Import-Module -DisableNameChecking ".\$url"
-            Check
-        }
-    }
-
-}
-Function Set-ScriptCategory() {
-    param(
-        [String]$Category
-    )
-    $Global:TweakType = $Category
-    $WindowTitle = "New Loads - $Category"
-    $host.UI.RawUI.WindowTitle = $WindowTitle
-}
+Variables
 <#
 Write-Break ; Write-Caption -Text "This is a Test Message" ; Write-CaptionFailed -Text "This is a Test Message" ; Write-CaptionSucceed -Text "This is a Test Message" ; Write-CaptionWarning -Text "This is a Test Message" ; Write-Section -Text "This is a Test Message" ; Write-Status -Types "+" , "Test" -Status "This is a Test Message" ; Write-Title -Text "This is a Test Message" ; Write-TitleCounter -Counter "4" -MaxLength "15" -Text "This is a Test Message"
 #>
@@ -569,32 +595,32 @@ Write-Break ; Write-Caption -Text "This is a Test Message" ; Write-CaptionFailed
 # SIG # Begin signature block
 # MIIFeQYJKoZIhvcNAQcCoIIFajCCBWYCAQExCzAJBgUrDgMCGgUAMGkGCisGAQQB
 # gjcCAQSgWzBZMDQGCisGAQQBgjcCAR4wJgIDAQAABBAfzDtgWUsITrck0sYpfvNR
-# AgEAAgEAAgEAAgEAAgEAMCEwCQYFKw4DAhoFAAQUrQ3FqKB04ie/lWpu9ClZm9PB
-# pBCgggMQMIIDDDCCAfSgAwIBAgIQeokdU+IlOplKdeWKCux2rDANBgkqhkiG9w0B
-# AQsFADAeMRwwGgYDVQQDDBNOZXcgTG9hZHMgQ29kZSBTaWduMB4XDTIzMDQxMTE4
-# MTI0N1oXDTI0MDQxMTE4MzI0N1owHjEcMBoGA1UEAwwTTmV3IExvYWRzIENvZGUg
-# U2lnbjCCASIwDQYJKoZIhvcNAQEBBQADggEPADCCAQoCggEBALtQ3KS4tiFLpVaa
-# iwbD/7SaF5Z1FzsB3FCfjb9oYyirUycVAn3J8Y5WBCj01+/4X5CnbuAzTMbEQoYX
-# GcYAXZeK7dE7MtFu+UPklcxJgj0cmFWFSqoIXW/u++a2tz5umCu+cVKl4KRhi3jV
-# AEwegr+0t0rVeRf9laJ5jMnwqnQX1OK/Io+lnZczPiDaqRh41iP0QxBRnhI4JzY0
-# Bvgw5fIEQHhdCkJbuR2B8lwJ+dNqNYWywk9gwfj5gboExlKINPgrRTvFwRKZwxEy
-# jB/4/EoeKVgIY0nVZ3h5JIMXMvessQboeTCQZZnOpy05UfjtRx2QJEYel03cRY89
-# J6U6mcUCAwEAAaNGMEQwDgYDVR0PAQH/BAQDAgeAMBMGA1UdJQQMMAoGCCsGAQUF
-# BwMDMB0GA1UdDgQWBBRDigo9jC2UTikf0HvKxvTbR6SbATANBgkqhkiG9w0BAQsF
-# AAOCAQEAlGw+ujETSZYwIRdpzsQlQYyZNgDhex68Q2UVwZlbvbd9kpWUCSM2swTh
-# uvvnKuCRXhxm9d47Y0dTR2sz4tb7p1uctXS62itj01ol8yGU4+CWBna5WkBAVRz0
-# SSYfijYA8GmzMbU9p25VegeCEr20gRXQGlKBq5yObKuok/KLIAwHDn/NT4+iRf7Y
-# F/GhA0GMNk8KdVGSkpkRXwvIyh9GszfMyv+71jxZeZ6rmpYAwf9Hu0aFP9cUKQJF
-# L0I8kQHtjTJPx9YV29ZYn/lEQz8poeoPWZokHq1rQ97LE/P9NayaFjRqeSMMmnjz
-# IXkBte/WsvSrxQO2bdJdM2tty+VsEzGCAdMwggHPAgEBMDIwHjEcMBoGA1UEAwwT
-# TmV3IExvYWRzIENvZGUgU2lnbgIQeokdU+IlOplKdeWKCux2rDAJBgUrDgMCGgUA
+# AgEAAgEAAgEAAgEAAgEAMCEwCQYFKw4DAhoFAAQU/pioNkjxr5cW9SGJpr0GNo/M
+# uHigggMQMIIDDDCCAfSgAwIBAgIQGopRfa9vUaBNYHxjP9CRADANBgkqhkiG9w0B
+# AQsFADAeMRwwGgYDVQQDDBNOZXcgTG9hZHMgQ29kZSBTaWduMB4XDTIzMDQxMzAx
+# MzgyOVoXDTI0MDQxMzAxNTgyOVowHjEcMBoGA1UEAwwTTmV3IExvYWRzIENvZGUg
+# U2lnbjCCASIwDQYJKoZIhvcNAQEBBQADggEPADCCAQoCggEBAMeESaCCI/aIc/XE
+# UOPfQdPyPZudTPoqikHcv7qQyiSa1dwOldn+UlP72iCb1SdNOrQ1pS9PW9fVpaOG
+# hhQU48deC9WgUykyg+Z5mUt23bb+ni8bb48cvP2DdOGtmCRQYm5ok/8aEMsi35/t
+# cXl7Odmiro8xd+SBgXf7bg8qgxyOqNSqO0kbOAroYlOLMQ5UDmmw6wv2YuPQhddv
+# Uzg+pI+J0c+/mJEFdhGORuTnOLABgOZHRD7DDGNV5f91pglS9qHkNiXm857PHq4s
+# l4DKUmfAdlDhTFcHOv6eSI1o1IUtjeLGD8d6lG5Hp3qwfZ/j14FoSodmsKfUdOqY
+# HBCYWxECAwEAAaNGMEQwDgYDVR0PAQH/BAQDAgeAMBMGA1UdJQQMMAoGCCsGAQUF
+# BwMDMB0GA1UdDgQWBBTb52Tr21VDXgO3IsUAvCDBP16w7DANBgkqhkiG9w0BAQsF
+# AAOCAQEAXsHUgL7wW600L+6M+AZHyHwsKhoCaVztMHMPsx/H/4rF8EuQYyTS5/s2
+# Ov8a4DlRLjYlsJ6VqrLjqLyTf84U9EV8IVB7N94F3u9A0O647y0PTmZ4wMqPtW6P
+# mZGLQ0G6r7digzaHb/IaiUhj30MnWY7ZZwZlwlMlOGdR/2yiyv4vmNNa/3xQXipR
+# LdjshlF8Jjj399OxppKOgKDaTv4ebzIZlUv2qdQYsiQkg6f9w2vFdPAdAddW5573
+# dWc4o1HPgGiuwMJuulS9cP0W5iXMwQGgIM8v6FkpcHSLoLgSJ3ngsVNn4BCEyFU9
+# NQq7c3E4f66ssnXlSSwTCT7RQEZJSzGCAdMwggHPAgEBMDIwHjEcMBoGA1UEAwwT
+# TmV3IExvYWRzIENvZGUgU2lnbgIQGopRfa9vUaBNYHxjP9CRADAJBgUrDgMCGgUA
 # oHgwGAYKKwYBBAGCNwIBDDEKMAigAoAAoQKAADAZBgkqhkiG9w0BCQMxDAYKKwYB
 # BAGCNwIBBDAcBgorBgEEAYI3AgELMQ4wDAYKKwYBBAGCNwIBFTAjBgkqhkiG9w0B
-# CQQxFgQUlZixdcF5fMTYnSTIGXlpq8RzaY4wDQYJKoZIhvcNAQEBBQAEggEABzA7
-# Yefht3alOyB0WqpbnozvARHJT6xwS6SFN593zzpZL19RFvSS8oHNIc1n6vaAwMTJ
-# GUo9YU4oLQWH+yegsZlgKwQTo2tVVOx52OnauXPaHrbXsUi7dWg8O6tmTHIU9pIE
-# fGsBTxTLjmh7T9VD7DuxgujNecU5E9MkyrRSlw37XPge0QPQ/1NuX+QFBkbk+03D
-# MEGf0Y8u9MTsxs6j/AOIGFOlIECgNMGFX/Ex0ijxYklLvxC9q6Kl6t8QD0QB0Kmj
-# 2hr2RV/lE5Tt8l7hU3Gn1LjZVXHK8W6gTqEusJRZ0x2iuNsRQ1KQm4OhutUMMqo2
-# tOr1/IiBdOj5fnvKtQ==
+# CQQxFgQU55Qs9ZRcdsBPskVVD6TPbHpL1B8wDQYJKoZIhvcNAQEBBQAEggEAfOgA
+# Otavk5I2PUGnR57Zo15PabkCNlhX3EAoeei6XMokFMmqDptDFKs5XS9381bf8LjT
+# +3OXrx/83Nuld8ekEI1a2XUoNS5+0zSruqzE7yubGP0XVNyYUm2qcqUQ2I45oA0G
+# umpF/oofRKXXn1B2nxggxMNqCI8TmH+99NNggdU2ZpEF858KJlFTO52//z2pmqIo
+# bZaTOBoy2+sfbUfUEKof4+qP9Pk7d93VK6nmTnS2uywcJr4UjHsm2VA4FjLWZLfg
+# n7zNyNgyx0KnLTiXTJQCGz1bn/mD/RpsPequSnbhwbCL6T+VCiiYBbUrjPmRw2wd
+# BwleTG5hC/0PmG6ONQ==
 # SIG # End signature block
