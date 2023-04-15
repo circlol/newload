@@ -1,14 +1,17 @@
 ﻿param(
-    [switch]$GUI,
-    [switch]$WhatIf
+    [switch]$Global:GUI,
+    [switch]$Global:WhatIf
 )
 $WindowTitle = "New Loads"
+$LogoColor = "Yellow"
 $host.UI.RawUI.WindowTitle = $WindowTitle
 $host.UI.RawUI.BackgroundColor = 'Black'
 $host.UI.RawUI.ForegroundColor = 'White'
 Add-Type -AssemblyName System.Drawing
 Add-Type -AssemblyName System.Windows.Forms
-New-Variable -Name "ProgramVersion" -Value "2023r1.0" -Scope Global -Force
+New-Variable -Name "ProgramVersion" -Value "2023.1.003" -Scope Global -Force
+New-Variable -Name "NewLoadsURL" -Value "https://raw.githubusercontent.com/circlol/newloadsTesting/main/New%20Loads.ps1" -Scope Global -Force
+New-Variable -Name "NewLoadsURLMain" -Value "https://raw.githubusercontent.com/circlol/newloadsTesting/main/" -Scope Global -Force
 Clear-Host
 
 Function Bootup {
@@ -54,7 +57,26 @@ Function Bootup {
         }
     }
 
+    $localPath = ".\assets.psm1"
+    $AssetsURL = "https://raw.githubusercontent.com/circlol/newload/main/exe/assets.psm1"
+    # Imports Assets.psm1
+    try { 
+        if (Test-Path $localPath ) {
+        Import-Module $localPath -Force
+        } else { 
+            Invoke-WebRequest $AssetsURL -OutFile $localPath ; Import-Module $localPath -Force 
+            #throw "assets.psm1 is missing. Please acquire this file to continue." }
+        }
+    } catch { 
+        Clear-Host
+        Write-Host "An error occurred while importing assets.psm1: $_"
+        Start-Sleep 4
+        Exit
+    }
+
+
     # We check the time here so later
+    CheckNetworkStatus
     UpdateTime
     $Global:Time = (Get-Date -UFormat %Y%m%d)
     $DateReq = 20230101
@@ -99,25 +121,27 @@ Function ScriptInfo {
     $WindowTitle = "New Loads - Initialization" ; $host.UI.RawUI.WindowTitle = $WindowTitle
     $Logo = "
 
-    ▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀
+
+▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀
+
 
                     ███╗   ██╗███████╗██╗    ██╗    ██╗      ██████╗  █████╗ ██████╗ ███████╗
                     ████╗  ██║██╔════╝██║    ██║    ██║     ██╔═══██╗██╔══██╗██╔══██╗██╔════╝
                     ██╔██╗ ██║█████╗  ██║ █╗ ██║    ██║     ██║   ██║███████║██║  ██║███████╗
                     ██║╚██╗██║██╔══╝  ██║███╗██║    ██║     ██║   ██║██╔══██║██║  ██║╚════██║
                     ██║ ╚████║███████╗╚███╔███╔╝    ███████╗╚██████╔╝██║  ██║██████╔╝███████║
-                    ╚═╝  ╚═══╝╚══════╝ ╚══╝╚══╝     ╚══════╝ ╚═════╝ ╚═╝  ╚═╝╚═════╝ ╚══════╝[]"
-    Write-Host $Logo -ForegroundColor Blue -BackgroundColor Black
-    Write-Host ""
-    Write-Host '                                                                                              '
-    Write-Host "     " -NoNewline
+                    ╚═╝  ╚═══╝╚══════╝ ╚══╝╚══╝     ╚══════╝ ╚═════╝ ╚═╝  ╚═╝╚═════╝ ╚══════╝
+                    
+                    
+                                 "
+    Write-Host $Logo -ForegroundColor $LogoColor -BackgroundColor Black -NoNewline
     Write-Host "Created by " -NoNewLine -ForegroundColor White -BackgroundColor Black
-    Write-Host "Mike" -ForegroundColor Blue -BackgroundColor Black -NoNewLine
+    Write-Host "Daddy" -ForegroundColor Red -BackgroundColor Black -NoNewLine
     Write-Host "      Last Update: " -NoNewLine -ForegroundColor White -BackgroundColor Black
-    Write-Host "$ProgramVersion" -NoNewLine -ForegroundColor Yellow -BackgroundColor Black
-    Write-Host "      Recommended: " -NoNewLine -ForegroundColor White -BackgroundColor Black
-    Write-Host "Update Windows before using New Loads" -ForegroundColor Red -BackgroundColor Black
-    Write-Host "`n`n    ▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀`n`n" -ForegroundColor Blue -BackgroundColor Black
+    Write-Host "$ProgramVersion" -ForegroundColor Green -BackgroundColor Black
+    Write-Host "`n`n                     Strongly Recommended: " -NoNewLine -ForegroundColor White -BackgroundColor Black
+    Write-Host "Update Windows and reboot before using New Loads" -ForegroundColor Red -BackgroundColor Black
+    Write-Host "`n`n▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀`n`n" -ForegroundColor $LogoColor -BackgroundColor Black
     $WindowTitle = "New Loads" ; $host.UI.RawUI.WindowTitle = $WindowTitle
 }
 Function Show-YesNoCancelDialog {
@@ -197,15 +221,6 @@ Function Check {
 ####################################################################################
 
 Bootup
-try { if (Test-Path .\assets.psm1 ) {
-        Import-Module .\assets.psm1 -Force
-    } else { throw "assets.psm1 is missing. Please acquire this file to continue." }
-} catch { Clear-Host
-    Write-Host "An error occurred while importing assets.psm1: $_"
-    Start-Sleep 4
-    Exit
-}
-
 Variables
 CheckFiles
 NewLoadsModules
@@ -223,32 +238,32 @@ NewLoads
 # SIG # Begin signature block
 # MIIFeQYJKoZIhvcNAQcCoIIFajCCBWYCAQExCzAJBgUrDgMCGgUAMGkGCisGAQQB
 # gjcCAQSgWzBZMDQGCisGAQQBgjcCAR4wJgIDAQAABBAfzDtgWUsITrck0sYpfvNR
-# AgEAAgEAAgEAAgEAAgEAMCEwCQYFKw4DAhoFAAQUTq+G59nE7GJ3npwWZ0uFkiS0
-# dyqgggMQMIIDDDCCAfSgAwIBAgIQeokdU+IlOplKdeWKCux2rDANBgkqhkiG9w0B
-# AQsFADAeMRwwGgYDVQQDDBNOZXcgTG9hZHMgQ29kZSBTaWduMB4XDTIzMDQxMTE4
-# MTI0N1oXDTI0MDQxMTE4MzI0N1owHjEcMBoGA1UEAwwTTmV3IExvYWRzIENvZGUg
-# U2lnbjCCASIwDQYJKoZIhvcNAQEBBQADggEPADCCAQoCggEBALtQ3KS4tiFLpVaa
-# iwbD/7SaF5Z1FzsB3FCfjb9oYyirUycVAn3J8Y5WBCj01+/4X5CnbuAzTMbEQoYX
-# GcYAXZeK7dE7MtFu+UPklcxJgj0cmFWFSqoIXW/u++a2tz5umCu+cVKl4KRhi3jV
-# AEwegr+0t0rVeRf9laJ5jMnwqnQX1OK/Io+lnZczPiDaqRh41iP0QxBRnhI4JzY0
-# Bvgw5fIEQHhdCkJbuR2B8lwJ+dNqNYWywk9gwfj5gboExlKINPgrRTvFwRKZwxEy
-# jB/4/EoeKVgIY0nVZ3h5JIMXMvessQboeTCQZZnOpy05UfjtRx2QJEYel03cRY89
-# J6U6mcUCAwEAAaNGMEQwDgYDVR0PAQH/BAQDAgeAMBMGA1UdJQQMMAoGCCsGAQUF
-# BwMDMB0GA1UdDgQWBBRDigo9jC2UTikf0HvKxvTbR6SbATANBgkqhkiG9w0BAQsF
-# AAOCAQEAlGw+ujETSZYwIRdpzsQlQYyZNgDhex68Q2UVwZlbvbd9kpWUCSM2swTh
-# uvvnKuCRXhxm9d47Y0dTR2sz4tb7p1uctXS62itj01ol8yGU4+CWBna5WkBAVRz0
-# SSYfijYA8GmzMbU9p25VegeCEr20gRXQGlKBq5yObKuok/KLIAwHDn/NT4+iRf7Y
-# F/GhA0GMNk8KdVGSkpkRXwvIyh9GszfMyv+71jxZeZ6rmpYAwf9Hu0aFP9cUKQJF
-# L0I8kQHtjTJPx9YV29ZYn/lEQz8poeoPWZokHq1rQ97LE/P9NayaFjRqeSMMmnjz
-# IXkBte/WsvSrxQO2bdJdM2tty+VsEzGCAdMwggHPAgEBMDIwHjEcMBoGA1UEAwwT
-# TmV3IExvYWRzIENvZGUgU2lnbgIQeokdU+IlOplKdeWKCux2rDAJBgUrDgMCGgUA
+# AgEAAgEAAgEAAgEAAgEAMCEwCQYFKw4DAhoFAAQUb8V06jKntYCEFT+PJ7of7hzT
+# sMKgggMQMIIDDDCCAfSgAwIBAgIQGopRfa9vUaBNYHxjP9CRADANBgkqhkiG9w0B
+# AQsFADAeMRwwGgYDVQQDDBNOZXcgTG9hZHMgQ29kZSBTaWduMB4XDTIzMDQxMzAx
+# MzgyOVoXDTI0MDQxMzAxNTgyOVowHjEcMBoGA1UEAwwTTmV3IExvYWRzIENvZGUg
+# U2lnbjCCASIwDQYJKoZIhvcNAQEBBQADggEPADCCAQoCggEBAMeESaCCI/aIc/XE
+# UOPfQdPyPZudTPoqikHcv7qQyiSa1dwOldn+UlP72iCb1SdNOrQ1pS9PW9fVpaOG
+# hhQU48deC9WgUykyg+Z5mUt23bb+ni8bb48cvP2DdOGtmCRQYm5ok/8aEMsi35/t
+# cXl7Odmiro8xd+SBgXf7bg8qgxyOqNSqO0kbOAroYlOLMQ5UDmmw6wv2YuPQhddv
+# Uzg+pI+J0c+/mJEFdhGORuTnOLABgOZHRD7DDGNV5f91pglS9qHkNiXm857PHq4s
+# l4DKUmfAdlDhTFcHOv6eSI1o1IUtjeLGD8d6lG5Hp3qwfZ/j14FoSodmsKfUdOqY
+# HBCYWxECAwEAAaNGMEQwDgYDVR0PAQH/BAQDAgeAMBMGA1UdJQQMMAoGCCsGAQUF
+# BwMDMB0GA1UdDgQWBBTb52Tr21VDXgO3IsUAvCDBP16w7DANBgkqhkiG9w0BAQsF
+# AAOCAQEAXsHUgL7wW600L+6M+AZHyHwsKhoCaVztMHMPsx/H/4rF8EuQYyTS5/s2
+# Ov8a4DlRLjYlsJ6VqrLjqLyTf84U9EV8IVB7N94F3u9A0O647y0PTmZ4wMqPtW6P
+# mZGLQ0G6r7digzaHb/IaiUhj30MnWY7ZZwZlwlMlOGdR/2yiyv4vmNNa/3xQXipR
+# LdjshlF8Jjj399OxppKOgKDaTv4ebzIZlUv2qdQYsiQkg6f9w2vFdPAdAddW5573
+# dWc4o1HPgGiuwMJuulS9cP0W5iXMwQGgIM8v6FkpcHSLoLgSJ3ngsVNn4BCEyFU9
+# NQq7c3E4f66ssnXlSSwTCT7RQEZJSzGCAdMwggHPAgEBMDIwHjEcMBoGA1UEAwwT
+# TmV3IExvYWRzIENvZGUgU2lnbgIQGopRfa9vUaBNYHxjP9CRADAJBgUrDgMCGgUA
 # oHgwGAYKKwYBBAGCNwIBDDEKMAigAoAAoQKAADAZBgkqhkiG9w0BCQMxDAYKKwYB
 # BAGCNwIBBDAcBgorBgEEAYI3AgELMQ4wDAYKKwYBBAGCNwIBFTAjBgkqhkiG9w0B
-# CQQxFgQUayF29spu5TN+v62bAOrcgeEG/3MwDQYJKoZIhvcNAQEBBQAEggEAD2x3
-# CIKOmC1yoGO7PO/BLh5ciUtyQudPBTdhThsEg1ytUM/1+1t4PHtmtP2qHXpogexV
-# idNpI8YY9PKc9FlE1m6o8WzXL5uHrhRETVmNgsT5pacRysjbZ1sw6h5oIvFrVVtR
-# y1rAjrVSqlpgnfoHXG6zzQm757dEWUwPiaU2QQ342N6SsOkvHYeVWgUaNZAR/oOk
-# kg3akmdL5sumuRKeOkSnKsAtvTqvfRDKoCh2U0Yk2MirGRQUT9GohmnlkAI00sKa
-# eX/Q+hoWKETuyarfd1lapoAhA/q9mqHdiOx6uQCxxDjEP5Zmz1nEN6SKmNkG4ktR
-# RfrQBz6nHh4xVuM3Cg==
+# CQQxFgQUqhqN0M4Az6po9u0yKhhoEX9LuFQwDQYJKoZIhvcNAQEBBQAEggEAmUIW
+# +Ukh75vndnVWD0vxPaqgAoXWTcslMUda7QhPC24UqcbfJVA4wqM9OELERYwujkPC
+# yBmHoJntJtvbHzoar37uEmqO2gBjE2Z/f/7yQmz2eU26SBlMCirF5bZnRFOHqnQa
+# gU09hAnZD5j5ird31qrK2EwTNi1jZmsCOd/SwTCEtsElSXsMpdtrqiC1K8BGaEIV
+# BQVvdMz82+PkQj8jPA+4O33qqm5LcHTUhi4dMxPlJ3//4Lh0lFKpxbIzqyXEkSlb
+# H0Hj71sYrnR2tJq23GD4rqH/L1jgrrx0Z0oUBlKlnCLbeeihKiyls6JP6B4O774d
+# Opk99497FtFzslS2Ig==
 # SIG # End signature block
