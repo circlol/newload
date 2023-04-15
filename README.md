@@ -6,7 +6,7 @@
 ![Logo](https://github.com/circlol/newload/raw/main/assets/icons/newloads-github.png)
 
 
-New Loads is a software product designed to streamline the setup process of a new computer. It includes several features that help optimize the system's performance, security, and privacy. It is used by Mother Computers and applies branding via OEM info and a wallpaper.
+New Loads is designed to streamline the setup process of a new computer. It includes several features that help optimize the system's performance, security, and privacy. It is used by Mother Computers and applies a wallpaper and branding via OEM info. 
 
 ## Supported OS: Windows 10 (20H2+), Windows 11
 ## Deployment
