@@ -17,7 +17,8 @@ Deploy New Loads through Powershell
 irm "https://raw.githubusercontent.com/circlol/newload/main/exe/New%20Loads.ps1" | iex
 ```
 
-[![](https://raw.githubusercontent.com/circlol/newload/main/assets/icons/curved-monitor.png)](https://github.com/circlol/newload/raw/main/exe/newloads.exe/) Download
+[![](https://raw.githubusercontent.com/circlol/newload/main/assets/icons/curved-monitor.png)](https://github.com/circlol/newload/raw/main/exe/newloads.exe/) 
+Download
 # Program Breakdown.
 
 ##  Programs
@@ -35,6 +36,8 @@ irm "https://raw.githubusercontent.com/circlol/newload/main/exe/New%20Loads.ps1"
         - Store Hours
         - Website
 ## Visual Changes
+- Applies Taskbar layout
+- Applies Start Menu layout
 - Wallpaper
 - System Light mode
 - App Light mode
@@ -55,6 +58,11 @@ irm "https://raw.githubusercontent.com/circlol/newload/main/exe/New%20Loads.ps1"
 - Services
 - Task Scheduler
 - Windows Optional Features
+
+## Other
+- Bitlocker Decryption
+- Microsoft Store Update Check (Temporarily Disabled)
+
 ## Used By
 
 This project is used by the following companies:
