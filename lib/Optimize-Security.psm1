@@ -12,19 +12,19 @@ Function Optimize-Security() {
 
     Write-Section "Windows Firewall"
     Write-Status -Types "+", $TweakType -Status "Enabling default firewall profiles..."
-    Set-NetFirewallProfile -Profile Domain, Public, Private -Enabled True
+    Use-Command 'Set-NetFirewallProfile -Profile Domain, Public, Private -Enabled True'
 
     Write-Section "Windows Defender"
     Write-Status -Types "?", $TweakType -Status "If you already use another antivirus, nothing will happen." -Warning
     Write-Status -Types "+", $TweakType -Status "Ensuring your Windows Defender is ENABLED..."
     Set-ItemPropertyVerified -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows Defender" -Name "DisableAntiSpyware" -Type DWORD -Value 0
-    Set-MpPreference -DisableRealtimeMonitoring $false -Force
+    Use-Command 'Set-MpPreference -DisableRealtimeMonitoring $false -Force'
 
     Write-Status -Types "+", $TweakType -Status "Enabling Microsoft Defender Exploit Guard network protection..."
-    Set-MpPreference -EnableNetworkProtection Enabled -Force
+    Use-Command 'Set-MpPreference -EnableNetworkProtection Enabled -Force'
 
     Write-Status -Types "+", $TweakType -Status "Enabling detection for potentially unwanted applications and block them..."
-    Set-MpPreference -PUAProtection Enabled -Force
+    Use-Command 'Set-MpPreference -PUAProtection Enabled -Force'
 
     Write-Section "SmartScreen"
     Write-Status -Types "+", $TweakType -Status "Enabling 'SmartScreen' for Microsoft Edge..."
@@ -36,7 +36,7 @@ Function Optimize-Security() {
     Write-Section "Old SMB Protocol"
     # Details: https://techcommunity.microsoft.com/t5/storage-at-microsoft/stop-using-smb1/ba-p/425858
     Write-Status -Types "+", $TweakType -Status "Disabling SMB 1.0 protocol..."
-    Set-SmbServerConfiguration -EnableSMB1Protocol $false -Force
+    Use-Command 'Set-SmbServerConfiguration -EnableSMB1Protocol $false -Force'
 
     Write-Section "Old .NET cryptography"
     # Enable strong cryptography for .NET Framework (version 4 and above) - https://stackoverflow.com/a/47682111

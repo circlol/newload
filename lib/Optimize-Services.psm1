@@ -1,6 +1,6 @@
 Function Optimize-Services{
     $IsSystemDriveSSD = $(Get-OSDriveType) -eq "SSD"
-    $EnableServicesOnSSD = @("SysMain", "WSearch")
+    $EnableServicesOnSSD = @("SysMain", "WSearch",  "fhsvc")
     # Services which will be totally disabled
     $ServicesToDisabled = @(
         "DiagTrack"                                 # DEFAULT: Automatic | Connected User Experiences and Telemetry
@@ -8,7 +8,7 @@ Function Optimize-Services{
         "dmwappushservice"                          # DEFAULT: Manual    | Device Management Wireless Application Protocol (WAP)
         #"BthAvctpSvc"                               # DEFAULT: Manual    | AVCTP Service - This is Audio Video Control Transport Protocol service
         #"Fax"                                       # DEFAULT: Manual    | Fax Service
-        "fhsvc"                                     # DEFAULT: Manual    | Fax History Service
+        #"fhsvc"                                     # DEFAULT: Manual    | File History Service
         "GraphicsPerfSvc"                           # DEFAULT: Manual    | Graphics performance monitor service
         "HomeGroupListener"                         # NOT FOUND (Win 10+)| HomeGroup Listener
         "HomeGroupProvider"                         # NOT FOUND (Win 10+)| HomeGroup Provider
@@ -78,7 +78,7 @@ Function Optimize-Services{
     Write-Title "Services tweaks"
     Write-Section "Disabling services from Windows"
     If ($Revert) {
-        Write-Status -Types "*", "Service" -Status "Reverting the tweaks is set to '$Revert'." -Warning
+        Write-Status -Types "*", "Services" -Status "Reverting the tweaks is set to '$Revert'." -Warning
         Set-ServiceStartup -State 'Manual' -Services $ServicesToDisabled -Filter $EnableServicesOnSSD
     } Else {
         Set-ServiceStartup -State 'Disabled' -Services $ServicesToDisabled -Filter $EnableServicesOnSSD

@@ -4,7 +4,6 @@ function Optimize-TaskScheduler() {
 param (
 [Switch] $Revert
 )
-Set-ScriptCategory -Category "TaskScheduler"
     # Adapted from: https://docs.microsoft.com/en-us/windows-server/remote/remote-desktop-services/rds-vdi-recommendations#task-scheduler
     $DisableScheduledTasks = @(
         "\Microsoft\Office\OfficeTelemetryAgentLogOn"
@@ -40,6 +39,7 @@ $EnableScheduledTasks = @(
     "\Microsoft\Windows\Windows Error Reporting\QueueReporting" # Windows Error Reporting event, needed to improve compatibility with your hardware
 )
 
+$TweakType = "TaskScheduler"
 Write-Title -Text "Task Scheduler tweaks"
 Write-Section -Text "Disabling Scheduled Tasks from Windows"
 

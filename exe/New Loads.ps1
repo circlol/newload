@@ -3,13 +3,16 @@
     [switch]$Global:WhatIf
 )
 $WindowTitle = "New Loads"
-$LogoColor = "Yellow"
+$LogoColor = "Red"
+$Global:BackgroundColor = "Black"
+$Global:ForegroundColor = "Red"
 $host.UI.RawUI.WindowTitle = $WindowTitle
 $host.UI.RawUI.BackgroundColor = 'Black'
 $host.UI.RawUI.ForegroundColor = 'White'
 Add-Type -AssemblyName System.Drawing
 Add-Type -AssemblyName System.Windows.Forms
-New-Variable -Name "ProgramVersion" -Value "2023.1.003" -Scope Global -Force
+New-Variable -Name "ProgramVersion" -Value "2023.1.005" -Scope Global -Force
+New-Variable -Name "ReleaseDate" -Value "May 1st, 2023" -Scope Global -Force
 New-Variable -Name "NewLoadsURL" -Value "https://raw.githubusercontent.com/circlol/newloadsTesting/main/New%20Loads.ps1" -Scope Global -Force
 New-Variable -Name "NewLoadsURLMain" -Value "https://raw.githubusercontent.com/circlol/newloadsTesting/main/" -Scope Global -Force
 Clear-Host
@@ -59,21 +62,15 @@ Function Bootup {
 
     $localPath = ".\assets.psm1"
     $AssetsURL = "https://raw.githubusercontent.com/circlol/newload/main/exe/assets.psm1"
-    # Imports Assets.psm1
-    try { 
-        if (Test-Path $localPath ) {
+    
+    # Check if the file exists in the local path
+    if (Test-Path $localPath) {
         Import-Module $localPath -Force
-        } else { 
-            Invoke-WebRequest $AssetsURL -OutFile $localPath ; Import-Module $localPath -Force 
-            #throw "assets.psm1 is missing. Please acquire this file to continue." }
-        }
-    } catch { 
-        Clear-Host
-        Write-Host "An error occurred while importing assets.psm1: $_"
-        Start-Sleep 4
-        Exit
+    } else {
+        # Download the module from the remote URL and save it to the local path
+        Invoke-WebRequest $AssetsURL -OutFile $localPath
+        Import-Module $localPath -Force
     }
-
 
     # We check the time here so later
     CheckNetworkStatus
@@ -122,7 +119,7 @@ Function ScriptInfo {
     $Logo = "
 
 
-▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀
+▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀
 
 
                     ███╗   ██╗███████╗██╗    ██╗    ██╗      ██████╗  █████╗ ██████╗ ███████╗
@@ -133,15 +130,16 @@ Function ScriptInfo {
                     ╚═╝  ╚═══╝╚══════╝ ╚══╝╚══╝     ╚══════╝ ╚═════╝ ╚═╝  ╚═╝╚═════╝ ╚══════╝
                     
                     
-                                 "
+                        "
     Write-Host $Logo -ForegroundColor $LogoColor -BackgroundColor Black -NoNewline
-    Write-Host "Created by " -NoNewLine -ForegroundColor White -BackgroundColor Black
-    Write-Host "Daddy" -ForegroundColor Red -BackgroundColor Black -NoNewLine
+    Write-Host " Created by " -NoNewLine -ForegroundColor White -BackgroundColor Black
+    Write-Host "Papi" -ForegroundColor Red -BackgroundColor Black -NoNewLine
     Write-Host "      Last Update: " -NoNewLine -ForegroundColor White -BackgroundColor Black
-    Write-Host "$ProgramVersion" -ForegroundColor Green -BackgroundColor Black
-    Write-Host "`n`n                     Strongly Recommended: " -NoNewLine -ForegroundColor White -BackgroundColor Black
-    Write-Host "Update Windows and reboot before using New Loads" -ForegroundColor Red -BackgroundColor Black
-    Write-Host "`n`n▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀`n`n" -ForegroundColor $LogoColor -BackgroundColor Black
+    Write-Host "$ProgramVersion - $ReleaseDate" -ForegroundColor Green -BackgroundColor Black
+    #Write-Host "`n`n                     "
+    Write-Host "`n`n  Notice: " -NoNewLine -ForegroundColor RED -BackgroundColor Black
+    Write-Host "For New Loads to function correctly, it is important to update your system to the latest version of Windows." -ForegroundColor Yellow -BackgroundColor Black
+    Write-Host "`n`n`n▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀`n`n" -ForegroundColor $LogoColor -BackgroundColor Black
     $WindowTitle = "New Loads" ; $host.UI.RawUI.WindowTitle = $WindowTitle
 }
 Function Show-YesNoCancelDialog {
@@ -238,8 +236,8 @@ NewLoads
 # SIG # Begin signature block
 # MIIFeQYJKoZIhvcNAQcCoIIFajCCBWYCAQExCzAJBgUrDgMCGgUAMGkGCisGAQQB
 # gjcCAQSgWzBZMDQGCisGAQQBgjcCAR4wJgIDAQAABBAfzDtgWUsITrck0sYpfvNR
-# AgEAAgEAAgEAAgEAAgEAMCEwCQYFKw4DAhoFAAQUb8V06jKntYCEFT+PJ7of7hzT
-# sMKgggMQMIIDDDCCAfSgAwIBAgIQGopRfa9vUaBNYHxjP9CRADANBgkqhkiG9w0B
+# AgEAAgEAAgEAAgEAAgEAMCEwCQYFKw4DAhoFAAQUzxOrKPAeP7TIdHxTa7hjkLLc
+# OuygggMQMIIDDDCCAfSgAwIBAgIQGopRfa9vUaBNYHxjP9CRADANBgkqhkiG9w0B
 # AQsFADAeMRwwGgYDVQQDDBNOZXcgTG9hZHMgQ29kZSBTaWduMB4XDTIzMDQxMzAx
 # MzgyOVoXDTI0MDQxMzAxNTgyOVowHjEcMBoGA1UEAwwTTmV3IExvYWRzIENvZGUg
 # U2lnbjCCASIwDQYJKoZIhvcNAQEBBQADggEPADCCAQoCggEBAMeESaCCI/aIc/XE
@@ -259,11 +257,11 @@ NewLoads
 # TmV3IExvYWRzIENvZGUgU2lnbgIQGopRfa9vUaBNYHxjP9CRADAJBgUrDgMCGgUA
 # oHgwGAYKKwYBBAGCNwIBDDEKMAigAoAAoQKAADAZBgkqhkiG9w0BCQMxDAYKKwYB
 # BAGCNwIBBDAcBgorBgEEAYI3AgELMQ4wDAYKKwYBBAGCNwIBFTAjBgkqhkiG9w0B
-# CQQxFgQUqhqN0M4Az6po9u0yKhhoEX9LuFQwDQYJKoZIhvcNAQEBBQAEggEAmUIW
-# +Ukh75vndnVWD0vxPaqgAoXWTcslMUda7QhPC24UqcbfJVA4wqM9OELERYwujkPC
-# yBmHoJntJtvbHzoar37uEmqO2gBjE2Z/f/7yQmz2eU26SBlMCirF5bZnRFOHqnQa
-# gU09hAnZD5j5ird31qrK2EwTNi1jZmsCOd/SwTCEtsElSXsMpdtrqiC1K8BGaEIV
-# BQVvdMz82+PkQj8jPA+4O33qqm5LcHTUhi4dMxPlJ3//4Lh0lFKpxbIzqyXEkSlb
-# H0Hj71sYrnR2tJq23GD4rqH/L1jgrrx0Z0oUBlKlnCLbeeihKiyls6JP6B4O774d
-# Opk99497FtFzslS2Ig==
+# CQQxFgQUaDEaPiS4QIeuoMcPpBCFNVGdFaAwDQYJKoZIhvcNAQEBBQAEggEAhujh
+# 9bShpAbtUZ5UCQWxPO5JBbdKocpmtuyaGbiwVRRiJ80BXbGrHk2Xu8j/3+oWveza
+# 11+aOajjhcvJIpCwI8AyPOopX9APPb5r6K+jAc9lLLF0YlM4vPuSOOi8JR9KUTkA
+# ghcbgrK3F8GPn2N3GSCz8lsjavNqvnjQc0RZJxd73Z+5S90lo+JI4LWRAXnApF5r
+# WcEDjCFPNDTAsuws+hSrwQU5NFCk6lwza894rGQBFwjzG/Fo/mA9oMZoIzKphzLW
+# fX4jpxwX7ShMSvqrOERp6Az5zP5xPLpqRo32nQ3bueiVUKXW4gzBZ3+U3SLMhGwr
+# 2SrEWX+0RTJtDNDQxA==
 # SIG # End signature block

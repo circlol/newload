@@ -152,7 +152,7 @@ If (($Revert)) {
 
         Write-Status -Types "*", $TweakType -Status "Returning 'Hung App Timeout' to default..."
         If ((Get-Item "$DesktopRegistryPath").Property -contains "HungAppTimeout") {
-            Remove-ItemProperty -Path "$DesktopRegistryPath" -Name "HungAppTimeout"
+            Remove-Path "$DesktopRegistryPath" -Name "HungAppTimeout"
         }
 
         Write-Status -Types $EnableStatus[1].Symbol, $TweakType -Status "Reducing mouse and keyboard hooks timeout to 1s..."

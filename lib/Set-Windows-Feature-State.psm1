@@ -27,7 +27,8 @@ function Set-OptionalFeatureState {
         [Parameter(Mandatory = $false)]
         [Array] $Filter,
         [Parameter(Mandatory = $false)]
-        [ScriptBlock] $CustomMessage
+        [ScriptBlock] $CustomMessage,
+        [Switch] $WhatIf
     )
 
     $SecurityFilterOnEnable = @("IIS-*")
@@ -58,10 +59,39 @@ function Set-OptionalFeatureState {
                 Write-Status -Types "@", $TweakType -Status (& $CustomMessage)
             }
 
-            if ($Disabled) {
-                $feature | Where-Object State -Like "Enabled" | Disable-WindowsOptionalFeature -Online -NoRestart
-            } elseif ($Enabled) {
-                $feature | Where-Object State -Like "Disabled*" | Enable-WindowsOptionalFeature -Online -NoRestart
+            Try {
+                If ($WhatIf) {
+                    if ($Disabled) {
+                        $feature | Where-Object State -Like "Enabled" | Disable-WindowsOptionalFeature -Online -NoRestart -WhatIf
+                    } elseif ($Enabled) {
+                        $feature | Where-Object State -Like "Disabled*" | Enable-WindowsOptionalFeature -Online -NoRestart -WhatIf
+                    }
+                } else {
+                    if ($Disabled) {
+                        $feature | Where-Object State -Like "Enabled" | Disable-WindowsOptionalFeature -Online -NoRestart
+                    } elseif ($Enabled) {
+                        $feature | Where-Object State -Like "Disabled*" | Enable-WindowsOptionalFeature -Online -NoRestart
+                    }
+                }
+            }catch {
+                $errorMessage = $_.Exception.Message
+                $lineNumber = $_.InvocationInfo.ScriptLineNumber
+                $command = $_.InvocationInfo.Line
+                $errorType = $_.CategoryInfo.Reason
+                $ErrorLog = ".\ErrorLog.txt"
+            
+    $errorString = @"
+    -
+    Time of error: $(Get-Date -Format "yyyy-MM-dd HH:mm:ss")
+    Command run was: $command
+    Reason for error was: $errorType
+    Offending line number: $lineNumber
+    Error Message: $errorMessage
+    -
+"@
+            Add-Content $ErrorLog $errorString
+            Write-Output $_
+            continue
             }
         } else {
             Write-Status -Types "?", $TweakType -Status "The $_ optional feature was not found." -Warning

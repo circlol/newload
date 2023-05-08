@@ -1,5 +1,3 @@
-$Global:BackgroundColor = "Black"
-$Global:ForegroundColor = "DarkCyan"
 
 function Use-Command {
     param (
@@ -9,8 +7,7 @@ function Use-Command {
     
     try {
         Invoke-Expression $Command
-    }
-catch {
+    }catch {
     $errorMessage = $_.Exception.Message
     $lineNumber = $_.InvocationInfo.ScriptLineNumber
     $command = $_.InvocationInfo.Line
@@ -29,7 +26,6 @@ Error Message: $errorMessage
 "@
     Add-Content $ErrorLog $errorString
     Write-Output $_
-    continue
     }
 }
 Function Write-Break(){
@@ -73,6 +69,16 @@ Function Write-CaptionWarning() {
         Write-Host "==" -NoNewline -ForegroundColor Yellow -BackgroundColor $BackgroundColor
         Write-Host "> " -NoNewline -ForegroundColor DarkYellow -BackgroundColor $BackgroundColor
     Write-Host "$Text" -ForegroundColor White -BackgroundColor $BackgroundColor
+}
+Function Write-HostReminder() {
+    [CmdletBinding()]
+    param (
+        [String] $Text = "Example text"
+        )
+        Write-Host "[" -BackgroundColor $BackgroundColor -ForegroundColor $ForegroundColor -NoNewline
+        Write-Host " REMINDER " -BackgroundColor Red -ForegroundColor White -NoNewLine
+        Write-Host "]" -BackgroundColor $BackgroundColor -ForegroundColor $ForegroundColor -NoNewline
+        Write-Host ": $text`n"
 }
 Function Write-Section() {
     [CmdletBinding()]
@@ -300,14 +306,15 @@ Write-Section -Text "Scanning Exisitng Files"
 #        "assets\10_mGaming.png",
 #        "assets\11.png",
 #        "assets\11_mGaming.png",
+#        "assets\Mother_Computers.png"
 $Files = @(        
-    "assets\Mother_Computers.png"
+    "assets\mother.jpg"
     "assets\Microsoft.HEVCVideoExtension_2.0.60091.0_x64__8wekyb3d8bbwe.Appx",
     "assets\start.bin",
     "assets\start2.bin",
-    "bin\vlc-3.0.18-win64.exe"
-    "bin\googlechromestandaloneenterprise64.msi"
-    "bin\ZoomInstallerFull.msi"
+    #"bin\vlc-3.0.18-win64.exe"
+    #"bin\googlechromestandaloneenterprise64.msi"
+    #"bin\ZoomInstallerFull.msi"
     "lib\Set-ItemPropertyVerified.psm1",
     "lib\Set-Scheduled-Task-State.psm1",
     "lib\Set-ServiceStartup.psm1",
@@ -370,30 +377,36 @@ $Files = @(
             Import-Module $_.FullName
             Check
         }
+}
+<#
+ForEach ($url in $URLs){
+    If (Test-Path ".\$url" -Include "*.psm1" -ErrorAction SilentlyContinue) {
+        Write-Status -Types "+","Modules" -Status "Attempting to Import Module: $url"
+        Import-Module -DisableNameChecking ".\$url"
+        Check
     }
-    <#
-    ForEach ($url in $URLs){
-        If (Test-Path ".\$url" -Include "*.psm1" -ErrorAction SilentlyContinue) {
-            Write-Status -Types "+","Modules" -Status "Attempting to Import Module: $url"
-            Import-Module -DisableNameChecking ".\$url"
-            Check
-        }
-    }
-    #>
-Function Set-ScriptCategory() {
+}
+#>
+Function Set-ScriptStatus() {
     param(
-        [String]$Category
+        [String]$TweakType,
+        [String]$Counter,
+        [String]$Section,
+        [String]$Text
     )
-    If (!$TweakType){
-        New-Variable -Name "TweakType" -Value "$Category" -Scope Global
-    } else{
-        Set-Variable -Name 'TweakType' -Value $Category -Scope Global
-    }
-    $WindowTitle = "New Loads - $Category"
+
+    Write-Host ""
+    Write-TitleCounter -Counter $Counter -MaxLength $MaxLength -Text $Text
+
+    If (!$TweakType){ New-Variable -Name "TweakType" -Value "$TweakType" -Scope Global
+    } else{ Set-Variable -Name 'TweakType' -Value $TweakType -Scope Global }
+
+    $WindowTitle = "New Loads - $TweakType"
     $host.UI.RawUI.WindowTitle = $WindowTitle
 }
+# Set-ScriptStatus -TweakType "TweakType" -Counter 1 -Text "Section of Script"
 Function Variables () {
-    New-Variable -Name "newloads" -Value ".\" -Scope Global -Force
+    New-Variable -Name "NewLoads" -Value ".\" -Scope Global -Force
     New-Variable -Name "MaxLength" -Value '12' -Scope Global -Force
     New-Variable -Name "ErrorLog" -Value ".\ErrorLog.txt" -Option ReadOnly -Scope Global -Force
     New-Variable -Name "Log" -Value ".\Log.txt" -Scope Global -Force
@@ -498,26 +511,26 @@ Function Variables () {
     New-Variable -Name "UsersFolder" -Value "{59031a47-3f72-44a7-89c5-5595fe6b30ee}" -Force -Scope Global
     New-Variable -Name "ThisPC" -Value "{20D04FE0-3AEA-1069-A2D8-08002B30309D}" -Force -Scope Global
     New-Variable -Name "livesafe" -Value "$Env:PROGRAMFILES\McAfee\MSC\mcuihost.exe" -Option ReadOnly -Scope Global -Force
-    New-Variable -Name "webadvisor" -Value "$Env:PROGRAMFILES\McAfee\WebAdvisor\Uninstaller.exe" -Option ReadOnly -Scope Global -Force
+    New-Variable -Name "WebAdvisor" -Value "$Env:PROGRAMFILES\McAfee\WebAdvisor\Uninstaller.exe" -Option ReadOnly -Scope Global -Force
     New-Variable -Name "WildGames" -Value "${Env:PROGRAMFILES(x86)}\WildGames\Uninstall.exe" -Option ReadOnly -Scope Global -Force
     New-Variable -Name "EdgeShortcut" -Value "$Env:USERPROFILE\Desktop\Microsoft Edge.lnk" -Option ReadOnly -Scope Global -Force
-    New-Variable -Name "acrosc" -Value "$Env:PUBLIC\Desktop\Adobe Acrobat DC.lnk" -Option ReadOnly -Scope Global -Force
-    New-Variable -Name "edgescpub" -Value "$Env:PUBLIC\Desktop\Microsoft Edge.lnk" -Option ReadOnly -Scope Global -Force
-    New-Variable -Name "vlcsc" -Value "$Env:PUBLIC\Desktop\VLC Media Player.lnk" -Option ReadOnly -Scope Global -Force
-    New-Variable -Name "zoomsc" -Value "$Env:PUBLIC\Desktop\Zoom.lnk" -Option ReadOnly -Scope Global -Force
-    New-Variable -Name "commonapps" -Value "$env:ALLUSERSPROFILE\Microsoft\Windows\Start Menu\Programs" -Option ReadOnly -Scope Global -Force
+    New-Variable -Name "AcroSC" -Value "$Env:PUBLIC\Desktop\Adobe Acrobat DC.lnk" -Option ReadOnly -Scope Global -Force
+    New-Variable -Name "EdgeSCPub" -Value "$Env:PUBLIC\Desktop\Microsoft Edge.lnk" -Option ReadOnly -Scope Global -Force
+    New-Variable -Name "VLCSC" -Value "$Env:PUBLIC\Desktop\VLC Media Player.lnk" -Option ReadOnly -Scope Global -Force
+    New-Variable -Name "ZoomSC" -Value "$Env:PUBLIC\Desktop\Zoom.lnk" -Option ReadOnly -Scope Global -Force
+    New-Variable -Name "CommonApps" -Value "$env:ALLUSERSPROFILE\Microsoft\Windows\Start Menu\Programs" -Option ReadOnly -Scope Global -Force
     #Wallpaper
-    New-Variable -Name "wallpaper" -Value "$env:appdata\Microsoft\Windows\Themes\MotherComputersWallpaper.jpg" -Option ReadOnly -Scope Global -Force
-    New-Variable -Name "WallpaperDestination" -Value "$Env:Appdata\Microsoft\Windows\Themes\MotherComputersWallpaper.jpg" -Scope Global -Force
-    New-Variable -Name "currentwallpaper" -Value (Get-ItemProperty -Path "HKCU:\Control Panel\Desktop" -Name Wallpaper).Wallpaper -Option ReadOnly -Scope Global -Force
+    #New-Variable -Name "Wallpaper" -Value "$env:appdata\Microsoft\Windows\Themes\MotherComputersWallpaper.jpg" -Option ReadOnly -Scope Global -Force
+    New-Variable -Name "WallpaperDestination" -Value "$Env:Appdata\Microsoft\Windows\Themes\mother.jpg" -Scope Global -Force
+    New-Variable -Name "CurrentWallpaper" -Value (Get-ItemProperty -Path "HKCU:\Control Panel\Desktop" -Name Wallpaper).Wallpaper -Option ReadOnly -Scope Global -Force
     New-Variable -Name "sysmode" -Value (Get-ItemProperty -Path HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Themes\Personalize -Name SystemUsesLightTheme).SystemUsesLightTheme -Option ReadOnly -Scope Global -Force
     New-Variable -Name "appmode" -Value (Get-ItemProperty -Path HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Themes\Personalize -Name AppsUseLightTheme).AppsUseLightTheme -Option ReadOnly -Scope Global -Force
     #Office Removal
     New-Variable -Name "PathToOffice86" -Value "C:\Program Files (x86)\Microsoft Office" -Option ReadOnly -Scope Global -Force
     New-Variable -Name "PathToOffice64" -Value "C:\Program Files\Microsoft Office 15" -Option ReadOnly -Scope Global -Force
-    New-Variable -Name "officecheck" -Value "$false" -Option ReadOnly -Scope Global -Force
-    New-Variable -Name "office32" -Value "$false" -Option ReadOnly -Scope Global -Force
-    New-Variable -Name "office64" -Value "$false" -Option ReadOnly -Scope Global -Force
+    New-Variable -Name "OfficeCheck" -Value "$false" -Option ReadOnly -Scope Global -Force
+    New-Variable -Name "Office32" -Value "$false" -Option ReadOnly -Scope Global -Force
+    New-Variable -Name "Office64" -Value "$false" -Option ReadOnly -Scope Global -Force
     New-Variable -Name "SaRA" -Value "$newloads\SaRA.zip" -Option ReadOnly -Scope Global -Force
     New-Variable -Name "Sexp" -Value "$newloads\SaRA" -Option ReadOnly -Scope Global -Force
     #Reg
@@ -526,13 +539,13 @@ Function Variables () {
     New-Variable -Name "siufrules" -Value "HKCU:\Software\Microsoft\Siuf\Rules" -Option ReadOnly -Scope Global -Force
     New-Variable -Name "lfsvc" -Value "HKLM:\SYSTEM\CurrentControlSet\Services\lfsvc\Service\Configuration" -Option ReadOnly -Scope Global -Force
     New-Variable -Name "PathToWifiSense" -Value "HKLM:\Software\Microsoft\PolicyManager\default\WiFi" -Option ReadOnly -Scope Global -Force
-    New-Variable -Name "regcam" -Value "HKLM:\Software\Microsoft\Windows\CurrentVersion\CapabilityAccessManager\ConsentStore\location" -Option ReadOnly -Scope Global -Force
-    New-Variable -Name "website" -Value "https://www.mothercomputers.com" -Option ReadOnly -Scope Global -Force
-    New-Variable -Name "hours" -Value "Monday - Saturday 9AM-5PM | Sunday - Closed"  -Option ReadOnly -Scope Global -Force
-    New-Variable -Name "phone" -Value "(250) 479-8561" -Option ReadOnly -Scope Global -Force
-    New-Variable -Name "store" -Value "Mother Computers" -Option ReadOnly -Scope Global -Force
-    New-Variable -Name "model" -Value "Mother Computers - (250) 479-8561" -Option ReadOnly -Scope Global -Force
-    New-Variable -Name "page" -Value "Model" -Option ReadOnly -Scope Global -Force
+    New-Variable -Name "RegCAM" -Value "HKLM:\Software\Microsoft\Windows\CurrentVersion\CapabilityAccessManager\ConsentStore\location" -Option ReadOnly -Scope Global -Force
+    New-Variable -Name "Website" -Value "https://www.mothercomputers.com" -Option ReadOnly -Scope Global -Force
+    New-Variable -Name "Hours" -Value "Monday - Saturday 9AM-5PM | Sunday - Closed"  -Option ReadOnly -Scope Global -Force
+    New-Variable -Name "Phone" -Value "(250) 479-8561" -Option ReadOnly -Scope Global -Force
+    New-Variable -Name "Store" -Value "Mother Computers" -Option ReadOnly -Scope Global -Force
+    New-Variable -Name "Model" -Value "Mother Computers - (250) 479-8561" -Option ReadOnly -Scope Global -Force
+    New-Variable -Name "Page" -Value "Model" -Option ReadOnly -Scope Global -Force
     New-Variable -Name "TimeoutScreenBattery" -Value 5 -Force -Scope Global
     New-Variable -Name "TimeoutScreenPluggedIn" -Value 10 -Force -Scope Global
     New-Variable -Name "TimeoutStandByBattery" -Value 15 -Force -Scope Global
@@ -595,8 +608,8 @@ Write-Break ; Write-Caption -Text "This is a Test Message" ; Write-CaptionFailed
 # SIG # Begin signature block
 # MIIFeQYJKoZIhvcNAQcCoIIFajCCBWYCAQExCzAJBgUrDgMCGgUAMGkGCisGAQQB
 # gjcCAQSgWzBZMDQGCisGAQQBgjcCAR4wJgIDAQAABBAfzDtgWUsITrck0sYpfvNR
-# AgEAAgEAAgEAAgEAAgEAMCEwCQYFKw4DAhoFAAQU/pioNkjxr5cW9SGJpr0GNo/M
-# uHigggMQMIIDDDCCAfSgAwIBAgIQGopRfa9vUaBNYHxjP9CRADANBgkqhkiG9w0B
+# AgEAAgEAAgEAAgEAAgEAMCEwCQYFKw4DAhoFAAQUOY172RFYnZ40nBWSlxo4VWeC
+# rMSgggMQMIIDDDCCAfSgAwIBAgIQGopRfa9vUaBNYHxjP9CRADANBgkqhkiG9w0B
 # AQsFADAeMRwwGgYDVQQDDBNOZXcgTG9hZHMgQ29kZSBTaWduMB4XDTIzMDQxMzAx
 # MzgyOVoXDTI0MDQxMzAxNTgyOVowHjEcMBoGA1UEAwwTTmV3IExvYWRzIENvZGUg
 # U2lnbjCCASIwDQYJKoZIhvcNAQEBBQADggEPADCCAQoCggEBAMeESaCCI/aIc/XE
@@ -616,11 +629,11 @@ Write-Break ; Write-Caption -Text "This is a Test Message" ; Write-CaptionFailed
 # TmV3IExvYWRzIENvZGUgU2lnbgIQGopRfa9vUaBNYHxjP9CRADAJBgUrDgMCGgUA
 # oHgwGAYKKwYBBAGCNwIBDDEKMAigAoAAoQKAADAZBgkqhkiG9w0BCQMxDAYKKwYB
 # BAGCNwIBBDAcBgorBgEEAYI3AgELMQ4wDAYKKwYBBAGCNwIBFTAjBgkqhkiG9w0B
-# CQQxFgQU55Qs9ZRcdsBPskVVD6TPbHpL1B8wDQYJKoZIhvcNAQEBBQAEggEAfOgA
-# Otavk5I2PUGnR57Zo15PabkCNlhX3EAoeei6XMokFMmqDptDFKs5XS9381bf8LjT
-# +3OXrx/83Nuld8ekEI1a2XUoNS5+0zSruqzE7yubGP0XVNyYUm2qcqUQ2I45oA0G
-# umpF/oofRKXXn1B2nxggxMNqCI8TmH+99NNggdU2ZpEF858KJlFTO52//z2pmqIo
-# bZaTOBoy2+sfbUfUEKof4+qP9Pk7d93VK6nmTnS2uywcJr4UjHsm2VA4FjLWZLfg
-# n7zNyNgyx0KnLTiXTJQCGz1bn/mD/RpsPequSnbhwbCL6T+VCiiYBbUrjPmRw2wd
-# BwleTG5hC/0PmG6ONQ==
+# CQQxFgQU9QiJv4vtSAcnp9D2/1dgzxm0TD4wDQYJKoZIhvcNAQEBBQAEggEADdsC
+# L7WAV9JWoIg/DNe2KJ/Btrea2e0c2bhP79YQHKzxP2AsG+LZLoOrbMS0SWoHFvdi
+# JtY8Bws20/ehNqKhnvVbppVyBHT703pa/vQbjAUUp/OpTKhvNukiuUUzGI9PLHx1
+# HeLUmMT8KNmB+QS6ahXsApvKOUmSf9KzQ0YsYhCooS2Kbu99+sMZl8DhDgumjrTD
+# /iVvc4Xy54ccr7XEd3krg0nP9zPPdRg8BD6N7F7F2Jb9wqHoDDtXpanvyWjMwyWI
+# 5SmwKsnmk3BRKRUgUFFOn57ZTEELClSDA94tO0t21Rs+kyCe9hV96GdPs5lU2ZvU
+# gRnR0S7FoBfW9jIbRA==
 # SIG # End signature block

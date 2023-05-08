@@ -1,0 +1,56 @@
+# #####################################################
+
+# - New Loads Changelog v2023.1.005
+
+# #####################################################
+#
+# - Set wallpaper changed
+# - Changed activation to be to be hosted online rather than in exe
+# - Added Use-Command for streamlined error handling
+#   - Converted Scripts and Modules to use this
+#   - This will allow error handling to be streamlined
+# - Added currently unused Get-DisplayResolution function
+# - Added Find-InstalledPrograms
+# - 
+# - Modified Set-ItemPropertiesVerified.psm1 to include better error handling with log output
+# - Modified Set-Scheduled-Task-State.psm1 to include better error handling with log output
+# - Modified Set-ServiceStartup.psm1 to include better error handling with log output
+# - Modified Set-Windows-Feature-State.psm1 to include better error handling with log output
+# - Added an array and check for both Log and Error.txt passthrough as an attachemnt in function EmailLog
+# -
+# - 
+# - Removed Function OOS10
+# - Start.bin section for Win11 has been updated
+# - Temporarily disabled Microsoft Store Check for Updates 
+# - Visuals function modified to set System Theme to Light Mode
+# - Updated wallpaper file and corresponding code
+# - Removed 10.jpg, 11.png
+
+# - Moved Chrome installer onto GitHub
+# - Moved VLC installer onto GitHub
+# - Moved Zoom installer onto GitHub
+
+# - Removed some packages from Debloat:
+#  - "AD2F1837.HPSupportAssistant"                          # HP Support Assistant
+#  - "AD2F1837.HPPrinterControl"                            # HP Printer Control
+#  - "AD2F1837.HPQuickDrop"                                 # HP Quick Drop
+#  - "AD2F1837.HPSystemEventUtility"                        # HP System Event Utility
+#  - "SAMSUNGELECTRONICSCO.LTD.1412377A9806A"               # Samsung ---
+#  - "SAMSUNGELECTRONICSCO.LTD.NewVoiceNote"                # Samsung Voice
+#  - "SAMSUNGELECTRONICSCO.LTD.SamsungWelcome"              # Samsung Welcome
+#  - "SAMSUNGELECTRONICSCO.LTD.SamsungUpdate"               # Samsung Update
+#  - "SAMSUNGELECTRONICSCO.LTD.SamsungSecurity1.2"          # Samsung Security
+#  - "SAMSUNGELECTRONICSCO.LTD.SamsungScreenRecording"      # Samsung Screen Recording
+#  - "SAMSUNGELECTRONICSCO.LTD.SamsungQuickSearch"          # Samsung Quick Search
+#  - "SAMSUNGELECTRONICSCO.LTD.SamsungPCCleaner"            # Samsung PC Cleaner
+#  - "SAMSUNGELECTRONICSCO.LTD.SamsungCloudBluetoothSync"   # Samsung Cloud Bluetooth Sync
+#  - "SAMSUNGELECTRONICSCO.LTD.OnlineSupportSService"       # Samsung Online Support Services
+# - 
+# - Added some packages to debloat
+#  - "142F4566A.147190D3DE79"                               # Pinterest
+#  - "Microsoft.549981C3F5F10"                              # Cortana
+# - 
+# - 
+# - 
+# - 
+# - 

@@ -80,8 +80,7 @@ If ($osVersion -like "*10*") {
 }else {
     # code for other operating systems
     # Check Windows version
-    Throw{"
-    Don't know what happened. Closing" ; exit}
+    Throw{"Don't know what happened. Closing"}
 }
 
     Write-Section -Text "Explorer Related"
