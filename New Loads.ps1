@@ -122,7 +122,7 @@ Function Visuals() {
     Write-Status -Types "+", $TweakType -Status "Applying Wallpaper"
     Write-HostReminder "Wallpaper may not apply until computer is Restarted"
     New-Variable -Name "WallpaperPath" -Value ".\assets\mother.jpg" -Scope Global -Force
-    Use-Command "Copy-Item -Path $WallpaperPath -Destination $wallpaperDestination -Force"
+    Use-Command "Copy-Item -Path `"$WallpaperPath`" -Destination `"$wallpaperDestination`" -Force"
     Set-ItemPropertyVerified -Path "HKCU:\Control Panel\Desktop" -Name WallpaperStyle -Value '2' -Type String
     Set-ItemPropertyVerified -Path "HKCU:\Control Panel\Desktop" -Name Wallpaper -Value $wallpaperDestination -Type String
     Set-ItemPropertyVerified -Path $PathToRegPersonalize -Name "SystemUsesLightTheme" -Value 1 -Type DWord
