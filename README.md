@@ -8,9 +8,6 @@ New Loads is designed to be a complete and hassle free Windows 10 & 11 setup uti
 
 # ![](https://raw.githubusercontent.com/circlol/newload/main/icon/curved-monitor_result%2064x64.png) **New Loads Overview**
 
-<details>
-  <summary>Click to expand</summary>
-
 - **Program Installation** (Chrome, VLC, Acrobat, Zoom)
 
   [^]: Use switch parameter -SkipProgramInstall to skip this section
@@ -37,7 +34,7 @@ New Loads is designed to be a complete and hassle free Windows 10 & 11 setup uti
   - Task Scheduler
   - Windows Optional Features 
 
-</details>
+
 
 
 
@@ -260,79 +257,82 @@ irm "https://raw.githubusercontent.com/circlol/newload/main/exe/New%20Loads.ps1"
   [^]: Uses Microsoft SaRACmd to remove Office
 
 - [General tweaks](https://github.com/circlol/newloadsTesting/blob/48d061e9e1352ad0cebe9d7b2dc0dbbcc0f20514/lib/scripts/GeneralTweaks.psm1#L1) does things like removes chat, cortana from the taskbar and changes search into an icon, expands explorer ribbon, enables compact view, ect. General Tweaks
+
 - [Performance tweaks](https://github.com/circlol/newloadsTesting/blob/48d061e9e1352ad0cebe9d7b2dc0dbbcc0f20514/lib/scripts/Performance.psm1#L1) sets a few things to the max, for example games/multimedia usage set to 100%, enables hardware accelerated gpu scheduling, and more.
+
 - [Privacy tweaks](https://github.com/circlol/newloadsTesting/blob/48d061e9e1352ad0cebe9d7b2dc0dbbcc0f20514/lib/scripts/Privacy.psm1#L2) disables a surprisingly large amount of tracking and telemetry.
+
 - [Security tweaks](https://github.com/circlol/newloadsTesting/blob/48d061e9e1352ad0cebe9d7b2dc0dbbcc0f20514/lib/scripts/Security.psm1#L2) applies various patches and exploit protections
+
 - [Services](https://github.com/circlol/newloadsTesting/blob/48d061e9e1352ad0cebe9d7b2dc0dbbcc0f20514/lib/scripts/Services.psm1#L1C10-L1C18) are optimized - listed below are all the services that are disabled
 
-<details>
-<summary>Services changed</summary>
+  <details>
+  <summary>Services changed</summary>
 
-  Disabled
+  ​      Disabled
 
-```
-"DiagTrack"			# DEFAULT: Automatic | Connected User Experiences and Telemetry
-"diagnosticshub.standardcollector.service"  # DEFAULT: Manual    | Microsoft (R) Diagnostics Hub Standard Collector Service
-"dmwappushservice"  # DEFAULT: Manual    | Device Management Wireless Application Protocol (WAP)
-"GraphicsPerfSvc"   # DEFAULT: Manual    | Graphics performance monitor service
-"HomeGroupListener" # NOT FOUND (Win 10+)| HomeGroup Listener
-"HomeGroupProvider" # NOT FOUND (Win 10+)| HomeGroup Provider
-"lfsvc"         # DEFAULT: Manual    | Geolocation Service
-"MapsBroker"    # DEFAULT: Automatic | Downloaded Maps Manager
-"PcaSvc"        # DEFAULT: Automatic | Program Compatibility Assistant (PCA)
-"RemoteAccess"  # DEFAULT: Disabled  | Routing and Remote Access
-"RemoteRegistry"# DEFAULT: Disabled  | Remote Registry
-"RetailDemo"    # DEFAULT: Manual    | The Retail Demo Service controls device activity while the device is in retail demo mode.
-"TrkWks"        # DEFAULT: Automatic | Distributed Link Tracking Client
-"WSearch"       # DEFAULT: Automatic | Windows Search (100% Disk usage on HDDs)
-"NPSMSvc_df772"
-"LanmanServer"	
-```
+  ```
+  "DiagTrack"			# DEFAULT: Automatic | Connected User Experiences and Telemetry
+  "diagnosticshub.standardcollector.service"  # DEFAULT: Manual    | Microsoft (R) Diagnostics Hub Standard Collector Service
+  "dmwappushservice"  # DEFAULT: Manual    | Device Management Wireless Application Protocol (WAP)
+  "GraphicsPerfSvc"   # DEFAULT: Manual    | Graphics performance monitor service
+  "HomeGroupListener" # NOT FOUND (Win 10+)| HomeGroup Listener
+  "HomeGroupProvider" # NOT FOUND (Win 10+)| HomeGroup Provider
+  "lfsvc"         # DEFAULT: Manual    | Geolocation Service
+  "MapsBroker"    # DEFAULT: Automatic | Downloaded Maps Manager
+  "PcaSvc"        # DEFAULT: Automatic | Program Compatibility Assistant (PCA)
+  "RemoteAccess"  # DEFAULT: Disabled  | Routing and Remote Access
+  "RemoteRegistry"# DEFAULT: Disabled  | Remote Registry
+  "RetailDemo"    # DEFAULT: Manual    | The Retail Demo Service controls device activity while the device is in retail demo mode.
+  "TrkWks"        # DEFAULT: Automatic | Distributed Link Tracking Client
+  "WSearch"       # DEFAULT: Automatic | Windows Search (100% Disk usage on HDDs)
+  "NPSMSvc_df772"
+  "LanmanServer"	
+  ```
 
-Manual
+  Manual
 
-```
+  ```
+  "BITS"                           # DEFAULT: Manual    | Background Intelligent Transfer Service
+  "BDESVC"                         # DEFAULT: Manual    | BItLocker Drive Encryption Service
+  "edgeupdate"                     # DEFAULT: Automatic | Microsoft Edge Update Service
+  "edgeupdatem"                    # DEFAULT: Manual    | Microsoft Edge Update Service²
+  "FontCache"                      # DEFAULT: Automatic | Windows Font Cache
+  "iphlpsvc"                       # DEFAULT: Automatic | IP Helper Service (IPv6 (6to4, ISATAP, Port Proxy and Teredo) and IP-HTTPS)
+  "lmhosts"                        # DEFAULT: Manual    | TCP/IP NetBIOS Helper
+  "ndu"                            # DEFAULT: Automatic | Windows Network Data Usage Monitoring Driver (Shows network usage per-process on Task Manager)
+  "PhoneSvc"                       # DEFAULT: Manual    | Phone Service (Manages the telephony state on the device)
+  "SCardSvr"                       # DEFAULT: Manual    | Smart Card Service
+  "SharedAccess"                   # DEFAULT: Manual    | Internet Connection Sharing (ICS)
+  "stisvc"                         # DEFAULT: Automatic | Windows Image Acquisition (WIA) Service
+  "WbioSrvc"                       # DEFAULT: Manual    | Windows Biometric Service (required for Fingerprint reader / Facial detection)
+  "Wecsvc"                         # DEFAULT: Manual    | Windows Event Collector Service
+  "WerSvc"                         # DEFAULT: Manual    | Windows Error Reporting Service
+  "wisvc"                          # DEFAULT: Manual    | Windows Insider Program Service
+  "WMPNetworkSvc"                  # DEFAULT: Manual    | Windows Media Player Network Sharing Service
+  "WpnService"                     # DEFAULT: Automatic | Windows Push Notification Services (WNS)
+  # - Diagnostic Services
+  "DPS"                            # DEFAULT: Automatic | Diagnostic Policy Service
+  "WdiServiceHost"                 # DEFAULT: Manual    | Diagnostic Service Host
+  "WdiSystemHost"                  # DEFAULT: Manual    | Diagnostic System Host
+  # - Bluetooth services
+  "BTAGService"                    # DEFAULT: Manual    | Bluetooth Audio Gateway Service
+  "BthAvctpSvc"                    # DEFAULT: Manual    | AVCTP Service
+  "bthserv"                        # DEFAULT: Manual    | Bluetooth Support Service
+  "RtkBtManServ"                   # DEFAULT: Automatic | Realtek Bluetooth Device Manager Service
+  # - Xbox services
+  "XblAuthManager"                 # DEFAULT: Manual    | Xbox Live Auth Manager
+  "XblGameSave"                    # DEFAULT: Manual    | Xbox Live Game Save
+  "XboxGipSvc"                     # DEFAULT: Manual    | Xbox Accessory Management Service
+  "XboxNetApiSvc"                  # DEFAULT: Manual    | Xbox Live Networking Service
+  # - 3rd Party Services
+  "gupdate"                        # DEFAULT: Automatic | Google Update Service
+  "gupdatem"                       # DEFAULT: Manual    | Google Update Service²
+  "DisplayEnhancementService"      # DEFAULT: Manual    | A service for managing display enhancement such as brightness control.
+  "DispBrokerDesktopSvc"           # DEFAULT: Automatic | Manages the connection and configuration of local and remote displays
+  ```
 
-"BITS"                           # DEFAULT: Manual    | Background Intelligent Transfer Service
-"BDESVC"                         # DEFAULT: Manual    | BItLocker Drive Encryption Service
-"edgeupdate"                     # DEFAULT: Automatic | Microsoft Edge Update Service
-"edgeupdatem"                    # DEFAULT: Manual    | Microsoft Edge Update Service²
-"FontCache"                      # DEFAULT: Automatic | Windows Font Cache
-"iphlpsvc"                       # DEFAULT: Automatic | IP Helper Service (IPv6 (6to4, ISATAP, Port Proxy and Teredo) and IP-HTTPS)
-"lmhosts"                        # DEFAULT: Manual    | TCP/IP NetBIOS Helper
-"ndu"                            # DEFAULT: Automatic | Windows Network Data Usage Monitoring Driver (Shows network usage per-process on Task Manager)
-"PhoneSvc"                       # DEFAULT: Manual    | Phone Service (Manages the telephony state on the device)
-"SCardSvr"                       # DEFAULT: Manual    | Smart Card Service
-"SharedAccess"                   # DEFAULT: Manual    | Internet Connection Sharing (ICS)
-"stisvc"                         # DEFAULT: Automatic | Windows Image Acquisition (WIA) Service
-"WbioSrvc"                       # DEFAULT: Manual    | Windows Biometric Service (required for Fingerprint reader / Facial detection)
-"Wecsvc"                         # DEFAULT: Manual    | Windows Event Collector Service
-"WerSvc"                         # DEFAULT: Manual    | Windows Error Reporting Service
-"wisvc"                          # DEFAULT: Manual    | Windows Insider Program Service
-"WMPNetworkSvc"                  # DEFAULT: Manual    | Windows Media Player Network Sharing Service
-"WpnService"                     # DEFAULT: Automatic | Windows Push Notification Services (WNS)
-# - Diagnostic Services
-"DPS"                            # DEFAULT: Automatic | Diagnostic Policy Service
-"WdiServiceHost"                 # DEFAULT: Manual    | Diagnostic Service Host
-"WdiSystemHost"                  # DEFAULT: Manual    | Diagnostic System Host
-# - Bluetooth services
-"BTAGService"                    # DEFAULT: Manual    | Bluetooth Audio Gateway Service
-"BthAvctpSvc"                    # DEFAULT: Manual    | AVCTP Service
-"bthserv"                        # DEFAULT: Manual    | Bluetooth Support Service
-"RtkBtManServ"                   # DEFAULT: Automatic | Realtek Bluetooth Device Manager Service
-# - Xbox services
-"XblAuthManager"                 # DEFAULT: Manual    | Xbox Live Auth Manager
-"XblGameSave"                    # DEFAULT: Manual    | Xbox Live Game Save
-"XboxGipSvc"                     # DEFAULT: Manual    | Xbox Accessory Management Service
-"XboxNetApiSvc"                  # DEFAULT: Manual    | Xbox Live Networking Service
-# - 3rd Party Services
-"gupdate"                        # DEFAULT: Automatic | Google Update Service
-"gupdatem"                       # DEFAULT: Manual    | Google Update Service²
-"DisplayEnhancementService"      # DEFAULT: Manual    | A service for managing display enhancement such as brightness control.
-"DispBrokerDesktopSvc"           # DEFAULT: Automatic | Manages the connection and configuration of local and remote displays
-```
-
-</details>
+​	</details>
 
 - Changes to the [task scheduler](https://github.com/circlol/newloadsTesting/blob/48d061e9e1352ad0cebe9d7b2dc0dbbcc0f20514/lib/scripts/TaskScheduler.psm1#L2) are mostly tracking related but are also listed below
 
