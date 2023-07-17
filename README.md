@@ -404,6 +404,8 @@ irm "https://raw.githubusercontent.com/circlol/newload/main/exe/New%20Loads.ps1"
 
 </details>
 
+</details>
+
 ## Documentation
 
 [Documentation](https://linktodocumentation)
