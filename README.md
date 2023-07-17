@@ -6,7 +6,7 @@
 ![Logo](https://github.com/circlol/newload/raw/main/assets/icons/newloads-github.png)
 
 
-New Loads is designed to streamline the setup process of a new computer. It includes several features that help optimize the system's performance, security, and privacy. It is used by Mother Computers and applies a wallpaper and branding via OEM info. 
+New Loads is designed to streamline the setup process of a new computer. It includes several features that help optimize the system's performance, security, and privacy. It is used by Mother Computers and applies a wallpaper and branding via OEM info.
 
 ## Supported OS: Windows 10 (20H2+), Windows 11
 ## Deployment
@@ -17,8 +17,8 @@ Deploy New Loads through Powershell
 irm "https://raw.githubusercontent.com/circlol/newload/main/exe/New%20Loads.ps1" | iex
 ```
 
-[![](https://raw.githubusercontent.com/circlol/newload/main/assets/icons/curved-monitor.png)](https://github.com/circlol/newload/raw/main/exe/newloads.exe/) 
-Download
+[![](https://raw.githubusercontent.com/circlol/newload/main/assets/icons/curved-monitor.png)](https://github.com/circlol/newload/raw/main/exe/newloads.exe/)
+
 # Program Breakdown.
 
 ##  Programs
