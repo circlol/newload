@@ -121,9 +121,6 @@ irm "https://raw.githubusercontent.com/circlol/newload/main/exe/New%20Loads.ps1"
 - All Variables are imported from function [Import-Variables](https://github.com/circlol/newloadsTesting/blob/48d061e9e1352ad0cebe9d7b2dc0dbbcc0f20514/exe/New%20Loads.ps1#L319) 
 - [Assets](https://github.com/circlol/newloadsTesting/blob/48d061e9e1352ad0cebe9d7b2dc0dbbcc0f20514/exe/New%20Loads.ps1#L669) are acquired and imported
 
-<details>
-  <summary>Click to Expand</summary>
-
 **_Also applies to pressing start in GUI_**
 
 - [Get-Programs](https://github.com/circlol/newloadsTesting/blob/73f06a02cbc738639a279486f7dbbbc2c3e039ce/lib/scripts/Programs.psm1#L1) downloads Google Chrome, VLC Media Player, Acrobat Reader, and Zoom
