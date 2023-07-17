@@ -103,11 +103,15 @@ irm "https://raw.githubusercontent.com/circlol/newload/main/exe/New%20Loads.ps1"
 
 `& .\New Loads.exe -GUI` : Initiates New Loads with basic GUI
 
-`& .\New Loads.exe -NoADW` : Skips Malwarebytes ADWCleaner scan
-
 `& .\New Loads.exe -NoBranding` : Skips branding and visuals sections of the script
 
-`& .\New Loads.exe -NoPrograms` : Skips installing programs
+`& .\New Loads.exe -SkipADW` : Skips Malwarebytes ADWCleaner scan
+
+`& .\New Loads.exe -SkipBitlocker` : Skips disabling bitlocker
+
+`& .\New Loads.exe -SkipPrograms` : Skips installing programs
+
+
 
 
 
@@ -127,13 +131,15 @@ irm "https://raw.githubusercontent.com/circlol/newload/main/exe/New%20Loads.ps1"
 
 - [Get-Programs](https://github.com/circlol/newloadsTesting/blob/73f06a02cbc738639a279486f7dbbbc2c3e039ce/lib/scripts/Programs.psm1#L1) downloads Google Chrome, VLC Media Player, Acrobat Reader, and Zoom
 
-- Set-Visuals applies a wallpaper, sets to stretch and changes system to light mode
+  [^]: Use -SkipPrograms to skip installing these apps.
 
-- Set-Branding sets Mother Computer's support info     _Seen in Settings -> About Your PC_
+- [Set-Visuals](https://github.com/circlol/newloadsTesting/blob/48d061e9e1352ad0cebe9d7b2dc0dbbcc0f20514/lib/scripts/Visuals.psm1#L1) applies a wallpaper, sets to stretch and changes system to light mode
 
-- Set-StartMenu applies a taskbar layout then a  custom start menu layout in 11 and clears pinned tiles in 10. 
+- [Set-Branding](https://github.com/circlol/newloadsTesting/blob/48d061e9e1352ad0cebe9d7b2dc0dbbcc0f20514/lib/scripts/Branding.psm1#L1) sets Mother Computer's support info     _Seen in Settings -> About Your PC_
 
-- Debloat checks common Win32 Programs, UWP bloat, Start Menu Ads (Internet Shortcuts) and removes them
+- [Set-StartMenu](https://github.com/circlol/newloadsTesting/blob/48d061e9e1352ad0cebe9d7b2dc0dbbcc0f20514/lib/scripts/StartMenu.psm1#L1) applies a taskbar layout then a  custom start menu layout in 11 and clears pinned tiles in 10. 
+
+- [Debloat](https://github.com/circlol/newloadsTesting/blob/48d061e9e1352ad0cebe9d7b2dc0dbbcc0f20514/lib/scripts/Debloat.psm1#L1) checks common Win32 Programs, UWP bloat, Start Menu Ads (Internet Shortcuts) and removes them
 
   <details>
     <summary>Click to Expand for a list of Debloat Apps</summary>
@@ -249,15 +255,15 @@ irm "https://raw.githubusercontent.com/circlol/newload/main/exe/New%20Loads.ps1"
 
   
 
-- Get-Office checks for any installed version of Office and prompts user for removal
+- [Get-Office](https://github.com/circlol/newloadsTesting/blob/48d061e9e1352ad0cebe9d7b2dc0dbbcc0f20514/lib/scripts/Office.psm1#L1) checks for any installed version of Office and prompts user for removal
 
-  [^Uses Microsoft SaRACmd to remove Office]: 
+  [^]: Uses Microsoft SaRACmd to remove Office
 
-- General tweaks does things like removes chat, cortana from the taskbar and changes search into an icon, expands explorer ribbon, enables compact view, ect. General Tweaks
-- Performance tweaks sets a few things to the max, for example games/multimedia usage set to 100%, enables hardware accelerated gpu scheduling, and more.
-- Privacy tweaks disables a surprisingly large amount of tracking and telemetry.
-- Security tweaks applies various patches and exploit protections
-- Services are optimized - listed below are all the services that are disabled
+- [General tweaks](https://github.com/circlol/newloadsTesting/blob/48d061e9e1352ad0cebe9d7b2dc0dbbcc0f20514/lib/scripts/GeneralTweaks.psm1#L1) does things like removes chat, cortana from the taskbar and changes search into an icon, expands explorer ribbon, enables compact view, ect. General Tweaks
+- [Performance tweaks](https://github.com/circlol/newloadsTesting/blob/48d061e9e1352ad0cebe9d7b2dc0dbbcc0f20514/lib/scripts/Performance.psm1#L1) sets a few things to the max, for example games/multimedia usage set to 100%, enables hardware accelerated gpu scheduling, and more.
+- [Privacy tweaks](https://github.com/circlol/newloadsTesting/blob/48d061e9e1352ad0cebe9d7b2dc0dbbcc0f20514/lib/scripts/Privacy.psm1#L2) disables a surprisingly large amount of tracking and telemetry.
+- [Security tweaks](https://github.com/circlol/newloadsTesting/blob/48d061e9e1352ad0cebe9d7b2dc0dbbcc0f20514/lib/scripts/Security.psm1#L2) applies various patches and exploit protections
+- [Services](https://github.com/circlol/newloadsTesting/blob/48d061e9e1352ad0cebe9d7b2dc0dbbcc0f20514/lib/scripts/Services.psm1#L1C10-L1C18) are optimized - listed below are all the services that are disabled
 
 <details>
 <summary>Services changed</summary>
@@ -328,7 +334,7 @@ Manual
 
 </details>
 
-- Changes to the task scheduler are mostly tracking related but are also listed below
+- Changes to the [task scheduler](https://github.com/circlol/newloadsTesting/blob/48d061e9e1352ad0cebe9d7b2dc0dbbcc0f20514/lib/scripts/TaskScheduler.psm1#L2) are mostly tracking related but are also listed below
 
   <details>
       <summary>Click to Expand</summary>
@@ -371,7 +377,7 @@ Manual
 
   </details>
 
-- Optional Features removes old legacy features
+- [Optional Features](https://github.com/circlol/newloadsTesting/blob/48d061e9e1352ad0cebe9d7b2dc0dbbcc0f20514/lib/scripts/OptionalFeatures.psm1#L1C10-L1C18) removes old legacy features
 
   <details>
       <summary>Click to Expand</summary>
@@ -391,13 +397,13 @@ Manual
 
   </details>
 
-- Disables Bitlocker on the system\
+- Disables [Bitlocker](https://github.com/circlol/newloadsTesting/blob/48d061e9e1352ad0cebe9d7b2dc0dbbcc0f20514/lib/Start-BitLockerDecryption.psm1#L1C10-L1C18) on the system
 
-  [^Use switch -SkipBitlocker to avoid this feature]: 
+  [^]: Use switch -SkipBitlocker to avoid this feature
 
-- Restore point is created at the end
-- Script Cleanup
-- Emailed Log
+- [Restore point](https://github.com/circlol/newloadsTesting/blob/48d061e9e1352ad0cebe9d7b2dc0dbbcc0f20514/lib/New-SystemRestorePoint.psm1#L1C10-L1C18) is created at the end
+- Script [Cleanup](https://github.com/circlol/newloadsTesting/blob/48d061e9e1352ad0cebe9d7b2dc0dbbcc0f20514/lib/scripts/Cleanup.psm1#L1C1-L1C1)
+- [Emailed Log](https://github.com/circlol/newloadsTesting/blob/48d061e9e1352ad0cebe9d7b2dc0dbbcc0f20514/lib/scripts/Logs.psm1#L1C1-L1C1)
 
 </details>
 
