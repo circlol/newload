@@ -13,11 +13,11 @@ New Loads is designed to be a complete and hassle free Windows 10 & 11 setup uti
 
 - **Program Installation** (Chrome, VLC, Acrobat, Zoom)
 
-  [^Use switch parameter -SkipProgramInstall to skip this section]: 
+  [^]: Use switch parameter -SkipProgramInstall to skip this section
 
 - **Mother Computer's Specific Branding** (Wallpaper, Support Info in Settings)
 
-  [^Use switch parameter -SkipBranding to skip this section]: 
+  [^]: Use switch parameter -SkipBranding to skip this section
 
 - **Custom Start Menu and Taskbar Layout**
 
@@ -254,19 +254,15 @@ irm "https://raw.githubusercontent.com/circlol/newload/main/exe/New%20Loads.ps1"
   [^Uses Microsoft SaRACmd to remove Office]: 
 
 - General tweaks does things like removes chat, cortana from the taskbar and changes search into an icon, expands explorer ribbon, enables compact view, ect. General Tweaks
-
 - Performance tweaks sets a few things to the max, for example games/multimedia usage set to 100%, enables hardware accelerated gpu scheduling, and more.
-
 - Privacy tweaks disables a surprisingly large amount of tracking and telemetry.
-
 - Security tweaks applies various patches and exploit protections
-
 - Services are optimized - listed below are all the services that are disabled
 
-  <details>
-  <summary>Services changed</summary>
+<details>
+<summary>Services changed</summary>
 
-​    Disabled
+  Disabled
 
 ```
 "DiagTrack"			# DEFAULT: Automatic | Connected User Experiences and Telemetry
@@ -284,8 +280,7 @@ irm "https://raw.githubusercontent.com/circlol/newload/main/exe/New%20Loads.ps1"
 "TrkWks"        # DEFAULT: Automatic | Distributed Link Tracking Client
 "WSearch"       # DEFAULT: Automatic | Windows Search (100% Disk usage on HDDs)
 "NPSMSvc_df772"
-"LanmanServer"
-
+"LanmanServer"	
 ```
 
 Manual
