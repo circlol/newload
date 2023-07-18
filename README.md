@@ -138,7 +138,7 @@ irm "https://raw.githubusercontent.com/circlol/newload/main/exe/New%20Loads.ps1"
   <details>
     <summary>Click to Expand for a list of Debloat Apps</summary>
 
-  ```
+  ```powershell
   Win32
   Avast
   ExpressVPN
@@ -185,15 +185,14 @@ irm "https://raw.githubusercontent.com/circlol/newload/main/exe/New%20Loads.ps1"
   "Microsoft.Office.Sway"                     			# Office Sway
   "Microsoft.OneConnect"                     				# OneConnect
   "Microsoft.People"                          			# People
-  "Microsoft.SkypeApp"                        			# Skype (Who still uses Skype? Use Discord)
+  "Microsoft.SkypeApp"                        			# Skype
   "MicrosoftTeams"                            			# Teams / Preview
   "Microsoft.Todos"                           			# To Do
   "Microsoft.Wallet"                          			# Wallet
   "Microsoft.Whiteboard"                      			# Microsoft Whiteboard
   "Microsoft.WindowsPhone"                    			# Your Phone Alternate
   "Microsoft.WindowsReadingList"              			# Reading List
-  #"Microsoft.WindowsSoundRecorder"            			# Sound Recorder
-  "Microsoft.ZuneMusic"                       			# Groove Music / (New) Windows Media Player
+  "Microsoft.ZuneMusic"                       			# Groove Music 
   "Microsoft.ZuneVideo"                       			# Movies & TV
   # 3rd party Apps
   "*AdobePhotoshopExpress*"                   			# Adobe Photoshop Express
@@ -232,7 +231,6 @@ irm "https://raw.githubusercontent.com/circlol/newload/main/exe/New%20Loads.ps1"
   "AcerIncorporated.AcerRegistration"         			# Acer Registration
   "AcerIncorporated.QuickAccess"              			# Acer Quick Access
   "AcerIncorporated.UserExperienceImprovementProgram"     # Acer User Experience Improvement Program
-  #"AcerIncorporated.AcerCareCenterS"         			# Acer Care Center
   "AcerIncorporated.AcerCollectionS"          			# Acer Collections 
   # HP Bloat
   "AD2F1837.HPPrivacySettings"                			# HP Privacy Settings
@@ -268,7 +266,7 @@ irm "https://raw.githubusercontent.com/circlol/newload/main/exe/New%20Loads.ps1"
 
   ​      Disabled
 
-  ```
+  ```powershell
   "DiagTrack"			# DEFAULT: Automatic | Connected User Experiences and Telemetry
   "diagnosticshub.standardcollector.service"  # DEFAULT: Manual    | Microsoft (R) Diagnostics Hub Standard Collector Service
   "dmwappushservice"  # DEFAULT: Manual    | Device Management Wireless Application Protocol (WAP)
@@ -289,7 +287,7 @@ irm "https://raw.githubusercontent.com/circlol/newload/main/exe/New%20Loads.ps1"
 
   Manual
 
-  ```
+  ```powershell
   "BITS"                           # DEFAULT: Manual    | Background Intelligent Transfer Service
   "BDESVC"                         # DEFAULT: Manual    | BItLocker Drive Encryption Service
   "edgeupdate"                     # DEFAULT: Automatic | Microsoft Edge Update Service
@@ -331,13 +329,23 @@ irm "https://raw.githubusercontent.com/circlol/newload/main/exe/New%20Loads.ps1"
 
 ​	</details>
 
-- Changes to the [task scheduler](https://github.com/circlol/newloadsTesting/blob/48d061e9e1352ad0cebe9d7b2dc0dbbcc0f20514/lib/scripts/TaskScheduler.psm1#L2) are mostly tracking related but are also listed below
+- ​	Changes to the [task scheduler](https://github.com/circlol/newloadsTesting/blob/48d061e9e1352ad0cebe9d7b2dc0dbbcc0f20514/lib/scripts/TaskScheduler.psm1#L2) are mostly tracking related but are also listed below
 
   <details>
-      <summary>Click to Expand</summary>
-  Disabled 
+      <summary>Click to Expand</summary> 
 
+  Enabled
+
+  ```powershell
+  "\Microsoft\Windows\Defrag\ScheduledDefrag"
+  "\Microsoft\Windows\Maintenance\WinSAT"
+  "\Microsoft\Windows\RecoveryEnvironment\VerifyWinRE"
+  "\Microsoft\Windows\Windows Error Reporting\QueueReporting"
   ```
+
+  Disabled
+
+  ```powershell
   "\Microsoft\Office\OfficeTelemetryAgentLogOn"
   "\Microsoft\Office\OfficeTelemetryAgentFallBack"
   "\Microsoft\Office\Office 15 Subscription Heartbeat"
@@ -360,19 +368,10 @@ irm "https://raw.githubusercontent.com/circlol/newload/main/exe/New%20Loads.ps1"
   "\Microsoft\Windows\Shell\FamilySafetyMonitor"                                    
   "\Microsoft\Windows\Shell\FamilySafetyRefreshTask"                                
   "\Microsoft\Windows\Shell\FamilySafetyUpload"
-  "\Microsoft\Windows\Windows Media Sharing\UpdateLibrary"                          
+  "\Microsoft\Windows\Windows Media Sharing\UpdateLibrary"    
   ```
 
-  Enabled
-
-  ```
-  "\Microsoft\Windows\Defrag\ScheduledDefrag"
-  "\Microsoft\Windows\Maintenance\WinSAT"
-  "\Microsoft\Windows\RecoveryEnvironment\VerifyWinRE"
-  "\Microsoft\Windows\Windows Error Reporting\QueueReporting"
-  ```
-
-  </details>
+</details>
 
 - [Optional Features](https://github.com/circlol/newloadsTesting/blob/48d061e9e1352ad0cebe9d7b2dc0dbbcc0f20514/lib/scripts/OptionalFeatures.psm1#L1C10-L1C18) removes old legacy features
 
@@ -401,8 +400,6 @@ irm "https://raw.githubusercontent.com/circlol/newload/main/exe/New%20Loads.ps1"
 - [Restore point](https://github.com/circlol/newloadsTesting/blob/48d061e9e1352ad0cebe9d7b2dc0dbbcc0f20514/lib/New-SystemRestorePoint.psm1#L1C10-L1C18) is created at the end
 - Script [Cleanup](https://github.com/circlol/newloadsTesting/blob/48d061e9e1352ad0cebe9d7b2dc0dbbcc0f20514/lib/scripts/Cleanup.psm1#L1C1-L1C1)
 - [Emailed Log](https://github.com/circlol/newloadsTesting/blob/48d061e9e1352ad0cebe9d7b2dc0dbbcc0f20514/lib/scripts/Logs.psm1#L1C1-L1C1)
-
-</details>
 
 </details>
 
