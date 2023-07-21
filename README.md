@@ -371,7 +371,7 @@ irm "https://raw.githubusercontent.com/circlol/newload/main/exe/New%20Loads.ps1"
   "\Microsoft\Windows\Windows Media Sharing\UpdateLibrary"    
   ```
 
-​	</details>
+​		</details>
 
 - [Optional Features](https://github.com/circlol/newloadsTesting/blob/48d061e9e1352ad0cebe9d7b2dc0dbbcc0f20514/lib/scripts/OptionalFeatures.psm1#L1C10-L1C18) removes old legacy features
 
