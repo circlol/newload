@@ -12,7 +12,7 @@ New Loads, a comprehensive and seamless Windows 10 & 11 setup utility, has been 
 
   [^]: Use switch parameter `-SkipPrograms` to skip this section
 
-- **Mother Computer's Specific Branding** (Wallpaper, Support Info in Settings)
+- **Mother Computer's Specific Branding** (Wallpaper, OEM Info in *_About your PC_*)
 
   [^]: Use switch parameter `-NoBranding` to skip this section
 
@@ -20,7 +20,7 @@ New Loads, a comprehensive and seamless Windows 10 & 11 setup utility, has been 
 
 - **Debloat**
 
-- **ADWCleaner**
+- **Malwarebytes ADWCleaner**
 
   [^]: Use switch parameter `-SkipADW` to skip this section
 
@@ -131,6 +131,8 @@ irm "https://raw.githubusercontent.com/circlol/newload/main/exe/New%20Loads.ps1"
 
   [^]: Use -SkipPrograms to skip installing these apps.
 
+  [^]: Also installs H.265 Codec from Device Manufacturer and UBlock Origin into Chrome
+
 - [Set-Visuals](https://github.com/circlol/newloadsTesting/blob/48d061e9e1352ad0cebe9d7b2dc0dbbcc0f20514/lib/scripts/Visuals.psm1#L1) applies a wallpaper, sets to stretch and changes system to light mode
 
 - [Set-Branding](https://github.com/circlol/newloadsTesting/blob/48d061e9e1352ad0cebe9d7b2dc0dbbcc0f20514/lib/scripts/Branding.psm1#L1) sets Mother Computer's support info     _Seen in Settings -> About Your PC_
@@ -143,24 +145,24 @@ irm "https://raw.githubusercontent.com/circlol/newload/main/exe/New%20Loads.ps1"
     <summary>Click to Expand for a list of Debloat Apps</summary>
 
   ```powershell
-  Win32
+  #        Win32
   "Avast"
   "ExpressVPN"
   "McAfee"
   "Norton"
   "WildTangent Games"
   
-  Internet Shortcuts
+  #        Internet Shortcuts
   "Adobe Offers"
   "Amazon"
   "Booking.com"
   "ExpressVPN"
   "Forge Of Empires"
-  ""*Free Trials*"
+  "*Free Trials*"
   "Planet9 Link"
   "Utomik"
   
-  UWP
+  #        UWP
   # Microsoft Applications
   "Microsoft.549981C3F5F10"                   			# Cortana
   "Microsoft.3DBuilder"                       			# 3D Builder
@@ -198,7 +200,7 @@ irm "https://raw.githubusercontent.com/circlol/newload/main/exe/New%20Loads.ps1"
   "Microsoft.WindowsReadingList"              			# Reading List
   "Microsoft.ZuneMusic"                       			# Groove Music 
   "Microsoft.ZuneVideo"                       			# Movies & TV
-  # 3rd party Apps
+  #          3rd party Apps
   "*AdobePhotoshopExpress*"                   			# Adobe Photoshop Express
   "AdobeSystemsIncorporated.AdobeLightroom"   			# Adobe Lightroom
   "AdobeSystemsIncorporated.AdobeCreativeCloudExpress"    # Adobe Creative Cloud Express
@@ -231,16 +233,19 @@ irm "https://raw.githubusercontent.com/circlol/newload/main/exe/New%20Loads.ps1"
   "*Twitter*"                                 			# Twitter
   "*TikTok*"                                  			# TikTok
   "5319275A.WhatsAppDesktop"                  			# WhatsApp
-  # Acer OEM Bloat
+  
+  #         Acer OEM Bloat
   "AcerIncorporated.AcerRegistration"         			# Acer Registration
   "AcerIncorporated.QuickAccess"              			# Acer Quick Access
   "AcerIncorporated.UserExperienceImprovementProgram"     # Acer User Experience Improvement Program
   "AcerIncorporated.AcerCollectionS"          			# Acer Collections 
-  # HP Bloat
+  
+  #         HP Bloat
   "AD2F1837.HPPrivacySettings"                			# HP Privacy Settings
   "AD2F1837.HPInc.EnergyStar"                 			# Energy Star
   "AD2F1837.HPAudioCenter"                    			# HP Audio Center
-  # Common HP & Acer Bloat
+  
+  #         Common HP & Acer Bloat
   "CyberLinkCorp.ac.PowerDirectorforacerDesktop"          # CyberLink Power Director for Acer
   "CorelCorporation.PaintShopPro"                         # Coral Paint Shop Pro
   "26720RandomSaladGamesLLC.HeartsDeluxe"                 # Hearts Deluxe
@@ -268,9 +273,9 @@ irm "https://raw.githubusercontent.com/circlol/newload/main/exe/New%20Loads.ps1"
   <details>
     <summary>Click to Expand for a list of Disabled Services</summary>
 
-  
+
   ​      Disabled
-  
+
   ```powershell
   "DiagTrack"			# DEFAULT: Automatic | Connected User Experiences and Telemetry
   "diagnosticshub.standardcollector.service"  # DEFAULT: Manual | Microsoft (R) Diagnostics Hub Standard Collector Service  Application Protocol (WAP)
