@@ -4,25 +4,27 @@
 
 ![Logo](https://github.com/circlol/newload/raw/main/assets/icons/newloads-github.png)
 
-New Loads is designed to be a complete and hassle free Windows 10 & 11 setup utility. From the ground up written in Powershell, using custom functions New Loads provides a way to easily and quickly increase the security, performance and security. 
+New Loads, a comprehensive and seamless Windows 10 & 11 setup utility, has been meticulously crafted using Powershell from the very beginning. By incorporating tailored functions, it offers a simple and efficient means of enhancing both security and performance effortlessly.
 
 # ![](https://raw.githubusercontent.com/circlol/newload/main/icon/curved-monitor_result%2064x64.png) **New Loads Overview**
 
 - **Program Installation** (Chrome, VLC, Acrobat, Zoom)
 
-  [^]: Use switch parameter -SkipProgramInstall to skip this section
+  [^]: Use switch parameter `-SkipPrograms` to skip this section
 
 - **Mother Computer's Specific Branding** (Wallpaper, Support Info in Settings)
 
-  [^]: Use switch parameter -SkipBranding to skip this section
+  [^]: Use switch parameter `-SkipBranding` to skip this section
 
 - **Custom Start Menu and Taskbar Layout**
 
-- **Bitlocker Decryption**
-
 - **Debloat**
 
-- **Office Removal** - *Optional by prompt*
+- **ADWCleaner**
+
+  [^]: Use switch parameter `-NoADW` to skip this section
+
+- **Office Removal** - _by confirmation_
 
 - **Optimization**
 
@@ -34,17 +36,21 @@ New Loads is designed to be a complete and hassle free Windows 10 & 11 setup uti
   - Task Scheduler
   - Windows Optional Features 
 
+- **Bitlocker Decryption**
+
+  [^]: Use switch parameter `-NoBitlocker` to skip this section
+
+​	 
 
 
 
-
-<h2>⚠️Things to keep in mind</h2>
+<h2>⚠️Things to keep in mind before running</h2>
 
 1. New Loads is primarily used by Mother Computers, a west coast canadian retail/repair shop, therefor the script will set the time-zone of the system it's run on to Pacific Standard Time.
-2. Unless run with switch paramter `-NoBranding` the script will apply OEM information in settings and a wallpaper will be applied. 
+2. Unless run with switch parameter `-NoBranding` the script will apply OEM information in settings and a wallpaper will be applied. The OEM information is tied to Mother Computers.
 3. New Loads was not designed to account for an already lived in OS, it is meant to be run on a fresh operating system. Please note that you may experience unwanted changes.
 
-⚠️ **DISCLAIMER:** _You're doing this at your own risk, I am not responsible for any data loss or damage that may occur. It's not guaranteed that every feature removed from the system can be easily restored._
+⚠️ **DISCLAIMER:** _You are using this software at your own risk, I am not responsible for any data loss or damage that may occur. It's not guaranteed that every feature removed from the system can be easily restored._
 
 
 
@@ -92,23 +98,21 @@ Github Development branch: [Link](https://github.com/circlol/newloadsTesting)
 
 <h6>Usage Directly through powershell</h6>
 
-```bash
+```powershell
 irm "https://raw.githubusercontent.com/circlol/newload/main/exe/New%20Loads.ps1" | iex
 ```
 
 <h6>Command Line Usage</h6>
 
-`& .\New Loads.exe -GUI` : Initiates New Loads with basic GUI
+`& .\New Loads.exe -GUI` : Initiates New Loads with a WinForm GUI - Cannot be used with other arguments
 
-`& .\New Loads.exe -NoBranding` : Skips branding and visuals sections of the script
+`& .\New Loads.exe -NoBranding` : Skips **Branding** and **Visuals** sections of the script
 
 `& .\New Loads.exe -SkipADW` : Skips Malwarebytes ADWCleaner scan
 
 `& .\New Loads.exe -SkipBitlocker` : Skips disabling bitlocker
 
 `& .\New Loads.exe -SkipPrograms` : Skips installing programs
-
-
 
 
 
@@ -251,7 +255,7 @@ irm "https://raw.githubusercontent.com/circlol/newload/main/exe/New%20Loads.ps1"
 
   [^]: Uses Microsoft SaRACmd to remove Office
 
-- [General tweaks](https://github.com/circlol/newloadsTesting/blob/48d061e9e1352ad0cebe9d7b2dc0dbbcc0f20514/lib/scripts/GeneralTweaks.psm1#L1) does things like removes chat, cortana from the taskbar and changes search into an icon, expands explorer ribbon, enables compact view, ect. General Tweaks
+- [General tweaks](https://github.com/circlol/newloadsTesting/blob/48d061e9e1352ad0cebe9d7b2dc0dbbcc0f20514/lib/scripts/GeneralTweaks.psm1#L1) does things like removes chat, cortana from the taskbar, changes search into an icon, expands explorer ribbon, enables compact view, ect. General Tweaks
 
 - [Performance tweaks](https://github.com/circlol/newloadsTesting/blob/48d061e9e1352ad0cebe9d7b2dc0dbbcc0f20514/lib/scripts/Performance.psm1#L1) sets a few things to the max, for example games/multimedia usage set to 100%, enables hardware accelerated gpu scheduling, and more.
 
@@ -268,8 +272,7 @@ irm "https://raw.githubusercontent.com/circlol/newload/main/exe/New%20Loads.ps1"
 
   ```powershell
   "DiagTrack"			# DEFAULT: Automatic | Connected User Experiences and Telemetry
-  "diagnosticshub.standardcollector.service"  # DEFAULT: Manual    | Microsoft (R) Diagnostics Hub Standard Collector Service
-  "dmwappushservice"  # DEFAULT: Manual    | Device Management Wireless Application Protocol (WAP)
+  "diagnosticshub.standardcollector.service"  # DEFAULT: Manual | Microsoft (R) Diagnostics Hub Standard Collector Service  Application Protocol (WAP)
   "GraphicsPerfSvc"   # DEFAULT: Manual    | Graphics performance monitor service
   "HomeGroupListener" # NOT FOUND (Win 10+)| HomeGroup Listener
   "HomeGroupProvider" # NOT FOUND (Win 10+)| HomeGroup Provider
@@ -284,9 +287,9 @@ irm "https://raw.githubusercontent.com/circlol/newload/main/exe/New%20Loads.ps1"
   "NPSMSvc_df772"
   "LanmanServer"	
   ```
-
+  
   Manual
-
+  
   ```powershell
   "BITS"                           # DEFAULT: Manual    | Background Intelligent Transfer Service
   "BDESVC"                         # DEFAULT: Manual    | BItLocker Drive Encryption Service
@@ -326,6 +329,7 @@ irm "https://raw.githubusercontent.com/circlol/newload/main/exe/New%20Loads.ps1"
   "DisplayEnhancementService"      # DEFAULT: Manual    | A service for managing display enhancement such as brightness control.
   "DispBrokerDesktopSvc"           # DEFAULT: Automatic | Manages the connection and configuration of local and remote displays
   ```
+
 ​	</details>
 
 - ​	Changes to the [task scheduler](https://github.com/circlol/newloadsTesting/blob/48d061e9e1352ad0cebe9d7b2dc0dbbcc0f20514/lib/scripts/TaskScheduler.psm1#L2) are mostly tracking related but are also listed below
@@ -379,7 +383,7 @@ irm "https://raw.githubusercontent.com/circlol/newload/main/exe/New%20Loads.ps1"
 
   Disabled
 
-  ```
+  ```powershell
   "IIS-*"                                # Internet Information Services
   "Internet-Explorer-Optional-*"         # Internet Explorer
   "LegacyComponents"                     # Legacy Components
@@ -394,7 +398,8 @@ irm "https://raw.githubusercontent.com/circlol/newload/main/exe/New%20Loads.ps1"
 
 - Disables [Bitlocker](https://github.com/circlol/newloadsTesting/blob/48d061e9e1352ad0cebe9d7b2dc0dbbcc0f20514/lib/Start-BitLockerDecryption.psm1#L1C10-L1C18) on the system
 
-  [^]: Use switch -SkipBitlocker to avoid this feature
+
+[^]: Use switch `-SkipBitlocker` to avoid this feature
 
 - [Restore point](https://github.com/circlol/newloadsTesting/blob/48d061e9e1352ad0cebe9d7b2dc0dbbcc0f20514/lib/New-SystemRestorePoint.psm1#L1C10-L1C18) is created at the end
 - Script [Cleanup](https://github.com/circlol/newloadsTesting/blob/48d061e9e1352ad0cebe9d7b2dc0dbbcc0f20514/lib/scripts/Cleanup.psm1#L1C1-L1C1)
