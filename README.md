@@ -14,7 +14,7 @@ New Loads, a comprehensive and seamless Windows 10 & 11 setup utility, has been 
 
 - **Mother Computer's Specific Branding** (Wallpaper, Support Info in Settings)
 
-  [^]: Use switch parameter `-SkipBranding` to skip this section
+  [^]: Use switch parameter `-NoBranding` to skip this section
 
 - **Custom Start Menu and Taskbar Layout**
 
@@ -22,7 +22,7 @@ New Loads, a comprehensive and seamless Windows 10 & 11 setup utility, has been 
 
 - **ADWCleaner**
 
-  [^]: Use switch parameter `-NoADW` to skip this section
+  [^]: Use switch parameter `-SkipADW` to skip this section
 
 - **Office Removal** - _by confirmation_
 
@@ -38,7 +38,7 @@ New Loads, a comprehensive and seamless Windows 10 & 11 setup utility, has been 
 
 - **Bitlocker Decryption**
 
-  [^]: Use switch parameter `-NoBitlocker` to skip this section
+  [^]: Use switch parameter `-SkipBitlocker` to skip this section
 
 ​	 
 
@@ -330,7 +330,7 @@ irm "https://raw.githubusercontent.com/circlol/newload/main/exe/New%20Loads.ps1"
   "DispBrokerDesktopSvc"           # DEFAULT: Automatic | Manages the connection and configuration of local and remote displays
   ```
 
-​	</details>
+​		</details>
 
 - ​	Changes to the [task scheduler](https://github.com/circlol/newloadsTesting/blob/48d061e9e1352ad0cebe9d7b2dc0dbbcc0f20514/lib/scripts/TaskScheduler.psm1#L2) are mostly tracking related but are also listed below
 
@@ -374,7 +374,7 @@ irm "https://raw.githubusercontent.com/circlol/newload/main/exe/New%20Loads.ps1"
   "\Microsoft\Windows\Windows Media Sharing\UpdateLibrary"    
   ```
 
-</details>
+​	</details>
 
 - [Optional Features](https://github.com/circlol/newloadsTesting/blob/48d061e9e1352ad0cebe9d7b2dc0dbbcc0f20514/lib/scripts/OptionalFeatures.psm1#L1C10-L1C18) removes old legacy features
 
@@ -398,8 +398,8 @@ irm "https://raw.githubusercontent.com/circlol/newload/main/exe/New%20Loads.ps1"
 
 - Disables [Bitlocker](https://github.com/circlol/newloadsTesting/blob/48d061e9e1352ad0cebe9d7b2dc0dbbcc0f20514/lib/Start-BitLockerDecryption.psm1#L1C10-L1C18) on the system
 
+  [^]: Use switch `-SkipBitlocker` to avoid this feature
 
-[^]: Use switch `-SkipBitlocker` to avoid this feature
 
 - [Restore point](https://github.com/circlol/newloadsTesting/blob/48d061e9e1352ad0cebe9d7b2dc0dbbcc0f20514/lib/New-SystemRestorePoint.psm1#L1C10-L1C18) is created at the end
 - Script [Cleanup](https://github.com/circlol/newloadsTesting/blob/48d061e9e1352ad0cebe9d7b2dc0dbbcc0f20514/lib/scripts/Cleanup.psm1#L1C1-L1C1)
