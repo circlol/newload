@@ -332,10 +332,7 @@ irm "https://raw.githubusercontent.com/circlol/newload/main/exe/New%20Loads.ps1"
 
 ​		</details>
 
-- ​	Changes to the [task scheduler](https://github.com/circlol/newloadsTesting/blob/48d061e9e1352ad0cebe9d7b2dc0dbbcc0f20514/lib/scripts/TaskScheduler.psm1#L2) are mostly tracking related but are also listed below
-
-  <details>
-      <summary>Click to Expand</summary> 
+-  Changes to the [task scheduler](https://github.com/circlol/newloadsTesting/blob/48d061e9e1352ad0cebe9d7b2dc0dbbcc0f20514/lib/scripts/TaskScheduler.psm1#L2) are mostly tracking related but are also listed below
 
   Enabled
 
