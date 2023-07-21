@@ -249,7 +249,7 @@ irm "https://raw.githubusercontent.com/circlol/newload/main/exe/New%20Loads.ps1"
   "26720RandomSaladGamesLLC.Spades"                       # Spades
   ```
 
-  
+  </details>
 
 - [Get-Office](https://github.com/circlol/newloadsTesting/blob/48d061e9e1352ad0cebe9d7b2dc0dbbcc0f20514/lib/scripts/Office.psm1#L1) checks for any installed version of Office and prompts user for removal
 
@@ -266,10 +266,11 @@ irm "https://raw.githubusercontent.com/circlol/newload/main/exe/New%20Loads.ps1"
 - [Services](https://github.com/circlol/newloadsTesting/blob/48d061e9e1352ad0cebe9d7b2dc0dbbcc0f20514/lib/scripts/Services.psm1#L1C10-L1C18) are optimized - listed below are all the services that are disabled
 
   <details>
-  <summary>Services changed</summary>
+    <summary>Click to Expand for a list of Disabled Services</summary>
 
+  
   ​      Disabled
-
+  
   ```powershell
   "DiagTrack"			# DEFAULT: Automatic | Connected User Experiences and Telemetry
   "diagnosticshub.standardcollector.service"  # DEFAULT: Manual | Microsoft (R) Diagnostics Hub Standard Collector Service  Application Protocol (WAP)
@@ -287,9 +288,9 @@ irm "https://raw.githubusercontent.com/circlol/newload/main/exe/New%20Loads.ps1"
   "NPSMSvc_df772"
   "LanmanServer"	
   ```
-  
+
   Manual
-  
+
   ```powershell
   "BITS"                           # DEFAULT: Manual    | Background Intelligent Transfer Service
   "BDESVC"                         # DEFAULT: Manual    | BItLocker Drive Encryption Service
@@ -334,6 +335,9 @@ irm "https://raw.githubusercontent.com/circlol/newload/main/exe/New%20Loads.ps1"
 
 -  Changes to the [task scheduler](https://github.com/circlol/newloadsTesting/blob/48d061e9e1352ad0cebe9d7b2dc0dbbcc0f20514/lib/scripts/TaskScheduler.psm1#L2) are mostly tracking related but are also listed below
 
+  <details>
+    <summary>Click to Expand for a list of Scheduled Tasks</summary>
+
   Enabled
 
   ```powershell
@@ -376,7 +380,8 @@ irm "https://raw.githubusercontent.com/circlol/newload/main/exe/New%20Loads.ps1"
 - [Optional Features](https://github.com/circlol/newloadsTesting/blob/48d061e9e1352ad0cebe9d7b2dc0dbbcc0f20514/lib/scripts/OptionalFeatures.psm1#L1C10-L1C18) removes old legacy features
 
   <details>
-      <summary>Click to Expand</summary>
+    <summary>Click to Expand for a list of Optional Features</summary>
+
 
   Disabled
 
