@@ -144,21 +144,21 @@ irm "https://raw.githubusercontent.com/circlol/newload/main/exe/New%20Loads.ps1"
 
   ```powershell
   Win32
-  Avast
-  ExpressVPN
-  McAfee
-  Norton
-  WildTangent Games
+  "Avast"
+  "ExpressVPN"
+  "McAfee"
+  "Norton"
+  "WildTangent Games"
   
   Internet Shortcuts
-  Adobe Offers
-  Amazon
-  Booking.com
-  ExpressVPN
-  Forge Of Empires
-  *Free Trials*
-  Planet9 Link
-  Utomik
+  "Adobe Offers"
+  "Amazon"
+  "Booking.com"
+  "ExpressVPN"
+  "Forge Of Empires"
+  ""*Free Trials*"
+  "Planet9 Link"
+  "Utomik"
   
   UWP
   # Microsoft Applications
@@ -331,8 +331,6 @@ irm "https://raw.githubusercontent.com/circlol/newload/main/exe/New%20Loads.ps1"
   "DispBrokerDesktopSvc"           # DEFAULT: Automatic | Manages the connection and configuration of local and remote displays
   ```
 
-​		</details>
-
 -  Changes to the [task scheduler](https://github.com/circlol/newloadsTesting/blob/48d061e9e1352ad0cebe9d7b2dc0dbbcc0f20514/lib/scripts/TaskScheduler.psm1#L2) are mostly tracking related but are also listed below
 
   <details>
@@ -407,7 +405,7 @@ irm "https://raw.githubusercontent.com/circlol/newload/main/exe/New%20Loads.ps1"
 - Script [Cleanup](https://github.com/circlol/newloadsTesting/blob/48d061e9e1352ad0cebe9d7b2dc0dbbcc0f20514/lib/scripts/Cleanup.psm1#L1C1-L1C1)
 - [Emailed Log](https://github.com/circlol/newloadsTesting/blob/48d061e9e1352ad0cebe9d7b2dc0dbbcc0f20514/lib/scripts/Logs.psm1#L1C1-L1C1)
 
-</details>
+​	</details>
 
 ## Documentation
 
