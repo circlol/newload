@@ -121,11 +121,11 @@ irm "https://raw.githubusercontent.com/circlol/newload/main/exe/New%20Loads.ps1"
 <details>
   <summary>Click to Expand</summary>
 
-- [Start-Bootup](https://github.com/circlol/newloadsTesting/blob/48d061e9e1352ad0cebe9d7b2dc0dbbcc0f20514/exe/New%20Loads.ps1#L68) checks requirements and sets execution policy
-- All Variables are imported from function [Import-Variables](https://github.com/circlol/newloadsTesting/blob/48d061e9e1352ad0cebe9d7b2dc0dbbcc0f20514/exe/New%20Loads.ps1#L319) 
+- Start-Bootup checks requirements and sets execution policy
+- All Variables are imported from function Import-Variables
 - [Assets](https://github.com/circlol/newloadsTesting/blob/48d061e9e1352ad0cebe9d7b2dc0dbbcc0f20514/exe/New%20Loads.ps1#L669) are acquired and imported
 
-**_Also applies to pressing start in GUI_**
+​	**Applies to pressing start in GUI_**
 
 - [Get-Programs](https://github.com/circlol/newloadsTesting/blob/73f06a02cbc738639a279486f7dbbbc2c3e039ce/lib/scripts/Programs.psm1#L1) downloads Google Chrome, VLC Media Player, Acrobat Reader, and Zoom
 
@@ -143,6 +143,8 @@ irm "https://raw.githubusercontent.com/circlol/newload/main/exe/New%20Loads.ps1"
 
   <details>
     <summary>Click to Expand for a list of Debloat Apps</summary>
+  ###### _To make suggestions submit a change or send an email to newloads@shaw.ca_
+
 
   ```powershell
   #        Win32
@@ -273,8 +275,9 @@ irm "https://raw.githubusercontent.com/circlol/newload/main/exe/New%20Loads.ps1"
   <details>
     <summary>Click to Expand for a list of Disabled Services</summary>
 
+  ​      _To make suggestions submit a change or send an email to newloads@shaw.ca_
 
-  ​      Disabled
+​		Disabled
 
   ```powershell
   "DiagTrack"			# DEFAULT: Automatic | Connected User Experiences and Telemetry
@@ -294,7 +297,7 @@ irm "https://raw.githubusercontent.com/circlol/newload/main/exe/New%20Loads.ps1"
   "LanmanServer"	
   ```
 
-  Manual
+​		Manual
 
   ```powershell
   "BITS"                           # DEFAULT: Manual    | Background Intelligent Transfer Service
@@ -340,18 +343,19 @@ irm "https://raw.githubusercontent.com/circlol/newload/main/exe/New%20Loads.ps1"
 
   <details>
     <summary>Click to Expand for a list of Scheduled Tasks</summary>
-
+  ######   _To make suggestions submit a change or send an email to newloads@shaw.ca_
+  
   Enabled
-
+  
   ```powershell
   "\Microsoft\Windows\Defrag\ScheduledDefrag"
   "\Microsoft\Windows\Maintenance\WinSAT"
   "\Microsoft\Windows\RecoveryEnvironment\VerifyWinRE"
   "\Microsoft\Windows\Windows Error Reporting\QueueReporting"
   ```
-
+  
   Disabled
-
+  
   ```powershell
   "\Microsoft\Office\OfficeTelemetryAgentLogOn"
   "\Microsoft\Office\OfficeTelemetryAgentFallBack"
@@ -385,8 +389,9 @@ irm "https://raw.githubusercontent.com/circlol/newload/main/exe/New%20Loads.ps1"
   <details>
     <summary>Click to Expand for a list of Optional Features</summary>
 
+###### 		 _To make suggestions submit a change or send an email to newloads@shaw.ca_
 
-  Disabled
+​		Disabled
 
   ```powershell
   "IIS-*"                                # Internet Information Services
@@ -408,7 +413,6 @@ irm "https://raw.githubusercontent.com/circlol/newload/main/exe/New%20Loads.ps1"
 
 - [Restore point](https://github.com/circlol/newloadsTesting/blob/48d061e9e1352ad0cebe9d7b2dc0dbbcc0f20514/lib/New-SystemRestorePoint.psm1#L1C10-L1C18) is created at the end
 - Script [Cleanup](https://github.com/circlol/newloadsTesting/blob/48d061e9e1352ad0cebe9d7b2dc0dbbcc0f20514/lib/scripts/Cleanup.psm1#L1C1-L1C1)
-- [Emailed Log](https://github.com/circlol/newloadsTesting/blob/48d061e9e1352ad0cebe9d7b2dc0dbbcc0f20514/lib/scripts/Logs.psm1#L1C1-L1C1)
 
 ​	</details>
 
