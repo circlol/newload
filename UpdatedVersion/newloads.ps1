@@ -1,24 +1,17 @@
-﻿$WindowTitle = "New Loads"
+﻿Add-Type -AssemblyName System.Drawing
+Add-Type -AssemblyName System.Windows.Forms
+
+$WindowTitle = "New Loads"
 $host.UI.RawUI.WindowTitle = $WindowTitle
 $host.UI.RawUI.ForegroundColor = 'White'
 $host.UI.RawUI.BackgroundColor = 'Black'
 
-if ($GUI -and ($NoBranding -or $SkipADW -or $SkipBitlocker -or $SkipPrograms)) { 
-    Throw "New Loads Error: The GUI switch can only be used with -Revert, -WhatIf" 
-}
-If ($Undo) { New-Variable -Name $Revert -Value $True -Scope Global }
-
-Add-Type -AssemblyName System.Drawing
-Add-Type -AssemblyName System.Windows.Forms
-
 New-Variable -Name "BackgroundColor" -Value "Black"
 New-Variable -Name "ForegroundColor" -Value "DarkMagenta"
 New-Variable -Name "LogoColor" -Value "DarkMagenta"
-
 New-Variable -Name "ProgramVersion" -Value "v2023.1.06"
 New-Variable -Name "ReleaseDate" -Value "August 14th, 2023"
 New-Variable -Name "SelectedParameters" -Value @() -Scope Global
-
 
 [Int]$Counter = 0
 if ($GUI) { $specifiedParameters += '-GUI' }
