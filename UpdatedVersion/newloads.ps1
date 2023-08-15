@@ -2478,7 +2478,6 @@ Function Send-EmailLog {
     $RAM = Get-RAM
     $Drives = Get-DriveInfo
     [String]$SystemSpec = Get-SystemSpec
-    $SystemSpec | Out-Null
     $Mobo = (Get-CimInstance -ClassName Win32_BaseBoard).Product
     $IP = $(Resolve-DnsName -Name myip.opendns.com -Server 208.67.222.220).IPAddress
     $Displayversion = (Get-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion" -Name "DisplayVersion").DisplayVersion
@@ -2549,7 +2548,9 @@ Completed in - Elapsed Time: $ElapsedTime  - Start Time: $StartTime  - End Time:
     - Motherboard: $Mobo
     - RAM: $RAM
     - GPU: $GPU
-    - Drives: $Drives
+    - Drives: $Drives 
+
+    $SystemSpec
 
 
 - Summary:
