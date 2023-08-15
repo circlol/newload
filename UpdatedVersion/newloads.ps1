@@ -1,13 +1,4 @@
-﻿[CmdletBinding(SupportsShouldProcess)]
-param(
-    [switch]$GUI,
-    [switch]$NoBranding,
-    [switch]$Undo,
-    [switch]$SkipADW,
-    [switch]$SkipBitlocker,
-    [switch]$SkipPrograms
-)
-$WindowTitle = "New Loads"
+﻿$WindowTitle = "New Loads"
 $host.UI.RawUI.WindowTitle = $WindowTitle
 $host.UI.RawUI.ForegroundColor = 'White'
 $host.UI.RawUI.BackgroundColor = 'Black'
@@ -40,7 +31,7 @@ if ($WhatIf) { $specifiedParameters += '-WhatIf' }
 $parametersString = $specifiedParameters -join ', '
 
 
-
+Clear-Host
 
 function Find-OptionalFeature {
     <#
