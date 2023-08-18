@@ -21,9 +21,8 @@ if ($SkipBitlocker) { $specifiedParameters += '-SkipBitlocker' }
 if ($SkipPrograms) { $specifiedParameters += '-SkipPrograms' }
 if ($WhatIf) { $specifiedParameters += '-WhatIf' }
 $parametersString = $specifiedParameters -join ', '
+Clear-Host
 
-
-#Clear-Host
 
 function Find-OptionalFeature {
     <#
@@ -918,7 +917,8 @@ Function Optimize-General {
     else {
         # code for other operating systems
         # Check Windows version
-        Throw { "Don't know what happened. Closing" }
+        return "Don't know what happened. Closing"
+        exit
     }
 
     Write-Section -Text "Explorer Related"
@@ -2789,8 +2789,7 @@ Ensure that the user running this function has sufficient privileges and meets t
                                                                        ( (  )   (  ) )            `
                                                                       (__(__)___(__)__)          `n`n"
         Write-Host $errorMessage -ForegroundColor Yellow
-        Write-Host "Press any key to close New Loads." -NoNewLine
-        Read-Host
+        $readingkey = Read-Host -Prompt "Press any key to close New Loads" ; return $readingkey
         Exit
     }
 
@@ -2811,8 +2810,15 @@ Ensure that the user running this function has sufficient privileges and meets t
                                                                        ( (  )   (  ) )           `
                                                                       (__(__)___(__)__)          `n`n"
         Write-Host $errorMessage -ForegroundColor Yellow
-        Write-Host "Press any key to close New Loads." -NoNewLine
-        Read-Host
+        $SelfElevate = Read-Host -Prompt "Do you want to attempt to elevate this prompt?"
+        switch ($SelfElevate){
+            "Y" {
+                Start-Process powershell -verb runas -ArgumentList "-command ""irm run.newloads.ca | iex"" "
+            }
+            "N" {
+                exit
+            }
+        }
         Exit
     }
 
@@ -3574,12 +3580,13 @@ Function Write-TitleCounter() {
 # Initiates check for OS version,
 Start-Bootup
 Import-Variable
+Start-NewLoad
 
 ####################################################################################
 
 # Script Start #
 
-# Checks if user requested GUI or not.
+<# Checks if user requested GUI or not.
 If (!$GUI) {
     Start-NewLoad
 }
@@ -3587,7 +3594,7 @@ elseif ($GUI) {
     Get-NetworkStatus
     GUI
 }
-
+#>
 
 ####################################################################################
 
