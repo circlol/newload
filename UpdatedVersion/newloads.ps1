@@ -1,12 +1,13 @@
 ﻿#requires -RunAsAdministrator
-Add-Type -AssemblyName System.Drawing
-Add-Type -AssemblyName System.Windows.Forms
+
 
 $WindowTitle = "New Loads"
 $host.UI.RawUI.WindowTitle = $WindowTitle
 $host.UI.RawUI.ForegroundColor = 'White'
 $host.UI.RawUI.BackgroundColor = 'Black'
 
+Add-Type -AssemblyName System.Drawing
+Add-Type -AssemblyName System.Windows.Forms
 New-Variable -Name "BackgroundColor" -Value "Black"
 New-Variable -Name "ForegroundColor" -Value "DarkMagenta"
 New-Variable -Name "LogoColor" -Value "DarkMagenta"
