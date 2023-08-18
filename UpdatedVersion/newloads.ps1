@@ -1,8 +1,6 @@
-﻿<# 
+﻿[CmdletBinding()]
+param ()
 
-New Loads
-
-#>
 
 $WindowTitle = "New Loads"
 $host.UI.RawUI.WindowTitle = $WindowTitle
