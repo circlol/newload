@@ -1,7 +1,4 @@
-﻿[CmdletBinding()]
-param ()
-
-
+﻿#
 $WindowTitle = "New Loads"
 $host.UI.RawUI.WindowTitle = $WindowTitle
 $host.UI.RawUI.ForegroundColor = 'White'
