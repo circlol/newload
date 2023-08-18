@@ -6,8 +6,8 @@ $host.UI.RawUI.WindowTitle = $WindowTitle
 $host.UI.RawUI.ForegroundColor = 'White'
 $host.UI.RawUI.BackgroundColor = 'Black'
 
-Add-Type -AssemblyName System.Drawing
 Add-Type -AssemblyName System.Windows.Forms
+Add-Type -AssemblyName System.Drawing
 New-Variable -Name "BackgroundColor" -Value "Black"
 New-Variable -Name "ForegroundColor" -Value "DarkMagenta"
 New-Variable -Name "LogoColor" -Value "DarkMagenta"
@@ -397,7 +397,7 @@ The Get-Status function is typically used after running a command to quickly che
 
 Function Import-Variable {
     # -> Main Script Variables
-    New-Variable -Name "NewLoads" -Value "." -Scope Global
+    New-Variable -Name "NewLoads" -Value "$env:temp" -Scope Global
     New-Variable -Name "MaxLength" -Value '11' -Scope Global
 
     New-Variable -Name "temp" -Value "$env:temp" -Scope Global
