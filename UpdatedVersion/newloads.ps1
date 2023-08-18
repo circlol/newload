@@ -1,4 +1,4 @@
-﻿#requires -RunAsAdministrator
+﻿#Requires -RunAsAdministrator
 
 
 $WindowTitle = "New Loads"
