@@ -1,4 +1,5 @@
-﻿Add-Type -AssemblyName System.Drawing
+﻿#requires -RunAsAdministrator
+Add-Type -AssemblyName System.Drawing
 Add-Type -AssemblyName System.Windows.Forms
 
 $WindowTitle = "New Loads"
