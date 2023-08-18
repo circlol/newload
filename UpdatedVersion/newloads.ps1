@@ -21,7 +21,7 @@ if ($SkipBitlocker) { $specifiedParameters += '-SkipBitlocker' }
 if ($SkipPrograms) { $specifiedParameters += '-SkipPrograms' }
 if ($WhatIf) { $specifiedParameters += '-WhatIf' }
 $parametersString = $specifiedParameters -join ', '
-Clear-Host
+#Clear-Host
 
 
 function Find-OptionalFeature {
