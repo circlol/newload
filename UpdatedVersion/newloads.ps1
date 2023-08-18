@@ -1,4 +1,10 @@
-﻿$WindowTitle = "New Loads"
+﻿<# 
+
+New Loads
+
+#>
+
+$WindowTitle = "New Loads"
 $host.UI.RawUI.WindowTitle = $WindowTitle
 $host.UI.RawUI.ForegroundColor = 'White'
 $host.UI.RawUI.BackgroundColor = 'Black'
@@ -21,7 +27,7 @@ if ($SkipBitlocker) { $specifiedParameters += '-SkipBitlocker' }
 if ($SkipPrograms) { $specifiedParameters += '-SkipPrograms' }
 if ($WhatIf) { $specifiedParameters += '-WhatIf' }
 $parametersString = $specifiedParameters -join ', '
-#Clear-Host
+Clear-Host
 
 
 function Find-OptionalFeature {
