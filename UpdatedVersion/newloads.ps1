@@ -24,7 +24,7 @@ if ($WhatIf) { $specifiedParameters += '-WhatIf' }
 $parametersString = $specifiedParameters -join ', '
 
 
-Clear-Host
+#Clear-Host
 
 function Find-OptionalFeature {
     <#
@@ -90,18 +90,18 @@ function Get-CPU {
     )
     try {
         $cpuName = (Get-CimInstance -Class Win32_Processor).Name
+        $cores = (Get-CimInstance -class Win32_Processor).NumberOfCores
+        $threads = (Get-CimInstance -class Win32_Processor).NumberOfLogicalProcessors
     }
     catch {
         Write-Error "Error retrieving CPU information: $_"
         return
     }
     if ($NameOnly) {
-        return $cpuName
+        write-output $cpuName
     }
-    $cores = (Get-CimInstance -class Win32_Processor).NumberOfCores
-    $threads = (Get-CimInstance -class Win32_Processor).NumberOfLogicalProcessors
     $cpuCoresAndThreads = "($cores`C/$threads`T)"
-    return "$Env:PROCESSOR_ARCHITECTURE $Separator $cpuName $cpuCoresAndThreads"
+    Write-Output "$cpuName $cpuCoresAndThreads"
 }
 function Get-DriveInfo {
     [CmdletBinding()]
@@ -117,14 +117,14 @@ function Get-DriveInfo {
         $healthStatus = $disk.HealthStatus
 
         $driveInfo += [PSCustomObject]@{
-            "Status"   = $healthStatus
+            Status   = $healthStatus
             Model      = $model
             Type       = $driveType
-            "Capacity" = "${sizeGB} GB"
+            Capacity = "${sizeGB} GB"
         }
     }
 
-    return $driveInfo
+    write-output $driveInfo
 }
 function Get-DriveSpace {
     [CmdletBinding()]
@@ -142,7 +142,7 @@ function Get-DriveSpace {
             $percentageAvailable = [math]::Round(($availableStorage / $totalStorage) * 100, 1)
 
             $driveInfo = "$driveLetter`: $([math]::Round($availableStorage, 1))/$([math]::Round($totalStorage, 1)) GB ($percentageAvailable% Available)"
-            Write-Output $driveInfo
+            Write-Output "$driveInfo`n"
         }
     }
 }
@@ -161,6 +161,15 @@ function Get-RAM {
     $ram = $ram / 1GB
     return "{0:N2} GB" -f $ram
 }
+function Get-Motherboard {
+    [CmdletBinding()]
+    [OutputType([String])]
+    param ()
+    $motherboardModel = Get-CimInstance -Class Win32_BaseBoard | Select-Object -ExpandProperty Product
+    $motherboardOEM =  Get-CimInstance -Class Win32_BaseBoard | Select-Object -ExpandProperty Manufacturer
+
+    Write-Output "$MotherboardOEM $MotherboardModel"
+}
 function Get-SystemSpec {
     [OutputType([System.Object[]])]
     param (
@@ -173,7 +182,7 @@ function Get-SystemSpec {
     $OldBuildNumber = (Get-ItemProperty "HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion").ReleaseId
     $DisplayedVersionResult = '(' + @{ $true = $DisplayVersion; $false = $OldBuildNumber }[$null -ne $DisplayVersion] + ')'
     $completedWindowsName = "$WinVer $osarch $DisplayedVersionResult"
-    return $completedWindowsName, $Separator, $(Get-RAM), $Separator, $(Get-CPU), $Separator, $(Get-GPU)
+    write-output "CPU: $(Get-CPU)`n$Separator`nMotherboard: $(Get-Motherboard)`n$Separator`nGPU: $(Get-GPU)`n$Separator`nRAM: $(Get-RAM)`n$Separator`nOS: $completedWindowsName`n$Separator`nDrives:`n$(Get-DriveSpace)"
 }
 
 Function Get-ADWCleaner {
