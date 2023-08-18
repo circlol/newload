@@ -2516,7 +2516,7 @@ Function Send-EmailLog {
     if (Test-Path -Path "$errorlog") {
         $LogFiles += $errorlog
     }
-$
+
     # - Cleans packages removed text and adds it to email
     ForEach ($Package in $PackagesRemoved) {
         $PackagesRemovedOutput = "$PackagesRemovedOutput" + "`n - $Package"
@@ -2813,7 +2813,9 @@ Ensure that the user running this function has sufficient privileges and meets t
         $SelfElevate = Read-Host -Prompt "Do you want to attempt to elevate this prompt?"
         switch ($SelfElevate){
             "Y" {
-                Start-Process powershell -verb runas -ArgumentList "-command ""irm run.newloads.ca | iex"" "
+                $wtExists = Get-Command wt -ErrorAction SilentlyContinue
+                If ($wtExists){ Start-Process wt -verb runas -ArgumentList "new-tab powershell -c ""irm run.newloads.ca | iex"""
+                } else { Start-Process powershell -verb runas -ArgumentList "-command ""irm run.newloads.ca | iex""" }
             }
             "N" {
                 exit
