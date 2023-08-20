@@ -117,8 +117,8 @@ function Get-DriveInfo {
 
         $driveInfo += [PSCustomObject]@{
             Status   = $healthStatus
-            Model      = $model
-            Type       = $driveType
+            Model    = $model
+            Type     = $driveType
             Capacity = "${sizeGB} GB"
         }
     }
@@ -165,7 +165,7 @@ function Get-Motherboard {
     [OutputType([String])]
     param ()
     $motherboardModel = Get-CimInstance -Class Win32_BaseBoard | Select-Object -ExpandProperty Product
-    $motherboardOEM =  Get-CimInstance -Class Win32_BaseBoard | Select-Object -ExpandProperty Manufacturer
+    $motherboardOEM = Get-CimInstance -Class Win32_BaseBoard | Select-Object -ExpandProperty Manufacturer
 
     Write-Output "$MotherboardOEM $MotherboardModel"
 }
@@ -183,7 +183,6 @@ function Get-SystemSpec {
     $completedWindowsName = "$WinVer $osarch $DisplayedVersionResult"
     write-output "CPU: $(Get-CPU)`n$Separator`nMotherboard: $(Get-Motherboard)`n$Separator`nGPU: $(Get-GPU)`n$Separator`nRAM: $(Get-RAM)`n$Separator`nOS: $completedWindowsName`n$Separator`nDrives:`n$(Get-DriveSpace)"
 }
-
 Function Get-ADWCleaner {
     If ($SkipADW -or $Revert) {
         Write-Status -Types "@" -Status "Parameter -SkipADW or -Undo detected.. Malwarebytes ADWCleaner will be skipped.." -WriteWarning -ForegroundColorText RED
@@ -221,9 +220,9 @@ Function Get-InstalledProgram() {
     $matchingPrograms | ForEach-Object {
         [PSCustomObject]@{
             Name            = $_.GetValue("DisplayName")
+            UninstallString = $_.GetValue("UninstallString")
             Version         = $_.GetValue("DisplayVersion")
             Publisher       = $_.GetValue("Publisher")
-            UninstallString = $_.GetValue("UninstallString")
         }
     }
 }
@@ -274,66 +273,81 @@ Function Get-Program {
     }
     else {
         $chrome = @{
-            Name                = "Google Chrome"
-            Installed           = Test-Path -Path "$Env:PROGRAMFILES\Google\Chrome\Application\chrome.exe" -ErrorAction SilentlyContinue
-            DownloadURL         = "https://dl.google.com/dl/chrome/install/googlechromestandaloneenterprise64.msi"
-            InstallerLocation   = "$temp\googlechromestandaloneenterprise64.msi"
-            FileExists          = Test-Path -Path "$temp\googlechromestandaloneenterprise64.msi" -ErrorAction SilentlyContinue
-            ArgumentList        = "/passive"
+            Name              = "Google Chrome"
+            Installed         = Test-Path -Path "$Env:PROGRAMFILES\Google\Chrome\Application\chrome.exe" -ErrorAction SilentlyContinue
+            DownloadURL       = "https://dl.google.com/dl/chrome/install/googlechromestandaloneenterprise64.msi"
+            InstallerLocation = "$temp\googlechromestandaloneenterprise64.msi"
+            FileExists        = Test-Path -Path "$temp\googlechromestandaloneenterprise64.msi" -ErrorAction SilentlyContinue
+            ArgumentList      = "/passive"
         }
         $vlc = @{
-            Name                = "VLC Media Player"
-            Installed           = Test-Path -Path "$Env:PROGRAMFILES\VideoLAN\VLC\vlc.exe" -ErrorAction SilentlyContinue
+            Name              = "VLC Media Player"
+            Installed         = Test-Path -Path "$Env:PROGRAMFILES\VideoLAN\VLC\vlc.exe" -ErrorAction SilentlyContinue
             #DownloadURL         = "https://ftp.osuosl.org/pub/videolan/vlc/3.0.18/win64/vlc-3.0.18-win64.exe"
-            DownloadURL         = "https://get.videolan.org/vlc/3.0.18/win64/vlc-3.0.18-win64.exe"
-            InstallerLocation   = "$temp\vlc-3.0.18-win64.exe"
-            FileExists          = Test-Path -Path "$temp\vlc-3.0.18-win64.exe" -ErrorAction SilentlyContinue
-            ArgumentList        = "/S /L=1033"
+            DownloadURL       = "https://get.videolan.org/vlc/3.0.18/win64/vlc-3.0.18-win64.exe"
+            InstallerLocation = "$temp\vlc-3.0.18-win64.exe"
+            FileExists        = Test-Path -Path "$temp\vlc-3.0.18-win64.exe" -ErrorAction SilentlyContinue
+            ArgumentList      = "/S /L=1033"
         }
         $zoom = @{
-            Name                = "Zoom"
-            Installed           = Test-Path -Path "$Env:PROGRAMFILES\Zoom\bin\Zoom.exe" -ErrorAction SilentlyContinue
-            DownloadURL         = "https://zoom.us/client/5.15.2.18096/ZoomInstallerFull.msi?archType=x64"
-            InstallerLocation   = "$temp\ZoomInstallerFull.msi"
-            FileExists          = Test-Path -Path "$temp\ZoomInstallerFull.msi" -ErrorAction SilentlyContinue
-            ArgumentList        = "/quiet"
+            Name              = "Zoom"
+            Installed         = Test-Path -Path "$Env:PROGRAMFILES\Zoom\bin\Zoom.exe" -ErrorAction SilentlyContinue
+            DownloadURL       = "https://zoom.us/client/5.15.2.18096/ZoomInstallerFull.msi?archType=x64"
+            InstallerLocation = "$temp\ZoomInstallerFull.msi"
+            FileExists        = Test-Path -Path "$temp\ZoomInstallerFull.msi" -ErrorAction SilentlyContinue
+            ArgumentList      = "/quiet"
         }
         $acrobat = @{
-            Name                = "Adobe Acrobat Reader"
-            Installed           = Test-Path -Path "${Env:Programfiles(x86)}\Adobe\Acrobat Reader DC\Reader\AcroRd32.exe" -ErrorAction SilentlyContinue
-            DownloadURL         = "https://ardownload2.adobe.com/pub/adobe/reader/win/AcrobatDC/2200120169/AcroRdrDC2200120169_en_US.exe"
-            InstallerLocation   = "$temp\AcroRdrDCx642200120085_MUI.exe"
-            FileExists          = Test-Path -Path "$temp\AcroRdrDCx642200120085_MUI.exe" -ErrorAction SilentlyContinue
-            ArgumentList        = "/sPB"
+            Name              = "Adobe Acrobat Reader"
+            Installed         = Test-Path -Path "${Env:Programfiles(x86)}\Adobe\Acrobat Reader DC\Reader\AcroRd32.exe" -ErrorAction SilentlyContinue
+            DownloadURL       = "https://ardownload2.adobe.com/pub/adobe/reader/win/AcrobatDC/2200120169/AcroRdrDC2200120169_en_US.exe"
+            InstallerLocation = "$temp\AcroRdrDCx642200120085_MUI.exe"
+            FileExists        = Test-Path -Path "$temp\AcroRdrDCx642200120085_MUI.exe" -ErrorAction SilentlyContinue
+            ArgumentList      = "/sPB"
         }
         $HEVC = @{
-            Name                = "HEVC/H.265 Codec"
-            Installed            = $False
-            DownloadURL         = "https://github.com/circlol/newload/raw/main/assets/Microsoft.HEVCVideoExtension_2.0.60091.0_x64__8wekyb3d8bbwe.Appx"
-            InstallerLocation   = "$temp\Microsoft.HEVCVideoExtension_2.0.60091.0_x64__8wekyb3d8bbwe.Appx"
-            FileExists          = Test-Path -Path "$temp\Microsoft.HEVCVideoExtension_2.0.60091.0_x64__8wekyb3d8bbwe.Appx" -ErrorAction SilentlyContinue
+            Name              = "HEVC/H.265 Codec"
+            Installed         = $False
+            DownloadURL       = "https://github.com/circlol/newload/raw/main/assets/Microsoft.HEVCVideoExtension_2.0.60091.0_x64__8wekyb3d8bbwe.Appx"
+            InstallerLocation = "$temp\Microsoft.HEVCVideoExtension_2.0.60091.0_x64__8wekyb3d8bbwe.Appx"
+            FileExists        = Test-Path -Path "$temp\Microsoft.HEVCVideoExtension_2.0.60091.0_x64__8wekyb3d8bbwe.Appx" -ErrorAction SilentlyContinue
         }
 
         foreach ( $program in $chrome, $vlc, $zoom, $acrobat, $hevc ) {
             Write-Section -Text $program.Name
             if ( $program.Installed -eq $false ) {
-                if ( $program.FileExists -eq $false ){
+                if ( $program.FileExists -eq $false ) {
                     Get-NetworkStatus
                     try {
                         Write-Status -Types "+", $TweakType -Status "Downloading $($program.Name)" -NoNewLine
                         Start-BitsTransfer -Source $program.DownloadURL -Destination $program.InstallerLocation -TransferType Download -Dynamic
                         Get-Status
-                    }catch{
+                    }
+                    catch {
                         Write-Caption $_ -Type Failed
+                        continue
                     }
                 }
-                If ($program.Name -eq $hevc.Name){
+                If ($program.Name -eq $hevc.Name) {
                     Write-Status -Types "+", $TweakType -Status "Adding support to $($HEVC.name) codec..." -NoNewLine
-                    Add-AppPackage -Path $HEVC.InstallerLocation -ErrorAction SilentlyContinue
+                    try {
+                        Add-AppPackage -Path $HEVC.InstallerLocation -ErrorAction SilentlyContinue
+                    }
+                    catch {
+                        Write-Caption $_ -Type Failed
+                        continue
+                    }
                     Get-Status
-                } else {
+                }
+                else {
                     Write-Status -Types "+", $TweakType -Status "Installing $($program.Name)"
-                    Start-Process -FilePath $program.InstallerLocation -ArgumentList $program.ArgumentList -Wait
+                    try {
+                        Start-Process -FilePath $program.InstallerLocation -ArgumentList $program.ArgumentList -Wait
+                    }
+                    catch {
+                        Write-Caption $_ -Type Failed
+                        continue
+                    }
                 }
                 if ($program.Name -eq $Chrome.name) {
                     Write-Status "+", $TweakType -Status "Adding UBlock Origin to Google Chrome"
@@ -1504,7 +1518,8 @@ Function Optimize-Privacy {
     )
 
     ForEach ($Key in $KeysToDelete) {
-        If ((Test-Path $Key)) {
+        $KeyExist = Test-Path $key
+        If ($KeyExist -eq $true) {
             Write-Status -Types "-", $TweakType -Status "Removing Key: [$Key]"
             Remove-Item $Key -Recurse
         }
@@ -1551,11 +1566,25 @@ Function Optimize-Security {
 
     Write-Section "Windows Defender"
     Write-Status -Types "+", $TweakType -Status "Enabling Microsoft Defender Exploit Guard network protection..." -NoNewLine
-    Set-MpPreference -EnableNetworkProtection Enabled -Force
+    try { 
+        Set-MpPreference -EnableNetworkProtection Enabled -Force 
+    }
+    catch {
+        Get-Status
+        Write-Caption $_ -Type Failed
+        continue
+    }
     Get-Status
 
     Write-Status -Types "+", $TweakType -Status "Enabling detection for potentially unwanted applications and block them..." -NoNewLine
-    Set-MpPreference -PUAProtection Enabled -Force
+    try { 
+        Set-MpPreference -PUAProtection Enabled -Force
+    }
+    catch {
+        Get-Status
+        Write-Caption $_ -Type Failed
+        continue
+    }
     Get-Status
 
     Write-Section "SmartScreen"
@@ -1567,7 +1596,14 @@ Function Optimize-Security {
 
     Write-Section "Old SMB Protocol"
     Write-Status -Types "+", $TweakType -Status "Disabling SMB 1.0 protocol..." -NoNewLine
-    Set-SmbServerConfiguration -EnableSMB1Protocol $false -Force
+    try { 
+        Set-SmbServerConfiguration -EnableSMB1Protocol $false -Force 
+    }
+    catch {
+        Get-Status
+        Write-Caption $_ -Type Failed
+        continue
+    }
     Get-Status
 
     Write-Section "Old .NET cryptography"
@@ -1609,6 +1645,7 @@ Function Optimize-Service {
     }
     Set-ServiceStartup -State 'Manual' -Services $ServicesToManual
 }
+
 function Optimize-SSD {
     # SSD life improvement
     Write-Section "SSD Optimization"
@@ -1669,17 +1706,15 @@ Function Remove-InstalledProgram {
             $actionDescription = "Uninstalling $Name..."
             if ($PSCmdlet.ShouldProcess($actionDescription, "Uninstall")) {
                 Write-Host "Uninstalling $Name..."
-                if ($UninstallString -match 'msiexec.exe /i') {
+                if ($UninstallString -match "msiexec.exe /i*") {
                     # Uninstall using MSIExec
                     $arguments = $UninstallString.Split(" ", 2)[1]
                     Start-Process -FilePath 'msiexec.exe' -ArgumentList "$arguments" -Wait -NoNewWindow
                 }
-                elseif ($UninstallString -match 'msiexec.exe /x') {
-                    # Add specific implementation for msiexec.exe /x if needed
-                }
+                elseif ($UninstallString -match 'msiexec.exe /x') { <# add this part later #> }
                 else {
                     # Uninstall using regular command
-                    Start-Process -FilePath $UninstallString -ArgumentList "/quiet", "/norestart" -Wait -NoNewWindow
+                    Start-Process "$UninstallString" -Wait -NoNewWindow
                 }
                 Write-Host "$Name uninstalled successfully."
             }
@@ -2812,11 +2847,13 @@ Ensure that the user running this function has sufficient privileges and meets t
                                                                       (__(__)___(__)__)          `n`n"
         Write-Host $errorMessage -ForegroundColor Yellow
         $SelfElevate = Read-Host -Prompt "Do you want to attempt to elevate this prompt?"
-        switch ($SelfElevate){
+        switch ($SelfElevate) {
             "Y" {
                 $wtExists = Get-Command wt -ErrorAction SilentlyContinue
-                If ($wtExists){ Start-Process wt -verb runas -ArgumentList "new-tab powershell -c ""irm run.newloads.ca | iex"""
-                } else { Start-Process powershell -verb runas -ArgumentList "-command ""irm run.newloads.ca | iex""" }
+                If ($wtExists) {
+                    Start-Process wt -verb runas -ArgumentList "new-tab powershell -c ""irm run.newloads.ca | iex"""
+                }
+                else { Start-Process powershell -verb runas -ArgumentList "-command ""irm run.newloads.ca | iex""" }
             }
             "N" {
                 exit
