@@ -24,8 +24,8 @@ $Variables = @{
     # Local File Paths
     "WallpaperDestination" = "C:\Windows\Resources\Themes\mother.jpg"
     "WallpaperPath" = "$NewLoads\mother.jpg"
-    "ErrorLog" = "$env:userprofile\Desktop\New Loads Errors.Log"
-    "Log" = "$env:userprofile\Desktop\New Loads.Log"
+    "ErrorLog" = "$env:userprofile\Desktop\New Loads Errors.txt"
+    "Log" = "$env:userprofile\Desktop\New Loads.txt"
     "adwDestination" = "$NewLoads\adwcleaner.exe"
     "DriverSelectorPath" = "$NewLoads\Driver Grabber.exe"
     "WindowsUpdatesPath" = "$NewLoads\Windows Updates.exe"
