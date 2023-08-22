@@ -3,13 +3,13 @@ $WindowTitle = "New Loads"
 $host.UI.RawUI.WindowTitle = $WindowTitle
 $host.UI.RawUI.ForegroundColor = 'White'
 $host.UI.RawUI.BackgroundColor = 'Black'
+$ForegroundColor = "DarkMagenta"
+$BackgroundColor = "Black"
+$LogoColor = "DarkMagenta"
 Add-Type -AssemblyName System.Windows.Forms
 Add-Type -AssemblyName System.Drawing
 $NewLoads = $env:temp
 $Variables = @{
-    "ForegroundColor" = "DarkMagenta"
-    "BackgroundColor" = "Black"
-    "LogoColor" = "DarkMagenta"
     "ProgramVersion" = "v1.06"
     "ReleaseDate" = "August 14th, 2023"
     "SelectedParameters" = @()
