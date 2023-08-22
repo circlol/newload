@@ -3,13 +3,13 @@ $WindowTitle = "New Loads"
 $host.UI.RawUI.WindowTitle = $WindowTitle
 $host.UI.RawUI.ForegroundColor = 'White'
 $host.UI.RawUI.BackgroundColor = 'Black'
-$ForegroundColor = "DarkMagenta"
-$BackgroundColor = "Black"
-$LogoColor = "DarkMagenta"
 Add-Type -AssemblyName System.Windows.Forms
 Add-Type -AssemblyName System.Drawing
 $NewLoads = $env:temp
 $Variables = @{
+    "ForegroundColor" = "DarkMagenta"
+    "BackgroundColor" = "Black"
+    "LogoColor" = "DarkMagenta"
     "ProgramVersion" = "v1.06"
     "ReleaseDate" = "August 14th, 2023"
     "SelectedParameters" = @()
@@ -412,14 +412,14 @@ $Variables = @{
     )
 }
 [Int]$Counter = 0
-if ($GUI) { $specifiedParameters += '-GUI' }
-if ($NoBranding) { $specifiedParameters += '-NoBranding' }
-if ($Undo) { $specifiedParameters += '-Undo' }
-if ($SkipADW) { $specifiedParameters += '-SkipADW' }
-if ($SkipBitlocker) { $specifiedParameters += '-SkipBitlocker' }
-if ($SkipPrograms) { $specifiedParameters += '-SkipPrograms' }
-if ($WhatIf) { $specifiedParameters += '-WhatIf' }
-$parametersString = $specifiedParameters -join ', '
+if ($GUI) { $Variables.specifiedParameters += '-GUI' }
+if ($NoBranding) { $Variables.specifiedParameters += '-NoBranding' }
+if ($Undo) { $Variables.specifiedParameters += '-Undo' }
+if ($SkipADW) { $Variables.specifiedParameters += '-SkipADW' }
+if ($SkipBitlocker) { $Variables.specifiedParameters += '-SkipBitlocker' }
+if ($SkipPrograms) { $Variables.specifiedParameters += '-SkipPrograms' }
+if ($WhatIf) { $Variables.specifiedParameters += '-WhatIf' }
+$parametersString = $Variables.specifiedParameters -join ', '
 Clear-Host
 
 
@@ -2604,7 +2604,7 @@ The Show-ScriptLogo function is typically used during the application's bootup p
 #>
     $WindowTitle = "New Loads - Initialization" ; $host.UI.RawUI.WindowTitle = $WindowTitle
     Write-Host "`n`n`n"
-    Write-Host "▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀" -NoNewLine -ForegroundColor $ForegroundColor -BackgroundColor Blue
+    Write-Host "▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀" -NoNewLine -ForegroundColor $Variables.ForegroundColor -BackgroundColor Blue
     Write-Host "`n`n`n" -NoNewline
     $Logo = "
                         ███╗   ██╗███████╗██╗    ██╗    ██╗      ██████╗  █████╗ ██████╗ ███████╗
@@ -2614,16 +2614,16 @@ The Show-ScriptLogo function is typically used during the application's bootup p
                         ██║ ╚████║███████╗╚███╔███╔╝    ███████╗╚██████╔╝██║  ██║██████╔╝███████║
                         ╚═╝  ╚═══╝╚══════╝ ╚══╝╚══╝     ╚══════╝ ╚═════╝ ╚═╝  ╚═╝╚═════╝ ╚══════╝
                         "
-    Write-Host "$Logo`n`n" -ForegroundColor $LogoColor -BackgroundColor Black -NoNewline
+    Write-Host "$Logo`n`n" -ForegroundColor $Variables.LogoColor -BackgroundColor Black -NoNewline
     Write-Host "                               Created by " -NoNewLine -ForegroundColor White -BackgroundColor Black
     Write-Host "Papi" -ForegroundColor Red -BackgroundColor Black -NoNewLine
     Write-Host "      Last Update: " -NoNewLine -ForegroundColor White -BackgroundColor Black
-    Write-Host "$ProgramVersion - $ReleaseDate" -ForegroundColor Green -BackgroundColor Black
+    Write-Host "$($Variables.ProgramVersion) - $($Variables.ReleaseDate)" -ForegroundColor Green -BackgroundColor Black
     Write-Host "`n`n  Notice: " -NoNewLine -ForegroundColor RED -BackgroundColor Black
     Write-Host "For New Loads to function correctly, it is important to update your system to the latest version of Windows.`n" -ForegroundColor Yellow -BackgroundColor Black
-    if ($specifiedParameters.Count -ne 0) { Write-Host "  Specified Parameters: " -ForegroundColor $LogoColor -NoNewLine ; Write-Host "$parametersString `n" }
+    if ($Variables.specifiedParameters.Count -ne 0) { Write-Host "  Specified Parameters: " -ForegroundColor $Variables.LogoColor -NoNewLine ; Write-Host "$parametersString `n" }
     Write-Host ""
-    Write-Host "▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀" -ForegroundColor Blue -BackgroundColor $LogoColor
+    Write-Host "▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀" -ForegroundColor Blue -BackgroundColor $Variables.LogoColor
     Write-Host "`n`n"
     $WindowTitle = "New Loads" ; $host.UI.RawUI.WindowTitle = $WindowTitle
 }
@@ -3255,9 +3255,9 @@ Function Write-Break {
         Displays a horizontal break line using the default foreground and background colors.
 
 #>
-    Write-Host "`n`n[" -NoNewline -ForegroundColor $ForegroundColor -Backgroundcolor $BackgroundColor
-    Write-Host "================================================================================================" -NoNewLine -ForegroundColor White -BackgroundColor $BackgroundColor
-    Write-Host "]`n" -ForegroundColor $ForegroundColor -BackgroundColor $BackgroundColor
+    Write-Host "`n`n[" -NoNewline -ForegroundColor $Variables.ForegroundColor -Backgroundcolor $Variables.BackgroundColor
+    Write-Host "================================================================================================" -NoNewLine -ForegroundColor White -BackgroundColor $Variables.BackgroundColor
+    Write-Host "]`n" -ForegroundColor $Variables.ForegroundColor -BackgroundColor $Variables.BackgroundColor
 }
 Function Write-Caption() {
     [CmdletBinding()]
@@ -3293,11 +3293,11 @@ Function Write-Caption() {
     }
 
     if ($Type -ne "none") {
-        Write-Host "==" -NoNewline -ForegroundColor $foreground -BackgroundColor $BackgroundColor
-        Write-Host "> " -NoNewline -ForegroundColor $bgForeground -BackgroundColor $BackgroundColor
+        Write-Host "==" -NoNewline -ForegroundColor $foreground -BackgroundColor $Variables.BackgroundColor
+        Write-Host "> " -NoNewline -ForegroundColor $bgForeground -BackgroundColor $Variables.BackgroundColor
     }
 
-    Write-Host "$Text" -ForegroundColor White -BackgroundColor $BackgroundColor
+    Write-Host "$Text" -ForegroundColor White -BackgroundColor $Variables.BackgroundColor
 }
 Function Write-HostReminder() {
     <#
@@ -3327,9 +3327,9 @@ Function Write-HostReminder() {
     param (
         [String] $Text = "Example text"
     )
-    Write-Host "[" -BackgroundColor $BackgroundColor -ForegroundColor $ForegroundColor -NoNewline
+    Write-Host "[" -BackgroundColor $Variables.BackgroundColor -ForegroundColor $Variables.ForegroundColor -NoNewline
     Write-Host " REMINDER " -BackgroundColor Red -ForegroundColor White -NoNewLine
-    Write-Host "]" -BackgroundColor $BackgroundColor -ForegroundColor $ForegroundColor -NoNewline
+    Write-Host "]" -BackgroundColor $Variables.BackgroundColor -ForegroundColor $Variables.ForegroundColor -NoNewline
     Write-Host ": $text`n"
 }
 Function Write-Section() {
@@ -3359,13 +3359,13 @@ Function Write-Section() {
     param (
         [String] $Text = "No Text"
     )
-    Write-Host "`n<" -NoNewline -ForegroundColor $ForegroundColor -BackgroundColor $BackgroundColor
-    Write-Host "=================" -NoNewline -ForegroundColor White -BackgroundColor $BackgroundColor
-    Write-Host "] " -NoNewline -ForegroundColor $ForegroundColor -BackgroundColor $BackgroundColor
-    Write-Host "$Text " -NoNewline -ForegroundColor White -BackgroundColor $BackgroundColor
-    Write-Host "[" -NoNewline -ForegroundColor $ForegroundColor -BackgroundColor $BackgroundColor
-    Write-Host "=================" -NoNewline -ForegroundColor White -BackgroundColor $BackgroundColor
-    Write-Host ">" -ForegroundColor $ForegroundColor -BackgroundColor $BackgroundColor
+    Write-Host "`n<" -NoNewline -ForegroundColor $Variables.ForegroundColor -BackgroundColor $Variables.BackgroundColor
+    Write-Host "=================" -NoNewline -ForegroundColor White -BackgroundColor $Variables.BackgroundColor
+    Write-Host "] " -NoNewline -ForegroundColor $Variables.ForegroundColor -BackgroundColor $Variables.BackgroundColor
+    Write-Host "$Text " -NoNewline -ForegroundColor White -BackgroundColor $Variables.BackgroundColor
+    Write-Host "[" -NoNewline -ForegroundColor $Variables.ForegroundColor -BackgroundColor $Variables.BackgroundColor
+    Write-Host "=================" -NoNewline -ForegroundColor White -BackgroundColor $Variables.BackgroundColor
+    Write-Host ">" -ForegroundColor $Variables.ForegroundColor -BackgroundColor $Variables.BackgroundColor
 }
 Function Write-Status() {
     <#
@@ -3427,17 +3427,17 @@ Function Write-Status() {
     # Prints date in line, converts to Month Day Year Hour Minute Period
     $Time = Get-Date
     $FormattedTime = $Time.ToString("h:mm:ss tt")
-    Write-Host "$FormattedTime " -NoNewline -ForegroundColor DarkGray -BackgroundColor $BackgroundColor
+    Write-Host "$FormattedTime " -NoNewline -ForegroundColor DarkGray -BackgroundColor $Variables.BackgroundColor
 
     ForEach ($Type in $Types) {
-        Write-Host "$Type " -NoNewline -ForegroundColor $ForegroundColor -BackgroundColor $BackgroundColor
+        Write-Host "$Type " -NoNewline -ForegroundColor $Variables.ForegroundColor -BackgroundColor $Variables.BackgroundColor
     }
 
     If ($WriteWarning) {
-        Write-Host "::Warning:: -> $Status" -ForegroundColor $ForegroundColorText -BackgroundColor $BackgroundColor -NoNewline:$NoNewLine
+        Write-Host "::Warning:: -> $Status" -ForegroundColor $ForegroundColorText -BackgroundColor $Variables.BackgroundColor -NoNewline:$NoNewLine
     }
     Else {
-        Write-Host "-> $Status" -ForegroundColor $ForegroundColorText -BackgroundColor $BackgroundColor -NoNewline:$NoNewLine
+        Write-Host "-> $Status" -ForegroundColor $ForegroundColorText -BackgroundColor $Variables.BackgroundColor -NoNewline:$NoNewLine
     }
 }
 Function Write-Title() {
@@ -3468,13 +3468,13 @@ Function Write-Title() {
     param (
         [String] $Text = "No Text"
     )
-    Write-Host "`n<" -NoNewline -ForegroundColor $ForegroundColor -BackgroundColor $BackgroundColor
-    Write-Host "===========================" -NoNewline -ForegroundColor White -BackgroundColor $BackgroundColor
-    Write-Host "] " -NoNewline -ForegroundColor $ForegroundColor -BackgroundColor $BackgroundColor
-    Write-Host "$Text " -NoNewline -ForegroundColor White -BackgroundColor $BackgroundColor
-    Write-Host "[" -NoNewline -ForegroundColor $ForegroundColor -BackgroundColor $BackgroundColor
-    Write-Host "===========================" -NoNewline -ForegroundColor White -BackgroundColor $BackgroundColor
-    Write-Host ">" -ForegroundColor $ForegroundColor -BackgroundColor $BackgroundColor
+    Write-Host "`n<" -NoNewline -ForegroundColor $Variables.ForegroundColor -BackgroundColor $Variables.BackgroundColor
+    Write-Host "===========================" -NoNewline -ForegroundColor White -BackgroundColor $Variables.BackgroundColor
+    Write-Host "] " -NoNewline -ForegroundColor $Variables.ForegroundColor -BackgroundColor $Variables.BackgroundColor
+    Write-Host "$Text " -NoNewline -ForegroundColor White -BackgroundColor $Variables.BackgroundColor
+    Write-Host "[" -NoNewline -ForegroundColor $Variables.ForegroundColor -BackgroundColor $Variables.BackgroundColor
+    Write-Host "===========================" -NoNewline -ForegroundColor White -BackgroundColor $Variables.BackgroundColor
+    Write-Host ">" -ForegroundColor $Variables.ForegroundColor -BackgroundColor $Variables.BackgroundColor
 }
 Function Write-TitleCounter() {
     <#
@@ -3513,17 +3513,17 @@ Function Write-TitleCounter() {
         [Int]    $Counter = 0,
         [Int] 	 $MaxLength
     )
-    Write-Host "`n`n<" -NoNewline -ForegroundColor $ForegroundColor -BackgroundColor $BackgroundColor
-    Write-Host "=-=-=-=-=-=-=-=-=-=-=-=-=-=" -NoNewline -ForegroundColor White -BackgroundColor $BackgroundColor
-    Write-Host "]" -NoNewline -ForegroundColor $ForegroundColor -BackgroundColor $BackgroundColor
-    Write-Host " (" -NoNewline -ForegroundColor $ForegroundColor -BackgroundColor $BackgroundColor
-    Write-Host " $Counter/$MaxLength " -NoNewline -ForegroundColor White -BackgroundColor $BackgroundColor
-    Write-Host ") " -NoNewline -ForegroundColor $ForegroundColor -BackgroundColor $BackgroundColor
-    Write-Host "|" -NoNewline -ForegroundColor White -BackgroundColor $BackgroundColor
-    Write-Host " $Text " -NoNewline -ForegroundColor $ForegroundColor -BackgroundColor $BackgroundColor
-    Write-Host "[" -NoNewline -ForegroundColor $ForegroundColor -BackgroundColor $BackgroundColor
-    Write-Host "=-=-=-=-=-=-=-=-=-=-=-=-=-=" -NoNewline -ForegroundColor White -BackgroundColor $BackgroundColor
-    Write-Host ">" -ForegroundColor $ForegroundColor -BackgroundColor $BackgroundColor
+    Write-Host "`n`n<" -NoNewline -ForegroundColor $Variables.ForegroundColor -BackgroundColor $Variables.BackgroundColor
+    Write-Host "=-=-=-=-=-=-=-=-=-=-=-=-=-=" -NoNewline -ForegroundColor White -BackgroundColor $Variables.BackgroundColor
+    Write-Host "]" -NoNewline -ForegroundColor $Variables.ForegroundColor -BackgroundColor $Variables.BackgroundColor
+    Write-Host " (" -NoNewline -ForegroundColor $Variables.ForegroundColor -BackgroundColor $Variables.BackgroundColor
+    Write-Host " $Counter/$MaxLength " -NoNewline -ForegroundColor White -BackgroundColor $Variables.BackgroundColor
+    Write-Host ") " -NoNewline -ForegroundColor $Variables.ForegroundColor -BackgroundColor $Variables.BackgroundColor
+    Write-Host "|" -NoNewline -ForegroundColor White -BackgroundColor $Variables.BackgroundColor
+    Write-Host " $Text " -NoNewline -ForegroundColor $Variables.ForegroundColor -BackgroundColor $Variables.BackgroundColor
+    Write-Host "[" -NoNewline -ForegroundColor $Variables.ForegroundColor -BackgroundColor $Variables.BackgroundColor
+    Write-Host "=-=-=-=-=-=-=-=-=-=-=-=-=-=" -NoNewline -ForegroundColor White -BackgroundColor $Variables.BackgroundColor
+    Write-Host ">" -ForegroundColor $Variables.ForegroundColor -BackgroundColor $Variables.BackgroundColor
 }
 
 # Initiation #
