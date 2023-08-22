@@ -755,6 +755,11 @@ Function Get-Program {
             }
             else {
                 Write-Status -Types "@", $TweakType -Status "$($program.Name) already seems to be installed on this system.. Skipping Installation"
+                if ($program.Name -eq $Chrome.name) {
+                    Write-Status "+", $TweakType -Status "Adding UBlock Origin to Google Chrome"
+                    Set-ItemPropertyVerified -Path $Variables.PathToUblockChrome -Name "update_url" -value $Variables.PathToChromeLink -Type STRING
+                    Get-Status
+                }
             }
         }
 
