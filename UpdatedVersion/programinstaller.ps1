@@ -10,6 +10,13 @@ $Install                         = New-Object system.Windows.Forms.Form
 $Install.ClientSize              = New-Object System.Drawing.Point(938,686)
 $Install.text                    = "Install Programs"
 $Install.TopMost                 = $false
+$Install.Resize                  = $false
+$Install.AutoScroll              = $True
+$Install.AutoSize                = $True
+$Install.MaximizeBox             = $false
+$Install.MinimizeBox             = $false
+$Install.FormBorderStyle         = 'FixedSingle'
+$Install.StartPosition           = "CenterScreen"
 
 $Label_Browsers                  = New-Object system.Windows.Forms.Label
 $Label_Browsers.text             = "Browsers"
@@ -22,6 +29,7 @@ $Label_Browsers.Font             = New-Object System.Drawing.Font('Malgun Gothic
 $CheckBox_Chrome                 = New-Object system.Windows.Forms.CheckBox
 $CheckBox_Chrome.text            = "Chrome"
 $CheckBox_Chrome.AutoSize        = $false
+$CheckBox_Chrome.Checked         = $True
 $CheckBox_Chrome.width           = 95
 $CheckBox_Chrome.height          = 20
 $CheckBox_Chrome.location        = New-Object System.Drawing.Point(37,54)
@@ -257,13 +265,13 @@ $CheckBox_VoicemeeterBanana.height  = 20
 $CheckBox_VoicemeeterBanana.location  = New-Object System.Drawing.Point(223,154)
 $CheckBox_VoicemeeterBanana.Font  = New-Object System.Drawing.Font('Malgun Gothic',10)
 
-$CheckBox_VoiceMeeterPotato      = New-Object system.Windows.Forms.CheckBox
-$CheckBox_VoiceMeeterPotato.text  = "Voicemeeter Potato"
+$CheckBox_VoiceMeeterPotato           = New-Object system.Windows.Forms.CheckBox
+$CheckBox_VoiceMeeterPotato.text      = "Voicemeeter Potato"
 $CheckBox_VoiceMeeterPotato.AutoSize  = $false
-$CheckBox_VoiceMeeterPotato.width  = 95
-$CheckBox_VoiceMeeterPotato.height  = 20
+$CheckBox_VoiceMeeterPotato.width     = 95
+$CheckBox_VoiceMeeterPotato.height    = 20
 $CheckBox_VoiceMeeterPotato.location  = New-Object System.Drawing.Point(223,172)
-$CheckBox_VoiceMeeterPotato.Font  = New-Object System.Drawing.Font('Malgun Gothic',10)
+$CheckBox_VoiceMeeterPotato.Font      = New-Object System.Drawing.Font('Malgun Gothic',10)
 
 $CheckBox_Handbrake              = New-Object system.Windows.Forms.CheckBox
 $CheckBox_Handbrake.text         = "HandBrake"
@@ -329,13 +337,13 @@ $CheckBox_Epic.height            = 20
 $CheckBox_Epic.location          = New-Object System.Drawing.Point(227,314)
 $CheckBox_Epic.Font              = New-Object System.Drawing.Font('Malgun Gothic',10)
 
-$CheckBox_Origin                 = New-Object system.Windows.Forms.CheckBox
-$CheckBox_Origin.text            = "Origin"
-$CheckBox_Origin.AutoSize        = $false
-$CheckBox_Origin.width           = 95
-$CheckBox_Origin.height          = 20
-$CheckBox_Origin.location        = New-Object System.Drawing.Point(228,365)
-$CheckBox_Origin.Font            = New-Object System.Drawing.Font('Malgun Gothic',10)
+$CheckBox_EADesktop              = New-Object system.Windows.Forms.CheckBox
+$CheckBox_EADesktop.text         = "EA Desktop"
+$CheckBox_EADesktop.AutoSize     = $false
+$CheckBox_EADesktop.width        = 95
+$CheckBox_EADesktop.height       = 20
+$CheckBox_EADesktop.location     = New-Object System.Drawing.Point(228,365)
+$CheckBox_EADesktop.Font         = New-Object System.Drawing.Font('Malgun Gothic',10)
 
 $Label_Cloud                     = New-Object system.Windows.Forms.Label
 $Label_Cloud.text                = "Cloud"
@@ -401,21 +409,21 @@ $CheckBox_Kaspersky.height       = 20
 $CheckBox_Kaspersky.location     = New-Object System.Drawing.Point(422,190)
 $CheckBox_Kaspersky.Font         = New-Object System.Drawing.Font('Malgun Gothic',10)
 
-$CheckBox_SuperAntiSpyware       = New-Object system.Windows.Forms.CheckBox
-$CheckBox_SuperAntiSpyware.text  = "SuperAntiSpyware"
-$CheckBox_SuperAntiSpyware.AutoSize  = $false
-$CheckBox_SuperAntiSpyware.width  = 95
-$CheckBox_SuperAntiSpyware.height  = 20
-$CheckBox_SuperAntiSpyware.location  = New-Object System.Drawing.Point(421,222)
-$CheckBox_SuperAntiSpyware.Font  = New-Object System.Drawing.Font('Malgun Gothic',10)
+$CheckBox_SuperAntiSpyware          = New-Object system.Windows.Forms.CheckBox
+$CheckBox_SuperAntiSpyware.text     = "SuperAntiSpyware"
+$CheckBox_SuperAntiSpyware.AutoSize = $false
+$CheckBox_SuperAntiSpyware.width    = 95
+$CheckBox_SuperAntiSpyware.height   = 20
+$CheckBox_SuperAntiSpyware.location = New-Object System.Drawing.Point(421,222)
+$CheckBox_SuperAntiSpyware.Font     = New-Object System.Drawing.Font('Malgun Gothic',10)
 
-$CheckBox_SpybotAntiMalware      = New-Object system.Windows.Forms.CheckBox
-$CheckBox_SpybotAntiMalware.text  = "Spybot AntiMalware"
-$CheckBox_SpybotAntiMalware.AutoSize  = $false
-$CheckBox_SpybotAntiMalware.width  = 95
-$CheckBox_SpybotAntiMalware.height  = 20
-$CheckBox_SpybotAntiMalware.location  = New-Object System.Drawing.Point(420,238)
-$CheckBox_SpybotAntiMalware.Font  = New-Object System.Drawing.Font('Malgun Gothic',10)
+$CheckBox_SpybotAntiBeacon          = New-Object system.Windows.Forms.CheckBox
+$CheckBox_SpybotAntiBeacon.text     = "Spybot AntiMalware"
+$CheckBox_SpybotAntiBeacon.AutoSize = $false
+$CheckBox_SpybotAntiBeacon.width    = 95
+$CheckBox_SpybotAntiBeacon.height   = 20
+$CheckBox_SpybotAntiBeacon.location = New-Object System.Drawing.Point(420,238)
+$CheckBox_SpybotAntiBeacon.Font     = New-Object System.Drawing.Font('Malgun Gothic',10)
 
 $CheckBox_OOShutUp10             = New-Object system.Windows.Forms.CheckBox
 $CheckBox_OOShutUp10.text        = "O&O Shutup 10"
@@ -542,6 +550,7 @@ $CheckBox_Fluent.text            = "Fluent Search"
 $CheckBox_Fluent.AutoSize        = $false
 $CheckBox_Fluent.width           = 95
 $CheckBox_Fluent.height          = 20
+
 $CheckBox_Fluent.location        = New-Object System.Drawing.Point(628,112)
 $CheckBox_Fluent.Font            = New-Object System.Drawing.Font('Malgun Gothic',10)
 
@@ -549,6 +558,7 @@ $CheckBox_Powertoys              = New-Object system.Windows.Forms.CheckBox
 $CheckBox_Powertoys.text         = "Powertoys"
 $CheckBox_Powertoys.AutoSize     = $false
 $CheckBox_Powertoys.width        = 95
+$CheckBox_Powertoys.clicked      = $true
 $CheckBox_Powertoys.height       = 20
 $CheckBox_Powertoys.location     = New-Object System.Drawing.Point(628,78)
 $CheckBox_Powertoys.Font         = New-Object System.Drawing.Font('Malgun Gothic',10)
@@ -569,11 +579,470 @@ $CheckBox_LaunchMenu.height      = 20
 $CheckBox_LaunchMenu.location    = New-Object System.Drawing.Point(627,129)
 $CheckBox_LaunchMenu.Font        = New-Object System.Drawing.Font('Malgun Gothic',10)
 
-$Install.controls.AddRange(@($Label_Browsers,$CheckBox_Chrome,$CheckBox_Firefox,$CheckBox_Opera,$CheckBox_Brave,$Label_PasswordManagers,$CheckBox_Edge,$CheckBox_Bitwarden,$CheckBox_Keeper,$CheckBox_1Password,$CheckBox_Dashlane,$CheckBox_Lastpass,$CheckBox_NordPass,$CheckBox_Roboform,$Label_Messaging,$CheckBox_Messenger,$CheckBox_Signal,$CheckBox_Teams,$CheckBox_WeChat,$CheckBox_Discord,$CheckBox_Skype,$ProgressBar1,$Button_Start,$Label_Media,$CheckBox_VLC,$CheckBox_Audacity,$CheckBox_Foobar,$CheckBox_iTunes,$CheckBox_MPC,$CheckBox_Voicemeeter,$CheckBox_VoicemeeterBanana,$CheckBox_VoiceMeeterPotato,$CheckBox_Handbrake,$CheckBox_Spotify,$Label_Gaming,$CheckBox_Steam,$CheckBox_Xbox,$CheckBox_GOG,$CheckBox_Battlenet,$CheckBox_Epic,$CheckBox_Origin,$Label_Cloud,$CheckBox_OneDrive,$CheckBox_iDrive,$CheckBox_GoogleDrive,$CheckBox_iCloud,$CheckBox_Dropbox,$CheckBox_Malwarebytes,$CheckBox_Kaspersky,$CheckBox_SuperAntiSpyware,$CheckBox_SpybotAntiMalware,$CheckBox_OOShutUp10,$Label_Security,$CheckBox_Blackbird,$Label_VPN,$CheckBox_KasperskyVPN,$CheckBox_Surfshark,$CheckBox_PIA,$CheckBox_NordVPN,$CheckBox_ExpressVPN,$Label_Compression,$CheckBox_7zip,$CheckBox_WinRAR,$CheckBox_NanaZip,$Label_Search,$CheckBox_FlowLauncher,$CheckBox_Fluent,$CheckBox_Powertoys,$CheckBox_Everything,$CheckBox_LaunchMenu))
+$Install.controls.AddRange(@($Label_Browsers,$CheckBox_Chrome,$CheckBox_Firefox,$CheckBox_Opera,$CheckBox_Brave,$Label_PasswordManagers,$CheckBox_Edge,$CheckBox_Bitwarden,$CheckBox_Keeper,$CheckBox_1Password,$CheckBox_Dashlane,$CheckBox_Lastpass,$CheckBox_NordPass,$CheckBox_Roboform,$Label_Messaging,$CheckBox_Messenger,$CheckBox_Signal,$CheckBox_Teams,$CheckBox_WeChat,$CheckBox_Discord,$CheckBox_Skype,$ProgressBar1,$Button_Start,$Label_Media,$CheckBox_VLC,$CheckBox_Audacity,$CheckBox_Foobar,$CheckBox_iTunes,$CheckBox_MPC,$CheckBox_Voicemeeter,$CheckBox_VoicemeeterBanana,$CheckBox_VoiceMeeterPotato,$CheckBox_Handbrake,$CheckBox_Spotify,$Label_Gaming,$CheckBox_Steam,$CheckBox_Xbox,$CheckBox_GOG,$CheckBox_Battlenet,$CheckBox_Epic,$CheckBox_EADesktop,$Label_Cloud,$CheckBox_OneDrive,$CheckBox_iDrive,$CheckBox_GoogleDrive,$CheckBox_iCloud,$CheckBox_Dropbox,$CheckBox_Malwarebytes,$CheckBox_Kaspersky,$CheckBox_SuperAntiSpyware,$CheckBox_SpybotAntiBeacon,$CheckBox_OOShutUp10,$Label_Security,$CheckBox_Blackbird,$Label_VPN,$CheckBox_KasperskyVPN,$CheckBox_Surfshark,$CheckBox_PIA,$CheckBox_NordVPN,$CheckBox_ExpressVPN,$Label_Compression,$CheckBox_7zip,$CheckBox_WinRAR,$CheckBox_NanaZip,$Label_Search,$CheckBox_FlowLauncher,$CheckBox_Fluent,$CheckBox_Powertoys,$CheckBox_Everything,$CheckBox_LaunchMenu))
 
 
-#region Logic 
+#region Logic
+<#
 
-#endregion
+$ = @{
+    Enabled = $False
+    PackageName = ""
+    Source = "winget"
+    AcceptsInput = "Yes"
+}
+$ = @{
+    Enabled = $False
+    PackageName = ""
+    Source = "winget"
+    AcceptsInput = "Yes"
+}
+$ = @{
+    Enabled = $False
+    PackageName = ""
+    Source = "winget"
+    AcceptsInput = "Yes"
+}
+$ = @{
+    Enabled = $False
+    PackageName = ""
+    Source = "winget"
+    AcceptsInput = "Yes"
+}
+$ = @{
+    Enabled = $False
+    PackageName = ""
+    Source = "winget"
+    AcceptsInput = "Yes"
+}
+
+#>
+filter Add-TimeStamp {"$(Get-Date -Format g)- $_"}
+
+$Powertoys = @{
+    Name = "Microsoft Powertoys"
+    Enabled = $False
+    PackageName = "Microsoft.Powertoys" # winget
+    Source = "winget"
+    #PackageID = "XP89DCGQ3K6VLD" # msstore
+    #Source = "msstore"
+}
+
+# Browsers 
+$Chrome = @{
+    Name = "Google Chrome"
+    Enabled = $False
+    PackageName = "Google.Chrome"
+    Source = "winget"
+}
+$Brave = @{
+    Name = "Brave Browser"
+    Enabled = $False
+    PackageName = "Brave.Brave"
+    Source = "winget"
+    AcceptsInput = "Yes"
+}
+$Edge = @{
+    Name = "Microsoft Edge"
+    Enabled = $False
+    PackageName = "Microsoft.Edge"
+    Source = "winget"
+    AcceptsInput = "Yes"
+}
+$Opera = @{
+    Name = "Opera"
+    Enabled = $False
+    PackageName = "Opera.Opera"
+    Source = "winget"
+    AcceptsInput = "Yes"
+}
+$Firefox = @{
+    Name = "Mozilla Firefox"
+    Enabled = $False
+    PackageName = "Mozilla.Firefox"
+    Source = "winget"
+    AcceptsInput = "Yes"
+}
+
+Foreach ($Item in $Chrome, $Brave, $Edge, $Opera, $Firefox){
+    If ($Item.Enabled -eq $True){
+        $InstallQue += $Item
+    }
+}
+
+
+# Password Managers
+$Bitwarden = @{
+    Name = "Bitwarden"
+    Enabled = $False
+    PackageName = "Bitwarden.Bitwarden"
+    Source = "winget"
+    AcceptsInput = "Yes"
+}
+$Dashlane = @{
+    Name = "Dashlane"
+    Enabled = $False
+    PackageName = "Dashlane.Dashlane"
+    Source = "winget"
+    AcceptsInput = "Yes"
+}
+$LastPass = @{
+    Name = "LastPass"
+    Enabled = $True
+    PackageName = "Lastpass"
+    URL = "https://download.cloud.lastpass.com/windows_installer/LastPassInstaller.exe"
+    Source = "bits"
+    AcceptsInput = "No"
+}
+$1Password = @{
+    Name = "1Password"
+    Enabled = $False
+    PackageName = "Agilebits.1Password"
+    Source = "winget"
+    AcceptsInput = "Yes"
+}
+$Keeper = @{
+    Name = "Keeper Password Manager"
+    Enabled = $False
+    PackageName = "Keeper.KeeperDesktop"
+    Source = "winget"
+    AcceptsInput = "Yes"
+    #PackageID = "9N040SRQ0S8C"
+    #Source = "msstore"
+}
+$NordPass = @{
+    Name = "NordPass"
+    Enabled = $False
+    PackageName = "NordSecurity.NordPass"
+    Source = "winget"
+    AcceptsInput = "Yes"
+}
+$Roboform = @{
+    Name = "RoboForm Password Manager"
+    Enabled = $False
+    PackageName = "SiberSystems.Roboform"
+    Source = "winget"
+    AcceptsInput = "Yes"
+}
+
+# Messenging 
+$Messenger = @{
+    Name = "Meta Messenger"
+    Enabled = $False
+    PackageName = "Facebook.Messenger"
+    Source = "winget"
+    AcceptsInput = "Yes"
+}
+$WeChat = @{
+    Name = "WeChat by Tencent"
+    Enabled = $False
+    PackageName = "Tencent.WeChat"
+    Source = "winget"
+    AcceptsInput = "Yes"
+}
+$WhatsApp = @{
+    Name = "WhatsApp"
+    Enabled = $False
+    PackageName = "WhatsApp.WhatsApp"
+    Source = "winget"
+    AcceptsInput = "Yes"
+}
+$Discord = @{
+    Name = "Discord"
+    Enabled = $False
+    PackageName = "Discord.Discord"
+    Source = "winget"
+    AcceptsInput = "Yes"
+}
+$Signal = @{
+    Name = "Signal"
+    Enabled = $False
+    PackageName = "OpenWhisperSystems.Signal"
+    Source = "winget"
+    AcceptsInput = "Yes"
+}
+$Telegram = @{
+    Name = "Telegram"
+    Enabled = $False
+    PackageName = "Telegram.TelegramDesktop"
+    Source = "winget"
+}
+$Teams = @{
+    Name = "Microsoft Teams"
+    Enabled = $False
+    PackageName = "Microsoft.Teams"
+    Source = "winget"
+    AcceptsInput = "Yes"
+}
+$Skype = @{
+    Name = "Skype"
+    Enabled = $False
+    PackageName = "Microsoft.Skype"
+    Source = "winget"
+    AcceptsInput = "Yes"
+}
+
+# Media
+$Voicemeeter = @{
+    Name = "Voicemeeter"
+    Enabled = $False
+    PackageName = "VB-Audio.Voicemeeter"
+    Source = "winget"
+}
+$VoicemeeterBanana = @{
+    Name = "Voicemeeter Banana"
+    Enabled = $False
+    PackageName = "VB-Audio.Voicemeeter.Banana"
+    Source = "winget"
+}
+$VoicemeeterPotato = @{
+    Name = "Voicemeeter Potato"
+    Enabled = $False
+    PackageName = "VB-Audio.Voicemeeter.Potato"
+    Source = "winget"
+}
+$Audacity = @{
+    Name = "Audacity"
+    Enabled = $False
+    PackageName = "Audacity.Audacity"
+    Source = "winget"
+    AcceptsInput = "Yes"
+}
+$Spotify = @{
+    Name = "Spotify"
+    Enabled = $False
+    PackageName = "Spotify"
+    Source = "winget"
+    AcceptsInput = "Yes"
+}
+$MPC = @{
+    Name = "Media Player Classic"
+    Enabled = $False
+    PackageName = "MediaPlayerClassic"
+    Source = "winget"
+    AcceptsInput = "Yes"
+}
+$VLC = @{
+    Name = "VLC Media Player"
+    Enabled = $False
+    PackageName = "Videolan.VLC"
+    Source = "winget"
+    AcceptsInput = "Yes"
+}
+$Handbrake = @{
+    Name = "Handbrake"
+    Enabled = $False
+    PackageName = "HandBrake.HandBrake"
+    Source = "winget"
+    AcceptsInput = "Yes"
+}
+$Foobar2000 = @{
+    Name = "Foobar2000"
+    Enabled = $False
+    PackageName = "PeterPawlowski.foobar2000"
+    Source = "winget"
+    AcceptsInput = "Yes"
+}
+$iTunes = @{
+    Name = "iTunes"
+    Enabled = $False
+    PackageName = "Apple.iTunes"
+    Source = "winget"
+    AcceptsInput = "Yes"
+}
+
+# Gaming 
+$Steam = @{
+    Name = "Steam"
+    Enabled = $False
+    PackageName = "Valve.Steam"
+    Source = "winget"
+    AcceptsInput = "Yes"
+}
+$BattleNet = @{
+    Name = "Battle.net"
+    Enabled = $False
+    Link = "https://us.battle.net/download/getInstaller?os=win&installer=Battle.net-Setup.exe"
+    Source = "bits"
+    AcceptsInput = "Yes"
+}
+$Epic = @{
+    Name = "Epic Games"
+    Enabled = $False
+    PackageName = ""
+    Source = "winget"
+    AcceptsInput = "Yes"
+}
+$EADesktop = @{
+    Name = "EA Desktop"
+    Enabled = $False
+    PackageName = "ElectronicArts.EADesktop"
+    Source = "winget"
+    AcceptsInput = "Yes"
+}
+$GOG = @{
+    Enabled = $False
+    PackageName = "GOG.Galaxy"
+    Source = "winget"
+    AcceptsInput = "Yes"
+}
+$Xbox = @{
+    Enabled = $False
+    PackageName = ""
+    Source = "winget"
+    AcceptsInput = "Yes"
+}
+
+
+# Compression tools
+$7Zip = @{
+    Enabled = $False
+    PackageName = "7zip"
+    Source = "winget"
+    AcceptsInput = "Yes"
+}
+$WinRAR = @{
+    Enabled = $False
+    PackageName = "RARLabs.WinRAR"
+    Source = "winget"
+    AcceptsInput = "Yes"
+}
+$NanaZip = @{
+    Enabled = $False
+    PackageName = "Nanazip"
+    Source = "msstore"
+    AcceptsInput = "Yes"
+}
+
+
+# Cloud Services
+$OneDrive = @{
+    Enabled = $False
+    PackageName = "Microsoft.OneDrive"
+    Source = "winget"
+    AcceptsInput = "Yes"
+}
+$iCloud = @{
+    Enabled = $False
+    PackageName = "Apple.iCloud"
+    Source = "winget"
+    AcceptsInput = "Yes"
+}
+$Dropbox = @{
+    Enabled = $False
+    PackageName = "Dropbox"
+    Source = "winget"
+    AcceptsInput = "Yes"
+}
+$GoogleDrive = @{
+    Enabled = $False
+    PackageName = "Google.Drive"
+    Source = "winget"
+    AcceptsInput = "Yes"
+}
+$iDrive = @{
+    Enabled = $False
+    PackageName = "iDrive"
+    Source = "winget"
+    AcceptsInput = "Yes"
+}
+
+# Security
+$Kaspersky = @{
+    Enabled = $False
+    PackageName = ""
+    Source = "winget"
+    AcceptsInput = "Yes"
+}
+$Malwarebytes = @{
+    Enabled = $False
+    PackageName = "Malwarebytes"
+    Source = "winget"
+    AcceptsInput = "Yes"
+}
+$SpybotAntiBeacon = @{
+    Enabled = $False
+    PackageName = "SaferNetworking.SpybotAntiBeacon"
+    Source = "winget"
+    AcceptsInput = "Yes"
+}
+$OOShutUp10 = @{
+    Enabled = $False
+    PackageName = ""
+    Source = "winget"
+    AcceptsInput = "Yes"
+}
+$SuperAntiSpyware = @{
+    Enabled = $False
+    PackageName = ""
+    Source = "winget"
+    AcceptsInput = "Yes"
+}
+$Blackbird = @{
+    Enabled = $False
+    PackageName = ""
+    Source = "winget"
+    AcceptsInput = "Yes"
+}
+# VPN's
+$ExpressVPN = @{
+    Enabled = $False
+    PackageName = ""
+    Source = "winget"
+    AcceptsInput = "Yes"
+}
+$NordVPN = @{
+    Enabled = $False
+    PackageName = ""
+    Source = "winget"
+    AcceptsInput = "Yes"
+}
+$Surfshark = @{
+    Enabled = $False
+    PackageName = ""
+    Source = "winget"
+    AcceptsInput = "Yes"
+}
+$PIA = @{
+    Enabled = $False
+    PackageName = ""
+    Source = "winget"
+    AcceptsInput = "Yes"
+}
+$Kaspersky = @{
+    Enabled = $False
+    PackageName = ""
+    Source = "winget"
+    AcceptsInput = "Yes"
+}
+$Install = @()
+Foreach ($Item in $Kaspersky, $ExpressVPN, $NordVPN, $Surfshark, $PIA, $Blackbird, $SuperAntiSpyware, $OOShutUp10, $SpybotAntiBeacon, $Malwarebytes, $iDrive, $GoogleDrive, $Dropbox, $iCloud, $OneDrive, $7zip, $Winrar, $NanaZip, $Xbox, $GOG, $EADesktop, $Epic, $BattleNet, $Steam, $iTunes, $Foobar2000, $Handbrake, $VLC, $MPC, $Spotify, $Audacity ,$VoicemeeterPotato, $VoicemeeterBanana, $Voicemeeter, $Skype, $Teams, $Telegram, $Signal, $Discord, $WhatsApp, $WeChat, $Messenger, $Roboform, $NordPass, $Keeper, $1Password, $LastPass, $Dashlane, $Bitwarden, $Powertoys){
+    If ($Item.Checked -eq $True){
+        $InstallQue += $Item
+    }
+}
+
+Foreach ($item in $InstallQue){
+    If ($Item.Source -eq "bits") {
+        try {
+            Write-Host "Downloading package: {$($Item.Name)}" | Add-TimeStamp
+            Start-Bitstransfer -Source $Item.URL -Destination ".\" -Dynamic -Asynchronous
+        }
+        catch {
+            Write-Error $_ | Add-Timestamp
+        }
+    }else { 
+        try {
+            Write-Host "Installing package: {$($Item.Name)}" | Add-TimeStamp
+            winget install $Item.PackageName -s $Item.Source
+        }
+        catch {
+            Write-Error $_ | Add-Timestamp
+        }
+    }
+}
+
+
+    #endregion
 
 [void]$Install.ShowDialog()
