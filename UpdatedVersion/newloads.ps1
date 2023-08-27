@@ -6,7 +6,7 @@ $host.UI.RawUI.BackgroundColor = 'Black'
 Add-Type -AssemblyName System.Windows.Forms
 Add-Type -AssemblyName System.Drawing
 filter TimeStamp {"$(Get-Date -Format g)- $_"}
-
+$ErrorActionPreference = Stop
 $NewLoads = $env:temp
 $Variables = @{
     "ForegroundColor" = "DarkMagenta"
@@ -445,7 +445,7 @@ function Find-OptionalFeature {
         [String] $OptionalFeature
     )
 
-    $feature = Get-WindowsOptionalFeature -Online -FeatureName $OptionalFeature -ErrorAction SilentlyContinue
+    $feature = Get-WindowsOptionalFeature -Online -FeatureName $OptionalFeature
     if ($feature) {
         return $true
     }
@@ -473,7 +473,7 @@ function Find-ScheduledTask {
         [String] $ScheduledTask
     )
 
-    If (Get-ScheduledTaskInfo -TaskName $ScheduledTask -ErrorAction SilentlyContinue) {
+    If (Get-ScheduledTaskInfo -TaskName $ScheduledTask) {
         return $true
     }
     Else {
@@ -676,35 +676,35 @@ Function Get-Program {
     else {
         $chrome = @{
             Name              = "Google Chrome"
-            Installed         = Test-Path -Path "$Env:PROGRAMFILES\Google\Chrome\Application\chrome.exe" -ErrorAction SilentlyContinue
+            Installed         = Test-Path -Path "$Env:PROGRAMFILES\Google\Chrome\Application\chrome.exe"
             DownloadURL       = "https://dl.google.com/dl/chrome/install/googlechromestandaloneenterprise64.msi"
             InstallerLocation = "$temp\googlechromestandaloneenterprise64.msi"
-            FileExists        = Test-Path -Path "$temp\googlechromestandaloneenterprise64.msi" -ErrorAction SilentlyContinue
+            FileExists        = Test-Path -Path "$temp\googlechromestandaloneenterprise64.msi"
             ArgumentList      = "/passive"
         }
         $vlc = @{
             Name              = "VLC Media Player"
-            Installed         = Test-Path -Path "$Env:PROGRAMFILES\VideoLAN\VLC\vlc.exe" -ErrorAction SilentlyContinue
+            Installed         = Test-Path -Path "$Env:PROGRAMFILES\VideoLAN\VLC\vlc.exe"
             #DownloadURL         = "https://ftp.osuosl.org/pub/videolan/vlc/3.0.18/win64/vlc-3.0.18-win64.exe"
             DownloadURL       = "https://get.videolan.org/vlc/3.0.18/win64/vlc-3.0.18-win64.exe"
             InstallerLocation = "$temp\vlc-3.0.18-win64.exe"
-            FileExists        = Test-Path -Path "$temp\vlc-3.0.18-win64.exe" -ErrorAction SilentlyContinue
+            FileExists        = Test-Path -Path "$temp\vlc-3.0.18-win64.exe"
             ArgumentList      = "/S /L=1033"
         }
         $zoom = @{
             Name              = "Zoom"
-            Installed         = Test-Path -Path "$Env:PROGRAMFILES\Zoom\bin\Zoom.exe" -ErrorAction SilentlyContinue
+            Installed         = Test-Path -Path "$Env:PROGRAMFILES\Zoom\bin\Zoom.exe"
             DownloadURL       = "https://zoom.us/client/5.15.2.18096/ZoomInstallerFull.msi?archType=x64"
             InstallerLocation = "$temp\ZoomInstallerFull.msi"
-            FileExists        = Test-Path -Path "$temp\ZoomInstallerFull.msi" -ErrorAction SilentlyContinue
+            FileExists        = Test-Path -Path "$temp\ZoomInstallerFull.msi"
             ArgumentList      = "/quiet"
         }
         $acrobat = @{
             Name              = "Adobe Acrobat Reader"
-            Installed         = Test-Path -Path "${Env:Programfiles(x86)}\Adobe\Acrobat Reader DC\Reader\AcroRd32.exe" -ErrorAction SilentlyContinue
+            Installed         = Test-Path -Path "${Env:Programfiles(x86)}\Adobe\Acrobat Reader DC\Reader\AcroRd32.exe"
             DownloadURL       = "https://ardownload2.adobe.com/pub/adobe/reader/win/AcrobatDC/2200120169/AcroRdrDC2200120169_en_US.exe"
             InstallerLocation = "$temp\AcroRdrDCx642200120085_MUI.exe"
-            FileExists        = Test-Path -Path "$temp\AcroRdrDCx642200120085_MUI.exe" -ErrorAction SilentlyContinue
+            FileExists        = Test-Path -Path "$temp\AcroRdrDCx642200120085_MUI.exe"
             ArgumentList      = "/sPB"
         }
         $HEVC = @{
@@ -712,7 +712,7 @@ Function Get-Program {
             Installed         = $False
             DownloadURL       = "https://github.com/circlol/newload/raw/main/assets/Microsoft.HEVCVideoExtension_2.0.60091.0_x64__8wekyb3d8bbwe.Appx"
             InstallerLocation = "$temp\Microsoft.HEVCVideoExtension_2.0.60091.0_x64__8wekyb3d8bbwe.Appx"
-            FileExists        = Test-Path -Path "$temp\Microsoft.HEVCVideoExtension_2.0.60091.0_x64__8wekyb3d8bbwe.Appx" -ErrorAction SilentlyContinue
+            FileExists        = Test-Path -Path "$temp\Microsoft.HEVCVideoExtension_2.0.60091.0_x64__8wekyb3d8bbwe.Appx"
         }
 
         foreach ( $program in $chrome, $vlc, $zoom, $acrobat, $hevc ) {
@@ -734,7 +734,7 @@ Function Get-Program {
                     Write-Status -Types "+", $TweakType -Status "Adding support to $($HEVC.name) codec..." -NoNewLine
                     try {
                         $ProgressPreference = 'SilentlyContinue'
-                        Add-AppPackage -Path $HEVC.InstallerLocation -ErrorAction SilentlyContinue
+                        Add-AppPackage -Path $HEVC.InstallerLocation
                         $ProgressPreference = 'Continue'
                     }
                     catch {
@@ -787,7 +787,7 @@ This function does not accept any parameters.
 The Get-Status function is typically used after running a command to quickly check whether it executed successfully or encountered an error.
 #>
     if ($?) {
-        $CaptionSucceeded = Get-Command Write-Caption -ErrorAction SilentlyContinue
+        $CaptionSucceeded = Get-Command Write-Caption
         If ($CaptionSucceeded) {
             Write-Caption -Type Success
         }
@@ -1179,7 +1179,7 @@ Function Optimize-Privacy {
 
     # Disables Advertiser ID through permissions and group policy.
     Write-Status -Types $EnableStatus[0].Symbol, $TweakType -Status "$($EnableStatus[0].Status) Let apps use my advertising ID..."
-    Set-ItemPropertyVerified -Path $Variables.PathToRegAdvertising -Name "Enabled" -Type DWord -Value $Zero -ErrorAction SilentlyContinue
+    Set-ItemPropertyVerified -Path $Variables.PathToRegAdvertising -Name "Enabled" -Type DWord -Value $Zero
     Set-ItemPropertyVerified -Path $Variables.PathToLMPoliciesAdvertisingInfo -Name "DisabledByGroupPolicy" -Type DWord -Value $One
 
     # Disables locally relevant content
@@ -1194,10 +1194,10 @@ Function Optimize-Privacy {
 
     Write-Caption -Text "Inking & Typing Personalization"
     # Disables personalization of inking and typing data (Keystrokes)
-    Set-ItemPropertyVerified -Path "$($Variables.PathToCUInputPersonalization)\TrainedDataStore" -Name "HarvestContacts" -Type DWord -Value $Zero -ErrorAction SilentlyContinue
-    Set-ItemPropertyVerified -Path $Variables.PathToCUInputPersonalization -Name "RestrictImplicitInkCollection" -Type DWord -Value $One -ErrorAction SilentlyContinue
-    Set-ItemPropertyVerified -Path $Variables.PathToCUInputPersonalization -Name "RestrictImplicitTextCollection" -Type DWord -Value $One -ErrorAction SilentlyContinue
-    Set-ItemPropertyVerified -Path $Variables.PathToCUPersonalization -Name "AcceptedPrivacyPolicy" -Type DWord -Value $Zero -ErrorAction SilentlyContinue
+    Set-ItemPropertyVerified -Path "$($Variables.PathToCUInputPersonalization)\TrainedDataStore" -Name "HarvestContacts" -Type DWord -Value $Zero
+    Set-ItemPropertyVerified -Path $Variables.PathToCUInputPersonalization -Name "RestrictImplicitInkCollection" -Type DWord -Value $One
+    Set-ItemPropertyVerified -Path $Variables.PathToCUInputPersonalization -Name "RestrictImplicitTextCollection" -Type DWord -Value $One
+    Set-ItemPropertyVerified -Path $Variables.PathToCUPersonalization -Name "AcceptedPrivacyPolicy" -Type DWord -Value $Zero
 
     Write-Caption -Text "Diagnostics & Feedback"
     #Disables Telemetry
@@ -1258,7 +1258,7 @@ Function Optimize-Privacy {
     Set-ItemPropertyVerified -Path HKCU:\Software\Policies\Microsoft\Windows\EdgeUI -Name "DisableMFUTracking" -Value $One -Type DWORD
 
     If ($vari -eq '2') {
-        Remove-Item -Path HKCU:\Software\Policies\Microsoft\Windows\EdgeUI -Force -ErrorAction SilentlyContinue
+        Remove-Item -Path HKCU:\Software\Policies\Microsoft\Windows\EdgeUI -Force
     }
 
     # Sets windows feeback notifciations to never show
@@ -1292,17 +1292,17 @@ Function Optimize-Privacy {
 
     # Disables HomeGroup
     Write-Status -Types $EnableStatus[1].Symbol, "$TweakType" -Status "Stopping and disabling Home Groups services.."
-    If (!(Get-Service -Name HomeGroupListener -ErrorAction SilentlyContinue)) { } else {
-        Stop-Service "HomeGroupListener" -WarningAction SilentlyContinue -ErrorAction SilentlyContinue
-        Set-Service "HomeGroupListener" -StartupType Disabled -ErrorAction SilentlyContinue
+    If (!(Get-Service -Name HomeGroupListener)) { } else {
+        Stop-Service "HomeGroupListener" -WarningAction SilentlyContinue
+        Set-Service "HomeGroupListener" -StartupType Disabled
     }
-    If (!(Get-Service -Name HomeGroupListener -ErrorAction SilentlyContinue)) { } else {
-        Stop-Service "HomeGroupProvider" -WarningAction SilentlyContinue -ErrorAction SilentlyContinue
-        Set-Service "HomeGroupProvider" -StartupType Disabled -ErrorAction SilentlyContinue
+    If (!(Get-Service -Name HomeGroupListener)) { } else {
+        Stop-Service "HomeGroupProvider" -WarningAction SilentlyContinue
+        Set-Service "HomeGroupProvider" -StartupType Disabled
     }
 
     # Disables SysMain
-    If ((Get-Service -Name SysMain -ErrorAction SilentlyContinue).Status -eq 'Stopped') { } else {
+    If ((Get-Service -Name SysMain).Status -eq 'Stopped') { } else {
         Write-Host ' Stopping and disabling Superfetch service'
         Stop-Service "SysMain" -WarningAction SilentlyContinue
         Set-Service "SysMain" -StartupType Disabled
@@ -1322,7 +1322,7 @@ Function Optimize-Privacy {
     Set-ItemPropertyVerified -Path:HKLM:\SYSTEM\CurrentControlSet\Services\LanmanServer\Parameters -Name "IRPStackSize" -Type DWORD -Value 30
 
     # Sets DNS settings to Google with CloudFlare as backup
-    If (Get-Command Set-DnsClientDohServerAddress -ErrorAction SilentlyContinue) {
+    If (Get-Command Set-DnsClientDohServerAddress) {
         ## Imported text from  win10-debloat-tools on github
         # Adapted from: https://techcommunity.microsoft.com/t5/networking-blog/windows-insiders-gain-new-dns-over-https-controls/ba-p/2494644
         Write-Status -Types $EnableStatus[1].Symbol, $TweakType -Status "Setting up the DNS over HTTPS for Google and Cloudflare (ipv4 and ipv6)..."
@@ -1346,14 +1346,14 @@ Function Optimize-Privacy {
     Set-ItemPropertyVerified -Path "$($Variables.PathToCUAccessibility)\ToggleKeys" -Name "Flags" -Value "58" -Type STRING
 
     If ($Revert) {
-        Remove-ItemProperty -Path $Variables.PathToLMPoliciesTelemetry -Name AllowTelemetry -Force -ErrorAction SilentlyContinue
-        Remove-ItemProperty -Path $Variables.PathToLMPoliciesTelemetry2 -Name "AllowTelemetry" -Force -ErrorAction SilentlyContinue
-        Remove-ItemProperty -Path $Variables.PathToCUPersonalization -Name "AcceptedPrivacyPolicy" -Force -ErrorAction SilentlyContinue
-        Remove-ItemProperty -Path $Variables.PathToCUInputPersonalization -Name "RestrictImplicitTextCollection" -Force -ErrorAction SilentlyContinue
-        Remove-ItemProperty -Path $Variables.PathToCUInputPersonalization -Name "RestrictImplicitInkCollection" -Force -ErrorAction SilentlyContinue
-        Set-Service "DiagTrack" -StartupType Automatic -ErrorAction SilentlyContinue
-        Set-Service "dmwappushservice" -StartupType Automatic -ErrorAction SilentlyContinue
-        Set-Service "SysMain" -StartupType Automatic -ErrorAction SilentlyContinue
+        Remove-ItemProperty -Path $Variables.PathToLMPoliciesTelemetry -Name AllowTelemetry -Force
+        Remove-ItemProperty -Path $Variables.PathToLMPoliciesTelemetry2 -Name "AllowTelemetry" -Force
+        Remove-ItemProperty -Path $Variables.PathToCUPersonalization -Name "AcceptedPrivacyPolicy" -Force
+        Remove-ItemProperty -Path $Variables.PathToCUInputPersonalization -Name "RestrictImplicitTextCollection" -Force
+        Remove-ItemProperty -Path $Variables.PathToCUInputPersonalization -Name "RestrictImplicitInkCollection" -Force
+        Set-Service "DiagTrack" -StartupType Automatic
+        Set-Service "dmwappushservice" -StartupType Automatic
+        Set-Service "SysMain" -StartupType Automatic
     }
 
     Write-Section -Text "Privacy -> Apps Permissions"
@@ -1419,7 +1419,7 @@ Function Optimize-Privacy {
     Write-Status -Types "?", $TweakType -Status "From Path: [$PathToCUPoliciesCloudContent]." -WriteWarning
     ForEach ($Name in $CloudContentDisableOnOne) {
         Write-Status -Types $EnableStatus[0].Symbol, $TweakType -Status "$($EnableStatus[0].Status) $($Name): $One"
-        Set-ItemPropertyVerified -Path $Variables.PathToCUPoliciesCloudContent -Name "$Name" -Type DWord -Value $One -ErrorAction SilentlyContinue
+        Set-ItemPropertyVerified -Path $Variables.PathToCUPoliciesCloudContent -Name "$Name" -Type DWord -Value $One
     }
     Set-ItemPropertyVerified -Path $Variables.PathToCUPoliciesCloudContent -Name "ConfigureWindowsSpotlight" -Type DWord -Value 2
     Set-ItemPropertyVerified -Path $Variables.PathToCUPoliciesCloudContent -Name "IncludeEnterpriseSpotlight" -Type DWord -Value $Zero
@@ -1442,7 +1442,7 @@ Function Optimize-Privacy {
     Set-ItemPropertyVerified -Path $Variables.PathToLMControl -Name "WaitToKillServiceTimeout" -Type DWord -Value 2000
     Set-ItemPropertyVerified -Path $Variables.PathToCUControlPanelDesktop -Name "MenuShowDelay" -Type DWord -Value 1
     Set-ItemPropertyVerified -Path $Variables.PathToCUControlPanelDesktop -Name "WaitToKillAppTimeout" -Type DWord -Value 5000
-    Remove-ItemProperty -Path $Variables.PathToCUControlPanelDesktop -Name "HungAppTimeout" -ErrorAction SilentlyContinue
+    Remove-ItemProperty -Path $Variables.PathToCUControlPanelDesktop -Name "HungAppTimeout"
     # Set-ItemPropertyVerified -Path $Variables.PathToCUControlPanelDesktop -Name "HungAppTimeout" -Type DWord -Value 4000 # Note: This caused flickering
     Set-ItemPropertyVerified -Path $Variables.PathToCUControlPanelDesktop -Name "AutoEndTasks" -Type DWord -Value 1
     Set-ItemPropertyVerified -Path $Variables.PathToCUControlPanelDesktop -Name "LowLevelHooksTimeout" -Type DWord -Value 1000
@@ -1815,13 +1815,13 @@ Function Remove-UWPAppx {
     $TweakType = "UWP"
     $ProgressPreference = 'SilentlyContinue'
     ForEach ($AppxPackage in $AppxPackages) {
-        $appxPackageToRemove = Get-AppxPackage -AllUsers -Name $AppxPackage -ErrorAction SilentlyContinue
+        $appxPackageToRemove = Get-AppxPackage -AllUsers -Name $AppxPackage
         if ($appxPackageToRemove) {
             $actionDescription = "Removing $AppxPackage"
             if ($PSCmdlet.ShouldProcess($actionDescription, "Remove-AppxPackage")) {
                 $appxPackageToRemove | ForEach-Object -Process {
                     Write-Status -Types "-", $TweakType -Status "Trying to remove $AppxPackage" -NoNewLine
-                    Remove-AppxPackage $_.PackageFullName -ErrorAction SilentlyContinue -WA SilentlyContinue >$NULL | Out-Null #4>&1 | Out-Null
+                    Remove-AppxPackage $_.PackageFullName -WA SilentlyContinue >$NULL | Out-Null #4>&1 | Out-Null
                     If ($?) { Get-Status ; $Variables.Removed++ ; $Variables.PackagesRemoved += $appxPackageToRemove.PackageFullName } elseif (!($?)) { Get-Status ; $Variables.Failed++ }
                 }
 
@@ -1862,7 +1862,7 @@ Function Restart-Explorer {
     [CmdletBinding(SupportsShouldProcess)]
     Param()
     # Checks is explorer is running
-    $ExplorerActive = Get-Process -Name explorer -ErrorAction SilentlyContinue
+    $ExplorerActive = Get-Process -Name explorer
     if ($ExplorerActive) {
         try {
             if ($PSCmdlet.ShouldProcess("Stop explorer process")) {
@@ -1876,7 +1876,7 @@ Function Restart-Explorer {
     }
     try {
         if ($PSCmdlet.ShouldProcess("Start explorer process")) {
-            Start-Process explorer -ErrorAction SilentlyContinue -Wait
+            Start-Process explorer -Wait
         }
     }
     catch {
@@ -1984,7 +1984,7 @@ Function Set-ItemPropertyVerified {
         }
     }
 
-    $currentValue = Get-ItemProperty -Path $Path -Name $Name -ErrorAction SilentlyContinue
+    $currentValue = Get-ItemProperty -Path $Path -Name $Name
     if ($null -eq $currentValue -or $currentValue.$Name -ne $Value) {
         $actionDescription = "Setting $Name to $Value in $Path"
         if ($PSCmdlet.ShouldProcess($actionDescription, "Set")) {
@@ -2100,7 +2100,7 @@ Function Set-OptionalFeatureState {
     $TweakType = "OptionalFeature"
 
     $OptionalFeatures | ForEach-Object {
-        $feature = Get-WindowsOptionalFeature -Online -FeatureName $_ -ErrorAction SilentlyContinue
+        $feature = Get-WindowsOptionalFeature -Online -FeatureName $_
         if ($feature) {
             if ($_.DisplayName -in $Filter) {
                 Write-Status -Types "?", $TweakType -Status "The $_ ($($feature.DisplayName)) will be skipped as set on Filter..."
@@ -2337,7 +2337,7 @@ function Set-ServiceStartup {
 
     Process {
         ForEach ($Service in $Services) {
-            If (!(Get-Service $Service -ErrorAction SilentlyContinue)) {
+            If (!(Get-Service $Service)) {
                 Write-Status -Types "?", $TweakType -Status "The $Service service was not found." -WriteWarning
                 Continue
             }
@@ -2357,10 +2357,10 @@ function Set-ServiceStartup {
                 if ($PSCmdlet.ShouldProcess($target, "Set Startup Type")) {
                     Write-Status -Types "@", $TweakType -Status "Setting $target" -NoNewLine
                     If ($WhatIf) {
-                        Get-Service -Name "$Service" -ErrorAction SilentlyContinue | Set-Service -StartupType $State -WhatIf
+                        Get-Service -Name "$Service" | Set-Service -StartupType $State -WhatIf
                     }
                     Else {
-                        Get-Service -Name "$Service" -ErrorAction SilentlyContinue | Set-Service -StartupType $State
+                        Get-Service -Name "$Service" | Set-Service -StartupType $State
                         Get-Status
                     }
                 }
@@ -2540,7 +2540,7 @@ function Set-Wallpaper {
     param (
     )
     if ($PSCmdlet.ShouldProcess("Apply Wallpaper")) {
-        $WallpaperPathExists = Test-Path $Variables.wallpaperPath -ErrorAction SilentlyContinue
+        $WallpaperPathExists = Test-Path $Variables.wallpaperPath
         If (!$WallpaperPathExists) {
             $WallpaperURL = "https://raw.githubusercontent.com/circlol/newload/main/assets/mother.jpg"
             Write-Status "@", $TweakType -Status "Downloading Wallpaper"
@@ -2673,7 +2673,7 @@ Completed in - Elapsed Time: $ElapsedTime  - Start Time: $StartTime  - End Time:
     $($Variables.PackagesRemoved)
 "
     # - Sends the mail
-    Send-MailMessage -From $From -To $To -Subject $Sub -Body $EmailBody -Attachments $LogFiles -DN OnSuccess, OnFailure -SmtpServer $smtp -ErrorAction SilentlyContinue
+    Send-MailMessage -From $From -To $To -Subject $Sub -Body $EmailBody -Attachments $LogFiles -DN OnSuccess, OnFailure -SmtpServer $smtp
 }
 Function Show-ScriptLogo {
     <#
@@ -2842,7 +2842,7 @@ Function Start-BitlockerDecryption() {
     }
     else {
         # Checks if Bitlocker is active on the host
-        $bitlockerVolume = Get-BitLockerVolume -MountPoint "C:" -ErrorAction SilentlyContinue -WarningAction SilentlyContinue
+        $bitlockerVolume = Get-BitLockerVolume -MountPoint "C:" -WarningAction SilentlyContinue
         If ($bitlockerVolume -and $bitlockerVolume.ProtectionStatus -eq "On") {
             # Starts Bitlocker Decryption
             Show-Question -YesNo -Title "New Loads" -Icon Warning -Message "Bitlocker was detected turned on. Do you want to start the decryption process?"
@@ -2919,7 +2919,7 @@ Ensure that the user running this function has sufficient privileges and meets t
         $SelfElevate = Read-Host -Prompt "Do you want to attempt to elevate this prompt?"
         switch ($SelfElevate) {
             "Y" {
-                $wtExists = Get-Command wt -ErrorAction SilentlyContinue
+                $wtExists = Get-Command wt
                 If ($wtExists) {
                     Start-Process wt -verb runas -ArgumentList "new-tab powershell -c ""irm run.newloads.ca | iex"""
                 }
@@ -2950,8 +2950,8 @@ Ensure that the user running this function has sufficient privileges and meets t
     }
     #
     try {
-        Remove-Item "$env:userprofile\Desktop\New Loads.Log" -Force -ErrorAction SilentlyContinue | out-null
-        Remove-Item "$env:userprofile\Desktop\New Loads Errors.Log" -Force -ErrorAction SilentlyCOntinue | out-null
+        Remove-Item "$env:userprofile\Desktop\New Loads.Log" -Force | out-null
+        Remove-Item "$env:userprofile\Desktop\New Loads Errors.Log" -Force | out-null
     }
     catch {
         Write-Error "An error occurred while removing the files: $_"
@@ -3043,24 +3043,24 @@ Function Start-Cleanup {
         $target = "Google Chrome"
         if ($PSCmdlet.ShouldProcess($target, "Launch Chrome")) {
             Write-Status -Types "+", $TweakType -Status "Launching Google Chrome"
-            Start-Process Chrome -ErrorAction SilentlyContinue -WarningAction SilentlyContinue
+            Start-Process Chrome -WarningAction SilentlyContinue
         }
 
         # - Clears Temp Folder
         $target = "Temp Folder"
         if ($PSCmdlet.ShouldProcess($target, "Clean Temp Folder")) {
             Write-Status -Types "-", $TweakType -Status "Cleaning Temp Folder"
-            Remove-Item "$env:temp\*.*" -Force -Recurse -Exclude "New Loads" -ErrorAction SilentlyContinue
+            Remove-Item "$env:temp\*.*" -Force -Recurse -Exclude "New Loads"
         }
 
         # - Removes installed program shortcuts from Public/User Desktop
         foreach ($shortcut in $Variables.shortcuts) {
             $target = "Shortcut: $shortcut"
             if ($PSCmdlet.ShouldProcess($target, "Remove Shortcut")) {
-                $ShortcutExist = Test-Path $shortcut -ErrorAction SilentlyContinue
+                $ShortcutExist = Test-Path $shortcut
                 If ($ShortcutExist) {
                     Write-Status -Types "-", $TweakType -Status "Removing $shortcut"
-                    Remove-Item -Path "$shortcut" -Force -ErrorAction SilentlyContinue | Out-Null
+                    Remove-Item -Path "$shortcut" -Force | Out-Null
                 }
             }
         }
@@ -3084,19 +3084,19 @@ Function Start-Debloat {
         <#
         Write-Section "Legacy Apps"
         Write-Caption -Text "Avast"
-        Get-InstalledProgram "Avast" -ErrorAction SilentlyContinue | Out-Null
+        Get-InstalledProgram "Avast" | Out-Null
         If ($? -eq $True) { (Get-InstalledProgram "Avast").UninstallString | ForEach-Object (Remove-InstalledProgram $_) }
         Write-Caption -Text "ExpressVPN"
-        Get-InstalledProgram "ExpressVPN" -ErrorAction SilentlyContinue | Out-Null
+        Get-InstalledProgram "ExpressVPN" | Out-Null
         If ($? -eq $True) { (Get-InstalledProgram "ExpressVPN").UninstallString | ForEach-Object (Remove-InstalledProgram $_) }
         Write-Caption -Text "McAfee"
-        Get-InstalledProgram "McAfee" -ErrorAction SilentlyContinue | Out-Null
+        Get-InstalledProgram "McAfee" | Out-Null
         If ($? -eq $True) { (Get-InstalledProgram "McAfee").UninstallString | ForEach-Object (Remove-InstalledProgram $_) }
         Write-Caption -Text "Norton"
-        Get-InstalledProgram "Norton" -ErrorAction SilentlyContinue | Out-Null
+        Get-InstalledProgram "Norton" | Out-Null
         If ($? -eq $True) { (Get-InstalledProgram "Norton").UninstallString | ForEach-Object (Remove-InstalledProgram $_) }
         Write-Caption -Text "WildTangent Games"
-        Get-InstalledProgram "WildTangent" -ErrorAction SilentlyContinue | Out-Null
+        Get-InstalledProgram "WildTangent" | Out-Null
         If ($? -eq $True) { (Get-InstalledProgram "WildTangent").UninstallString | ForEach-Object (Remove-InstalledProgram $_) }
         #>
 
@@ -3170,7 +3170,7 @@ Function Start-Debloat {
         $target = "Reinstall Default Appx from manifest"
         if ($PSCmdlet.ShouldProcess($target, "Reinstall Default Appx")) {
             Write-Status -Types "+", "Bloat" -Status "Reinstalling Default Appx from manifest"
-            Get-AppxPackage -allusers | ForEach-Object { Add-AppxPackage -register "$($_.InstallLocation)\appxmanifest.xml" -DisableDevelopmentMode -Verbose -ErrorAction SilentlyContinue } | Out-Host
+            Get-AppxPackage -allusers | ForEach-Object { Add-AppxPackage -register "$($_.InstallLocation)\appxmanifest.xml" -DisableDevelopmentMode -Verbose } | Out-Host
         }
     }
 }
