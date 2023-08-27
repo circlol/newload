@@ -1810,6 +1810,7 @@ Function Remove-UWPAppx {
         [Array] $AppxPackages
     )
     $TweakType = "UWP"
+    $ProgressPreference = 'SilentlyContinue'
     ForEach ($AppxPackage in $AppxPackages) {
         $appxPackageToRemove = Get-AppxPackage -AllUsers -Name $AppxPackage -ErrorAction SilentlyContinue
         if ($appxPackageToRemove) {
@@ -1832,6 +1833,7 @@ Function Remove-UWPAppx {
             $Variables.NotFound++
         }
     }
+    $ProgressPreference = "Continue"
 }
 Function Restart-Explorer {
     <#
