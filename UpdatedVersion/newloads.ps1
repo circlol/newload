@@ -34,6 +34,8 @@ $Variables = @{
     "SaRA" = "$newloads\SaRA.zip"
     "Sexp" = "$newloads\SaRA"
     "SaRAURL" = "https://github.com/circlol/newload/raw/main/SaRACmd_17_1_0268_3.zip"
+    "StartBinURL" = "https://github.com/circlol/newload/raw/main/assets/start.bin"
+    "StartBin1URL" = "https://github.com/circlol/newload/raw/main/assets/start2.bin"
     "PackagesRemoved" = @()
     "Removed" = 0
     "Failed" = 0
@@ -1756,7 +1758,6 @@ Function Remove-PinnedStartMenu {
 "@
 
     $layoutFile = "C:\Windows\StartMenuLayout.xml"
-
     # Delete layout file if it already exists
     # Creates the blank layout file
     if ($PSCmdlet.ShouldProcess("Out-File $StartlayoutFile -Encoding ASCII", "Remove-LayoutModificationFile")) {
@@ -2385,14 +2386,105 @@ function Set-ServiceStartup {
         }
     }
 }
-
 Function Set-StartMenu {
+    [CmdletBinding(SupportsShouldProcess)]
+    Param()
+
+    If ($Variables.osVersion -like "*Windows 10*")
+    {
+        $START_MENU_LAYOUT = @"
+        <LayoutModificationTemplate xmlns:defaultlayout="http://schemas.microsoft.com/Start/2014/FullDefaultLayout" xmlns:start="http://schemas.microsoft.com/Start/2014/StartLayout" Version="1" xmlns:taskbar="http://schemas.microsoft.com/Start/2014/TaskbarLayout" xmlns="http://schemas.microsoft.com/Start/2014/LayoutModification">
+            <LayoutOptions StartTileGroupCellWidth="6" />
+            <DefaultLayoutOverride>
+                <StartLayoutCollection>
+                    <defaultlayout:StartLayout GroupCellWidth="6" />
+                </StartLayoutCollection>
+            </DefaultLayoutOverride>
+        </LayoutModificationTemplate>
+"@
+        Write-Section -Text "Clearing pinned start menu items for Windows 10"
+        Write-Status -Types "@", $TweakType -Status "Clearing Windows 10 start pins"
+        $layoutFile = "C:\Windows\StartMenuLayout.xml"
+        # Delete layout file if it already exists
+        # Creates the blank layout file
+        if ($PSCmdlet.ShouldProcess("Out-File $StartlayoutFile -Encoding ASCII", "Remove-LayoutModificationFile")) {
+            If (Test-Path $layoutFile) { Remove-Item $layoutFile }
+            $START_MENU_LAYOUT | Out-File $layoutFile -Encoding ASCII
+        }
+    
+        $regAliases = @("HKLM", "HKCU")
+        #Assign the start layout and force it to apply with "LockedStartLayout" at both the machine and user level
+        foreach ($regAlias in $regAliases) {
+            $basePath = $regAlias + ":\SOFTWARE\Policies\Microsoft\Windows"
+            $keyPath = $basePath + "\Explorer"
+            if ($PSCmdlet.ShouldProcess("Setting LockedStartLayout to 1", "Set-ItemPropertyVerified")) {
+                Set-ItemPropertyVerified -Path $keyPath -Name "LockedStartLayout" -Value 1 -Type DWORD
+                Set-ItemPropertyVerified -Path $keyPath -Name "StartLayoutFile" -Value $layoutFile -Type ExpandString
+            }
+        }
+    
+        #Restart Explorer, open the start menu (necessary to load the new layout), and give it a few seconds to process
+        if ($PSCmdlet.ShouldProcess("Stop-Process -Name Explorer")) {
+            Stop-Process -name explorer
+        }
+    
+        if ($PSCmdlet.ShouldProcess("New-Object")) {
+            Start-Sleep -s 5
+            $wshell = New-Object -ComObject wscript.shell; $wshell.SendKeys('^{ESCAPE}')
+            Start-Sleep -s 5
+        }
+    
+        #Enable the ability to pin items again by disabling "LockedStartLayout"
+        foreach ($regAlias in $regAliases) {
+            $basePath = $regAlias + ":\SOFTWARE\Policies\Microsoft\Windows"
+            $keyPath = $basePath + "\Explorer"
+            if ($PSCmdlet.ShouldProcess("Setting LockedStartLayout to 0", "Set-ItemPropertyVerified")) {
+                Set-ItemPropertyVerified -Path $keyPath -Name "LockedStartLayout" -Value 0 -Type DWORD
+            }
+        }
+    
+    
+        #Restart Explorer and delete the layout file
+        if ($PSCmdlet.ShouldProcess("Stop-Process -Name Explorer")) {
+            Stop-Process -name explorer
+        }
+        # Uncomment the next line to make clean start menu default for all new users
+        if ($PSCmdlet.ShouldProcess("Import-StartLayout -LayoutPath $($layoutFile) -MountPath $env:SystemDrive\", "Remove-Item $($LayoutFile)")) {
+            Import-StartLayout -LayoutPath $layoutFile -MountPath $env:SystemDrive\
+            Remove-Item $layoutFile
+        }
+    }
+    elseif ($Variables.osVersion -like "*Windows 11*")
+    {
+        Write-Section -Text "Applying start menu layout for Windows 11"
+        Write-Status -Types "+", $TweakType -Status "Attempting application"
+        $StartBinFiles = Get-ChildItem -Path "$newloads" -Filter "start*.bin" -file
+        If ($null -eq $StartBinFiles) {
+            Start-BitsTransfer -Source $Variables.StartBinURL -Destination $Variables.Newloads -Dynamic
+            Start-BitsTransfer -Source $Variables.StartBinURL1 -Destination $Variables.Newloads -Dynamic
+            $StartBinFiles = Get-ChildItem -Path "$newloads" -Filter "start*.bin" -file
+        }
+        $progress = 0
+
+        Foreach ($StartBinFile in $StartBinFiles) {
+            $progress++
+            Write-Status -Types "+", $TweakType -Status "Copying $($StartBinFile.Name) for new users ($progress/$TotalBinFiles)" -NoNewLine
+            xcopy $StartBinFile.FullName $Variables.StartBinDefault /y | Out-Null
+            Get-Status
+            $progress++
+            Write-Status -Types "+", $TweakType -Status "Copying $($StartBinFile.Name) to current user ($($progress)/$TotalBinFiles)" -NoNewLine
+            xcopy $StartBinFile.FullName $Variables.StartBinCurrent /y | Out-Null
+            Get-Status
+        }
+    }
+}
+Function Set-Taskbar {
     <#
     .SYNOPSIS
-    Sets the Start Menu layout and Taskbar pins for Windows 10 and Windows 11.
+    Sets the Taskbar layout and Taskbar pins for Windows 10 and Windows 11.
 
     .DESCRIPTION
-    The Set-StartMenu function applies the Start Menu layout and Taskbar pins for Windows 10 and Windows 11. For Windows 10, it clears all the Start Menu pins. For Windows 11 (build 22000 and higher), it applies a customized Start Menu layout and Taskbar pins based on the specified XML template.
+    The Set-Taskbar function applies the Taskbar pins for Windows 10 and Windows 11. For Windows 10, it clears all the Start Menu pins. For Windows 11 (build 22000 and higher), it applies a customized Start Menu layout and Taskbar pins based on the specified XML template.
 
     .PARAMETER WhatIf
     If this switch is provided, the function will only show what would happen without actually making any changes. This is useful to preview the changes that would be applied. 
@@ -2407,26 +2499,8 @@ Function Set-StartMenu {
     [CmdletBinding(SupportsShouldProcess)]
     param ()
 
-    If ($Variables.osVersion -like "*Windows 10*") {
-        Remove-PinnedStartMenu
-    }
 
-    If ($Variables.osVersion -like "*Windows 11*") {
-        Write-Section -Text "Applying Start Menu Layout"
-        Write-Status -Types "+", $TweakType -Status "Generating Layout File"
-        $progress = 0
-        $StartBinFiles = Get-ChildItem -Path "$newloads" -Filter "start*.bin" -file
-        Foreach ($StartBinFile in $StartBinFiles) {
-            $progress++
-            Write-Status -Types "+", $TweakType -Status "Copying $($StartBinFile.Name) for new users ($progress/$TotalBinFiles)" -NoNewLine
-            xcopy $StartBinFile.FullName $Variables.StartBinDefault /y | Out-Null
-            Get-Status
-            $progress++
-            Write-Status -Types "+", $TweakType -Status "Copying $($StartBinFile.Name) to current user ($($progress)/$TotalBinFiles)" -NoNewLine
-            xcopy $StartBinFile.FullName $Variables.StartBinCurrent /y | Out-Null
-            Get-Status
-        }
-    }
+
 
     $StartLayout = @"
     <LayoutModificationTemplate xmlns="http://schemas.microsoft.com/Start/2014/LayoutModification"
@@ -2461,7 +2535,6 @@ Function Set-StartMenu {
     Restart-Explorer
     Start-Sleep -Seconds 4
 }
-
 function Set-Wallpaper {
     [CmdletBinding(SupportsShouldProcess)]
     param (
@@ -3123,8 +3196,11 @@ The Start-NewLoad function is the entry point for executing the New Loads script
     Show-ScriptStatus -WindowTitle "Apps" -TweakType "Apps" -TitleCounterText "Programs" -TitleText "Application Installation"
     Get-Program
     $Counter++
-    Show-ScriptStatus -WindowTitle "Start Menu" -TweakType "StartMenu" -TitleCounterText "Start Menu Layout" -TitleText "Taskbar"
+    Show-ScriptStatus -WindowTitle "Start Menu" -TweakType "StartMenu" -TitleCounterText "Start Menu Layout" -TitleText "StartMenu"
     Set-StartMenu
+
+
+    Set-Taskbar
     $Counter++
     Show-ScriptStatus -WindowTitle "Visual" -TweakType "Visuals" -TitleCounterText "Visuals"
     Set-Wallpaper
