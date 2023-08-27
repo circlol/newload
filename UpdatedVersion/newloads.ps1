@@ -731,7 +731,9 @@ Function Get-Program {
                 If ($program.Name -eq $hevc.Name) {
                     Write-Status -Types "+", $TweakType -Status "Adding support to $($HEVC.name) codec..." -NoNewLine
                     try {
+                        $ProgressPreference = 'SilentlyContinue'
                         Add-AppPackage -Path $HEVC.InstallerLocation -ErrorAction SilentlyContinue
+                        $ProgressPreference = 'Continue'
                     }
                     catch {
                         Write-Caption $_ -Type Failed
