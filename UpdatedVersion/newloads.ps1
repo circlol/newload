@@ -799,13 +799,13 @@ The Get-Status function is typically used after running a command to quickly che
         $command = $_.InvocationInfo.Line
         $errorType = $_.CategoryInfo.Reason
         $errorString = @"
-        -
-        Time of error: $(Get-Date -Format "yyyy-MM-dd HH:mm:ss")
-        Command run was: $command
-        Reason for error was: $errorType
-        Offending line number: $lineNumber
-        Error Message: $errorMessage
-        -
+    -
+    Time of error: $(Get-Date -Format "yyyy-MM-dd HH:mm:ss")
+    Command run was: $($command)
+    Reason for error was: $($errorType)
+    Offending line number: $($lineNumber)
+    Error Message: $($errorMessage)
+    -
 "@
         Add-Content $Variables.ErrorLog $errorString
         Write-Output $_
@@ -2018,13 +2018,13 @@ Function Set-ItemPropertyVerified {
                 $command = $_.InvocationInfo.Line
                 $errorType = $_.CategoryInfo.Reason
                 $errorString = @"
-                -
-                Time of error: $(Get-Date -Format "yyyy-MM-dd HH:mm:ss")
-                Command run was: $($command)
-                Reason for error was: $($errorType)
-                Offending line number: $($lineNumber)
-                Error Message: $($errorMessage)
-                -
+    -
+    Time of error: $(Get-Date -Format "yyyy-MM-dd HH:mm:ss")
+    Command run was: $($command)
+    Reason for error was: $($errorType)
+    Offending line number: $($lineNumber)
+    Error Message: $($errorMessage)
+    -
 "@
                 Add-Content $Variables.ErrorLog $errorString
                 Write-Output $_
@@ -2125,13 +2125,13 @@ Function Set-OptionalFeatureState {
                             $command = $_.InvocationInfo.Line
                             $errorType = $_.CategoryInfo.Reason
                             $errorString = @"
-                            -
-                            Time of error: $(Get-Date -Format "yyyy-MM-dd HH:mm:ss")
-                            Command run was: $($command)
-                            Reason for error was: $($errorType)
-                            Offending line number: $($lineNumber)
-                            Error Message: $($errorMessage)
-                            -
+    -
+    Time of error: $(Get-Date -Format "yyyy-MM-dd HH:mm:ss")
+    Command run was: $($command)
+    Reason for error was: $($errorType)
+    Offending line number: $($lineNumber)
+    Error Message: $($errorMessage)
+    -
 "@
                             Add-Content $Variables.ErrorLog $errorString
                             Write-Output $_
@@ -2152,15 +2152,15 @@ Function Set-OptionalFeatureState {
                             $command = $_.InvocationInfo.Line
                             $errorType = $_.CategoryInfo.Reason
                             $errorString = @"
-                            -
-                            Time of error: $(Get-Date -Format "yyyy-MM-dd HH:mm:ss")
-                            Command run was: $($command)
-                            Reason for error was: $($errorType)
-                            Offending line number: $($lineNumber)
-                            Error Message: $($errorMessage)
-                            -
+    -
+    Time of error: $(Get-Date -Format "yyyy-MM-dd HH:mm:ss")
+    Command run was: $($command)
+    Reason for error was: $($errorType)
+    Offending line number: $($lineNumber)
+    Error Message: $($errorMessage)
+    -
 "@
-                            Add-Content $Variables.ErrorLog $errorString
+                            Add-Content $Variables.ErrorLog $errorString -Append
                             Write-Output $_
                             continue
                         }
@@ -2267,13 +2267,13 @@ function Set-ScheduledTaskState {
                         $command = $_.InvocationInfo.Line
                         $errorType = $_.CategoryInfo.Reason
                         $errorString = @"
-                        -
-                        Time of error: $(Get-Date -Format "yyyy-MM-dd HH:mm:ss")
-                        Command run was: $($command)
-                        Reason for error was: $($errorType)
-                        Offending line number: $($lineNumber)
-                        Error Message: $($errorMessage)
-                        -
+    -
+    Time of error: $(Get-Date -Format "yyyy-MM-dd HH:mm:ss")
+    Command run was: $($command)
+    Reason for error was: $($errorType)
+    Offending line number: $($lineNumber)
+    Error Message: $($errorMessage)
+    -
 "@
                         Add-Content $Variables.ErrorLog $errorString
                         Write-Output $_
@@ -2370,13 +2370,13 @@ function Set-ServiceStartup {
                 $command = $_.InvocationInfo.Line
                 $errorType = $_.CategoryInfo.Reason
                 $errorString = @"
-                -
-                Time of error: $(Get-Date -Format "yyyy-MM-dd HH:mm:ss")
-                Command run was: $($command)
-                Reason for error was: $($errorType)
-                Offending line number: $($lineNumber)
-                Error Message: $($errorMessage)
-                -
+    -
+    Time of error: $(Get-Date -Format "yyyy-MM-dd HH:mm:ss")
+    Command run was: $($command)
+    Reason for error was: $($errorType)
+    Offending line number: $($lineNumber)
+    Error Message: $($errorMessage)
+    -
 "@
                 Add-Content $Variables.ErrorLog $errorString
                 Write-Output $_
