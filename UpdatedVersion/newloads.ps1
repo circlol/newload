@@ -5,6 +5,8 @@ $host.UI.RawUI.ForegroundColor = 'White'
 $host.UI.RawUI.BackgroundColor = 'Black'
 Add-Type -AssemblyName System.Windows.Forms
 Add-Type -AssemblyName System.Drawing
+filter TimeStamp {"$(Get-Date -Format g)- $_"}
+
 $NewLoads = $env:temp
 $Variables = @{
     "ForegroundColor" = "DarkMagenta"
@@ -37,8 +39,8 @@ $Variables = @{
     "Failed" = 0
     "NotFound" = 0
     "StartBinDefault" = "$Env:SystemDrive\Users\Default\AppData\Local\Packages\Microsoft.Windows.StartMenuExperienceHost_cw5n1h2txyewy\LocalState\"
-    "StartBinCurrent" = "$Env:userprofile\AppData\Local\Packages\Microsoft.Windows.StartMenuExperienceHost_cw5n1h2txyewy\LocalState"
-    "LayoutFile" = "$Env:LOCALAPPDATA\Microsoft\Windows\Shell\LayoutModification.xml"
+    "StartBinCurrent" = "$Env:LocalAppData\Packages\Microsoft.Windows.StartMenuExperienceHost_cw5n1h2txyewy\LocalState"
+    "LayoutFile" = "$Env:LocalAppData\Microsoft\Windows\Shell\LayoutModification.xml"
     "adwLink" = "https://github.com/circlol/newload/raw/main/adwcleaner.exe"
     "livesafe" = "$Env:PROGRAMFILES\McAfee\MSC\mcuihost.exe"
     "WebAdvisor" = "$Env:PROGRAMFILES\McAfee\WebAdvisor\Uninstaller.exe"
@@ -1543,27 +1545,30 @@ Function Optimize-Security {
     Set-NetFirewallProfile -Profile Domain, Public, Private -Enabled True
 
     Write-Section "Windows Defender"
+    <#
     Write-Status -Types "+", $TweakType -Status "Enabling Microsoft Defender Exploit Guard network protection..." -NoNewLine
     try { 
         Set-MpPreference -EnableNetworkProtection Enabled -Force 
+        Get-Status
     }
     catch {
         Get-Status
         Write-Caption $_ -Type Failed
         continue
     }
-    Get-Status
+    #>
+    
 
     Write-Status -Types "+", $TweakType -Status "Enabling detection for potentially unwanted applications and block them..." -NoNewLine
     try { 
         Set-MpPreference -PUAProtection Enabled -Force
+        Get-Status
     }
     catch {
         Get-Status
         Write-Caption $_ -Type Failed
         continue
     }
-    Get-Status
 
     Write-Section "SmartScreen"
     Write-Status -Types $EnableStatus[1].Symbol, $TweakType -Status "$($EnableStatus[1].Status) 'SmartScreen' for Microsoft Edge..."
@@ -1708,14 +1713,14 @@ Function Remove-Office {
     Param()
 
 
-    $msgBoxInput = Show-Question -YesNo -Message "  Microsoft Office was found on this system. Would you like to remove it?" -Icon Question
+    $msgBoxInput = Show-Question -YesNo -Message "  Microsoft Office was found on this system. Would you like to remove it?" -Icon Warning
     switch ($msgBoxInput) {
         'Yes' {
             $actionDescription = "Downloading Microsoft Support and Recovery Assistant (SaRA)..."
             if ($PSCmdlet.ShouldProcess($actionDescription, "Download-SaRA")) {
                 Write-Status "+", $TweakType -Status "Downloading Microsoft Support and Recovery Assistant (SaRA)..."
                 Get-NetworkStatus
-                Start-BitsTransfer -Source:$Variables.SaRAURL -Destination:$Variables.SaRA -TransferType Download -Dynamic | Out-Host
+                Start-BitsTransfer -Source $Variables.SaRAURL -Destination $Variables.SaRA -TransferType Download -Dynamic | Out-Host
                 Expand-Archive -Path $Variables.SaRA -DestinationPath $Variables.Sexp -Force
                 Get-Status
             }
@@ -2009,13 +2014,13 @@ Function Set-ItemPropertyVerified {
                 $command = $_.InvocationInfo.Line
                 $errorType = $_.CategoryInfo.Reason
                 $errorString = @"
--
-Time of error: $(Get-Date -Format "yyyy-MM-dd HH:mm:ss")
-Command run was: $command
-Reason for error was: $errorType
-Offending line number: $lineNumber
-Error Message: $_
--
+                -
+                Time of error: $(Get-Date -Format "yyyy-MM-dd HH:mm:ss")
+                Command run was: $($command)
+                Reason for error was: $($errorType)
+                Offending line number: $($lineNumber)
+                Error Message: $($errorMessage)
+                -
 "@
                 Add-Content $Variables.ErrorLog $errorString
                 Write-Output $_
@@ -2118,10 +2123,10 @@ Function Set-OptionalFeatureState {
                             $errorString = @"
                             -
                             Time of error: $(Get-Date -Format "yyyy-MM-dd HH:mm:ss")
-                            Command run was: $command
-                            Reason for error was: $errorType
-                            Offending line number: $lineNumber
-                            Error Message: $errorMessage
+                            Command run was: $($command)
+                            Reason for error was: $($errorType)
+                            Offending line number: $($lineNumber)
+                            Error Message: $($errorMessage)
                             -
 "@
                             Add-Content $Variables.ErrorLog $errorString
@@ -2145,10 +2150,10 @@ Function Set-OptionalFeatureState {
                             $errorString = @"
                             -
                             Time of error: $(Get-Date -Format "yyyy-MM-dd HH:mm:ss")
-                            Command run was: $command
-                            Reason for error was: $errorType
-                            Offending line number: $lineNumber
-                            Error Message: $errorMessage
+                            Command run was: $($command)
+                            Reason for error was: $($errorType)
+                            Offending line number: $($lineNumber)
+                            Error Message: $($errorMessage)
                             -
 "@
                             Add-Content $Variables.ErrorLog $errorString
@@ -2258,13 +2263,13 @@ function Set-ScheduledTaskState {
                         $command = $_.InvocationInfo.Line
                         $errorType = $_.CategoryInfo.Reason
                         $errorString = @"
--
-Time of error: $(Get-Date -Format "yyyy-MM-dd HH:mm:ss")
-Command run was: $command
-Reason for error was: $errorType
-Offending line number: $lineNumber
-Error Message: $errorMessage
--
+                        -
+                        Time of error: $(Get-Date -Format "yyyy-MM-dd HH:mm:ss")
+                        Command run was: $($command)
+                        Reason for error was: $($errorType)
+                        Offending line number: $($lineNumber)
+                        Error Message: $($errorMessage)
+                        -
 "@
                         Add-Content $Variables.ErrorLog $errorString
                         Write-Output $_
@@ -2361,13 +2366,13 @@ function Set-ServiceStartup {
                 $command = $_.InvocationInfo.Line
                 $errorType = $_.CategoryInfo.Reason
                 $errorString = @"
-    -
-    Time of error: $(Get-Date -Format "yyyy-MM-dd HH:mm:ss")
-    Command run was: $command
-    Reason for error was: $errorType
-    Offending line number: $lineNumber
-    Error Message: $errorMessage
-    -
+                -
+                Time of error: $(Get-Date -Format "yyyy-MM-dd HH:mm:ss")
+                Command run was: $($command)
+                Reason for error was: $($errorType)
+                Offending line number: $($lineNumber)
+                Error Message: $($errorMessage)
+                -
 "@
                 Add-Content $Variables.ErrorLog $errorString
                 Write-Output $_
