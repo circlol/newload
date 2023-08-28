@@ -1,4 +1,10 @@
-﻿#
+﻿<#
+.NOTES
+    Author         : @Circlol
+    GitHub         : https://github.com/Circlol/newload
+    Version        : 23.08.28
+#>
+
 $WindowTitle = "New Loads"
 $host.UI.RawUI.WindowTitle = $WindowTitle
 $host.UI.RawUI.ForegroundColor = 'White'
