@@ -6,19 +6,58 @@ $host.UI.RawUI.BackgroundColor = 'Black'
 Add-Type -AssemblyName System.Windows.Forms
 Add-Type -AssemblyName System.Drawing
 filter TimeStamp {"$(Get-Date -Format g)- $_"}
-$ErrorActionPreference = Stop
+$ErrorActionPreference = "SilentlyContinue"
 $NewLoads = $env:temp
 $Variables = @{
+    "Logo" = "
+            ███╗   ██╗███████╗██╗    ██╗    ██╗      ██████╗  █████╗ ██████╗ ███████╗
+            ████╗  ██║██╔════╝██║    ██║    ██║     ██╔═══██╗██╔══██╗██╔══██╗██╔════╝
+            ██╔██╗ ██║█████╗  ██║ █╗ ██║    ██║     ██║   ██║███████║██║  ██║███████╗
+            ██║╚██╗██║██╔══╝  ██║███╗██║    ██║     ██║   ██║██╔══██║██║  ██║╚════██║
+            ██║ ╚████║███████╗╚███╔███╔╝    ███████╗╚██████╔╝██║  ██║██████╔╝███████║
+            ╚═╝  ╚═══╝╚══════╝ ╚══╝╚══╝     ╚══════╝ ╚═════╝ ╚═╝  ╚═╝╚═════╝ ╚══════╝`n"
+    "errorMessage1" = "
+        @|\@@                                                                                    `
+        -  @@@@                     New Loads requires a minimum Windows version of 20H2 (19042).`
+       /7   @@@@                                                                                 `
+      /    @@@@@@                             Please upgrade your OS before continuing.          `
+      \-' @@@@@@@@`-_______________                                                              `
+       -@@@@@@@@@             /    \                                                             `
+  _______/    /_       ______/      |__________-                          /\_____/\              `
+ /,__________/  `-.___/,_____________----------_)                Meow.    /  o   o  \            `
+                                                                        ( ==  ^  == )             `
+                                                                         )         (              `
+                                                                        (           )             `
+                                                                       ( (  )   (  ) )            `
+                                                                      (__(__)___(__)__)          `n`n"
+    "errorMessage2" = "
+        @|\@@                                                                                    `
+        -  @@@@                             New Loads REQUIRES administrative privileges         `
+       /7   @@@@                                                                                 `
+      /    @@@@@@                             for core features to function correctly.           `
+      \-' @@@@@@@@`-_______________                                                              `
+       -@@@@@@@@@             /    \                                                             `
+  _______/    /_       ______/      |__________-                          /\_____/\              `
+ /,__________/  `-.___/,_____________----------_)                Meow.    /  o   o  \            `
+                                                                        ( ==  ^  == )            `
+                                                                         )         (             `
+                                                                        (           )            `
+                                                                       ( (  )   (  ) )           `
+                                                                      (__(__)___(__)__)          `n`n"
     "ForegroundColor" = "DarkMagenta"
     "BackgroundColor" = "Black"
     "LogoColor" = "DarkMagenta"
     "ProgramVersion" = "v1.06"
     "ReleaseDate" = "August 14th, 2023"
+    "Time" = Get-Date -UFormat %Y%m%d
+    "MinTime" =20230630
+    "MaxTime" = 20231031
     "SelectedParameters" = @()
     "temp" = $Env:temp
     "MaxLength" = "11"
     "Win11" = "22000"
     "Win22H2" = "22621"
+    "MinimumBuildNumber" = "19042"
     "OSVersion" = (Get-CimInstance -ClassName Win32_OperatingSystem).Caption
     "BuildNumber" = [System.Environment]::OSVersion.Version.Build
     "NetStatus" = (Get-NetConnectionProfile).IPv4Connectivity
@@ -27,7 +66,7 @@ $Variables = @{
     "WallpaperDestination" = "C:\Windows\Resources\Themes\mother.jpg"
     "WallpaperPath" = "$NewLoads\mother.jpg"
     "ErrorLog" = "$env:userprofile\Desktop\New Loads Errors.txt"
-    "Log" = "$env:userprofile\Desktop\New Loads.txt"
+    "Log" = "$env:userprofile\Desktop\New Loads"
     "adwDestination" = "$NewLoads\adwcleaner.exe"
     "DriverSelectorPath" = "$NewLoads\Driver Grabber.exe"
     "WindowsUpdatesPath" = "$NewLoads\Windows Updates.exe"
@@ -70,7 +109,7 @@ $Variables = @{
     "PathToLFSVC" = "HKLM:\SYSTEM\CurrentControlSet\Services\lfsvc\Service\Configuration"
     "RegCAM" = "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\CapabilityAccessManager\ConsentStore\location"
     "Website" = "https://www.mothercomputers.com"
-    "Hours" = "Monday - Saturday 9AM-5PM | Sunday - Closed" 
+    "Hours" = "Monday - Saturday 9AM-5PM | Sunday - Closed"
     "Phone" = "(250) 479-8561"
     "Store" = "Mother Computers"
     "Model" = "Mother Computers - (250) 479-8561"
@@ -93,7 +132,7 @@ $Variables = @{
     "PathToRegAdvertising" = "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\AdvertisingInfo"
     "PathToRegPersonalize" = "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Themes\Personalize"
     "PathToPrivacy" = "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Privacy"
-    
+
     # Initialize all Path variables used to Registry Tweaks
     "PathToLMActivityHistory" = "HKLM:\SOFTWARE\Policies\Microsoft\Windows\System"
     "PathToLMAutoLogger" = "HKLM:\SYSTEM\CurrentControlSet\Control\WMI\AutoLogger"
@@ -102,7 +141,7 @@ $Variables = @{
     "PathToLMConsentStoreUAI" = "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\CapabilityAccessManager\ConsentStore\userAccountInformation"
     "PathToLMConsentStoreUN" = "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\CapabilityAccessManager\ConsentStore\userNotificationListener"
     "PathToLMConsentStoreAD" = "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\CapabilityAccessManager\ConsentStore\appDiagnostics"
-    "PathToLMDeviceMetaData" = "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Device Metadata" 
+    "PathToLMDeviceMetaData" = "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Device Metadata"
     "PathToLMDriverSearching" = "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\DriverSearching"
     "PathToLMEventKey" = "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Diagnostics\DiagTrack\EventTranscriptKey"
     "PathToLMLanmanServer" = "HKLM:\SYSTEM\CurrentControlSet\Services\LanmanServer\Parameters"
@@ -300,6 +339,17 @@ $Variables = @{
         "NetFx4Extended-ASPNET45"           # NET Framework 4.x + ASPNET 4.x
     )
     # - Debloat
+    "apps" = @(
+        "Adobe offers",
+        "Amazon",
+        "Booking",
+        "Booking.com",
+        "ExpressVPN",
+        "Forge of Empires",
+        "Free Trials",
+        "Planet9 Link",
+        "Utomik - Play over 1000 games"
+    )
     "Programs" = @(
         # Microsoft Applications
         "Microsoft.549981C3F5F10"                   			# Cortana
@@ -414,6 +464,32 @@ $Variables = @{
         "26720RandomSaladGamesLLC.SimpleMahjong"                # Simple Mahjong
         "26720RandomSaladGamesLLC.Spades"                       # Spades
     )
+    "StartLayout" = @"
+    <LayoutModificationTemplate xmlns="http://schemas.microsoft.com/Start/2014/LayoutModification"
+        xmlns:defaultlayout="http://schemas.microsoft.com/Start/2014/FullDefaultLayout"
+        xmlns:start="http://schemas.microsoft.com/Start/2014/StartLayout"
+        xmlns:taskbar="http://schemas.microsoft.com/Start/2014/TaskbarLayout"
+        Version="1">
+        <LayoutOptions StartTileGroupCellWidth="6" />
+        <DefaultLayoutOverride>
+            <StartLayoutCollection>
+            <defaultlayout:StartLayout GroupCellWidth="6" />
+            </StartLayoutCollection>
+        </DefaultLayoutOverride>
+        <CustomTaskbarLayoutCollection PinListPlacement="Replace">
+            <defaultlayout:TaskbarLayout>
+            <taskbar:TaskbarPinList>
+            <taskbar:DesktopApp DesktopApplicationID="Chrome" />
+            <taskbar:DesktopApp DesktopApplicationID="Microsoft.Windows.Explorer" />
+            <taskbar:DesktopApp DesktopApplicationID="Microsoft.Windows.SecHealthUI" />
+            <taskbar:UWA AppUserModelID="windows.immersivecontrolpanel_cw5n1h2txyewy!Microsoft.Windows.ImmersiveControlPanel" />
+            <taskbar:UWA AppUserModelID="Microsoft.SecHealthUI_8wekyb3d8bbwe!SecHealthUI" />
+            <taskbar:UWA AppUserModelID="Microsoft.Windows.SecHealthUI_cw5n1h2txyewy!SecHealthUI" />
+            </taskbar:TaskbarPinList>
+        </defaultlayout:TaskbarLayout>
+        </CustomTaskbarLayoutCollection>
+    </LayoutModificationTemplate>
+"@
 }
 [Int]$Counter = 0
 if ($GUI) { $Variables.specifiedParameters += '-GUI' }
@@ -428,16 +504,6 @@ Clear-Host
 
 
 function Find-OptionalFeature {
-    <#
-.SYNOPSIS
-    Checks if a specified Windows optional feature is available on the host.
-
-.DESCRIPTION
-    The Find-OptionalFeature function is used to check if a specified Windows optional feature is available on the host machine. It queries the installed optional features using `Get-WindowsOptionalFeature` cmdlet and returns a boolean value indicating if the feature is found or not.
-
-.PARAMETER OptionalFeature
-    Specifies the name of the Windows optional feature to check for. This parameter is mandatory.
-#>
     [CmdletBinding()]
     [OutputType([Bool])]
     param (
@@ -455,17 +521,6 @@ function Find-OptionalFeature {
     }
 }
 function Find-ScheduledTask {
-    <#
-.SYNOPSIS
-    Checks if a specified scheduled task exists on the host.
-
-.DESCRIPTION
-    The Find-ScheduledTask function is used to check if a specified scheduled task exists on the host machine. It queries the scheduled tasks using the `Get-ScheduledTaskInfo` cmdlet and returns a boolean value indicating if the task is found or not.
-
-.PARAMETER ScheduledTask
-    Specifies the name of the scheduled task to check for. This parameter is mandatory.
-
-#>
     [CmdletBinding()]
     [OutputType([Bool])]
     param (
@@ -473,7 +528,7 @@ function Find-ScheduledTask {
         [String] $ScheduledTask
     )
 
-    If (Get-ScheduledTaskInfo -TaskName $ScheduledTask) {
+    If (Get-ScheduledTaskInfo -TaskName $ScheduledTask -ErrorAction SilentlyContinue) {
         return $true
     }
     Else {
@@ -576,7 +631,7 @@ function Get-SystemSpec {
     param (
         [Parameter(Mandatory = $false)]
         [String] $Separator = '|-----------|'
-    )    
+    )
     $osarch = (Get-CimInstance Win32_OperatingSystem).OSArchitecture
     $WinVer = (Get-CimInstance -class Win32_OperatingSystem).Caption -replace 'Microsoft ', ''
     $DisplayVersion = (Get-ItemProperty $Variables.PathToLMCurrentVersion).DisplayVersion
@@ -629,19 +684,6 @@ Function Get-InstalledProgram() {
     }
 }
 Function Get-NetworkStatus {
-    <#
-.SYNOPSIS
-Checks the network connectivity status and waits for an active internet connection.
-
-.DESCRIPTION
-The Get-NetworkStatus function checks the network connectivity status and waits for an active internet connection to proceed with the application. It checks the IPv4 connectivity status (by default) of the current network connection profile. If there is no internet connectivity, the function displays a warning message and waits until the internet connection is established.
-
-.PARAMETER NetworkStatusType
-Specifies the network status type to check. The default value is "IPv4Connectivity." Other possible values include "IPv4Connectivity" and "IPv6Connectivity."
-
-.NOTES
-The Get-NetworkStatus function is typically used to ensure that the application has an active internet connection before performing specific tasks that require internet access.
-#>
     [CmdletBinding()]
     param(
         [string]$NetworkStatusType = "IPv4Connectivity"
@@ -664,8 +706,8 @@ Function Get-Office {
     If (Test-Path $Variables.PathToOffice86 ) { $Variables.Office32 = $true }Else { $Variables.office32 = $false }
     If ($Variables.office32 -or $Variables.Office64 -eq $true) { $Variables.officecheck = $true }
     If ($Variables.officecheck -eq $true) { Write-Status -Types "WAITING" -Status "Office Exists" -WriteWarning }
-    Else { 
-        Write-Status -Types "?" -Status "There are no Microsoft Office products on this device." -WriteWarning 
+    Else {
+        Write-Status -Types "?" -Status "There are no Microsoft Office products on this device." -WriteWarning
     }
     If ($Variables.officecheck -eq $true) { Remove-Office }
 }
@@ -771,21 +813,7 @@ Function Get-Program {
 
     }
 }
-
 Function Get-Status {
-    <#
-.SYNOPSIS
-Displays the status of the command execution (successful or unsuccessful) and additional error information if the command fails.
-
-.DESCRIPTION
-The Get-Status function is used to display the status of the most recently executed command. If the command is successful, it will show "Successful" with a success caption. If the command is unsuccessful, it will show "Unsuccessful" with a failed caption and also display additional error information, including the error message, error type, and line number where the error occurred.
-
-.PARAMETER None
-This function does not accept any parameters.
-
-.NOTES
-The Get-Status function is typically used after running a command to quickly check whether it executed successfully or encountered an error.
-#>
     if ($?) {
         $CaptionSucceeded = Get-Command Write-Caption
         If ($CaptionSucceeded) {
@@ -895,7 +923,7 @@ Function Optimize-General {
         Write-Section -Text "Applying Windows 11 Specific Reg Keys"
         If ($Variables.BuildNumber -GE $Variables.Win22H2 ) {
             Write-Status -Types $EnableStatus[1].Symbol, $TweakType -Status "$($EnableStatus[1].Status) More Icons in the Start Menu.."
-            Set-ItemProperty -Path $Variables.PathToCUExplorerAdvanced -Name Start_Layout -Value $One -Type DWORD -Force
+            Set-ItemPropertyVerified -Path $Variables.PathToCUExplorerAdvanced -Name Start_Layout -Value $One -Type DWORD -Force
         }
 
         # Sets explorer to compact mode in 11
@@ -1006,7 +1034,7 @@ Function Optimize-Performance {
     Write-Caption "Display"
     Write-Status -Types $EnableStatus[1].Symbol, $TweakType -Status "Enable Hardware Accelerated GPU Scheduling... (Windows 10 20H1+ - Needs Restart)"
     Set-ItemPropertyVerified -Path $Variables.PathToGraphicsDrives -Name "HwSchMode" -Type DWord -Value 2
-    
+
     # [@] (2 = Enable Ndu, 4 = Disable Ndu)
     Write-Status -Types $EnableStatus[0].Symbol, $TweakType -Status "$($EnableStatus[0].Status) Ndu High RAM Usage..."
     Set-ItemPropertyVerified -Path $Variables.PathToLMNdu -Name "Start" -Type DWord -Value 4
@@ -1247,10 +1275,10 @@ Function Optimize-Privacy {
     ### Privacy
     Write-Section -Text "Privacy"
     If (Test-Path -Path "$($Variables.PathToCUContentDeliveryManager)\Subscriptionn") {
-        Remove-Item -Path "$($Variables.PathToCUContentDeliveryManager)\Subscriptionn" -Recurse -Force
+        Remove-Item -Path "$($Variables.PathToCUContentDeliveryManager)\Subscriptionn" -Recurse
     }
     If (Test-Path -Path "$($Variables.PathToCUContentDeliveryManager)\SuggestedApps") {
-        Remove-Item -Path "$($Variables.PathToCUContentDeliveryManager)\SuggestedApps" -Recurse -Force
+        Remove-Item -Path "$($Variables.PathToCUContentDeliveryManager)\SuggestedApps" -Recurse
     }
 
     # Disables app launch tracking
@@ -1258,7 +1286,7 @@ Function Optimize-Privacy {
     Set-ItemPropertyVerified -Path HKCU:\Software\Policies\Microsoft\Windows\EdgeUI -Name "DisableMFUTracking" -Value $One -Type DWORD
 
     If ($vari -eq '2') {
-        Remove-Item -Path HKCU:\Software\Policies\Microsoft\Windows\EdgeUI -Force
+        Remove-Item -Path HKCU:\Software\Policies\Microsoft\Windows\EdgeUI
     }
 
     # Sets windows feeback notifciations to never show
@@ -1551,8 +1579,8 @@ Function Optimize-Security {
     Write-Section "Windows Defender"
     <#
     Write-Status -Types "+", $TweakType -Status "Enabling Microsoft Defender Exploit Guard network protection..." -NoNewLine
-    try { 
-        Set-MpPreference -EnableNetworkProtection Enabled -Force 
+    try {
+        Set-MpPreference -EnableNetworkProtection Enabled -Force
         Get-Status
     }
     catch {
@@ -1561,10 +1589,10 @@ Function Optimize-Security {
         continue
     }
     #>
-    
+
 
     Write-Status -Types "+", $TweakType -Status "Enabling detection for potentially unwanted applications and block them..." -NoNewLine
-    try { 
+    try {
         Set-MpPreference -PUAProtection Enabled -Force
         Get-Status
     }
@@ -1580,12 +1608,10 @@ Function Optimize-Security {
 
     Write-Status -Types $EnableStatus[1].Symbol, $TweakType -Status "$($EnableStatus[1].Status) 'SmartScreen' for Store Apps..."
     Set-ItemPropertyVerified -Path $Variables.PathToCUAppHost-Name "EnableWebContentEvaluation" -Type DWord -Value $One
-    
+
     Write-Section "Old SMB Protocol"
     Write-Status -Types "+", $TweakType -Status "Disabling SMB 1.0 protocol..." -NoNewLine
-    try { 
-        Set-SmbServerConfiguration -EnableSMB1Protocol $false -Force 
-    }
+    try { Set-SmbServerConfiguration -EnableSMB1Protocol $false -Force }
     catch {
         Get-Status
         Write-Caption $_ -Type Failed
@@ -1597,7 +1623,7 @@ Function Optimize-Security {
     Write-Status -Types $EnableStatus[1].Symbol, $TweakType -Status "$($EnableStatus[1].Status) .NET strong cryptography..."
     Set-ItemPropertyVerified -Path $Variables.PathToLMOldDotNet -Name "SchUseStrongCrypto" -Type DWord -Value $One
     Set-ItemPropertyVerified -Path $Variables.PathToLMWowNodeOldDotNet -Name "SchUseStrongCrypto" -Type DWord -Value $One
-    
+
     Write-Section "Autoplay and Autorun (Removable Devices)"
     Write-Status -Types "-", $TweakType -Status "Disabling Autoplay..."
     Set-ItemPropertyVerified -Path "$($Variables.PathToCUExplorer)\AutoplayHandlers" -Name "DisableAutoplay" -Type DWord -Value $One
@@ -1730,7 +1756,6 @@ Function Remove-Office {
             }
 
             $SaRAcmdexe = (Get-ChildItem $Variables.Sexp -Include SaRAcmd.exe -Recurse).FullName
-
             $actionDescription = "Starting OfficeScrubScenario via Microsoft Support and Recovery Assistant (SaRA)..."
             if ($PSCmdlet.ShouldProcess($actionDescription, "Start-OfficeScrubScenario")) {
                 Write-Status "+", $TweakType -Status "Starting OfficeScrubScenario via Microsoft Support and Recovery Assistant (SaRA)... "
@@ -1839,26 +1864,6 @@ Function Remove-UWPAppx {
     $ProgressPreference = "Continue"
 }
 Function Restart-Explorer {
-    <#
-.SYNOPSIS
-    Restarts the Windows Explorer process.
-
-.DESCRIPTION
-    The Restart-Explorer function is used to gracefully restart the Windows Explorer process. It first checks if the Explorer process is running and stops it using the taskkill command. After a brief delay, it starts the Explorer process again using the Start-Process cmdlet.
-
-.PARAMETER None
-    This function does not accept any parameters.
-
-.NOTES
-    The function supports the ShouldProcess feature for confirmation before stopping and starting the Explorer process.
-
-.EXAMPLE
-    Restart-Explorer
-
-    DESCRIPTION
-        Restarts the Windows Explorer process. It first stops the Explorer process and then starts it again.
-
-#>
     [CmdletBinding(SupportsShouldProcess)]
     Param()
     # Checks is explorer is running
@@ -2037,55 +2042,6 @@ Function Set-ItemPropertyVerified {
     }
 }
 Function Set-OptionalFeatureState {
-    <#
-.SYNOPSIS
-    Enables or disables Windows optional features on the host.
-
-.DESCRIPTION
-    The Set-OptionalFeatureState function is used to enable or disable Windows optional features on the host machine. It allows you to specify the features to be enabled or disabled using an array of feature names. You can also set a filter to skip certain features, provide a custom message for each feature, and use the `-WhatIf` switch to preview changes without applying them.
-
-.PARAMETER Disabled
-    Indicates that the specified optional features should be disabled. If this switch is present, the function will attempt to uninstall the specified features.
-
-.PARAMETER Enabled
-    Indicates that the specified optional features should be enabled. If this switch is present, the function will attempt to install the specified features.
-
-.PARAMETER OptionalFeatures
-    Specifies an array of names of the optional features that need to be enabled or disabled. This parameter is mandatory.
-
-.PARAMETER Filter
-    Specifies an array of feature names to skip. If a feature name matches any of the names in the filter, it will be skipped. This parameter is optional.
-
-.PARAMETER CustomMessage
-    Allows providing a custom message for each feature. If provided, the custom message will be displayed instead of the default messages.
-
-.PARAMETER WhatIf
-    If this switch is provided, the function will only preview the changes without actually enabling or disabling the features.
-
-.EXAMPLE
-    Set-OptionalFeatureState -Enabled -OptionalFeatures "Microsoft-Windows-Subsystem-Linux", "Telnet-Client"
-
-    DESCRIPTION
-        Enables the "Microsoft-Windows-Subsystem-Linux" and "Telnet-Client" optional features on the host.
-
-.EXAMPLE
-    Set-OptionalFeatureState -Disabled -OptionalFeatures "Internet-Explorer-Optional-amd64" -Filter "Telnet-Client"
-
-    DESCRIPTION
-        Disables the "Internet-Explorer-Optional-amd64" optional feature on the host. If the feature name matches the filter ("Telnet-Client"), it will be skipped.
-
-.EXAMPLE
-    Set-OptionalFeatureState -Enabled -OptionalFeatures "Media-Features", "XPS-Viewer" -CustomMessage { "Enabling feature: $_" }
-
-    DESCRIPTION
-        Enables the "Media-Features" and "XPS-Viewer" optional features on the host, displaying the custom message for each feature.
-
-.EXAMPLE
-    Set-OptionalFeatureState -Enabled -OptionalFeatures "LegacyComponents" -WhatIf
-
-    DESCRIPTION
-        Previews the changes of enabling the "LegacyComponents" optional feature without applying the changes.
-#>
     [CmdletBinding(SupportsShouldProcess)]
     param (
         [ScriptBlock] $CustomMessage,
@@ -2182,38 +2138,6 @@ Function Set-OptionalFeatureState {
     }
 }
 function Set-ScheduledTaskState {
-    <#
-.SYNOPSIS
-    Enables or disables scheduled tasks on the host.
-
-.DESCRIPTION
-    The Set-ScheduledTaskState function is used to enable or disable scheduled tasks on the host machine. It allows you to specify the tasks to be enabled or disabled using an array of task names. You can also set a filter to skip certain tasks, and use the `-Disabled` or `-Ready` switches to disable or enable the tasks, respectively.
-
-.PARAMETER Disabled
-    Indicates that the scheduled tasks should be disabled. If this switch is used, the tasks specified in the `ScheduledTasks` parameter will be disabled.
-
-.PARAMETER Ready
-    Indicates that the scheduled tasks should be enabled and set to the "Ready" state. If this switch is used, the tasks specified in the `ScheduledTasks` parameter will be enabled.
-
-.PARAMETER ScheduledTasks
-    Specifies an array of scheduled task names for which the state should be modified. This parameter is mandatory.
-
-.PARAMETER Filter
-    Specifies an array of scheduled task names to skip. If a task name matches any of the names in the filter, it will be skipped. This parameter is optional.
-
-.EXAMPLE
-    Set-ScheduledTaskState -Disabled -ScheduledTasks "Task1", "Task2"
-
-    DESCRIPTION
-        Disables the "Task1" and "Task2" scheduled tasks.
-
-.EXAMPLE
-    Set-ScheduledTaskState -Ready -ScheduledTasks "Task3", "Task4" -Filter "Task5"
-
-    DESCRIPTION
-        Enables the "Task3" and "Task4" scheduled tasks and skips the "Task5" task due to the filter.
-
-#>
     [CmdletBinding(SupportsShouldProcess)]
     param (
         [Parameter(Mandatory = $false)]
@@ -2285,41 +2209,6 @@ function Set-ScheduledTaskState {
     }
 }
 function Set-ServiceStartup {
-    <#
-.SYNOPSIS
-    Sets the startup type for specified Windows services.
-
-.DESCRIPTION
-    The Set-ServiceStartup function is used to set the startup type for specified Windows services on the host machine. The function allows you to specify the desired startup state using the ValidateSet attribute for the $State parameter. You can provide an array of service names to apply the change to multiple services at once. Additionally, you can set a filter to skip certain services from being modified.
-
-.PARAMETER State
-    Specifies the desired startup type for the services. Valid values are 'Automatic', 'Boot', 'Disabled', 'Manual', and 'System'. This parameter is mandatory.
-
-.PARAMETER Services
-    Specifies an array of service names for which the startup type should be modified. This parameter is mandatory.
-
-.PARAMETER Filter
-    Specifies an array of service names to skip. If a service name matches any of the names in the filter, it will be skipped. This parameter is optional.
-
-.EXAMPLE
-    Set-ServiceStartup -State "Automatic" -Services "Spooler", "BITS"
-
-    DESCRIPTION
-        Sets the startup type for the "Spooler" and "BITS" services to "Automatic".
-
-.EXAMPLE
-    Set-ServiceStartup -State "Disabled" -Services "Telnet", "wuauserv" -Filter "BITS"
-
-    DESCRIPTION
-        Sets the startup type for the "Telnet" and "wuauserv" services to "Disabled". The "BITS" service will be skipped due to the filter.
-
-.EXAMPLE
-    Set-ServiceStartup -State "Manual" -Services "Dnscache" -WhatIf
-
-    DESCRIPTION
-        Previews the changes of setting the "Dnscache" service startup type to "Manual" without actually applying the changes.
-
-#>
     [CmdletBinding(SupportsShouldProcess)]
     param (
         [Parameter(Mandatory = $true)]
@@ -2411,7 +2300,7 @@ Function Set-StartMenu {
             If (Test-Path $layoutFile) { Remove-Item $layoutFile }
             $START_MENU_LAYOUT | Out-File $layoutFile -Encoding ASCII
         }
-    
+
         $regAliases = @("HKLM", "HKCU")
         #Assign the start layout and force it to apply with "LockedStartLayout" at both the machine and user level
         foreach ($regAlias in $regAliases) {
@@ -2422,18 +2311,18 @@ Function Set-StartMenu {
                 Set-ItemPropertyVerified -Path $keyPath -Name "StartLayoutFile" -Value $layoutFile -Type ExpandString
             }
         }
-    
+
         #Restart Explorer, open the start menu (necessary to load the new layout), and give it a few seconds to process
         if ($PSCmdlet.ShouldProcess("Stop-Process -Name Explorer")) {
             Stop-Process -name explorer
         }
-    
+
         if ($PSCmdlet.ShouldProcess("New-Object")) {
             Start-Sleep -s 5
             $wshell = New-Object -ComObject wscript.shell; $wshell.SendKeys('^{ESCAPE}')
             Start-Sleep -s 5
         }
-    
+
         #Enable the ability to pin items again by disabling "LockedStartLayout"
         foreach ($regAlias in $regAliases) {
             $basePath = $regAlias + ":\SOFTWARE\Policies\Microsoft\Windows"
@@ -2442,8 +2331,8 @@ Function Set-StartMenu {
                 Set-ItemPropertyVerified -Path $keyPath -Name "LockedStartLayout" -Value 0 -Type DWORD
             }
         }
-    
-    
+
+
         #Restart Explorer and delete the layout file
         if ($PSCmdlet.ShouldProcess("Stop-Process -Name Explorer")) {
             Stop-Process -name explorer
@@ -2460,8 +2349,8 @@ Function Set-StartMenu {
         Write-Status -Types "+", $TweakType -Status "Attempting application"
         $StartBinFiles = Get-ChildItem -Path "$newloads" -Filter "start*.bin" -file
         If ($null -eq $StartBinFiles) {
-            Start-BitsTransfer -Source $Variables.StartBinURL -Destination $Variables.Newloads -Dynamic
-            Start-BitsTransfer -Source $Variables.StartBinURL1 -Destination $Variables.Newloads -Dynamic
+            Start-BitsTransfer -Source $Variables.StartBinURL -Destination $Newloads -Dynamic
+            Start-BitsTransfer -Source $Variables.StartBinURL1 -Destination $Newloads -Dynamic
             $StartBinFiles = Get-ChildItem -Path "$newloads" -Filter "start*.bin" -file
         }
         $progress = 0
@@ -2479,58 +2368,11 @@ Function Set-StartMenu {
     }
 }
 Function Set-Taskbar {
-    <#
-    .SYNOPSIS
-    Sets the Taskbar layout and Taskbar pins for Windows 10 and Windows 11.
-
-    .DESCRIPTION
-    The Set-Taskbar function applies the Taskbar pins for Windows 10 and Windows 11. For Windows 10, it clears all the Start Menu pins. For Windows 11 (build 22000 and higher), it applies a customized Start Menu layout and Taskbar pins based on the specified XML template.
-
-    .PARAMETER WhatIf
-    If this switch is provided, the function will only show what would happen without actually making any changes. This is useful to preview the changes that would be applied. 
-
-    .PARAMETER Confirm
-    If this switch is provided, the function will ask for confirmation before applying the changes.
-
-    .NOTES
-    - This function requires administrative privileges to restart Explorer and modify the registry settings.
-    - For Windows 11, the function applies the Start Menu layout using the specified XML template.
-    #>
     [CmdletBinding(SupportsShouldProcess)]
     param ()
-
-
-
-
-    $StartLayout = @"
-    <LayoutModificationTemplate xmlns="http://schemas.microsoft.com/Start/2014/LayoutModification"
-        xmlns:defaultlayout="http://schemas.microsoft.com/Start/2014/FullDefaultLayout"
-        xmlns:start="http://schemas.microsoft.com/Start/2014/StartLayout"
-        xmlns:taskbar="http://schemas.microsoft.com/Start/2014/TaskbarLayout"
-        Version="1">
-        <LayoutOptions StartTileGroupCellWidth="6" />
-        <DefaultLayoutOverride>
-            <StartLayoutCollection>
-            <defaultlayout:StartLayout GroupCellWidth="6" />
-            </StartLayoutCollection>
-        </DefaultLayoutOverride>
-        <CustomTaskbarLayoutCollection PinListPlacement="Replace">
-            <defaultlayout:TaskbarLayout>
-            <taskbar:TaskbarPinList>
-            <taskbar:DesktopApp DesktopApplicationID="Chrome" />
-            <taskbar:DesktopApp DesktopApplicationID="Microsoft.Windows.Explorer" />
-            <taskbar:DesktopApp DesktopApplicationID="Microsoft.Windows.SecHealthUI" />
-            <taskbar:UWA AppUserModelID="windows.immersivecontrolpanel_cw5n1h2txyewy!Microsoft.Windows.ImmersiveControlPanel" />
-            <taskbar:UWA AppUserModelID="Microsoft.SecHealthUI_8wekyb3d8bbwe!SecHealthUI" />
-            <taskbar:UWA AppUserModelID="Microsoft.Windows.SecHealthUI_cw5n1h2txyewy!SecHealthUI" />
-            </taskbar:TaskbarPinList>
-        </defaultlayout:TaskbarLayout>
-        </CustomTaskbarLayoutCollection>
-    </LayoutModificationTemplate>
-"@
     Write-Status -Types "+" -Status "Applying Taskbar Layout" -NoNewLine
     If (Test-Path $Variables.layoutFile) { Remove-Item $Variables.layoutFile -Verbose | Out-Null }
-    $StartLayout | Out-File $Variables.layoutFile -Encoding ASCII
+    $Variables.StartLayout | Out-File $Variables.layoutFile -Encoding ASCII
     Get-Status
     Restart-Explorer
     Start-Sleep -Seconds 4
@@ -2606,7 +2448,7 @@ Function Send-EmailLog {
     Write-Caption -Text "Generating New Loads Summary"
     $WallpaperApplied = if ($Variables.CurrentWallpaper -eq $Variables.Wallpaper) { "YES" } else { "NO" }
     $Mobo = ($Mobo -replace 'Product|  ', '') -join "`n"
-    
+
     # - Checks if all the programs got installed
     $ChromeYN = if (Get-InstalledProgram -Keyword "Google Chrome") { "YES" } else { "NO" }
     $VLCYN = if (Get-InstalledProgram -Keyword "VLC") { "YES" } else { "NO" }
@@ -2655,7 +2497,7 @@ Completed in - Elapsed Time: $ElapsedTime  - Start Time: $StartTime  - End Time:
     - Motherboard: $Mobo
     - RAM: $RAM
     - GPU: $GPU
-    - Drives: $Drives 
+    - Drives: $Drives
 
     $SystemSpec
 
@@ -2676,38 +2518,17 @@ Completed in - Elapsed Time: $ElapsedTime  - Start Time: $StartTime  - End Time:
     Send-MailMessage -From $From -To $To -Subject $Sub -Body $EmailBody -Attachments $LogFiles -DN OnSuccess, OnFailure -SmtpServer $smtp
 }
 Function Show-ScriptLogo {
-    <#
-.SYNOPSIS
-Displays a custom logo and information about the application during its initialization.
-
-.DESCRIPTION
-The Show-ScriptLogo function is used to display a custom logo and relevant information about the application during its initialization. The function prints the logo, the creator's name, the last update version, release date, and important notices about updating the system to the latest version of Windows for correct application functionality.
-
-.PARAMETER None
-This function does not accept any parameters.
-
-.NOTES
-The Show-ScriptLogo function is typically used during the application's bootup process to provide essential information to users.
-#>
     $WindowTitle = "New Loads - Initialization" ; $host.UI.RawUI.WindowTitle = $WindowTitle
     Write-Host "`n`n`n"
     Write-Host "▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀" -NoNewLine -ForegroundColor $Variables.ForegroundColor -BackgroundColor Blue
     Write-Host "`n`n`n" -NoNewline
-    $Logo = "
-                        ███╗   ██╗███████╗██╗    ██╗    ██╗      ██████╗  █████╗ ██████╗ ███████╗
-                        ████╗  ██║██╔════╝██║    ██║    ██║     ██╔═══██╗██╔══██╗██╔══██╗██╔════╝
-                        ██╔██╗ ██║█████╗  ██║ █╗ ██║    ██║     ██║   ██║███████║██║  ██║███████╗
-                        ██║╚██╗██║██╔══╝  ██║███╗██║    ██║     ██║   ██║██╔══██║██║  ██║╚════██║
-                        ██║ ╚████║███████╗╚███╔███╔╝    ███████╗╚██████╔╝██║  ██║██████╔╝███████║
-                        ╚═╝  ╚═══╝╚══════╝ ╚══╝╚══╝     ╚══════╝ ╚═════╝ ╚═╝  ╚═╝╚═════╝ ╚══════╝
-                        "
-    Write-Host "$Logo`n`n" -ForegroundColor $Variables.LogoColor -BackgroundColor Black -NoNewline
+    Write-Host "$($Variables.Logo)`n`n" -ForegroundColor $Variables.LogoColor -BackgroundColor Black -NoNewline
     Write-Host "                               Created by " -NoNewLine -ForegroundColor White -BackgroundColor Black
     Write-Host "Papi" -ForegroundColor Red -BackgroundColor Black -NoNewLine
     Write-Host "      Last Update: " -NoNewLine -ForegroundColor White -BackgroundColor Black
     Write-Host "$($Variables.ProgramVersion) - $($Variables.ReleaseDate)" -ForegroundColor Green -BackgroundColor Black
     Write-Host "`n`n  Notice: " -NoNewLine -ForegroundColor RED -BackgroundColor Black
-    Write-Host "For New Loads to function correctly, it is important to update your system to the latest version of Windows.`n" -ForegroundColor Yellow -BackgroundColor Black
+    Write-Host "For best functionality, it is strongly suggested to update windows before running New Loads.`n" -ForegroundColor Yellow -BackgroundColor Black
     if ($Variables.specifiedParameters.Count -ne 0) { Write-Host "  Specified Parameters: " -ForegroundColor $Variables.LogoColor -NoNewLine ; Write-Host "$parametersString `n" }
     Write-Host ""
     Write-Host "▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀" -ForegroundColor Blue -BackgroundColor $Variables.LogoColor
@@ -2746,39 +2567,6 @@ Function Show-ScriptStatus() {
 
 }
 Function Show-Question() {
-    <#
-.SYNOPSIS
-Displays a custom message box dialog with Yes, No, and Cancel buttons.
-
-.DESCRIPTION
-The Show-Question function displays a custom message box dialog with Yes, No, and Cancel buttons. You can customize the title and message to show in the dialog. Additionally, you can specify the icon to display with the message box using the Icon parameter, which can take one of the following values: "None" (default), "Information", "Question", "Warning", or "Error."
-
-.PARAMETER Title
-Specifies the title of the message box. The default value is "New Loads."
-
-.PARAMETER Message
-Specifies the message to display in the message box.
-
-.PARAMETER YesNo
-Indicates whether the message box should show Yes and No buttons only. If this switch is present, the YesNoCancel switch will be ignored.
-
-.PARAMETER YesNoCancel
-Indicates whether the message box should show Yes, No, and Cancel buttons.
-
-.PARAMETER Icon
-Specifies the icon to display with the message box. Possible values are "None" (default), "Information", "Question", "Warning", and "Error."
-
-.EXAMPLE
-Show-Question -Title "Confirmation" -Message "Do you want to proceed?" -YesNo
-This example shows a custom message box dialog with the title "Confirmation" and the message "Do you want to proceed?" The message box will have Yes and No buttons.
-
-.EXAMPLE
-$result = Show-Question -Title "Important" -Message "This action is irreversible. Are you sure you want to continue?" -Icon "Warning" -YesNoCancel
-This example displays a custom message box dialog with the title "Important," the message "This action is irreversible. Are you sure you want to continue?" and a warning icon. The message box will have Yes, No, and Cancel buttons, and the result (Yes, No, or Cancel) will be stored in the $result variable.
-
-.NOTES
-The Show-Question function uses the Windows Forms MessageBox class to create the message box dialog. It requires a Windows-based PowerShell environment to display the message box properly.
-#>
     [CmdletBinding()]
     param (
         [String] $Title = "New Loads",
@@ -2786,8 +2574,12 @@ The Show-Question function uses the Windows Forms MessageBox class to create the
         [Switch] $YesNo,
         [Switch] $YesNoCancel,
         [ValidateSet("None", "Information", "Question", "Warning", "Error")]
-        [String] $Icon = "None"
+        [String] $Icon = "None",
+        [Switch] $Chime = $false
     )
+    If ($Chime) {
+        try { Get-Command "Start-Chime" }catch{ throw "Start-Chime does not exist. Skipping" ; Continue }
+    }
 
     $BackupWindowTitle = $host.UI.RawUI.WindowTitle
     $WindowTitle = "New Loads - WAITING FOR USER INPUT" ; $host.UI.RawUI.WindowTitle = $WindowTitle
@@ -2803,11 +2595,11 @@ The Show-Question function uses the Windows Forms MessageBox class to create the
     }
 
     if ($YesNoCancel) {
-        Start-Chime
+        If ($Chime) { Start-Chime }
         $result = [System.Windows.Forms.MessageBox]::Show($Message, $Title, [System.Windows.Forms.MessageBoxButtons]::YesNoCancel, $iconFlag)
     }
     elseif ($YesNo) {
-        Start-Chime
+        If ($Chime) { Start-Chime }
         $result = [System.Windows.Forms.MessageBox]::Show($Message, $Title, [System.Windows.Forms.MessageBoxButtons]::YesNo, $iconFlag)
     }
 
@@ -2815,23 +2607,6 @@ The Show-Question function uses the Windows Forms MessageBox class to create the
     return $result
 }
 Function Start-BitlockerDecryption() {
-    <#
-.SYNOPSIS
-    Checks if BitLocker is enabled on the host and starts the decryption process if active.
-
-.DESCRIPTION
-    The Start-BitlockerDecryption function checks if BitLocker is enabled on the host by examining the protection status of the C: drive. If BitLocker is active, it displays a warning caption and initiates the decryption process for the C: drive using the `Disable-BitLocker` cmdlet. If BitLocker is not enabled, it displays an informational status message indicating that BitLocker is not active on the machine.
-
-.NOTES
-    - This function requires administrative privileges to execute `Disable-BitLocker`.
-
-.EXAMPLE
-    Start-BitlockerDecryption
-
-    DESCRIPTION
-        Checks if BitLocker is enabled on the C: drive. If active, it starts the decryption process. If not enabled, it displays an informational message.
-
-#>
     [CmdletBinding(SupportsShouldProcess)]
     param (
         [Switch]$SkipBitlocker
@@ -2858,100 +2633,59 @@ Function Start-BitlockerDecryption() {
     }
 }
 Function Start-Bootup {
-    <#
-.SYNOPSIS
-Starts the bootup process and checks various requirements before running the main application.
-
-.DESCRIPTION
-The Start-Bootup function is used to perform several checks and initializations before running the main application. It checks the Windows version, execution policy, administrative privileges, license, and other system requirements. If any of the checks fail, the function displays an error message and exits the application.
-
-.PARAMETER None
-This function does not accept any parameters.
-
-.NOTES
-Ensure that the user running this function has sufficient privileges and meets the necessary requirements to run the main application successfully.
-#>
     [CmdletBinding(SupportsShouldProcess)]
     param()
-
-    $WindowTitle = "New Loads - Checking Requirements" ; $host.UI.RawUI.WindowTitle = $WindowTitle
+    Show-ScriptStatus -WindowTitle "Checking Requirements"
 
     # Checks OS version to make sure Windows is atleast v20H2 otherwise it'll display a message and close
-    New-Variable -Name "SYSTEMOSVERSION" -Value (Get-CimInstance Win32_OperatingSystem | Select-Object -ExpandProperty BuildNumber) -Scope Global
-    $MINIMUMREQUIREMENT = "19042"  ## Windows 10 v20H2 build version
-    If ($SYSTEMOSVERSION -LE $MINIMUMREQUIREMENT) {
-        $errorMessage = "
-        @|\@@                                                                                    `
-        -  @@@@                     New Loads requires a minimum Windows version of 20H2 (19042).`
-       /7   @@@@                                                                                 `
-      /    @@@@@@                             Please upgrade your OS before continuing.          `
-      \-' @@@@@@@@`-_______________                                                              `
-       -@@@@@@@@@             /    \                                                             `
-  _______/    /_       ______/      |__________-                          /\_____/\              `
- /,__________/  `-.___/,_____________----------_)                Meow.    /  o   o  \            `
-                                                                        ( ==  ^  == )             `
-                                                                         )         (              `
-                                                                        (           )             `
-                                                                       ( (  )   (  ) )            `
-                                                                      (__(__)___(__)__)          `n`n"
-        Write-Host $errorMessage -ForegroundColor Yellow
-        $readingkey = Read-Host -Prompt "Press any key to close New Loads" ; return $readingkey
+    If ($Variables.BuildNumber -LE $Variables.MinimumBuildNumber) {
+        Write-Host $Variables.errorMessage1 -ForegroundColor Yellow
+        Read-Host -Prompt "Press any key to close New Loads"
         Exit
     }
 
     # Checks to make sure New Loads is run as admin otherwise it'll display a message and close
     If ((New-Object Security.Principal.WindowsPrincipal([Security.Principal.WindowsIdentity]::GetCurrent())).IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator) -eq $False) {
-        $errorMessage = "
-        @|\@@                                                                                    `
-        -  @@@@                             New Loads REQUIRES administrative privileges         `
-       /7   @@@@                                                                                 `
-      /    @@@@@@                             for core features to function correctly.           `
-      \-' @@@@@@@@`-_______________                                                              `
-       -@@@@@@@@@             /    \                                                             `
-  _______/    /_       ______/      |__________-                          /\_____/\              `
- /,__________/  `-.___/,_____________----------_)                Meow.    /  o   o  \            `
-                                                                        ( ==  ^  == )            `
-                                                                         )         (             `
-                                                                        (           )            `
-                                                                       ( (  )   (  ) )           `
-                                                                      (__(__)___(__)__)          `n`n"
-        Write-Host $errorMessage -ForegroundColor Yellow
-        $SelfElevate = Read-Host -Prompt "Do you want to attempt to elevate this prompt?"
-        switch ($SelfElevate) {
-            "Y" {
-                $wtExists = Get-Command wt
-                If ($wtExists) {
-                    Start-Process wt -verb runas -ArgumentList "new-tab powershell -c ""irm run.newloads.ca | iex"""
+        Write-Host $Variables.errorMessage2 -ForegroundColor Yellow
+        do {
+            $SelfElevate = Read-Host -Prompt "Would you like to run New Loads as an Administrator? (Y/N) "
+            switch ($SelfElevate.ToUpper()) {
+                "Y" {
+                    $wtExists = Get-Command wt
+                    If ($wtExists) {
+                        Start-Process wt -verb runas -ArgumentList "new-tab powershell -c ""irm run.newloads.ca | iex"""
+                    }
+                    else { Start-Process powershell -verb runas -ArgumentList "-command ""irm run.newloads.ca | iex""" }
+                    return
                 }
-                else { Start-Process powershell -verb runas -ArgumentList "-command ""irm run.newloads.ca | iex""" }
+                "N" {
+                    exit
+                }
+                default {
+                    Write-Host "Invalid input. Please enter Y or N."
+                }
             }
-            "N" {
-                exit
-            }
-        }
-        Exit
+        } while ($true)
     }
+    #Get-NewLoadsPassword
     # Function that displays program name, version, creator
     Show-ScriptLogo
     # Updates Time
     Update-Time
     # Gets Year/Month/Day to compare
     New-Variable -Name Time -Value (Get-Date -UFormat %Y%m%d) -Scope Global
-    $MinTime = 20230630
-    $MaxTime = 20231031
 
     # Checks the time against the license and minimum required date - This assures New Loads cannot be distributed or used past the granted license date for Mother Computers
-    If ($Time -GT $MaxTime -or $Time -LT $MinTime) {
+    If ($Time -GT $Variables.MaxTime -or $Time -LT $Variables.MinTime) {
         Clear-Host
         Write-Status -Types ":(", "ERROR" -Status "There was an uncorrectable error.. Closing Application." -WriteWarning -ForegroundColorText RED
-        Write-Host "Press any key to close New Loads." -NoNewLine
-        Read-Host
+        Read-Host -Prompt "An error occured. Press any key to close New Loads. "
         Exit
     }
     #
     try {
-        Remove-Item "$env:userprofile\Desktop\New Loads.Log" -Force | out-null
-        Remove-Item "$env:userprofile\Desktop\New Loads Errors.Log" -Force | out-null
+        Remove-Item "$env:userprofile\Desktop\New Loads.txt" -Force | out-null
+        Remove-Item "$env:userprofile\Desktop\New Loads Errors.txt" -Force | out-null
     }
     catch {
         Write-Error "An error occurred while removing the files: $_"
@@ -2959,19 +2693,6 @@ Ensure that the user running this function has sufficient privileges and meets t
     }
 }
 function Start-Chime {
-    <#
-    .SYNOPSIS
-    Plays a specified sound file (typically an alarm sound) using the SoundPlayer class.
-
-    .DESCRIPTION
-    The Start-Chime function is used to play a specified sound file (typically an alarm sound) using the SoundPlayer class from the System.Media namespace. The function checks if the sound file exists at the specified file path before attempting to play the sound. If the file exists, it creates a SoundPlayer object, loads the sound file, plays the sound, waits for the sound to finish playing (optional), and then disposes of the SoundPlayer object to release resources.
-
-    .PARAMETER None
-    This function does not accept any parameters.
-
-    .NOTES
-    Ensure that the specified sound file exists at the specified file path before running this function. The SoundPlayer class is part of the .NET Framework, so the function should work on Windows systems with the necessary .NET components installed.
-    #>
     [CmdletBinding(SupportsShouldProcess)]
     param(
         $File = "C:\Windows\Media\Alarm06.wav"
@@ -3005,23 +2726,6 @@ function Start-Chime {
     }
 }
 Function Start-Cleanup {
-    <#
-.SYNOPSIS
-    Performs various cleanup tasks on the host machine.
-
-.DESCRIPTION
-    The Start-Cleanup function performs various cleanup tasks on the host machine. It starts Explorer if it isn't already running, enables the F8 Boot Menu options, launches Google Chrome, cleans the Temp folder, removes installed program shortcuts from Public/User Desktop, and removes a layout file.
-
-.NOTES
-    - This function may require administrative privileges for certain actions.
-
-.EXAMPLE
-    Start-Cleanup
-
-    DESCRIPTION
-        Initiates various cleanup tasks on the host machine.
-
-#>
     [CmdletBinding(SupportsShouldProcess)]
     param ()
 
@@ -3101,18 +2805,6 @@ Function Start-Debloat {
         #>
 
         Write-Section -Text "Checking for Start Menu Ads"
-        $apps = @(
-            "Adobe offers",
-            "Amazon",
-            "Booking",
-            "Booking.com",
-            "ExpressVPN",
-            "Forge of Empires",
-            "Free Trials",
-            "Planet9 Link",
-            "Utomik - Play over 1000 games"
-        )
-
         ForEach ($app in $apps) {
             try {
                 if (Test-Path -Path "$commonapps\$app.url") {
@@ -3175,22 +2867,13 @@ Function Start-Debloat {
     }
 }
 Function Start-NewLoad {
-    <#
-.SYNOPSIS
-Starts the New Loads script, performing system tweaks, optimizations, and cleanups based on user configuration.
-
-.DESCRIPTION
-The Start-NewLoad function is the main function that orchestrates the execution of various tasks in the New Loads script. It performs system tweaks, optimizations, and cleanups based on user configuration and preferences. The function calls several sub-functions to carry out specific tasks, such as getting a list of installed programs, applying visual settings, debloating the system, optimizing performance, security, and privacy settings, and more.
-
-.PARAMETER None
-This function does not accept any parameters.
-
-.NOTES
-The Start-NewLoad function is the entry point for executing the New Loads script. It initiates various sub-functions to perform specific tasks to customize and optimize the system. The function may require administrative privileges to execute some of the tasks, such as system optimizations, debloating, and creating a system restore point.
-#>
     [CmdletBinding(SupportsShouldProcess)]
     param()
-    Start-Transcript -Path $Variables.Log -NoClobber | Out-Null
+    Try { Stop-Transcript }Catch{
+        Try{ Start-Transcript -Path "$($Variables.Log).txt" -NoClobber | Out-Null } Catch{ 
+            Remove-Item "$($Variables.Log).txt" ; Start-Transcript -Path "$($Variables.Log).txt" -NoClobber | Out-Null 
+        }
+    }
     New-Variable -Name "StartTime" -Value (Get-Date -DisplayHint Time) -Scope Global
     $Counter++
     Show-ScriptStatus -WindowTitle "Apps" -TweakType "Apps" -TitleCounterText "Programs" -TitleText "Application Installation"
@@ -3198,8 +2881,6 @@ The Start-NewLoad function is the entry point for executing the New Loads script
     $Counter++
     Show-ScriptStatus -WindowTitle "Start Menu" -TweakType "StartMenu" -TitleCounterText "Start Menu Layout" -TitleText "StartMenu"
     Set-StartMenu
-
-
     Set-Taskbar
     $Counter++
     Show-ScriptStatus -WindowTitle "Visual" -TweakType "Visuals" -TitleCounterText "Visuals"
@@ -3248,23 +2929,6 @@ The Start-NewLoad function is the entry point for executing the New Loads script
 }
 
 function Update-Time {
-    <#
-    .SYNOPSIS
-    Updates the system's time zone and synchronizes the time with the specified time zone.
-
-    .DESCRIPTION
-    The Update-Time function is used to update the system's time zone and synchronize the time with the specified time zone. It first checks the current time zone and then sets the new time zone using the Set-TimeZone cmdlet. It then synchronizes the time with the server using the w32tm /resync command. If the required time change is too big for automatic synchronization, the function manually updates the system time based on the server time received from the w32tm /resync output.
-
-    .PARAMETER TimeZoneId
-    Specifies the time zone ID to set for the system. The default value is "Pacific Standard Time." You can provide a different time zone ID to update the system's time zone accordingly.
-
-    .EXAMPLE
-    Update-Time -TimeZoneId "Eastern Standard Time"
-    This example updates the system's time zone to "Eastern Standard Time" and synchronizes the time with the specified time zone.
-
-    .NOTES
-    The Update-Time function requires administrative privileges to modify the system's time zone and start the W32Time service. Ensure that the user running this function has the necessary privileges to perform these tasks.
-    #>
     [CmdletBinding(SupportsShouldProcess)]
     param (
         [string]$TimeZoneId = "Pacific Standard Time"
@@ -3319,32 +2983,6 @@ function Update-Time {
 
 
 Function Write-Break {
-    <#
-.SYNOPSIS
-    Writes a horizontal break line to the console.
-
-.DESCRIPTION
-    The Write-Break function is used to display a horizontal break line in the console. The break line is a series of "=" characters enclosed within square brackets, creating a visually distinct separator in the console output.
-
-.PARAMETER ForegroundColor
-    Specifies the foreground color for the break line. The default value is the current foreground color of the console.
-
-.PARAMETER BackgroundColor
-    Specifies the background color for the break line. The default value is the current background color of the console.
-
-.EXAMPLE
-    Write-Break -ForegroundColor Red -BackgroundColor Black
-
-    DESCRIPTION
-        Displays a horizontal break line using the "Red" foreground color and the "Black" background color.
-
-.EXAMPLE
-    Write-Break
-
-    DESCRIPTION
-        Displays a horizontal break line using the default foreground and background colors.
-
-#>
     Write-Host "`n`n[" -NoNewline -ForegroundColor $Variables.ForegroundColor -Backgroundcolor $Variables.BackgroundColor
     Write-Host "================================================================================================" -NoNewLine -ForegroundColor White -BackgroundColor $Variables.BackgroundColor
     Write-Host "]`n" -ForegroundColor $Variables.ForegroundColor -BackgroundColor $Variables.BackgroundColor
@@ -3377,7 +3015,7 @@ Function Write-Caption() {
             $text = "Warning"
         }
     }
-    
+
     If ($OverrideText) {
         $Text = $OverrideText
     }
@@ -3390,29 +3028,6 @@ Function Write-Caption() {
     Write-Host "$Text" -ForegroundColor White -BackgroundColor $Variables.BackgroundColor
 }
 Function Write-HostReminder() {
-    <#
-.SYNOPSIS
-    Writes a reminder message enclosed in square brackets with a distinct visual style to the console.
-
-.DESCRIPTION
-    The Write-HostReminder function is used to display a reminder message in the console with a visually distinct style. The reminder message is enclosed within square brackets and is highlighted with a red background and white foreground, creating a noticeable visual effect.
-
-.PARAMETER Text
-    Specifies the text to be displayed as the reminder message. The default value is "Example text" if no value is provided.
-
-.EXAMPLE
-    Write-HostReminder -Text "Remember to save your work."
-
-    DESCRIPTION
-        Displays a reminder message "Remember to save your work." enclosed within square brackets with a distinct visual style.
-
-.EXAMPLE
-    Write-HostReminder
-
-    DESCRIPTION
-        Displays a reminder message with the default text "Example text" enclosed within square brackets with a distinct visual style.
-
-#>
     [CmdletBinding()]
     param (
         [String] $Text = "Example text"
@@ -3423,28 +3038,6 @@ Function Write-HostReminder() {
     Write-Host ": $text`n"
 }
 Function Write-Section() {
-    <#
-.SYNOPSIS
-    Writes a section heading with horizontal bars to the console.
-
-.DESCRIPTION
-    The Write-Section function is used to display a section heading in the console. The section heading is enclosed within angle brackets ("< >") and is flanked by horizontal bars to create a visually distinct section in the console output.
-
-.PARAMETER Text
-    Specifies the text to be displayed as the section heading. The default value is "No Text" if no value is provided.
-
-.EXAMPLE
-    Write-Section -Text "Introduction"
-
-    DESCRIPTION
-        Displays a section heading "Introduction" enclosed within angle brackets ("< >") and flanked by horizontal bars.
-
-.EXAMPLE
-    Write-Section
-
-    DESCRIPTION
-        Displays a section heading with the default text "No Text" enclosed within angle brackets ("< >") and flanked by horizontal bars.
-#>
     [CmdletBinding()]
     param (
         [String] $Text = "No Text"
@@ -3458,47 +3051,6 @@ Function Write-Section() {
     Write-Host ">" -ForegroundColor $Variables.ForegroundColor -BackgroundColor $Variables.BackgroundColor
 }
 Function Write-Status() {
-    <#
-.SYNOPSIS
-    Writes a status message with timestamp, message types, and customizable text color to the console.
-
-.DESCRIPTION
-    The Write-Status function is used to display a status message in the console with additional information. The status message includes a timestamp, message types, and customizable foreground text color. The message types are displayed within square brackets, and users can provide multiple message types as an array. The status message can be displayed as a regular information message or as a warning message.
-
-.PARAMETER Types
-    Specifies an array of message types to be displayed with the status message. Each message type is displayed within square brackets.
-
-.PARAMETER Status
-    Specifies the main status message to be displayed in the console.
-
-.PARAMETER WriteWarning
-    If this switch is provided, the status message is treated as a warning, and it will be displayed with a "Warning" label. Otherwise, it will be displayed as a regular information message.
-
-.PARAMETER NoNewLine
-    By default, the function adds a new line after displaying the status message. If this switch is provided, the new line after the status message will be omitted.
-
-.PARAMETER ForegroundColorText
-    Specifies the foreground color for the status message text. The default value is "White" if no value is provided. The available color options are: "Black", "DarkBlue", "DarkGreen", "DarkCyan", "DarkRed", "DarkMagenta", "DarkYellow", "Gray", "DarkGray", "Blue", "Green", "Cyan", "Red", "Magenta", "Yellow", and "White".
-
-.EXAMPLE
-    Write-Status -Types @("[Action]", "[Progress]") -Status "Processing items" -WriteWarning
-
-    DESCRIPTION
-        Displays a status message "Processing items" with message types "[Action]" and "[Progress]" in the console. The status message is treated as a warning, and it will be displayed with a "Warning" label.
-
-.EXAMPLE
-    Write-Status -Types @("[Info]", "[Step 2]") -Status "Completed successfully"
-
-    DESCRIPTION
-        Displays a status message "Completed successfully" with message types "[Info]" and "[Step 2]" in the console. The status message is displayed as an information message.
-
-.EXAMPLE
-    Write-Status -Types @("[Error]") -Status "An error occurred" -ForegroundColorText "Red"
-
-    DESCRIPTION
-        Displays a status message "An error occurred" with message type "[Error]" in the console. The status message text will be displayed in red color.
-
-#>
     [CmdletBinding()]
     param (
         [Parameter(Mandatory)]
@@ -3531,29 +3083,6 @@ Function Write-Status() {
     }
 }
 Function Write-Title() {
-    <#
-.SYNOPSIS
-    Writes a custom title with horizontal bars to the console.
-
-.DESCRIPTION
-    The Write-Title function is used to display a custom title in the console. The title is enclosed within angle brackets ("< >") and is flanked by horizontal bars to create a visually distinct heading in the console output.
-
-.PARAMETER Text
-    Specifies the text to be displayed as the custom title. The default value is "No Text" if no value is provided.
-
-.EXAMPLE
-    Write-Title -Text "Welcome to My Script"
-
-    DESCRIPTION
-        Displays a custom title "Welcome to My Script" enclosed within angle brackets ("< >") and flanked by horizontal bars.
-
-.EXAMPLE
-    Write-Title -Text "Important Message"
-
-    DESCRIPTION
-        Displays a custom title "Important Message" without adding a new line after the title.
-
-#>
     [CmdletBinding()]
     param (
         [String] $Text = "No Text"
@@ -3567,35 +3096,6 @@ Function Write-Title() {
     Write-Host ">" -ForegroundColor $Variables.ForegroundColor -BackgroundColor $Variables.BackgroundColor
 }
 Function Write-TitleCounter() {
-    <#
-.SYNOPSIS
-    Writes a custom title with a counter and horizontal bars to the console.
-
-.DESCRIPTION
-    The Write-TitleCounter function is used to display a custom title along with a counter in the console. The title is enclosed within angle brackets ("< >") and is flanked by horizontal bars. The counter is displayed in the format "X/Y," where X represents the current counter value and Y represents the maximum length or total count.
-
-.PARAMETER Text
-    Specifies the text to be displayed as the custom title. The default value is "No Text" if no value is provided.
-
-.PARAMETER Counter
-    Specifies the current counter value to be displayed. The default value is 0 if no value is provided.
-
-.PARAMETER MaxLength
-    Specifies the maximum length or total count for the counter. The default value is determined by the caller if no value is provided.
-
-.EXAMPLE
-    Write-TitleCounter -Text "Processing Items" -Counter 1 -MaxLength 10
-
-    DESCRIPTION
-        Displays a custom title "Processing Items" enclosed within angle brackets ("< >") and flanked by horizontal bars. The counter value is displayed as "1/10".
-
-.EXAMPLE
-    Write-TitleCounter -Text "Completed" -Counter 5 -MaxLength 20
-
-    DESCRIPTION
-        Displays a custom title "Completed" enclosed within angle brackets ("< >") and flanked by horizontal bars. The counter value is displayed as "5/20".
-
-#>
     [CmdletBinding()]
     [OutputType([System.Int32])]
     param (
