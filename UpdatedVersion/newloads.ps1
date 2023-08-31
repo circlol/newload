@@ -2528,9 +2528,9 @@ Function Start-Bootup {
     Show-ScriptStatus -WindowTitle "Checking Requirements"
 
     # Checks OS version to make sure Windows is atleast v20H2 otherwise it'll display a message and close
-    If ($Variables.BuildNumber -LE $Variables.MinimumBuildNumber) {
+    If ($Variables.OSVersion -LE $Variables.MinimumBuildNumber) {
         Write-Host $Variables.errorMessage1 -ForegroundColor Yellow
-        Read-Host -Prompt "Press any key to close New Loads"
+        Read-Host -Prompt "Press enter to close New Loads"
         Exit
     }
 
@@ -2564,7 +2564,7 @@ Function Start-Bootup {
     If ($Time -GT $Variables.MaxTime -or $Time -LT $Variables.MinTime) {
         Clear-Host
         Write-Status -Types ":(", "::ERROR::" -Status "There was an uncorrectable error.." -ForegroundColorText RED
-        Read-Host -Prompt "Press enter to close New Loads :"
+        Read-Host -Prompt "Press enter to close New Loads"
         Exit
     }
 
