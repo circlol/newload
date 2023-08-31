@@ -476,7 +476,7 @@ $Variables = @{
         "26720RandomSaladGamesLLC.SimpleMahjong"                # Simple Mahjong
         "26720RandomSaladGamesLLC.Spades"                       # Spades
     )
-    $START_MENU_LAYOUT = @"
+    "START_MENU_LAYOUT" = @"
     <LayoutModificationTemplate xmlns:defaultlayout="http://schemas.microsoft.com/Start/2014/FullDefaultLayout" xmlns:start="http://schemas.microsoft.com/Start/2014/StartLayout" Version="1" xmlns:taskbar="http://schemas.microsoft.com/Start/2014/TaskbarLayout" xmlns="http://schemas.microsoft.com/Start/2014/LayoutModification">
         <LayoutOptions StartTileGroupCellWidth="6" />
         <DefaultLayoutOverride>
@@ -2528,7 +2528,7 @@ Function Start-Bootup {
     Show-ScriptStatus -WindowTitle "Checking Requirements"
 
     # Checks OS version to make sure Windows is atleast v20H2 otherwise it'll display a message and close
-    If ($Variables.OSVersion -LE $Variables.MinimumBuildNumber) {
+    If ($Variables.BuildNumber -LE $Variables.MinimumBuildNumber) {
         Write-Host $Variables.errorMessage1 -ForegroundColor Yellow
         Read-Host -Prompt "Press enter to close New Loads"
         Exit
