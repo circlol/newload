@@ -1841,8 +1841,8 @@ Function Remove-UWPAppx {
             if ($PSCmdlet.ShouldProcess($actionDescription, "Remove-AppxPackage")) {
                 $appxPackageToRemove | ForEach-Object -Process {
                     Write-Status -Types "-", $TweakType -Status "Trying to remove $AppxPackage" -NoNewLine
-                    Remove-AppxPackage $_.PackageFullName -WA SilentlyContinue >$NULL | Out-Null #4>&1 | Out-Null
-                    Get-Status
+                    Remove-AppxPackage $_.PackageFullName -WA SilentlyContinue >$NULL | Out-Null | Get-Status #4>&1 | Out-Null
+                    #Get-Status
                     If ($?) {
                         $Variables.Removed++
                         $Variables.PackagesRemoved += $appxPackageToRemove.PackageFullName
@@ -1854,8 +1854,7 @@ Function Remove-UWPAppx {
                 $actionDescription = "Removing Provisioned Appx $AppxPackage"
                 if ($PSCmdlet.ShouldProcess($actionDescription, "Remove-AppxProvisionedPackage")) {
                     Write-Status -Types "-", $TweakType -Status "Trying to remove Provisioned $AppxPackage" -NoNewLine
-                    Get-AppxProvisionedPackage -Online | Where-Object DisplayName -like $AppxPackage | Remove-AppxProvisionedPackage -Online -AllUsers | Out-Null
-                    Get-Status
+                    Get-AppxProvisionedPackage -Online | Where-Object DisplayName -like $AppxPackage | Remove-AppxProvisionedPackage -Online -AllUsers | Out-Null | Get-Status
                     If ($?) {
                         $Variables.Removed++
                         $Variables.PackagesRemoved += "Provisioned Appx $($appxPackageToRemove.PackageFullName)"
@@ -2017,15 +2016,10 @@ Function Set-ItemPropertyVerified {
                 }
                 Set-ItemProperty @params
 
-                if ($? -eq $True) {
-                    Get-Status
+                if ($? -eq $True) { Get-Status
                     $Global:ModifiedRegistryKeys++
-                }
-                else {
-                    Get-Status
-                }
-            }
-            catch {
+                }else { Get-Status }
+            }catch {
                 HandleError
                 Continue
             }
@@ -2139,12 +2133,11 @@ function Set-ScheduledTaskState {
 
                     Try {
                         If ($action -eq "Disable") {
-                            Get-ScheduledTask -TaskName (Split-Path -Path $ScheduledTask -Leaf) | Where-Object State -Like "R*" | Disable-ScheduledTask | Out-Null # R* = Ready/Running
-                            Get-Status
+                            Get-ScheduledTask -TaskName (Split-Path -Path $ScheduledTask -Leaf) | Where-Object State -Like "R*" | Disable-ScheduledTask | Out-Null | Get-Status# R* = Ready/Running
+                            #Get-Status
                         }
                         ElseIf ($action -eq "Enable") {
-                            Get-ScheduledTask -TaskName (Split-Path -Path $ScheduledTask -Leaf) | Where-Object State -Like "Disabled" | Enable-ScheduledTask | Out-Null
-                            Get-Status
+                            Get-ScheduledTask -TaskName (Split-Path -Path $ScheduledTask -Leaf) | Where-Object State -Like "Disabled" | Enable-ScheduledTask | Out-Null | Get-Status
                         }
                     }
                     catch {
@@ -2197,8 +2190,7 @@ function Set-ServiceStartup {
                         Get-Service -Name "$Service" | Set-Service -StartupType $State -WhatIf
                     }
                     Else {
-                        Get-Service -Name "$Service" | Set-Service -StartupType $State
-                        Get-Status
+                        Get-Service -Name "$Service" | Set-Service -StartupType $State | Get-Status
                     }
                 }
             }
@@ -2285,12 +2277,10 @@ Function Set-StartMenu {
         Foreach ($StartBinFile in $StartBinFiles) {
             $progress++
             Write-Status -Types "+", $TweakType -Status "Copying $($StartBinFile.Name) for new users ($progress/$TotalBinFiles)" -NoNewLine
-            xcopy $StartBinFile.FullName $Variables.StartBinDefault /y | Out-Null
-            Get-Status
+            xcopy $StartBinFile.FullName $Variables.StartBinDefault /y | Out-Null | Get-Status
             $progress++
             Write-Status -Types "+", $TweakType -Status "Copying $($StartBinFile.Name) to current user ($($progress)/$TotalBinFiles)" -NoNewLine
-            xcopy $StartBinFile.FullName $Variables.StartBinCurrent /y | Out-Null
-            Get-Status
+            xcopy $StartBinFile.FullName $Variables.StartBinCurrent /y | Out-Null | Get-Status
         }
     }
 }
@@ -2299,8 +2289,7 @@ Function Set-Taskbar {
     param ()
     Write-Status -Types "+" -Status "Applying Taskbar Layout" -NoNewLine
     If (Test-Path $Variables.layoutFile) { Remove-Item $Variables.layoutFile -Verbose | Out-Null }
-    $Variables.StartLayout | Out-File $Variables.layoutFile -Encoding ASCII
-    Get-Status
+    $Variables.StartLayout | Out-File $Variables.layoutFile -Encoding ASCII | Get-Status
     Restart-Explorer
     Start-Sleep -Seconds 4
 }
@@ -2314,17 +2303,15 @@ function Set-Wallpaper {
         $WallpaperPathExists = Test-Path $Variables.wallpaperPath
         If (!$WallpaperPathExists) {
             $WallpaperURL = "https://raw.githubusercontent.com/circlol/newload/main/assets/mother.jpg"
-            Write-Status "@", $TweakType -Status "Downloading Wallpaper"
-            Start-BitsTransfer -Source $WallpaperURL -Destination $Variables.WallpaperDestination -Dynamic
-            Get-Status
+            Write-Status "@", $TweakType -Status "Downloading Wallpaper" -NoNewLine
+            Start-BitsTransfer -Source $WallpaperURL -Destination $Variables.WallpaperDestination -Dynamic | Get-Status
         }
         Write-Status -Types "+", $TweakType -Status "Applying Wallpaper"
         Write-Host " REMINDER " -BackgroundColor Red -ForegroundColor White -NoNewLine
         Write-Host ": Wallpaper might not Apply UNTIL System is Rebooted`n"
         If (!(Test-Path $Variables.WallpaperDestination)) {
             Write-Status -Types "+", $TweakType -Status "Copying Wallpaper to Destination" -NoNewLine
-            Copy-Item -Path $Variables.wallpaperPath -Destination $Variables.WallpaperDestination -Force -Confirm:$False
-            Get-Status
+            Copy-Item -Path $Variables.wallpaperPath -Destination $Variables.WallpaperDestination -Force -Confirm:$False | Get-Status
         }
         Write-Status -Types "+", $TweakType -Status "Setting WallpaperStyle to 'Stretch'"
         Set-ItemPropertyVerified -Path $Variables.PathToCUControlPanelDesktop -Name WallpaperStyle -Value '2' -Type String
@@ -2335,8 +2322,7 @@ function Set-Wallpaper {
         Write-Status -Types "+", $TweakType -Status "Setting Apps to use Light Mode"
         Set-ItemPropertyVerified -Path $Variables.PathToRegPersonalize -Name "AppsUseLightTheme" -Value 1 -Type DWord
         Write-Status -Types "+", $TweakType -Status "Updating Wallpaper" -NoNewLine
-        Start-Process "RUNDLL32.EXE" "user32.dll, UpdatePerUserSystemParameters"
-        Get-Status
+        Start-Process "RUNDLL32.EXE" "user32.dll, UpdatePerUserSystemParameters" | Get-Status
     }
 }
 Function Send-EmailLog {
@@ -2677,8 +2663,7 @@ Function Start-Debloat {
                     $target = "Start Menu .url: $app"
                     if ($PSCmdlet.ShouldProcess($target, "Remove .url")) {
                         Write-Status -Types "-", "$TweakType", "$TweakTypeLocal" -Status "Removing $app.url" -NoNewLine
-                        Remove-Item -Path "$commonapps\$app.url" -Force
-                        Get-Status
+                        Remove-Item -Path "$commonapps\$app.url" -Force | Get-Status
                     }
                 }
                 if (Test-Path -Path "$commonapps\$app.lnk") {
@@ -2686,8 +2671,7 @@ Function Start-Debloat {
                     $target = "Start Menu .lnk: $app"
                     if ($PSCmdlet.ShouldProcess($target, "Remove .lnk")) {
                         Write-Status -Types "-", "$TweakType", "$TweakTypeLocal" -Status "Removing $app.lnk" -NoNewLine
-                        Remove-Item -Path "$commonapps\$app.lnk" -Force
-                        Get-Status
+                        Remove-Item -Path "$commonapps\$app.lnk" -Force | Get-Status
                     }
                 }
             }
@@ -2753,8 +2737,7 @@ function Update-Time {
             try {
                 if ($PSCmdlet.ShouldProcess("Starting W32Time Service", "Start-Service -Name W32Time -ErrorAction Stop")) {
                     Write-Status -Types "+" -Status "Starting W32Time Service" -NoNewLine
-                    Start-Service -Name W32Time -ErrorAction Stop
-                    Get-Status
+                    Start-Service -Name W32Time -ErrorAction Stop | Get-Status
                 }
             }
             catch {
