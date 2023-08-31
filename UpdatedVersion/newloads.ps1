@@ -476,6 +476,16 @@ $Variables = @{
         "26720RandomSaladGamesLLC.SimpleMahjong"                # Simple Mahjong
         "26720RandomSaladGamesLLC.Spades"                       # Spades
     )
+    $START_MENU_LAYOUT = @"
+    <LayoutModificationTemplate xmlns:defaultlayout="http://schemas.microsoft.com/Start/2014/FullDefaultLayout" xmlns:start="http://schemas.microsoft.com/Start/2014/StartLayout" Version="1" xmlns:taskbar="http://schemas.microsoft.com/Start/2014/TaskbarLayout" xmlns="http://schemas.microsoft.com/Start/2014/LayoutModification">
+        <LayoutOptions StartTileGroupCellWidth="6" />
+        <DefaultLayoutOverride>
+            <StartLayoutCollection>
+                <defaultlayout:StartLayout GroupCellWidth="6" />
+            </StartLayoutCollection>
+        </DefaultLayoutOverride>
+    </LayoutModificationTemplate>
+"@
     "StartLayout" = @"
     <LayoutModificationTemplate xmlns="http://schemas.microsoft.com/Start/2014/LayoutModification"
         xmlns:defaultlayout="http://schemas.microsoft.com/Start/2014/FullDefaultLayout"
@@ -491,12 +501,13 @@ $Variables = @{
         <CustomTaskbarLayoutCollection PinListPlacement="Replace">
             <defaultlayout:TaskbarLayout>
             <taskbar:TaskbarPinList>
-            <taskbar:DesktopApp DesktopApplicationID="Chrome" />
-            <taskbar:DesktopApp DesktopApplicationID="Microsoft.Windows.Explorer" />
-            <taskbar:DesktopApp DesktopApplicationID="Microsoft.Windows.SecHealthUI" />
-            <taskbar:UWA AppUserModelID="windows.immersivecontrolpanel_cw5n1h2txyewy!Microsoft.Windows.ImmersiveControlPanel" />
             <taskbar:UWA AppUserModelID="Microsoft.SecHealthUI_8wekyb3d8bbwe!SecHealthUI" />
             <taskbar:UWA AppUserModelID="Microsoft.Windows.SecHealthUI_cw5n1h2txyewy!SecHealthUI" />
+            <taskbar:UWA AppUserModelID="windows.immersivecontrolpanel_cw5n1h2txyewy!Microsoft.Windows.ImmersiveControlPanel" />
+            <taskbar:DesktopApp DesktopApplicationID="Microsoft.Windows.SecHealthUI" />
+            <taskbar:DesktopApp DesktopApplicationID="Chrome" />
+            <taskbar:DesktopApp DesktopApplicationID="Microsoft.Windows.Explorer" />
+            <taskbar:DesktopApp DesktopApplicationID="Microsoft.WindowsStore" />
             </taskbar:TaskbarPinList>
         </defaultlayout:TaskbarLayout>
         </CustomTaskbarLayoutCollection>
@@ -515,23 +526,7 @@ $parametersString = $Variables.specifiedParameters -join ', '
 Clear-Host
 
 
-function Find-OptionalFeature {
-    [CmdletBinding()]
-    [OutputType([Bool])]
-    param (
-        [Parameter(Mandatory = $true)]
-        [String] $OptionalFeature
-    )
 
-    $feature = Get-WindowsOptionalFeature -Online -FeatureName $OptionalFeature
-    if ($feature) {
-        return $true
-    }
-    else {
-        Write-Status -Types "?", $TweakType -Status "The $OptionalFeature optional feature was not found."
-        return $false
-    }
-}
 function Find-ScheduledTask {
     [CmdletBinding()]
     [OutputType([Bool])]
@@ -653,6 +648,7 @@ function Get-SystemSpec {
     write-output "CPU: $(Get-CPU)`n$Separator`nMotherboard: $(Get-Motherboard)`n$Separator`nGPU: $(Get-GPU)`n$Separator`nRAM: $(Get-RAM)`n$Separator`nOS: $completedWindowsName`n$Separator`nDrives:`n$(Get-DriveSpace)"
 }
 Function Get-ADWCleaner {
+    Show-ScriptStatus -TitleText "ADWCleaner"
     If ($SkipADW -or $Revert) {
         Write-Status -Types "@" -Status "Parameter -SkipADW or -Undo detected.. Malwarebytes ADWCleaner will be skipped.." -WriteWarning -ForegroundColorText RED
     }
@@ -705,7 +701,7 @@ Function Get-NetworkStatus {
         Write-Status -Types "WAITING" -Status "Seems like there's no network connection. Please reconnect." -WriteWarning
         while ($Variables.NetStatus -ne 'Internet') {
             Write-Output "Waiting for Internet"
-            Start-Sleep -Milliseconds 350
+            Start-Sleep -Milliseconds 3500
             $Variables.NetStatus = (Get-NetConnectionProfile).$NetworkStatusType
         }
         Test-Connection -ComputerName $Env:COMPUTERNAME -AsJob
@@ -713,6 +709,7 @@ Function Get-NetworkStatus {
     }
 }
 Function Get-Office {
+    Show-ScriptStatus -WindowTitle "Office" -TweakType "Office" -TitleCounterText "Office"
     Write-Status -Types "?" -Status "Checking for Office"
     If (Test-Path $Variables.PathToOffice64 ) { $Variables.office64 = $true }Else { $Variables.office64 = $false }
     If (Test-Path $Variables.PathToOffice86 ) { $Variables.Office32 = $true }Else { $Variables.office32 = $false }
@@ -724,6 +721,7 @@ Function Get-Office {
     If ($Variables.officecheck -eq $true) { Remove-Office }
 }
 Function Get-Program {
+    Show-ScriptStatus -WindowTitle "Apps" -TweakType "Apps" -TitleCounterText "Programs" -TitleText "Application Installation"
     If ($SkipPrograms -or $Revert) {
         Write-Status -Types "@" -Status "Parameter -SkipProgams or -Undo detected.. Ignoring this section." -WriteWarning -ForegroundColorText RED
     }
@@ -776,8 +774,7 @@ Function Get-Program {
                     Get-NetworkStatus
                     try {
                         Write-Status -Types "+", $TweakType -Status "Downloading $($program.Name)" -NoNewLine
-                        Start-BitsTransfer -Source $program.DownloadURL -Destination $program.InstallerLocation -TransferType Download -Dynamic
-                        Get-Status
+                        Start-BitsTransfer -Source $program.DownloadURL -Destination $program.InstallerLocation -TransferType Download -Dynamic | Get-Status
                     }
                     catch {
                         Write-Caption $_ -Type Failed
@@ -788,14 +785,13 @@ Function Get-Program {
                     Write-Status -Types "+", $TweakType -Status "Adding support to $($HEVC.name) codec..." -NoNewLine
                     try {
                         $ProgressPreference = 'SilentlyContinue'
-                        Add-AppPackage -Path $HEVC.InstallerLocation
+                        Add-AppPackage -Path $HEVC.InstallerLocation | Get-Status
                         $ProgressPreference = 'Continue'
                     }
                     catch {
                         Write-Caption $_ -Type Failed
                         continue
                     }
-                    Get-Status
                 }
                 else {
                     Write-Status -Types "+", $TweakType -Status "Installing $($program.Name)"
@@ -809,16 +805,14 @@ Function Get-Program {
                 }
                 if ($program.Name -eq $Chrome.name) {
                     Write-Status "+", $TweakType -Status "Adding UBlock Origin to Google Chrome"
-                    Set-ItemPropertyVerified -Path $Variables.PathToUblockChrome -Name "update_url" -value $Variables.PathToChromeLink -Type STRING
-                    Get-Status
+                    Set-ItemPropertyVerified -Path $Variables.PathToUblockChrome -Name "update_url" -value $Variables.PathToChromeLink -Type STRING | Get-Status
                 }
             }
             else {
                 Write-Status -Types "@", $TweakType -Status "$($program.Name) already seems to be installed on this system.. Skipping Installation"
                 if ($program.Name -eq $Chrome.name) {
                     Write-Status "+", $TweakType -Status "Adding UBlock Origin to Google Chrome"
-                    Set-ItemPropertyVerified -Path $Variables.PathToUblockChrome -Name "update_url" -value $Variables.PathToChromeLink -Type STRING
-                    Get-Status
+                    Set-ItemPropertyVerified -Path $Variables.PathToUblockChrome -Name "update_url" -value $Variables.PathToChromeLink -Type STRING | Get-Status
                 }
             }
         }
@@ -827,7 +821,7 @@ Function Get-Program {
 }
 Function Get-Status {
     if ($?) {
-        $CaptionSucceeded = Get-Command Write-Caption
+        $CaptionSucceeded = Get-Command Write-Caption -ErrorAction SilentlyContinue
         If ($CaptionSucceeded) {
             Write-Caption -Type Success
         }
@@ -836,28 +830,42 @@ Function Get-Status {
         }
     }
     else {
-        $errorMessage = $_.Exception.Message
-        $lineNumber = $_.InvocationInfo.ScriptLineNumber
-        $command = $_.InvocationInfo.Line
-        $errorType = $_.CategoryInfo.Reason
-        $errorString = @"
-    -
-    Time of error: $(Get-Date -Format "yyyy-MM-dd HH:mm:ss")
-    Command run was: $($command)
-    Reason for error was: $($errorType)
-    Offending line number: $($lineNumber)
-    Error Message: $($errorMessage)
-    -
-"@
-        Add-Content $Variables.ErrorLog $errorString
-        Write-Output $_
+        HandleError
         continue
     }
 }
+function HandleError {
+    param (
+        [string]$errorMessage
+    )
+
+    $lineNumber = $MyInvocation.ScriptLineNumber
+    $command = $MyInvocation.Line
+    $errorType = $Error[0].CategoryInfo.Reason
+    $errorString = @"
+-
+Error occured at $(Get-Date -Format "yyyy-MM-dd HH:mm:ss")
+The command run was: $($command)
+Error Type: $($errorType)
+Offending line number: $($lineNumber)
+Error Message: $($errorMessage)
+-
+
+"@
+    try {
+        Add-Content -Path $Variables.log -Value $errorString -ErrorAction Stop
+    } catch {
+        Write-Host "Error writing to log: $($_.Exception.Message)"
+    }
+
+    Write-Error $errorMessage
+}
+
 
 Function New-SystemRestorePoint {
     [CmdletBinding(SupportsShouldProcess)]
     Param()
+    Show-ScriptStatus -WindowTitle "Restore Point" -TweakType "Backup" -TitleCounterText "Creating Restore Point"
     $description = "Mother Computers Courtesy Restore Point"
     $restorePointType = "MODIFY_SETTINGS"
     $actionDescription = "Enabling system drive Restore Point..."
@@ -872,6 +880,8 @@ Function New-SystemRestorePoint {
         Write-Status -Types "+" -Status "Creating System Restore Point: $description"
         Checkpoint-Computer -Description $description -RestorePointType $restorePointType
     }
+
+    Show-ScriptStatus -WindowTitle ""
 }
 
 Function Optimize-General {
@@ -881,6 +891,7 @@ Function Optimize-General {
         [Int]    $OneTwo = 1
     )
 
+    Show-ScriptStatus -WindowTitle "Optimization" -TweakType "Registry" -TitleCounterText "Optimization" -TitleText "General"
     $EnableStatus = @(
         @{ Symbol = "-"; Status = "Disabling"; }
         @{ Symbol = "+"; Status = "Enabling"; }
@@ -1016,7 +1027,7 @@ Function Optimize-Performance {
         [Int]    $One = 1,
         [Int]    $OneTwo = 1
     )
-
+    Show-ScriptStatus -TweakType "Performance" -TitleText "Performance" -SectionText "System"
     $EnableStatus = @(
         @{ Symbol = "-"; Status = "Disabling"; }
         @{ Symbol = "+"; Status = "Enabling"; }
@@ -1080,13 +1091,13 @@ Function Optimize-Performance {
                 $UniquePowerPlans.Add($PowerPlanName, $PowerPlanGUID)
             }
             Else {
-                Write-Status -Types "-", $TweakType -Status "Duplicated '$PowerPlanName' power plan found, deleting $PowerPlanGUID ..."
-                powercfg -Delete $PowerPlanGUID
+                Write-Status -Types "-", $TweakType -Status "Duplicated '$PowerPlanName' power plan found, deleting $PowerPlanGUID ..." -NoNewLine
+                powercfg -Delete $PowerPlanGUID | Get-Status
             }
         }
         Catch {
-            Write-Status -Types "-", $TweakType -Status "Duplicated '$PowerPlanName' power plan found, deleting $PowerPlanGUID ..."
-            powercfg -Delete $PowerPlanGUID
+            Write-Status -Types "-", $TweakType -Status "Duplicated '$PowerPlanName' power plan found, deleting $PowerPlanGUID ..." -NoNewLine
+            powercfg -Delete $PowerPlanGUID | Get-Status
         }
     }
 
@@ -1176,7 +1187,7 @@ Function Optimize-Privacy {
         [Int]    $One = 1,
         [Int]    $OneTwo = 1
     )
-
+    Show-ScriptStatus -TweakType "Privacy" -TitleText "Privacy"
     $EnableStatus = @(
         @{ Symbol = "-"; Status = "Disabling"; }
         @{ Symbol = "+"; Status = "Enabling"; }
@@ -1297,9 +1308,7 @@ Function Optimize-Privacy {
     Write-Status -Types $EnableStatus[0].Symbol, $TweakType -Status "$($EnableStatus[0].Status) App Launch Tracking..."
     Set-ItemPropertyVerified -Path HKCU:\Software\Policies\Microsoft\Windows\EdgeUI -Name "DisableMFUTracking" -Value $One -Type DWORD
 
-    If ($vari -eq '2') {
-        Remove-Item -Path HKCU:\Software\Policies\Microsoft\Windows\EdgeUI
-    }
+    If ($vari -eq '2') { Remove-Item -Path HKCU:\Software\Policies\Microsoft\Windows\EdgeUI }
 
     # Sets windows feeback notifciations to never show
     Write-Status -Types $EnableStatus[0].Symbol, $TweakType -Status "$($EnableStatus[0].Status) Windows Feedback Notifications..."
@@ -1555,7 +1564,7 @@ Function Optimize-Security {
         [Int]    $One = 1,
         [Int]    $OneTwo = 1
     )
-
+    Show-ScriptStatus -TweakType "Security" -TitleText "Security"
     $EnableStatus = @(
         @{ Symbol = "-"; Status = "Disabling"; }
         @{ Symbol = "+"; Status = "Enabling"; }
@@ -1589,27 +1598,15 @@ Function Optimize-Security {
     Set-NetFirewallProfile -Profile Domain, Public, Private -Enabled True
 
     Write-Section "Windows Defender"
-    <#
     Write-Status -Types "+", $TweakType -Status "Enabling Microsoft Defender Exploit Guard network protection..." -NoNewLine
-    try {
-        Set-MpPreference -EnableNetworkProtection Enabled -Force
-        Get-Status
-    }
-    catch {
-        Get-Status
+    try { Set-MpPreference -EnableNetworkProtection Enabled -Force | Get-Status }catch {
         Write-Caption $_ -Type Failed
         continue
     }
-    #>
 
 
     Write-Status -Types "+", $TweakType -Status "Enabling detection for potentially unwanted applications and block them..." -NoNewLine
-    try {
-        Set-MpPreference -PUAProtection Enabled -Force
-        Get-Status
-    }
-    catch {
-        Get-Status
+    try { Set-MpPreference -PUAProtection Enabled -Force | Get-Status }catch {
         Write-Caption $_ -Type Failed
         continue
     }
@@ -1623,13 +1620,10 @@ Function Optimize-Security {
 
     Write-Section "Old SMB Protocol"
     Write-Status -Types "+", $TweakType -Status "Disabling SMB 1.0 protocol..." -NoNewLine
-    try { Set-SmbServerConfiguration -EnableSMB1Protocol $false -Force }
-    catch {
-        Get-Status
+    try { Set-SmbServerConfiguration -EnableSMB1Protocol $false -Force | Get-Status }catch {
         Write-Caption $_ -Type Failed
         continue
     }
-    Get-Status
 
     Write-Section "Old .NET cryptography"
     Write-Status -Types $EnableStatus[1].Symbol, $TweakType -Status "$($EnableStatus[1].Status) .NET strong cryptography..."
@@ -1657,15 +1651,15 @@ Function Optimize-Security {
     Set-ItemPropertyVerified -Path $Variables.PathToLMPoliciesMRT -Name "DontOfferThroughWUAU" -Type DWord -Value $Zero
 }
 Function Optimize-Service {
-    If ($Revert) {
-        Write-Status -Types "*", "Services" -Status "Reverting the tweaks is set to '$Revert'."
+    Show-ScriptStatus -TweakType "Services" -TitleText "Services"
+    ## Obsolete code
+    If ($Revert) {Write-Status -Types "*", "Services" -Status "Reverting the tweaks is set to '$Revert'."
         Set-ServiceStartup -State 'Manual' -Services $Variables.ServicesToDisabled -Filter $Variables.EnableServicesOnSSD
-    }
-    Else {
-        Set-ServiceStartup -State 'Disabled' -Services $Variables.ServicesToDisabled -Filter $Variables.EnableServicesOnSSD
-    }
+    }Else {Set-ServiceStartup -State 'Disabled' -Services $Variables.ServicesToDisabled -Filter $Variables.EnableServicesOnSSD}
+    ##
+
     Write-Section "Enabling services from Windows"
-    If ($Variables.IsSystemDriveSSD -or $Revert) {
+    If ($Variables.IsSystemDriveSSD -or $Revert) { 
         Set-ServiceStartup -State 'Automatic' -Services $Variables.EnableServicesOnSSD
     }
     Set-ServiceStartup -State 'Manual' -Services $Variables.ServicesToManual
@@ -1674,10 +1668,10 @@ function Optimize-SSD {
     # SSD life improvement
     Write-Section "SSD Optimization"
     Write-Status -Types "+" -Status "Disabling last access timestamps updates on files"
-    fsutil behavior set DisableLastAccess 1
-    Get-Status
+    fsutil behavior set DisableLastAccess 1 | Get-Status
 }
 Function Optimize-TaskScheduler {
+    Show-ScriptStatus -TweakType "TaskScheduler" -TitleText "Task Scheduler"
     If ($Revert) {
         Write-Status -Types "*", $TweakType -Status "Reverting the tweaks is set to '$Revert'."
         $CustomMessage = { "Resetting the $ScheduledTask task as 'Ready' ..." }
@@ -1691,6 +1685,7 @@ Function Optimize-TaskScheduler {
     Set-ScheduledTaskState -Ready -ScheduledTask $Variables.EnableScheduledTasks
 }
 Function Optimize-WindowsOptional {
+    Show-ScriptStatus -TweakType "OptionalFeatures" -TitleText "Optional Features"
     If ($Revert) {
         Write-Status -Types "*", "OptionalFeature" -Status "Reverting the tweaks is set to '$Revert'."
         $CustomMessage = { "Re-Installing the $OptionalFeature optional feature..." }
@@ -1755,16 +1750,15 @@ Function Remove-Office {
     Param()
 
 
-    $msgBoxInput = Show-Question -YesNo -Message "  Microsoft Office was found on this system. Would you like to remove it?" -Icon Warning
+    $msgBoxInput = Show-Question -Buttons YesNo -Message "Office was found on this system. Should I remove it?" -Icon Warning
     switch ($msgBoxInput) {
         'Yes' {
             $actionDescription = "Downloading Microsoft Support and Recovery Assistant (SaRA)..."
             if ($PSCmdlet.ShouldProcess($actionDescription, "Download-SaRA")) {
-                Write-Status "+", $TweakType -Status "Downloading Microsoft Support and Recovery Assistant (SaRA)..."
+                Write-Status "+", $TweakType -Status "Downloading Microsoft Support and Recovery Assistant (SaRA)..." -NoNewLine
                 Get-NetworkStatus
                 Start-BitsTransfer -Source $Variables.SaRAURL -Destination $Variables.SaRA -TransferType Download -Dynamic | Out-Host
-                Expand-Archive -Path $Variables.SaRA -DestinationPath $Variables.Sexp -Force
-                Get-Status
+                Expand-Archive -Path $Variables.SaRA -DestinationPath $Variables.Sexp -Force | Get-Status
             }
 
             $SaRAcmdexe = (Get-ChildItem $Variables.Sexp -Include SaRAcmd.exe -Recurse).FullName
@@ -1783,23 +1777,12 @@ Function Remove-PinnedStartMenu {
     [CmdletBinding(SupportsShouldProcess)]
     Param()
 
-    $START_MENU_LAYOUT = @"
-<LayoutModificationTemplate xmlns:defaultlayout="http://schemas.microsoft.com/Start/2014/FullDefaultLayout" xmlns:start="http://schemas.microsoft.com/Start/2014/StartLayout" Version="1" xmlns:taskbar="http://schemas.microsoft.com/Start/2014/TaskbarLayout" xmlns="http://schemas.microsoft.com/Start/2014/LayoutModification">
-    <LayoutOptions StartTileGroupCellWidth="6" />
-    <DefaultLayoutOverride>
-        <StartLayoutCollection>
-            <defaultlayout:StartLayout GroupCellWidth="6" />
-        </StartLayoutCollection>
-    </DefaultLayoutOverride>
-</LayoutModificationTemplate>
-"@
-
     $layoutFile = "C:\Windows\StartMenuLayout.xml"
     # Delete layout file if it already exists
     # Creates the blank layout file
     if ($PSCmdlet.ShouldProcess("Out-File $StartlayoutFile -Encoding ASCII", "Remove-LayoutModificationFile")) {
         If (Test-Path $layoutFile) { Remove-Item $layoutFile }
-        $START_MENU_LAYOUT | Out-File $layoutFile -Encoding ASCII
+        $Variables.START_MENU_LAYOUT | Out-File $layoutFile -Encoding ASCII
     }
 
     $regAliases = @("HKLM", "HKCU")
@@ -1859,19 +1842,29 @@ Function Remove-UWPAppx {
                 $appxPackageToRemove | ForEach-Object -Process {
                     Write-Status -Types "-", $TweakType -Status "Trying to remove $AppxPackage" -NoNewLine
                     Remove-AppxPackage $_.PackageFullName -WA SilentlyContinue >$NULL | Out-Null #4>&1 | Out-Null
-                    If ($?) { Get-Status ; $Variables.Removed++ ; $Variables.PackagesRemoved += $appxPackageToRemove.PackageFullName } elseif (!($?)) { Get-Status ; $Variables.Failed++ }
+                    Get-Status
+                    If ($?) {
+                        $Variables.Removed++
+                        $Variables.PackagesRemoved += $appxPackageToRemove.PackageFullName
+                    } elseif (!($?)) {
+                        $Variabless.Failed++
+                    }
                 }
 
                 $actionDescription = "Removing Provisioned Appx $AppxPackage"
                 if ($PSCmdlet.ShouldProcess($actionDescription, "Remove-AppxProvisionedPackage")) {
+                    Write-Status -Types "-", $TweakType -Status "Trying to remove Provisioned $AppxPackage" -NoNewLine
                     Get-AppxProvisionedPackage -Online | Where-Object DisplayName -like $AppxPackage | Remove-AppxProvisionedPackage -Online -AllUsers | Out-Null
-                    If ($?) { $Variables.Removed++ ; $Variables.PackagesRemoved += "Provisioned Appx $($appxPackageToRemove.PackageFullName)" } elseif (!($?)) { $Variables.Failed++ }
+                    Get-Status
+                    If ($?) {
+                        $Variables.Removed++
+                        $Variables.PackagesRemoved += "Provisioned Appx $($appxPackageToRemove.PackageFullName)"
+                    } elseif (!($?)) {
+                        $Variables.Failed++
+                    }
                 }
             }
-        }
-        else {
-            $Variables.NotFound++
-        }
+        }else { $Variables.NotFound++ }
     }
     $ProgressPreference = "Continue"
 }
@@ -1902,21 +1895,24 @@ Function Restart-Explorer {
     }
 }
 Function Request-PCRestart {
-    $restartMessage = " It is recommended to to restart computer to apply changes.
-                        Do you want to do that now?"
-    switch (Show-Question -YesNo -Title "New Loads Completed" -Icon Warning -Message $restartMessage) {
-        'Yes' {
-            Write-Host "You choose to Restart now"
-            Restart-Computer
-        }
-        'No' {
-            Write-Host "You choose to Restart later"
-        }
-        'Cancel' {
-            Write-Host "You choose to Restart later"
+    [CmdletBinding(SupportsShouldProcess)]
+    Param()
+    if ($PSCmdlet.ShouldProcess("Host")) {
+        Write-Status -Types "WAITING" -Status "User action needed - You may have to ALT + TAB " -WriteWarning
+        $restartMessage = "For changes to apply please restart your computer. Ready?"
+        switch (Show-Question -Chime -Buttons YesNoCancel -Title "New Loads Completed" -Icon Warning -Message $restartMessage) {
+            'Yes' {
+                Write-Host "You choose to Restart now"
+                Restart-Computer
+            }
+            'No' {
+                Write-Host "You choose to Restart later"
+            }
+            'Cancel' {
+                Write-Host "You choose to Restart later"
+            }
         }
     }
-
 }
 Function Set-Branding {
     [CmdletBinding(SupportsShouldProcess)]
@@ -1924,9 +1920,7 @@ Function Set-Branding {
         [Switch]$Revert,
         [Switch]$NoBranding
     )
-
-    $TweakType = "Branding"
-
+    Show-ScriptStatus -WindowTitle "Branding" -TweakType "Branding" -TitleText "Branding" -TitleCounterText "Mother Branding"
     If (!$Revert) {
         If ($NoBranding) {
             Write-Status -Types "@" -Status "Parameter -NoBranding detected.. Skipping Mother Computers branding" -WriteWarning -ForegroundColorText RED
@@ -2032,20 +2026,8 @@ Function Set-ItemPropertyVerified {
                 }
             }
             catch {
-                $lineNumber = $_.InvocationInfo.ScriptLineNumber
-                $command = $_.InvocationInfo.Line
-                $errorType = $_.CategoryInfo.Reason
-                $errorString = @"
-    -
-    Time of error: $(Get-Date -Format "yyyy-MM-dd HH:mm:ss")
-    Command run was: $($command)
-    Reason for error was: $($errorType)
-    Offending line number: $($lineNumber)
-    Error Message: $($errorMessage)
-    -
-"@
-                Add-Content $Variables.ErrorLog $errorString
-                Write-Output $_
+                HandleError
+                Continue
             }
         }
     }
@@ -2089,21 +2071,7 @@ Function Set-OptionalFeatureState {
                             $feature | Where-Object State -Like "Enabled" | Disable-WindowsOptionalFeature -Online -NoRestart -WhatIf:$WhatIf
                         }
                         catch {
-                            $errorMessage = $_.Exception.Message
-                            $lineNumber = $_.InvocationInfo.ScriptLineNumber
-                            $command = $_.InvocationInfo.Line
-                            $errorType = $_.CategoryInfo.Reason
-                            $errorString = @"
-    -
-    Time of error: $(Get-Date -Format "yyyy-MM-dd HH:mm:ss")
-    Command run was: $($command)
-    Reason for error was: $($errorType)
-    Offending line number: $($lineNumber)
-    Error Message: $($errorMessage)
-    -
-"@
-                            Add-Content $Variables.ErrorLog $errorString
-                            Write-Output $_
+                            HandleError
                             continue
                         }
                     }
@@ -2116,21 +2084,7 @@ Function Set-OptionalFeatureState {
                             $feature | Where-Object State -Like "Disabled*" | Enable-WindowsOptionalFeature -Online -NoRestart -WhatIf:$WhatIf
                         }
                         catch {
-                            $errorMessage = $_.Exception.Message
-                            $lineNumber = $_.InvocationInfo.ScriptLineNumber
-                            $command = $_.InvocationInfo.Line
-                            $errorType = $_.CategoryInfo.Reason
-                            $errorString = @"
-    -
-    Time of error: $(Get-Date -Format "yyyy-MM-dd HH:mm:ss")
-    Command run was: $($command)
-    Reason for error was: $($errorType)
-    Offending line number: $($lineNumber)
-    Error Message: $($errorMessage)
-    -
-"@
-                            Add-Content $Variables.ErrorLog $errorString -Append
-                            Write-Output $_
+                            HandleError
                             continue
                         }
                     }
@@ -2169,14 +2123,9 @@ function Set-ScheduledTaskState {
                 Continue
             }
 
-            If ($Disabled) {
-                $action = "Disable"
-            }
-            ElseIf ($Ready) {
-                $action = "Enable"
-            }
-            Else {
-                Write-Status -Types "?", $TweakType -Status "No parameter received (valid params: -Disabled or -Ready)" -WriteWarning
+            If ($Disabled) { $action = "Disable" }
+            ElseIf ($Ready) { $action = "Enable" }
+            Else { Write-Status -Types "?", $TweakType -Status "No parameter received (valid params: -Disabled or -Ready)" -WriteWarning
                 $action = $null
             }
 
@@ -2199,21 +2148,8 @@ function Set-ScheduledTaskState {
                         }
                     }
                     catch {
-                        $errorMessage = $_.Exception.Message
-                        $lineNumber = $_.InvocationInfo.ScriptLineNumber
-                        $command = $_.InvocationInfo.Line
-                        $errorType = $_.CategoryInfo.Reason
-                        $errorString = @"
-    -
-    Time of error: $(Get-Date -Format "yyyy-MM-dd HH:mm:ss")
-    Command run was: $($command)
-    Reason for error was: $($errorType)
-    Offending line number: $($lineNumber)
-    Error Message: $($errorMessage)
-    -
-"@
-                        Add-Content $Variables.ErrorLog $errorString
-                        Write-Output $_
+                        HandleError
+                        Continue
                     }
                 }
             }
@@ -2267,21 +2203,7 @@ function Set-ServiceStartup {
                 }
             }
             catch {
-                $errorMessage = $_.Exception.Message
-                $lineNumber = $_.InvocationInfo.ScriptLineNumber
-                $command = $_.InvocationInfo.Line
-                $errorType = $_.CategoryInfo.Reason
-                $errorString = @"
-    -
-    Time of error: $(Get-Date -Format "yyyy-MM-dd HH:mm:ss")
-    Command run was: $($command)
-    Reason for error was: $($errorType)
-    Offending line number: $($lineNumber)
-    Error Message: $($errorMessage)
-    -
-"@
-                Add-Content $Variables.ErrorLog $errorString
-                Write-Output $_
+                HandleError
                 Continue
             }
         }
@@ -2291,18 +2213,11 @@ Function Set-StartMenu {
     [CmdletBinding(SupportsShouldProcess)]
     Param()
 
+    Show-ScriptStatus -WindowTitle "Start Menu" -TweakType "StartMenu" -TitleCounterText "Start Menu Layout" -TitleText "StartMenu"
+
     If ($Variables.osVersion -like "*Windows 10*")
     {
-        $START_MENU_LAYOUT = @"
-        <LayoutModificationTemplate xmlns:defaultlayout="http://schemas.microsoft.com/Start/2014/FullDefaultLayout" xmlns:start="http://schemas.microsoft.com/Start/2014/StartLayout" Version="1" xmlns:taskbar="http://schemas.microsoft.com/Start/2014/TaskbarLayout" xmlns="http://schemas.microsoft.com/Start/2014/LayoutModification">
-            <LayoutOptions StartTileGroupCellWidth="6" />
-            <DefaultLayoutOverride>
-                <StartLayoutCollection>
-                    <defaultlayout:StartLayout GroupCellWidth="6" />
-                </StartLayoutCollection>
-            </DefaultLayoutOverride>
-        </LayoutModificationTemplate>
-"@
+
         Write-Section -Text "Clearing pinned start menu items for Windows 10"
         Write-Status -Types "@", $TweakType -Status "Clearing Windows 10 start pins"
         $layoutFile = "C:\Windows\StartMenuLayout.xml"
@@ -2310,7 +2225,7 @@ Function Set-StartMenu {
         # Creates the blank layout file
         if ($PSCmdlet.ShouldProcess("Out-File $StartlayoutFile -Encoding ASCII", "Remove-LayoutModificationFile")) {
             If (Test-Path $layoutFile) { Remove-Item $layoutFile }
-            $START_MENU_LAYOUT | Out-File $layoutFile -Encoding ASCII
+            $Varaibles.START_MENU_LAYOUT | Out-File $layoutFile -Encoding ASCII
         }
 
         $regAliases = @("HKLM", "HKCU")
@@ -2393,6 +2308,8 @@ function Set-Wallpaper {
     [CmdletBinding(SupportsShouldProcess)]
     param (
     )
+
+    Show-ScriptStatus -WindowTitle "Visual" -TweakType "Visuals" -TitleCounterText "Visuals"
     if ($PSCmdlet.ShouldProcess("Apply Wallpaper")) {
         $WallpaperPathExists = Test-Path $Variables.wallpaperPath
         If (!$WallpaperPathExists) {
@@ -2423,6 +2340,8 @@ function Set-Wallpaper {
     }
 }
 Function Send-EmailLog {
+
+    Show-ScriptStatus -WindowTitle "Email Log" -TweakType "Email" -TitleCounterText "Email Log"
     # - Stops Transcript
     Stop-Transcript | Out-Null
     Write-Section -Text "Gathering Logs "
@@ -2446,14 +2365,14 @@ Function Send-EmailLog {
 
     # - Removes unwanted characters and blank space from log file
     Write-Caption -Text "Cleaning $($Variables.Log)"
-    $logFile = Get-Content $Variables.Log -Raw
+    $logFile = Get-Content "$($Variables.Log).txt" -Raw
     #$pattern = "[\[\]><\+@),|=]"
     $pattern = "[\[\]><+@),|=\\-\\(]"
     # - Replace the unwanted characters with nothing
     $newLogFile = $logFile -replace $pattern
     # - Remove empty lines
     $newLogFile = ($newLogFile | Where-Object { $_ -match '\S' }) -join "`n"
-    Set-Content -Path $Variables.Log -Value $newLogFile
+    Set-Content -Path $($Variables.Log).txt -Value $newLogFile
 
 
     # - Cleans up Motherboards Output
@@ -2572,58 +2491,30 @@ Function Show-ScriptStatus() {
         Write-Section -Text "Section: $SectionText"
     }
     If ($AddCounter) {
-        $Counter++
+    
     }
-
-
-
 }
-Function Show-Question() {
-    [CmdletBinding()]
+
+function Show-Question {
     param (
-        [String] $Title = "New Loads",
-        [String] $Message = "Set Execution Policy to RemoteSigned?",
-        [Switch] $YesNo,
-        [Switch] $YesNoCancel,
-        [ValidateSet("None", "Information", "Question", "Warning", "Error")]
-        [String] $Icon = "None",
-        [Switch] $Chime = $false
+        [string]$Message,
+        [string]$Title = "New Loads",
+        [System.Windows.Forms.MessageBoxButtons]$Buttons = [System.Windows.Forms.MessageBoxButtons]::OK,
+        [System.Windows.Forms.MessageBoxIcon]$Icon = [System.Windows.Forms.MessageBoxIcon]::Information,
+        [switch]$Chime = $false
     )
-    If ($Chime) {
-        try { Get-Command "Start-Chime" }catch{ throw "Start-Chime does not exist. Skipping" ; Continue }
-    }
-
-    $BackupWindowTitle = $host.UI.RawUI.WindowTitle
-    $WindowTitle = "New Loads - WAITING FOR USER INPUT" ; $host.UI.RawUI.WindowTitle = $WindowTitle
-
-    $iconFlag = [System.Windows.Forms.MessageBoxIcon]::Question
-
-    switch ($Icon) {
-        "None" { $iconFlag = [System.Windows.Forms.MessageBoxIcon]::None }
-        "Information" { $iconFlag = [System.Windows.Forms.MessageBoxIcon]::Information }
-        "Question" { $iconFlag = [System.Windows.Forms.MessageBoxIcon]::Question }
-        "Warning" { $iconFlag = [System.Windows.Forms.MessageBoxIcon]::Warning }
-        "Error" { $iconFlag = [System.Windows.Forms.MessageBoxIcon]::Error }
-    }
-
-    if ($YesNoCancel) {
-        If ($Chime) { Start-Chime }
-        $result = [System.Windows.Forms.MessageBox]::Show($Message, $Title, [System.Windows.Forms.MessageBoxButtons]::YesNoCancel, $iconFlag)
-    }
-    elseif ($YesNo) {
-        If ($Chime) { Start-Chime }
-        $result = [System.Windows.Forms.MessageBox]::Show($Message, $Title, [System.Windows.Forms.MessageBoxButtons]::YesNo, $iconFlag)
-    }
-
-    $host.UI.RawUI.WindowTitle = $BackupWindowTitle
-    return $result
+    If ($Chime) { Start-Chime }
+    [System.Windows.Forms.MessageBox]::Show($Message, $Title, $Buttons, $Icon)
 }
+
+
 Function Start-BitlockerDecryption() {
     [CmdletBinding(SupportsShouldProcess)]
     param (
         [Switch]$SkipBitlocker
     )
 
+    Show-ScriptStatus -WindowTitle "Bitlocker" -TweakType "Bitlocker" -TitleCounterText "Bitlocker Decryption"
     If ($SkipBitlocker) {
         Write-Status -Types "@" -Status "Parameter -SkipBitlocker detected.. Skipping Bitlocker Decryption." -WriteWarning -ForegroundColorText RED
     }
@@ -2632,7 +2523,8 @@ Function Start-BitlockerDecryption() {
         $bitlockerVolume = Get-BitLockerVolume -MountPoint "C:" -WarningAction SilentlyContinue
         If ($bitlockerVolume -and $bitlockerVolume.ProtectionStatus -eq "On") {
             # Starts Bitlocker Decryption
-            Show-Question -YesNo -Title "New Loads" -Icon Warning -Message "Bitlocker was detected turned on. Do you want to start the decryption process?"
+            $messagebld = "Bitlocker was detected turned on. Do you want to start the decryption process?"
+            Show-Question -Buttons YesNo -Title "New Loads" -Icon Warning -Message $messagebld
             $target = "Bitlocker Decryption on C:"
             if ($PSCmdlet.ShouldProcess($target, "Start Decryption")) {
                 Write-Caption -Text "Alert: Bitlocker is enabled. Starting the decryption process" -Type Warning
@@ -2656,8 +2548,13 @@ Function Start-Bootup {
         Exit
     }
 
+    # One Liner
+    #[bool]([Security.Principal.WindowsIdentity]::GetCurrent().Groups -match 'S-1-5-32-544')
+    # Alternative
+    #New-Object Security.Principal.WindowsPrincipal([Security.Principal.WindowsIdentity]::GetCurrent())).IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator
+    
     # Checks to make sure New Loads is run as admin otherwise it'll display a message and close
-    If ((New-Object Security.Principal.WindowsPrincipal([Security.Principal.WindowsIdentity]::GetCurrent())).IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator) -eq $False) {
+    If (!([bool]([Security.Principal.WindowsIdentity]::GetCurrent().Groups -match 'S-1-5-32-544'))) {
         Write-Host $Variables.errorMessage2 -ForegroundColor Yellow
         do {
             $SelfElevate = Read-Host -Prompt "Would you like to run New Loads as an Administrator? (Y/N) "
@@ -2666,95 +2563,57 @@ Function Start-Bootup {
                     $wtExists = Get-Command wt
                     If ($wtExists) {
                         Start-Process wt -verb runas -ArgumentList "new-tab powershell -c ""irm run.newloads.ca | iex"""
-                    }
-                    else { Start-Process powershell -verb runas -ArgumentList "-command ""irm run.newloads.ca | iex""" }
-                    return
+                    }else { Start-Process powershell -verb runas -ArgumentList "-command ""irm run.newloads.ca | iex""" }
+                    Write-Output "Exiting"
+                    Exit
                 }
-                "N" {
-                    exit
-                }
-                default {
-                    Write-Host "Invalid input. Please enter Y or N."
-                }
+                "N" { exit }
+                default { Write-Host "Invalid input. Please enter Y or N." }
             }
         } while ($true)
     }
-    #Get-NewLoadsPassword
-    # Function that displays program name, version, creator
     Show-ScriptLogo
-    # Updates Time
     Update-Time
-    # Gets Year/Month/Day to compare
     New-Variable -Name Time -Value (Get-Date -UFormat %Y%m%d) -Scope Global
-
-    # Checks the time against the license and minimum required date - This assures New Loads cannot be distributed or used past the granted license date for Mother Computers
     If ($Time -GT $Variables.MaxTime -or $Time -LT $Variables.MinTime) {
         Clear-Host
-        Write-Status -Types ":(", "ERROR" -Status "There was an uncorrectable error.. Closing Application." -WriteWarning -ForegroundColorText RED
-        Read-Host -Prompt "An error occured. Press any key to close New Loads. "
+        Write-Status -Types ":(", "::ERROR::" -Status "There was an uncorrectable error.." -ForegroundColorText RED
+        Read-Host -Prompt "Press enter to close New Loads :"
         Exit
     }
-    #
-    try {
-        Remove-Item "$env:userprofile\Desktop\New Loads.txt" -Force | out-null
-        Remove-Item "$env:userprofile\Desktop\New Loads Errors.txt" -Force | out-null
-    }
-    catch {
-        Write-Error "An error occurred while removing the files: $_"
-        Continue
-    }
+
+    try { Get-Item "$Env:UserProfile\Desktop\New Loads*.txt" | Remove-Item }
+    catch { Write-Error "An error occurred while removing the files: $_"
+    Continue }
 }
 function Start-Chime {
     [CmdletBinding(SupportsShouldProcess)]
-    param(
-        $File = "C:\Windows\Media\Alarm06.wav"
+    param( 
+        $File = "C:\Windows\Media\Alarm06.wav" 
     )
-
-
-    # Check if the file exists before attempting to play the sound
     if (Test-Path $File) {
         try {
-            # Create a SoundPlayer object and load the sound file
             $soundPlayer = New-Object System.Media.SoundPlayer
             $soundPlayer.SoundLocation = $File
-
             if ($PSCmdlet.ShouldProcess("Play the sound", "Play sound from $File")) {
-                # Play the sound
                 $soundPlayer.Play()
-
-                # Wait for the sound to finish playing (optional)
-                Start-Sleep -Seconds 3
-
-                # Dispose the SoundPlayer object to release resources
                 $soundPlayer.Dispose()
             }
-        }
-        catch {
-            Write-Error "An error occurred while playing the sound: $_.Exception.Message"
-        }
-    }
-    else {
-        Write-Error "The sound file doesn't exist at the specified path."
-    }
+        }catch { Write-Error "An error occurred while playing the sound: $_.Exception.Message" }
+    }else { Write-Error "The sound file doesn't exist at the specified path." }
 }
 Function Start-Cleanup {
     [CmdletBinding(SupportsShouldProcess)]
     param ()
 
+    Show-ScriptStatus -WindowTitle "Cleanup" -TweakType "Cleanup" -TitleCounterText "Cleanup" -TitleText "Cleanup"
     If ($Revert) {
         Write-Status -Types "@" -Status "Parameter -Undo was detected.. Skipping this section." -WriteWarning -ForegroundColorText Red
-    }
-    else {
+    }else {
         # - Starts Explorer if it isn't already running
-        If (!(Get-Process -Name Explorer)) {
-            Restart-Explorer
-        }
-
-        If (Test-Path $Variables.layoutFile) {
-            Remove-Item $Variables.layoutFile
-        }
-
-
+        If (!(Get-Process -Name Explorer)) { Restart-Explorer }
+        # Removes layout file if it exists
+        Get-Item $Variables.layoutFile | Remove-Item
         # - Launches Chrome to initiate UBlock Origin
         $target = "Google Chrome"
         if ($PSCmdlet.ShouldProcess($target, "Launch Chrome")) {
@@ -2780,14 +2639,6 @@ Function Start-Cleanup {
                 }
             }
         }
-
-        <#
-        # - Removes layout file
-        $target = "Layout File"
-        if ($PSCmdlet.ShouldProcess($target, "Remove Layout File")) {
-            Remove-Item "$layoutFile"
-        }
-        #>
     }
 }
 Function Start-Debloat {
@@ -2795,6 +2646,8 @@ Function Start-Debloat {
     param(
         [Switch] $Revert
     )
+
+    Show-ScriptStatus -WindowTitle "Debloat" -TweakType "Debloat" -TitleCounterText "Debloat" -TitleText "Win32"
 
     If (!$Revert) {
         <#
@@ -2863,7 +2716,6 @@ Function Start-Debloat {
 
         # Disposing the progress bar after the loop finishes
         Write-Progress -Activity "Debloating System" -Completed
-
         # - Debloat Completion
         Write-Host "Debloat Completed!`n" -Foregroundcolor Green
         Write-Host "Packages Removed: " -NoNewline -ForegroundColor Gray ; Write-Host $Variables.Removed -ForegroundColor Green
@@ -2873,71 +2725,10 @@ Function Start-Debloat {
     elseif ($Revert) {
         $target = "Reinstall Default Appx from manifest"
         if ($PSCmdlet.ShouldProcess($target, "Reinstall Default Appx")) {
-            Write-Status -Types "+", "Bloat" -Status "Reinstalling Default Appx from manifest"
+            Write-Status -Types "+", "Appx" -Status "Reinstalling Default Apps from manifest"
             Get-AppxPackage -allusers | ForEach-Object { Add-AppxPackage -register "$($_.InstallLocation)\appxmanifest.xml" -DisableDevelopmentMode -Verbose } | Out-Host
         }
     }
-}
-Function Start-NewLoad {
-    [CmdletBinding(SupportsShouldProcess)]
-    param()
-    Try { Stop-Transcript }Catch{
-        Try{ Start-Transcript -Path "$($Variables.Log).txt" -NoClobber | Out-Null } Catch{ 
-            Remove-Item "$($Variables.Log).txt" ; Start-Transcript -Path "$($Variables.Log).txt" -NoClobber | Out-Null 
-        }
-    }
-    New-Variable -Name "StartTime" -Value (Get-Date -DisplayHint Time) -Scope Global
-    $Counter++
-    Show-ScriptStatus -WindowTitle "Apps" -TweakType "Apps" -TitleCounterText "Programs" -TitleText "Application Installation"
-    Get-Program
-    $Counter++
-    Show-ScriptStatus -WindowTitle "Start Menu" -TweakType "StartMenu" -TitleCounterText "Start Menu Layout" -TitleText "StartMenu"
-    Set-StartMenu
-    Set-Taskbar
-    $Counter++
-    Show-ScriptStatus -WindowTitle "Visual" -TweakType "Visuals" -TitleCounterText "Visuals"
-    Set-Wallpaper
-    $Counter++
-    Show-ScriptStatus -WindowTitle "Branding" -TweakType "Branding" -TitleText "Branding" -TitleCounterText "Mother Branding"
-    Set-Branding
-    $Counter++
-    Show-ScriptStatus -WindowTitle "Debloat" -TweakType "Debloat" -TitleCounterText "Debloat" -TitleText "Win32"
-    Start-Debloat
-    Show-ScriptStatus -TitleText "ADWCleaner"
-    Get-AdwCleaner
-    $Counter++
-    Show-ScriptStatus -WindowTitle "Office" -TweakType "Office" -TitleCounterText "Office"
-    Get-Office
-    $Counter++
-    Show-ScriptStatus -WindowTitle "Bitlocker" -TweakType "Bitlocker" -TitleCounterText "Bitlocker Decryption"
-    Start-BitlockerDecryption
-    $Counter++
-    Show-ScriptStatus -WindowTitle "Optimization" -TweakType "Registry" -TitleCounterText "Optimization" -TitleText "General"
-    Optimize-General
-    Show-ScriptStatus -TweakType "Performance" -TitleText "Performance" -SectionText "System"
-    Optimize-Performance
-    Optimize-SSD
-    Show-ScriptStatus -TweakType "Privacy" -TitleText "Privacy"
-    Optimize-Privacy
-    Show-ScriptStatus -TweakType "Security" -TitleText "Security"
-    Optimize-Security
-    Show-ScriptStatus -TweakType "Services" -TitleText "Services"
-    Optimize-Service
-    Show-ScriptStatus -TweakType "TaskScheduler" -TitleText "Task Scheduler"
-    Optimize-TaskScheduler
-    Show-ScriptStatus -TweakType "OptionalFeatures" -TitleText "Optional Features"
-    Optimize-WindowsOptional
-    $Counter++
-    Show-ScriptStatus -WindowTitle "Restore Point" -TweakType "Backup" -TitleCounterText "Creating Restore Point"
-    New-SystemRestorePoint
-    $Counter++
-    Show-ScriptStatus -WindowTitle "Email Log" -TweakType "Email" -TitleCounterText "Email Log"
-    Send-EmailLog
-    $Counter++
-    Show-ScriptStatus -WindowTitle "Cleanup" -TweakType "Cleanup" -TitleCounterText "Cleanup" -TitleText "Cleanup"
-    Start-Cleanup
-    Write-Status -Types "WAITING" -Status "User action needed - You may have to ALT + TAB " -WriteWarning
-    Request-PCRestart
 }
 
 function Update-Time {
@@ -3132,11 +2923,44 @@ Function Write-TitleCounter() {
 
 ####################################################################################
 
-# Initiates check for OS version,
 Start-Bootup
-#Import-Variable
-Start-NewLoad
-
+Try { Stop-Transcript }Catch{ 
+    Try{ Start-Transcript -Path "$($Variables.Log).txt" -NoClobber | Out-Null }Catch { 
+        Remove-Item "$($Variables.Log).txt" ; Start-Transcript -Path "$($Variables.Log).txt" -NoClobber | Out-Null 
+    }
+}
+New-Variable -Name "StartTime" -Value (Get-Date -DisplayHint Time) -Scope Global
+Get-Program
+$Counter++
+Set-StartMenu
+Set-Taskbar
+$Counter++
+Set-Wallpaper
+$Counter++
+Set-Branding
+$Counter++
+Start-Debloat
+Get-AdwCleaner
+$Counter++
+Get-Office
+$Counter++
+Start-BitlockerDecryption
+$Counter++
+Optimize-General
+Optimize-Performance
+Optimize-SSD
+Optimize-Privacy
+Optimize-Security
+Optimize-Service
+Optimize-TaskScheduler
+Optimize-WindowsOptional
+$Counter++
+New-SystemRestorePoint
+$Counter++
+Send-EmailLog
+$Counter++
+Start-Cleanup
+Request-PCRestart
 
 ####################################################################################
 
