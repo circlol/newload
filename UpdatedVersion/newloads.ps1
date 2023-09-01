@@ -2551,7 +2551,7 @@ Function Start-Bootup {
                         Start-Process wt -verb runas -ArgumentList "new-tab powershell -c ""irm run.newloads.ca | iex"""
                     }else { Start-Process powershell -verb runas -ArgumentList "-command ""irm run.newloads.ca | iex""" }
                     Write-Output "Exiting"
-                    Exit
+                    Stop-Process $pid
                 }
                 "N" { exit }
                 default { Write-Host "Invalid input. Please enter Y or N." }
