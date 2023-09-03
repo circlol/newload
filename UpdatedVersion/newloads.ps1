@@ -64,6 +64,7 @@ $Variables = @{
     "Time" = Get-Date -UFormat %Y%m%d
     "MinTime" =20230630
     "MaxTime" = 20231031
+    "Counter" = 1
     "SelectedParameters" = @()
     "temp" = $Env:temp
     "MaxLength" = "11"
@@ -78,7 +79,7 @@ $Variables = @{
     "WallpaperDestination" = "C:\Windows\Resources\Themes\mother.jpg"
     "WallpaperPath" = "$NewLoads\mother.jpg"
     "ErrorLog" = "$env:userprofile\Desktop\New Loads Errors.txt"
-    "Log" = "$env:userprofile\Desktop\New Loads"
+    "Log" = "$env:userprofile\Desktop\New Loads.txt"
     "adwDestination" = "$NewLoads\adwcleaner.exe"
     "DriverSelectorPath" = "$NewLoads\Driver Grabber.exe"
     "WindowsUpdatesPath" = "$NewLoads\Windows Updates.exe"
@@ -514,15 +515,14 @@ $Variables = @{
     </LayoutModificationTemplate>
 "@
 }
-[Int]$Counter = 0
-if ($GUI) { $Variables.specifiedParameters += '-GUI' }
+<#if ($GUI) { $Variables.specifiedParameters += '-GUI' }
 if ($NoBranding) { $Variables.specifiedParameters += '-NoBranding' }
 if ($Undo) { $Variables.specifiedParameters += '-Undo' }
 if ($SkipADW) { $Variables.specifiedParameters += '-SkipADW' }
 if ($SkipBitlocker) { $Variables.specifiedParameters += '-SkipBitlocker' }
 if ($SkipPrograms) { $Variables.specifiedParameters += '-SkipPrograms' }
 if ($WhatIf) { $Variables.specifiedParameters += '-WhatIf' }
-$parametersString = $Variables.specifiedParameters -join ', '
+$parametersString = $Variables.specifiedParameters -join ', '#>
 Clear-Host
 
 
@@ -2351,14 +2351,14 @@ Function Send-EmailLog {
 
     # - Removes unwanted characters and blank space from log file
     Write-Caption -Text "Cleaning $($Variables.Log)"
-    $logFile = Get-Content "$($Variables.Log).txt" -Raw
+    $logFile = Get-Content $Variables.Log -Raw
     #$pattern = "[\[\]><\+@),|=]"
     $pattern = "[\[\]><+@),|=\\-\\(]"
     # - Replace the unwanted characters with nothing
     $newLogFile = $logFile -replace $pattern
     # - Remove empty lines
     $newLogFile = ($newLogFile | Where-Object { $_ -match '\S' }) -join "`n"
-    Set-Content -Path $($Variables.Log).txt -Value $newLogFile
+    Set-Content -Path $Variables.Log -Value $newLogFile
 
 
     # - Cleans up Motherboards Output
@@ -2468,7 +2468,7 @@ Function Show-ScriptStatus() {
         Set-Variable -Name 'TweakType' -Value $TweakType -Scope Global -Force
     }
     If ($TitleCounterText) {
-        Write-TitleCounter -Counter $Counter -MaxLength $Variables.MaxLength -Text $TitleCounterText
+        Write-TitleCounter -Counter $Variables.Counter -MaxLength $Variables.MaxLength -Text $TitleCounterText
     }
     If ($TitleText) {
         Write-Title -Text $TitleText
@@ -2568,7 +2568,7 @@ Function Start-Bootup {
         Exit
     }
 
-    try { Get-Item "$Env:UserProfile\Desktop\New Loads*.txt" | Remove-Item }
+    try { Get-Item $Variables.Log | Remove-Item }
     catch { Write-Error "An error occurred while removing the files: $_"
     Continue }
 }
@@ -2908,27 +2908,27 @@ Function Write-TitleCounter() {
 
 Start-Bootup
 Try { Stop-Transcript }Catch{ 
-    Try{ Start-Transcript -Path "$($Variables.Log).txt" -NoClobber | Out-Null }Catch { 
-        Remove-Item "$($Variables.Log).txt" ; Start-Transcript -Path "$($Variables.Log).txt" -NoClobber | Out-Null 
+    Try{ Start-Transcript -Path "$($Variables.Log)" -NoClobber | Out-Null }Catch { 
+        Remove-Item "$($Variables.Log)" ; Start-Transcript -Path "$($Variables.Log)" -NoClobber | Out-Null 
     }
 }
 New-Variable -Name "StartTime" -Value (Get-Date -DisplayHint Time) -Scope Global
 Get-Program
-$Counter++
+$Variables.Counter++
 Set-StartMenu
 Set-Taskbar
-$Counter++
+$Variables.Counter++
 Set-Wallpaper
-$Counter++
+$Variables.Counter++
 Set-Branding
-$Counter++
+$Variables.Counter++
 Start-Debloat
 Get-AdwCleaner
-$Counter++
+$Variables.Counter++
 Get-Office
-$Counter++
+$Variables.Counter++
 Start-BitlockerDecryption
-$Counter++
+$Variables.Counter++
 Optimize-General
 Optimize-Performance
 Optimize-SSD
@@ -2937,11 +2937,11 @@ Optimize-Security
 Optimize-Service
 Optimize-TaskScheduler
 Optimize-WindowsOptional
-$Counter++
+$Variables.Counter++
 New-SystemRestorePoint
-$Counter++
+$Variables.Counter++
 Send-EmailLog
-$Counter++
+$Variables.Counter++
 Start-Cleanup
 Request-PCRestart
 
