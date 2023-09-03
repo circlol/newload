@@ -819,7 +819,7 @@ Function Get-Program {
 
     }
 }
-Function Get-Status {
+Function Get-Status() {
     if ($?) {
         $CaptionSucceeded = Get-Command Write-Caption -ErrorAction SilentlyContinue
         If ($CaptionSucceeded) {
@@ -2737,7 +2737,7 @@ function Update-Time {
             try {
                 if ($PSCmdlet.ShouldProcess("Starting W32Time Service", "Start-Service -Name W32Time -ErrorAction Stop")) {
                     Write-Status -Types "+" -Status "Starting W32Time Service" -NoNewLine
-                    Start-Service -Name W32Time -ErrorAction Stop | Get-Status
+                    Start-Service -Name W32Time | Get-Status
                 }
             }
             catch {
