@@ -667,7 +667,7 @@ Function Get-ADWCleaner {
         Start-Process -FilePath $Variables.adwDestination -ArgumentList "/Uninstall", "/NoReboot" -WindowStyle Minimized
     }
 }
-Function Get-InstalledProgram() {
+Function Get-InstalledProgram {
     [CmdletBinding()]
     [OutputType([Bool])]
     Param(
@@ -2047,12 +2047,12 @@ Function Set-OptionalFeatureState {
         $feature = Get-WindowsOptionalFeature -Online -FeatureName $_
         if ($feature) {
             if ($_.DisplayName -in $Filter) {
-                Write-Status -Types "?", $TweakType -Status "The $_ ($($feature.DisplayName)) will be skipped as set on Filter..."
+                Write-Status -Types "@", $TweakType -Status "The $_ ($($feature.DisplayName)) will be skipped as set on Filter..."
                 return
             }
 
             if (($_.DisplayName -in $SecurityFilterOnEnable) -and $Enabled) {
-                Write-Status -Types "?", $TweakType -Status "Skipping $_ ($($feature.DisplayName)) to avoid a security vulnerability..."
+                Write-Status -Types "@", $TweakType -Status "Skipping $_ ($($feature.DisplayName)) to avoid a security vulnerability..." -WriteWarning
                 return
             }
 
@@ -2187,7 +2187,7 @@ function Set-ServiceStartup {
                 if ($PSCmdlet.ShouldProcess($target, "Set Startup Type")) {
                     Write-Status -Types "@", $TweakType -Status "Setting $target" -NoNewLine
                     If ($WhatIf) {
-                        Get-Service -Name "$Service" | Set-Service -StartupType $State -WhatIf
+                        Get-Service -Name "$Service" | Set-Service -StartupType $State -WhatIf | Get-Status
                     }
                     Else {
                         Get-Service -Name "$Service" | Set-Service -StartupType $State | Get-Status
@@ -2452,7 +2452,7 @@ Function Show-ScriptLogo {
     Write-Host "`n`n"
     $WindowTitle = "New Loads" ; $host.UI.RawUI.WindowTitle = $WindowTitle
 }
-Function Show-ScriptStatus() {
+Function Show-ScriptStatus {
     param(
         [Switch]$AddCounter,
         [String]$SectionText,
@@ -2494,7 +2494,7 @@ function Show-Question {
 }
 
 
-Function Start-BitlockerDecryption() {
+Function Start-BitlockerDecryption {
     [CmdletBinding(SupportsShouldProcess)]
     param (
         [Switch]$SkipBitlocker
@@ -2773,7 +2773,7 @@ Function Write-Break {
     Write-Host "================================================================================================" -NoNewLine -ForegroundColor White -BackgroundColor $Variables.BackgroundColor
     Write-Host "]`n" -ForegroundColor $Variables.ForegroundColor -BackgroundColor $Variables.BackgroundColor
 }
-Function Write-Caption() {
+Function Write-Caption {
     [CmdletBinding()]
     param (
         [String] $Text = "No Text",
@@ -2784,7 +2784,7 @@ Function Write-Caption() {
         $OverrideText = $Text
     }
 
-    switch ($Type.ToLower()) {
+    switch ($Type.ToLower) {
         "failed" {
             $foreground = "Red"
             $bgForeground = "DarkRed"
@@ -2813,7 +2813,7 @@ Function Write-Caption() {
 
     Write-Host "$Text" -ForegroundColor White -BackgroundColor $Variables.BackgroundColor
 }
-Function Write-HostReminder() {
+Function Write-HostReminder {
     [CmdletBinding()]
     param (
         [String] $Text = "Example text"
@@ -2823,7 +2823,7 @@ Function Write-HostReminder() {
     Write-Host "]" -BackgroundColor $Variables.BackgroundColor -ForegroundColor $Variables.ForegroundColor -NoNewline
     Write-Host ": $text`n"
 }
-Function Write-Section() {
+Function Write-Section {
     [CmdletBinding()]
     param (
         [String] $Text = "No Text"
@@ -2836,7 +2836,7 @@ Function Write-Section() {
     Write-Host "=================" -NoNewline -ForegroundColor White -BackgroundColor $Variables.BackgroundColor
     Write-Host ">" -ForegroundColor $Variables.ForegroundColor -BackgroundColor $Variables.BackgroundColor
 }
-Function Write-Status() {
+Function Write-Status {
     [CmdletBinding()]
     param (
         [Parameter(Mandatory)]
@@ -2868,7 +2868,7 @@ Function Write-Status() {
         Write-Host "-> $Status" -ForegroundColor $ForegroundColorText -BackgroundColor $Variables.BackgroundColor -NoNewline:$NoNewLine
     }
 }
-Function Write-Title() {
+Write-Title {
     [CmdletBinding()]
     param (
         [String] $Text = "No Text"
@@ -2881,7 +2881,7 @@ Function Write-Title() {
     Write-Host "===========================" -NoNewline -ForegroundColor White -BackgroundColor $Variables.BackgroundColor
     Write-Host ">" -ForegroundColor $Variables.ForegroundColor -BackgroundColor $Variables.BackgroundColor
 }
-Function Write-TitleCounter() {
+Function Write-TitleCounter {
     [CmdletBinding()]
     [OutputType([System.Int32])]
     param (
