@@ -1,5 +1,4 @@
 ﻿
-
 ###############################################
 #                 New Loads                   #
 ###############################################
@@ -67,7 +66,7 @@ $Variables = @{
     "Counter" = 1
     "SelectedParameters" = @()
     "temp" = $Env:temp
-    "MaxLength" = "11"
+    "MaxLength" = "10"
     "Win11" = "22000"
     "Win22H2" = "22621"
     "MinimumBuildNumber" = "19042"
@@ -548,8 +547,8 @@ function Get-CPU {
     [CmdletBinding()]
     [OutputType([String])]
     param (
-        [Switch] $NameOnly,
-        [String] $Separator = '|'
+        [switch] $Formatted,
+        [Switch] $NameOnly
     )
     try {
         $cpuName = (Get-CimInstance -Class Win32_Processor).Name
@@ -557,14 +556,23 @@ function Get-CPU {
         $threads = (Get-CimInstance -class Win32_Processor).NumberOfLogicalProcessors
     }
     catch {
-        Write-Error "Error retrieving CPU information: $_"
-        return
+        return "Error retrieving CPU information: $($_)"
     }
     if ($NameOnly) {
-        write-output $cpuName
+        return $cpuName
     }
-    $cpuCoresAndThreads = "($cores`C/$threads`T)"
-    Write-Output "$cpuName $cpuCoresAndThreads"
+    If ($Formatted){
+        $CPUInfo += [PSCustomObject]@{
+            CPU = $cpuName
+            Cores = $cores
+            Threads = $threads
+        }
+        return $CPUInfo
+    }else{
+        $cpuCoresAndThreads = "($($cores) Cores $($threads) Threads)"
+        $CombinedString = "$cpuCoresAndThreads - $cpuName"
+        return $CombinedString
+    }
 }
 function Get-DriveInfo {
     [CmdletBinding()]
@@ -587,7 +595,7 @@ function Get-DriveInfo {
         }
     }
 
-    write-output $driveInfo
+    return $driveInfo
 }
 function Get-DriveSpace {
     [CmdletBinding()]
@@ -605,7 +613,7 @@ function Get-DriveSpace {
             $percentageAvailable = [math]::Round(($availableStorage / $totalStorage) * 100, 1)
 
             $driveInfo = "$driveLetter`: $([math]::Round($availableStorage, 1))/$([math]::Round($totalStorage, 1)) GB ($percentageAvailable% Available)"
-            Write-Output "$driveInfo`n"
+            Write-Output "$driveInfo"
         }
     }
 }
@@ -630,8 +638,8 @@ function Get-Motherboard {
     param ()
     $motherboardModel = Get-CimInstance -Class Win32_BaseBoard | Select-Object -ExpandProperty Product
     $motherboardOEM = Get-CimInstance -Class Win32_BaseBoard | Select-Object -ExpandProperty Manufacturer
-
-    Write-Output "$MotherboardOEM $MotherboardModel"
+    [String]$CombinedString = "$motherboardOEM $motherboardModel"
+    return "$CombinedString"
 }
 function Get-SystemSpec {
     [OutputType([System.Object[]])]
@@ -784,9 +792,10 @@ Function Get-Program {
                 If ($program.Name -eq $hevc.Name) {
                     Write-Status -Types "+", $TweakType -Status "Adding support to $($HEVC.name) codec..." -NoNewLine
                     try {
+                        $BackupProgressPreference = $ProgressPreference
                         $ProgressPreference = 'SilentlyContinue'
                         Add-AppPackage -Path $HEVC.InstallerLocation | Get-Status
-                        $ProgressPreference = 'Continue'
+                        $ProgressPreference = $BackupProgressPreference
                     }
                     catch {
                         Write-Caption $_ -Type Failed
@@ -819,26 +828,31 @@ Function Get-Program {
 
     }
 }
-Function Get-Status() {
-    if ($?) {
+Function Get-Status {
+    if ($?) { 
         $CaptionSucceeded = Get-Command Write-Caption -ErrorAction SilentlyContinue
         If ($CaptionSucceeded) {
             Write-Caption -Type Success
-        }
-        else {
+        } else {
             Write-Host "=> Successful" -ForegroundColor Green
         }
-    }
-    else {
-        HandleError
-        continue
+        Add-Content -Path $Variables.Log -Value "@{Command=Succeeded}"
+    } else {
+        HandleError $_
+        $CaptionSucceeded = Get-Command Write-Caption -ErrorAction SilentlyContinue
+        If ($CaptionSucceeded) {
+            Write-Caption -Type Failed
+        } else {
+            Write-Host "=> Failed" -ForegroundColor Red
+        }
+        Add-Content -Path $Variables.Log -Value "@{Command=Failed; Error Message=$($_)}"
     }
 }
 function HandleError {
     param (
-        [string]$errorMessage
+        [string]$errorMessage = $_
     )
-
+    ""
     $lineNumber = $MyInvocation.ScriptLineNumber
     $command = $MyInvocation.Line
     $errorType = $Error[0].CategoryInfo.Reason
@@ -853,12 +867,12 @@ Error Message: $($errorMessage)
 
 "@
     try {
-        Add-Content -Path $Variables.log -Value $errorString -ErrorAction Stop
+        Add-Content -Path $Variables.Errorlog -Value $errorString -ErrorAction Continue
     } catch {
-        Write-Host "Error writing to log: $($_.Exception.Message)"
+        return "Error writing to log: $($_.Exception.Message)"
     }
 
-    Write-Error $errorMessage
+   #return $errorMessage
 }
 
 
@@ -1054,7 +1068,7 @@ Function Optimize-Performance {
     }
     $UniquePowerPlans = $BuiltInPowerPlans.Clone()
 
-    Write-Caption "Display"
+    Write-Caption -Text "Display" -Type None
     Write-Status -Types $EnableStatus[1].Symbol, $TweakType -Status "Enable Hardware Accelerated GPU Scheduling... (Windows 10 20H1+ - Needs Restart)"
     Set-ItemPropertyVerified -Path $Variables.PathToGraphicsDrives -Name "HwSchMode" -Type DWord -Value 2
 
@@ -1070,7 +1084,7 @@ Function Optimize-Performance {
 
 
     Write-Section "Microsoft Edge Tweaks"
-    Write-Caption "System and Performance"
+    Write-Caption -Text "System and Performance" -Type None
 
     Write-Status -Types $EnableStatus[0].Symbol, $TweakType -Status "$($EnableStatus[0].Status) Edge Startup boost..."
     Set-ItemPropertyVerified -Path $Variables.PathToLMPoliciesEdge -Name "StartupBoostEnabled" -Type DWord -Value $Zero
@@ -1143,10 +1157,10 @@ Function Optimize-Performance {
     ForEach ($DesktopRegistryPath in @($Variables.PathToUsersControlPanelDesktop, $Variables.PathToCUControlPanelDesktop)) {
         <# $DesktopRegistryPath is the path related to all users and current user configuration #>
         If ($DesktopRegistryPath -eq $Variables.PathToUsersControlPanelDesktop) {
-            Write-Caption "TO ALL USERS"
+            Write-Caption -Text "TO ALL USERS" -Type None
         }
         ElseIf ($DesktopRegistryPath -eq $Variables.PathToCUControlPanelDesktop) {
-            Write-Caption "TO CURRENT USER"
+            Write-Caption -Text "TO CURRENT USER" -Type None
         }
         Write-Status -Types $EnableStatus[1].Symbol, $TweakType -Status "Don't prompt user to end tasks on shutdown..."
         Set-ItemPropertyVerified -Path $DesktopRegistryPath -Name "AutoEndTasks" -Type DWord -Value 1 # Default: Removed or 0
@@ -1341,19 +1355,19 @@ Function Optimize-Privacy {
 
     # Disables HomeGroup
     Write-Status -Types $EnableStatus[1].Symbol, "$TweakType" -Status "Stopping and disabling Home Groups services.."
-    If (!(Get-Service -Name HomeGroupListener)) { } else {
-        Stop-Service "HomeGroupListener" -WarningAction SilentlyContinue
+    If (!(Get-Service -Name HomeGroupListener )) { } else {
+        Stop-Service "HomeGroupListener" -ErrorAction SilentlyContinue
         Set-Service "HomeGroupListener" -StartupType Disabled
     }
-    If (!(Get-Service -Name HomeGroupListener)) { } else {
-        Stop-Service "HomeGroupProvider" -WarningAction SilentlyContinue
+    If (!(Get-Service -Name HomeGroupListener )) { } else {
+        Stop-Service "HomeGroupProvider" -ErrorAction SilentlyContinue
         Set-Service "HomeGroupProvider" -StartupType Disabled
     }
 
     # Disables SysMain
     If ((Get-Service -Name SysMain).Status -eq 'Stopped') { } else {
         Write-Host ' Stopping and disabling Superfetch service'
-        Stop-Service "SysMain" -WarningAction SilentlyContinue
+        Stop-Service "SysMain"
         Set-Service "SysMain" -StartupType Disabled
     }
 
@@ -1371,7 +1385,7 @@ Function Optimize-Privacy {
     Set-ItemPropertyVerified -Path:HKLM:\SYSTEM\CurrentControlSet\Services\LanmanServer\Parameters -Name "IRPStackSize" -Type DWORD -Value 30
 
     # Sets DNS settings to Google with CloudFlare as backup
-    If (Get-Command Set-DnsClientDohServerAddress) {
+    If (Get-Command Set-DnsClientDohServerAddress -ErrorAction SilentlyContinue ) {
         ## Imported text from  win10-debloat-tools on github
         # Adapted from: https://techcommunity.microsoft.com/t5/networking-blog/windows-insiders-gain-new-dns-over-https-controls/ba-p/2494644
         Write-Status -Types $EnableStatus[1].Symbol, $TweakType -Status "Setting up the DNS over HTTPS for Google and Cloudflare (ipv4 and ipv6)..."
@@ -1522,7 +1536,7 @@ Function Optimize-Privacy {
     Write-Status -Types $EnableStatus[0].Symbol, $TweakType -Status "$($EnableStatus[0].Status) 'WiFi Sense: Shared HotSpot Auto-Connect'..."
     Set-ItemPropertyVerified -Path "$($Variables.PathToLMPoliciesToWifi)\AllowAutoConnectToWiFiSenseHotspots" -Name "value" -Type DWord -Value $Zero
 
-    Write-Caption "Deleting useless registry keys..."
+    Write-Caption -Text "Deleting useless registry keys..." -Type None
     $KeysToDelete = @(
         # Remove Background Tasks
         "HKCR:\Extensions\ContractId\Windows.BackgroundTasks\PackageId\46928bounde.EclipseManager_2.2.4.51_neutral__a5h4egax66k6y"
@@ -1702,12 +1716,16 @@ Function Optimize-WindowsOptional {
     Write-Section -Text "Removing Unnecessary Printers"
     $printers = "Microsoft XPS Document Writer", "Fax", "OneNote"
     foreach ($printer in $printers) {
-        try {
-            Remove-Printer -Name $printer -ErrorAction Stop
-            Write-Status -Types "-", "Printer" -Status "Removed $printer..."
-        }
-        catch {
-            Write-Status -Types "?", "Printer" -Status "Failed to remove $printer : $_" -WriteWarning
+        $PrinterExists = Get-Printer -Name $Printer -ErrorAction SilentlyContinue
+        If ($PrinterExists){
+            try {
+                Write-Status -Types "-", "Printer" -Status "Attempting removal of $printer..."
+                Remove-Printer -Name $printer -ErrorAction Stop
+            }
+            catch {
+                HandleError $_
+                Write-Status -Types "?", "Printer" -Status "Failed to remove $printer :`n$($_)" -WriteWarning
+            }
         }
     }
 }
@@ -1821,11 +1839,11 @@ Function Remove-PinnedStartMenu {
     if ($PSCmdlet.ShouldProcess("Stop-Process -Name Explorer")) {
         Stop-Process -name explorer
     }
-    # Uncomment the next line to make clean start menu default for all new users
+    <## Uncomment the next line to make clean start menu default for all new users
     if ($PSCmdlet.ShouldProcess("Import-StartLayout -LayoutPath $($layoutFile) -MountPath $env:SystemDrive\", "Remove-Item $($LayoutFile)")) {
         Import-StartLayout -LayoutPath $layoutFile -MountPath $env:SystemDrive\
         Remove-Item $layoutFile
-    }
+    }#>
 }
 Function Remove-UWPAppx {
     [CmdletBinding(SupportsShouldProcess)]
@@ -1994,7 +2012,7 @@ Function Set-ItemPropertyVerified {
         }
     }
 
-    $currentValue = Get-ItemProperty -Path $Path -Name $Name
+    $currentValue = Get-ItemProperty -Path $Path -Name $Name -ErrorAction SilentlyContinue
     if ($null -eq $currentValue -or $currentValue.$Name -ne $Value) {
         $actionDescription = "Setting $Name to $Value in $Path"
         if ($PSCmdlet.ShouldProcess($actionDescription, "Set")) {
@@ -2020,7 +2038,7 @@ Function Set-ItemPropertyVerified {
                     $Global:ModifiedRegistryKeys++
                 }else { Get-Status }
             }catch {
-                HandleError
+                HandleError $_
                 Continue
             }
         }
@@ -2065,7 +2083,7 @@ Function Set-OptionalFeatureState {
                             $feature | Where-Object State -Like "Enabled" | Disable-WindowsOptionalFeature -Online -NoRestart -WhatIf:$WhatIf
                         }
                         catch {
-                            HandleError
+                            HandleError $_
                             continue
                         }
                     }
@@ -2078,7 +2096,7 @@ Function Set-OptionalFeatureState {
                             $feature | Where-Object State -Like "Disabled*" | Enable-WindowsOptionalFeature -Online -NoRestart -WhatIf:$WhatIf
                         }
                         catch {
-                            HandleError
+                            HandleError $_
                             continue
                         }
                     }
@@ -2133,7 +2151,7 @@ function Set-ScheduledTaskState {
 
                     Try {
                         If ($action -eq "Disable") {
-                            Get-ScheduledTask -TaskName (Split-Path -Path $ScheduledTask -Leaf) | Where-Object State -Like "R*" | Disable-ScheduledTask | Out-Null | Get-Status# R* = Ready/Running
+                            Get-ScheduledTask -TaskName (Split-Path -Path $ScheduledTask -Leaf) | Where-Object State -Like "R*" | Disable-ScheduledTask | Out-Null | Get-Status # R* = Ready/Running
                             #Get-Status
                         }
                         ElseIf ($action -eq "Enable") {
@@ -2141,7 +2159,7 @@ function Set-ScheduledTaskState {
                         }
                     }
                     catch {
-                        HandleError
+                        HandleError $_
                         Continue
                     }
                 }
@@ -2167,7 +2185,7 @@ function Set-ServiceStartup {
 
     Process {
         ForEach ($Service in $Services) {
-            If (!(Get-Service $Service)) {
+            If (!( Get-Service $Service -ErrorAction SilentlyContinue )) {
                 Write-Status -Types "?", $TweakType -Status "The $Service service was not found." -WriteWarning
                 Continue
             }
@@ -2183,7 +2201,7 @@ function Set-ServiceStartup {
             }
 
             Try {
-                $target = "$Service ($((Get-Service $Service).DisplayName)) as '$State' on Startup"
+                $target = "$Service ($(( Get-Service $Service).DisplayName )) as '$State' on Startup"
                 if ($PSCmdlet.ShouldProcess($target, "Set Startup Type")) {
                     Write-Status -Types "@", $TweakType -Status "Setting $target" -NoNewLine
                     If ($WhatIf) {
@@ -2195,7 +2213,7 @@ function Set-ServiceStartup {
                 }
             }
             catch {
-                HandleError
+                HandleError $_
                 Continue
             }
         }
@@ -2272,6 +2290,7 @@ Function Set-StartMenu {
             Start-BitsTransfer -Source $Variables.StartBinURL1 -Destination $Newloads -Dynamic
             $StartBinFiles = Get-ChildItem -Path "$newloads" -Filter "start*.bin" -file
         }
+        $TotalBinFiles = ($StartBinFiles).Count * 2
         $progress = 0
 
         Foreach ($StartBinFile in $StartBinFiles) {
@@ -2279,7 +2298,7 @@ Function Set-StartMenu {
             Write-Status -Types "+", $TweakType -Status "Copying $($StartBinFile.Name) for new users ($progress/$TotalBinFiles)" -NoNewLine
             xcopy $StartBinFile.FullName $Variables.StartBinDefault /y | Out-Null | Get-Status
             $progress++
-            Write-Status -Types "+", $TweakType -Status "Copying $($StartBinFile.Name) to current user ($($progress)/$TotalBinFiles)" -NoNewLine
+            Write-Status -Types "+", $TweakType -Status "Copying $($StartBinFile.Name) to current user ($progress)/$TotalBinFiles)" -NoNewLine
             xcopy $StartBinFile.FullName $Variables.StartBinCurrent /y | Out-Null | Get-Status
         }
     }
@@ -2327,11 +2346,11 @@ function Set-Wallpaper {
 }
 Function Send-EmailLog {
 
-    Show-ScriptStatus -WindowTitle "Email Log" -TweakType "Email" -TitleCounterText "Email Log"
+    Show-ScriptStatus -WindowTitle "Email Log" #-TweakType "Email" -TitleCounterText "Email Log"
     # - Stops Transcript
-    Stop-Transcript | Out-Null
-    Write-Section -Text "Gathering Logs "
-    Write-Caption -Text "System Statistics" -Type None
+    #Stop-Transcript | Out-Null
+    #Write-Section -Text "Gathering Logs "
+    #Write-Caption -Text "System Statistics" -Type None
     # - Current Date and Time
     $CurrentDate = Get-Date
     $EndTime = Get-Date -DisplayHint Time
@@ -2349,8 +2368,8 @@ Function Send-EmailLog {
     $Displayversion = (Get-ItemProperty -Path $Variables.PathToLMCurrentVersion -Name "DisplayVersion").DisplayVersion
     $WindowsVersion = (Get-CimInstance -ClassName Win32_OperatingSystem).Caption
 
-    # - Removes unwanted characters and blank space from log file
-    Write-Caption -Text "Cleaning $($Variables.Log)"
+    <## - Removes unwanted characters and blank space from log file
+    #Write-Caption -Text "Cleaning $($Variables.Log)"
     $logFile = Get-Content $Variables.Log -Raw
     #$pattern = "[\[\]><\+@),|=]"
     $pattern = "[\[\]><+@),|=\\-\\(]"
@@ -2359,10 +2378,10 @@ Function Send-EmailLog {
     # - Remove empty lines
     $newLogFile = ($newLogFile | Where-Object { $_ -match '\S' }) -join "`n"
     Set-Content -Path $Variables.Log -Value $newLogFile
-
+#>
 
     # - Cleans up Motherboards Output
-    Write-Caption -Text "Generating New Loads Summary"
+    #Write-Caption -Text "Generating New Loads Summary"
     $WallpaperApplied = if ($Variables.CurrentWallpaper -eq $Variables.Wallpaper) { "YES" } else { "NO" }
     $Mobo = ($Mobo -replace 'Product|  ', '') -join "`n"
 
@@ -2378,7 +2397,7 @@ Function Send-EmailLog {
     if (Test-Path -Path $Variables.log) {
         $LogFiles += $Variables.log
     }
-    if (Test-Path -Path "$Variables.errorlog") {
+    if (Test-Path -Path $Variables.errorlog) {
         $LogFiles += $Variables.errorlog
     }
 
@@ -2438,7 +2457,7 @@ Function Show-ScriptLogo {
     $WindowTitle = "New Loads - Initialization" ; $host.UI.RawUI.WindowTitle = $WindowTitle
     Write-Host "`n`n`n"
     Write-Host "▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀" -NoNewLine -ForegroundColor $Variables.ForegroundColor -BackgroundColor Blue
-    Write-Host "`n`n`n" -NoNewline
+    Write-Host "`n`n"
     Write-Host "$($Variables.Logo)`n`n" -ForegroundColor $Variables.LogoColor -BackgroundColor Black -NoNewline
     Write-Host "                               Created by " -NoNewLine -ForegroundColor White -BackgroundColor Black
     Write-Host "Papi" -ForegroundColor Red -BackgroundColor Black -NoNewLine
@@ -2446,8 +2465,8 @@ Function Show-ScriptLogo {
     Write-Host "$($Variables.ProgramVersion) - $($Variables.ReleaseDate)" -ForegroundColor Green -BackgroundColor Black
     Write-Host "`n`n  Notice: " -NoNewLine -ForegroundColor RED -BackgroundColor Black
     Write-Host "For best functionality, it is strongly suggested to update windows before running New Loads.`n" -ForegroundColor Yellow -BackgroundColor Black
-    if ($Variables.specifiedParameters.Count -ne 0) { Write-Host "  Specified Parameters: " -ForegroundColor $Variables.LogoColor -NoNewLine ; Write-Host "$parametersString `n" }
-    Write-Host ""
+    if ($Variables.specifiedParameters.Count -ne 0) { Write-Host "    Specified Parameters: " -ForegroundColor $Variables.LogoColor -NoNewLine ; Write-Host "$parametersString" }
+    Write-Host "`n`n"
     Write-Host "▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀" -ForegroundColor Blue -BackgroundColor $Variables.LogoColor
     Write-Host "`n`n"
     $WindowTitle = "New Loads" ; $host.UI.RawUI.WindowTitle = $WindowTitle
@@ -2568,9 +2587,13 @@ Function Start-Bootup {
         Exit
     }
 
-    try { Get-Item $Variables.Log | Remove-Item }
-    catch { Write-Error "An error occurred while removing the files: $_"
-    Continue }
+    try {
+        Get-Item $Variables.Log -ErrorAction SilentlyContinue | Remove-Item
+    }
+    catch {
+        return "An error occurred while removing the files: $_"
+        Continue
+    }
 }
 function Start-Chime {
     [CmdletBinding(SupportsShouldProcess)]
@@ -2737,11 +2760,12 @@ function Update-Time {
             try {
                 if ($PSCmdlet.ShouldProcess("Starting W32Time Service", "Start-Service -Name W32Time -ErrorAction Stop")) {
                     Write-Status -Types "+" -Status "Starting W32Time Service" -NoNewLine
-                    Start-Service -Name W32Time | Get-Status
+                    Start-Service -Name W32Time -ErrorAction SilentlyContinue | Get-Status
                 }
             }
             catch {
-                Write-Error "Failed to start the W32Time Service: $_"
+                HandleError $_
+                continue
             }
         }
 
@@ -2776,42 +2800,41 @@ Function Write-Break {
 Function Write-Caption {
     [CmdletBinding()]
     param (
-        [String] $Text = "No Text",
         [ValidateSet("Failed", "Success", "Warning", "none")]
-        [String] $Type = "none"
+        [String] $Type = "none",
+        [String] $Text = "No Text"
     )
-    If ($Text -ne "No Text") {
-        $OverrideText = $Text
-    }
+    If ($Text -ne "No Text") { $OverrideText = $Text }
 
-    switch ($Type.ToLower) {
-        "failed" {
-            $foreground = "Red"
-            $bgForeground = "DarkRed"
+    switch ($Type) {
+        "Failed" {
+            $foreg = "DarkRed"
+            $foreg1 = "Red"
+            $symbol = "X"
             $text = "Failed"
         }
-        "success" {
-            $foreground = "Green"
-            $bgForeground = "DarkGreen"
+        "Success" {
+            $foreg = "DarkGreen"
+            $foreg1 = "Green"
+            $symbol = "√"
             $text = "Success"
         }
-        "warning" {
-            $foreground = "Yellow"
-            $bgForeground = "DarkYellow"
+        "Warning" {
+            $foreg = "DarkYellow"
+            $foreg1 = "Yellow"
+            $symbol = "!"
             $text = "Warning"
+        }"None" {
+            $foreg = "white"
+            $foreg1 = "Gray"
+            $symbol = ""
+            $text = ""
         }
     }
-
-    If ($OverrideText) {
-        $Text = $OverrideText
-    }
-
-    if ($Type -ne "none") {
-        Write-Host "==" -NoNewline -ForegroundColor $foreground -BackgroundColor $Variables.BackgroundColor
-        Write-Host "> " -NoNewline -ForegroundColor $bgForeground -BackgroundColor $Variables.BackgroundColor
-    }
-
-    Write-Host "$Text" -ForegroundColor White -BackgroundColor $Variables.BackgroundColor
+    If ($OverrideText) { $Text = $OverrideText }
+    Write-Host "  " -NoNewline #-ForegroundColor $foreg
+    Write-Host $Symbol -NoNewline -ForegroundColor $foreg1
+    Write-Host "$Text" -ForegroundColor $foreg
 }
 Function Write-HostReminder {
     [CmdletBinding()]
@@ -2836,7 +2859,7 @@ Function Write-Section {
     Write-Host "=================" -NoNewline -ForegroundColor White -BackgroundColor $Variables.BackgroundColor
     Write-Host ">" -ForegroundColor $Variables.ForegroundColor -BackgroundColor $Variables.BackgroundColor
 }
-Function Write-Status {
+Function Write-Status1 {
     [CmdletBinding()]
     param (
         [Parameter(Mandatory)]
@@ -2868,7 +2891,52 @@ Function Write-Status {
         Write-Host "-> $Status" -ForegroundColor $ForegroundColorText -BackgroundColor $Variables.BackgroundColor -NoNewline:$NoNewLine
     }
 }
-Write-Title {
+Function Write-Status {
+    [CmdletBinding()]
+    param (
+        [Parameter(Mandatory)]
+        [Array]  $Types,
+        [Parameter(Mandatory)]
+        [String] $Status,
+        [Switch] $WriteWarning,
+        [Switch] $NoNewLine,
+        [ValidateSet("Black", "DarkBlue", "DarkGreen", "DarkCyan", "DarkRed", "DarkMagenta", "DarkYellow", "Gray", "DarkGray",
+            "Blue", "Green", "Cyan", "Red", "Magenta", "Yellow", "White")]
+        [String] $ForegroundColorText = "White"
+    )
+
+    If ($WriteWarning -eq $True -And $ForegroundColorText -eq "White") {
+        $ForegroundColorText = "Yellow"
+    }
+
+    # Prints date in line, converts to Month Day Year Hour Minute Period
+    $Time = Get-Date
+    $FormattedTime = $Time.ToString("h:mm:ss tt")
+
+    $LogEntry = [PSCustomObject]@{
+        Time = "$FormattedTime"
+        Types = $Types -join ', '
+        Warning = $WriteWarning
+        Status = $Status
+    }
+    # Append the log entry to the $variables.Log array
+    Add-Content -Path $Variables.Log -Value $logEntry
+
+    # Output the log entry to the console
+    Write-Host "$FormattedTime " -NoNewline -ForegroundColor DarkGray -BackgroundColor $Variables.BackgroundColor
+
+    ForEach ($Type in $Types) {
+        Write-Host "$Type " -NoNewline -ForegroundColor $Variables.ForegroundColor -BackgroundColor $Variables.BackgroundColor
+    }
+
+    If ($WriteWarning) {
+        Write-Host "::Warning:: -> $Status" -ForegroundColor $ForegroundColorText -BackgroundColor $Variables.BackgroundColor -NoNewline:$NoNewLine
+    }
+    Else {
+        Write-Host "-> $Status" -ForegroundColor $ForegroundColorText -BackgroundColor $Variables.BackgroundColor -NoNewline:$NoNewLine
+    }
+}
+Function Write-Title {
     [CmdletBinding()]
     param (
         [String] $Text = "No Text"
@@ -2880,6 +2948,11 @@ Write-Title {
     Write-Host "[" -NoNewline -ForegroundColor $Variables.ForegroundColor -BackgroundColor $Variables.BackgroundColor
     Write-Host "===========================" -NoNewline -ForegroundColor White -BackgroundColor $Variables.BackgroundColor
     Write-Host ">" -ForegroundColor $Variables.ForegroundColor -BackgroundColor $Variables.BackgroundColor
+
+    # Writes to Log
+
+    $TitleToLogFormat = "`n`n   $Text`n`n"
+    Add-Content -Path $Variables.Log -Value $TitleToLogFormat
 }
 Function Write-TitleCounter {
     [CmdletBinding()]
@@ -2889,17 +2962,26 @@ Function Write-TitleCounter {
         [Int]    $Counter = 0,
         [Int] 	 $MaxLength
     )
-    Write-Host "`n`n<" -NoNewline -ForegroundColor $Variables.ForegroundColor -BackgroundColor $Variables.BackgroundColor
-    Write-Host "=-=-=-=-=-=-=-=-=-=-=-=-=-=" -NoNewline -ForegroundColor White -BackgroundColor $Variables.BackgroundColor
-    Write-Host "]" -NoNewline -ForegroundColor $Variables.ForegroundColor -BackgroundColor $Variables.BackgroundColor
-    Write-Host " (" -NoNewline -ForegroundColor $Variables.ForegroundColor -BackgroundColor $Variables.BackgroundColor
-    Write-Host " $Counter/$MaxLength " -NoNewline -ForegroundColor White -BackgroundColor $Variables.BackgroundColor
+    Write-Host "`n`n" -NoNewline -ForegroundColor $Variables.ForegroundColor -BackgroundColor $Variables.BackgroundColor
+    #Write-Host "<" -NoNewline -ForegroundColor $Variables.ForegroundColor -BackgroundColor $Variables.BackgroundColor
+    Write-Host "∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙" -ForegroundColor White -BackgroundColor $Variables.BackgroundColor
+    #Write-Host "░░░░░░░░░░░░░░░░░░░░░░░░░░░" -NoNewline -ForegroundColor White -BackgroundColor $Variables.BackgroundColor
+    #Write-Host "=-=-=-=-=-=-=-=-=-=-=-=-=-=" -NoNewline -ForegroundColor White -BackgroundColor $Variables.BackgroundColor
+    #Write-Host "]" -ForegroundColor $Variables.ForegroundColor -BackgroundColor $Variables.BackgroundColor
+    Write-Host "    (" -NoNewline -ForegroundColor $Variables.ForegroundColor -BackgroundColor $Variables.BackgroundColor
+    Write-Host " $($Counter)/$($Variables.MaxLength) " -NoNewline -ForegroundColor White -BackgroundColor $Variables.BackgroundColor
     Write-Host ") " -NoNewline -ForegroundColor $Variables.ForegroundColor -BackgroundColor $Variables.BackgroundColor
     Write-Host "|" -NoNewline -ForegroundColor White -BackgroundColor $Variables.BackgroundColor
-    Write-Host " $Text " -NoNewline -ForegroundColor $Variables.ForegroundColor -BackgroundColor $Variables.BackgroundColor
-    Write-Host "[" -NoNewline -ForegroundColor $Variables.ForegroundColor -BackgroundColor $Variables.BackgroundColor
-    Write-Host "=-=-=-=-=-=-=-=-=-=-=-=-=-=" -NoNewline -ForegroundColor White -BackgroundColor $Variables.BackgroundColor
-    Write-Host ">" -ForegroundColor $Variables.ForegroundColor -BackgroundColor $Variables.BackgroundColor
+    Write-Host " $Text " -ForegroundColor $Variables.ForegroundColor -BackgroundColor $Variables.BackgroundColor
+    #Write-Host "[" -NoNewline -ForegroundColor $Variables.ForegroundColor -BackgroundColor $Variables.BackgroundColor
+    #Write-Host "=-=-=-=-=-=-=-=-=-=-=-=-=-=" -NoNewline -ForegroundColor White -BackgroundColor $Variables.BackgroundColor
+    #Write-Host "░░░░░░░░░░░░░░░░░░░░░░░░░░░" -NoNewline -ForegroundColor White -BackgroundColor $Variables.BackgroundColor
+    Write-Host "∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙" -ForegroundColor White -BackgroundColor $Variables.BackgroundColor
+    #Write-Host ">" -ForegroundColor $Variables.ForegroundColor -BackgroundColor $Variables.BackgroundColor
+
+    $TitleCounterLogFormat = "`n`n∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙`n`n    ($Counter)/$($Variables.MaxLength)) | $Text`n`n∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙`n"
+    # Writes to Log
+    Add-Content -Path $Variables.Log -Value "$TitleCounterLogFormat"
 }
 
 # Initiation #
@@ -2907,11 +2989,21 @@ Function Write-TitleCounter {
 ####################################################################################
 
 Start-Bootup
-Try { Stop-Transcript }Catch{ 
-    Try{ Start-Transcript -Path "$($Variables.Log)" -NoClobber | Out-Null }Catch { 
-        Remove-Item "$($Variables.Log)" ; Start-Transcript -Path "$($Variables.Log)" -NoClobber | Out-Null 
+<#Try { Stop-Transcript }Catch{ 
+    Try{ 
+        Start-Transcript -Path "$($Variables.Log)" -NoClobber | Out-Null
     }
-}
+    Catch {
+        return "Failed to Start Transcript: $($_)"
+        Get-Item $Variables.Log -ErrorAction SilentlyContinue | Remove-Item
+        try{
+            Start-Transcript -Path "$($Variables.Log)" -NoClobber | Out-Null
+        }
+        catch{
+            Return "Failed to Start Transcript: $($_)"
+        }
+    }
+}#>
 New-Variable -Name "StartTime" -Value (Get-Date -DisplayHint Time) -Scope Global
 Get-Program
 $Variables.Counter++
@@ -2939,7 +3031,7 @@ Optimize-TaskScheduler
 Optimize-WindowsOptional
 $Variables.Counter++
 New-SystemRestorePoint
-$Variables.Counter++
+#$Variables.Counter++
 Send-EmailLog
 $Variables.Counter++
 Start-Cleanup
