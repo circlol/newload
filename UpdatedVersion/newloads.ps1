@@ -80,8 +80,6 @@ $Variables = @{
     "ErrorLog" = "$env:userprofile\Desktop\New Loads Errors.txt"
     "Log" = "$env:userprofile\Desktop\New Loads.txt"
     "adwDestination" = "$NewLoads\adwcleaner.exe"
-    "DriverSelectorPath" = "$NewLoads\Driver Grabber.exe"
-    "WindowsUpdatesPath" = "$NewLoads\Windows Updates.exe"
     "SaRA" = "$newloads\SaRA.zip"
     "Sexp" = "$newloads\SaRA"
     "SaRAURL" = "https://github.com/circlol/newload/raw/main/SaRACmd_17_1_0268_3.zip"
@@ -663,13 +661,13 @@ Function Get-ADWCleaner {
     else {
         # - Checks if executable exists
         If (!(Test-Path $Variables.adwDestination)) {
-            Write-Status -Types "+", "ADWCleaner" -Status "Downloading ADWCleaner"
+            Write-Status -Types "+", "ADWCleaner" -Status "Downloading ADWCleaner" -NoNewLine
             # - Downloads ADW
-            Start-BitsTransfer -Source $Variables.adwLink -Destination $Variables.adwDestination -Dynamic
+            Start-BitsTransfer -Source $Variables.adwLink -Destination $Variables.adwDestination -Dynamic | Get-Status
         }
         Write-Status -Types "+", "ADWCleaner" -Status "Starting ADWCleaner with ArgumentList /Scan & /Clean"
         # - Runs ADW
-        Start-Process -FilePath $Variables.adwDestination -ArgumentList "/EULA", "/PreInstalled", "/Clean", "/NoReboot" -Wait -NoNewWindow
+        Start-Process -FilePath $Variables.adwDestination -ArgumentList "/EULA", "/PreInstalled", "/Clean", "/NoReboot" -Wait -NoNewWindow | Out-Host
         Write-Status -Types "-", "ADWCleaner" -Status "Removing traces of ADWCleaner"
         # - Removes traces of adw from system
         Start-Process -FilePath $Variables.adwDestination -ArgumentList "/Uninstall", "/NoReboot" -WindowStyle Minimized
@@ -836,7 +834,10 @@ Function Get-Status {
         } else {
             Write-Host "=> Successful" -ForegroundColor Green
         }
-        Add-Content -Path $Variables.Log -Value "@{Command=Succeeded}"
+        #Add-Content -Path $Variables.Log -Value "@{Command=Succeeded}"
+        ## Set the Successful property of the global $LogEntry to $true
+        $Global:LogEntry.Successful = $true
+        Add-Content -Path $Variables.Log -Value $logEntry
     } else {
         HandleError $_
         $CaptionSucceeded = Get-Command Write-Caption -ErrorAction SilentlyContinue
@@ -845,7 +846,10 @@ Function Get-Status {
         } else {
             Write-Host "=> Failed" -ForegroundColor Red
         }
-        Add-Content -Path $Variables.Log -Value "@{Command=Failed; Error Message=$($_)}"
+        #Add-Content -Path $Variables.Log -Value "@{Command=Failed; Error Message=$($_)}"
+        # Set the Successful property of the global $LogEntry to $true
+        $Global:LogEntry.Successful = $false
+        Add-Content -Path $Variables.Log -Value $logEntry
     }
 }
 function HandleError {
@@ -885,14 +889,14 @@ Function New-SystemRestorePoint {
     $actionDescription = "Enabling system drive Restore Point..."
     if ($PSCmdlet.ShouldProcess($actionDescription, "Enable-SystemRestore")) {
         # Assure System Restore is enabled
-        Write-Status -Types "+" -Status "Enabling System Restore"
-        Enable-ComputerRestore -Drive "$env:SystemDrive\"
+        Write-Status -Types "+" -Status "Enabling System Restore" -NoNewLine
+        Enable-ComputerRestore -Drive "$env:SystemDrive\" | Get-Status
     }
     $actionDescription = "Creating new System Restore Point with description: $description and type: $restorePointType"
     if ($PSCmdlet.ShouldProcess($actionDescription, "Create-RestorePoint")) {
         # Creates a System Restore point
-        Write-Status -Types "+" -Status "Creating System Restore Point: $description"
-        Checkpoint-Computer -Description $description -RestorePointType $restorePointType
+        Write-Status -Types "+" -Status "Creating System Restore Point: $description" -NoNewLine
+        Checkpoint-Computer -Description $description -RestorePointType $restorePointType | Get-Status
     }
 
     Show-ScriptStatus -WindowTitle ""
@@ -1420,12 +1424,6 @@ Function Optimize-Privacy {
     }
 
     Write-Section -Text "Privacy -> Apps Permissions"
-    #Write-Caption -Text "Location"
-    #Set-ItemPropertyVerified -Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\CapabilityAccessManager\ConsentStore\location" -Name "Value" -Value "Deny"
-    #Set-ItemPropertyVerified -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\CapabilityAccessManager\ConsentStore\location" -Name "Value" -Value "Deny"
-    #Set-ItemPropertyVerified -Path "HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Sensor\Overrides\{BFA794E4-F964-4FDB-90F6-51056BFE4B44}" -Name "SensorPermissionState" -Type DWord -Value $Zero
-    #Set-ItemPropertyVerified -Path "HKLM:\SYSTEM\CurrentControlSet\Services\lfsvc\Service\Configuration" -Name "EnableStatus" -Type DWord -Value $Zero
-
     Write-Caption -Text "Notifications"
     Set-ItemPropertyVerified -Path $Variables.PathToLMConsentStoreUN -Name "Value" -Value "Deny" -Type String
 
@@ -1466,9 +1464,7 @@ Function Optimize-Privacy {
     Write-Status -Types $EnableStatus[1].Symbol, $TweakType -Status "$($EnableStatus[1].Status) Automatic Recommended Troubleshooting, then notify me..."
     Set-ItemPropertyVerified -Path $Variables.PathToLMWindowsTroubleshoot -Name "UserPreference" -Type DWord -Value 3
 
-    Write-Status -Types $EnableStatus[0].Symbol, $TweakType -Status "$($EnableStatus[0].Status) Windows Spotlight Features..."
-    Write-Status -Types $EnableStatus[0].Symbol, $TweakType -Status "$($EnableStatus[0].Status) Third Party Suggestions..."
-    Write-Status -Types $EnableStatus[0].Symbol, $TweakType -Status "$($EnableStatus[0].Status) More Telemetry Features..."
+    Write-Section -Text "$($EnableStatus[0].Status) More Telemetry Features..."
 
     $CloudContentDisableOnOne = @(
         "DisableWindowsSpotlightFeatures"
@@ -1706,11 +1702,11 @@ Function Optimize-WindowsOptional {
         Set-OptionalFeatureState -Enabled -OptionalFeatures $Variables.DisableFeatures -CustomMessage $CustomMessage
     }
     Else {
-        Set-OptionalFeatureState -Disabled -OptionalFeatures $Variables.DisableFeatures
+        Set-OptionalFeatureState -Disabled -OptionalFeatures $Variables.DisableFeatures | Get-Status
     }
 
     Write-Section -Text "Install Optional Features from Windows"
-    Set-OptionalFeatureState -Enabled -OptionalFeatures $Variables.EnableFeatures
+    Set-OptionalFeatureState -Enabled -OptionalFeatures $Variables.EnableFeatures | Get-Status
 
 
     Write-Section -Text "Removing Unnecessary Printers"
@@ -1719,8 +1715,8 @@ Function Optimize-WindowsOptional {
         $PrinterExists = Get-Printer -Name $Printer -ErrorAction SilentlyContinue
         If ($PrinterExists){
             try {
-                Write-Status -Types "-", "Printer" -Status "Attempting removal of $printer..."
-                Remove-Printer -Name $printer -ErrorAction Stop
+                Write-Status -Types "-", "Printer" -Status "Attempting removal of $printer..." -NoNewLine
+                Remove-Printer -Name $printer -ErrorAction Stop | Get-Status
             }
             catch {
                 HandleError $_
@@ -2078,7 +2074,7 @@ Function Set-OptionalFeatureState {
                 if ($Disabled) {
                     $actionDescription = "Uninstalling the $_ ($($feature.DisplayName)) optional feature..."
                     if ($PSCmdlet.ShouldProcess($actionDescription)) {
-                        Write-Status -Types "-", $TweakType -Status $actionDescription
+                        Write-Status -Types "-", $TweakType -Status $actionDescription -NoNewLine
                         try {
                             $feature | Where-Object State -Like "Enabled" | Disable-WindowsOptionalFeature -Online -NoRestart -WhatIf:$WhatIf
                         }
@@ -2091,7 +2087,7 @@ Function Set-OptionalFeatureState {
                 elseif ($Enabled) {
                     $actionDescription = "Installing the $_ ($($feature.DisplayName)) optional feature..."
                     if ($PSCmdlet.ShouldProcess($actionDescription)) {
-                        Write-Status -Types "+", $TweakType -Status $actionDescription
+                        Write-Status -Types "+", $TweakType -Status $actionDescription -NoNewLine
                         try {
                             $feature | Where-Object State -Like "Disabled*" | Enable-WindowsOptionalFeature -Online -NoRestart -WhatIf:$WhatIf
                         }
@@ -2358,27 +2354,11 @@ Function Send-EmailLog {
     $ElapsedTime = $EndTime - $StartTime
 
     # - Gathers some information about host
-    $CPU = Get-CPU
-    $GPU = Get-GPU
-    $RAM = Get-RAM
-    $Drives = Get-DriveInfo
+
     $SystemSpec = Get-SystemSpec
     $Mobo = (Get-CimInstance -ClassName Win32_BaseBoard).Product
     $IP = $(Resolve-DnsName -Name myip.opendns.com -Server 208.67.222.220).IPAddress
-    $Displayversion = (Get-ItemProperty -Path $Variables.PathToLMCurrentVersion -Name "DisplayVersion").DisplayVersion
-    $WindowsVersion = (Get-CimInstance -ClassName Win32_OperatingSystem).Caption
 
-    <## - Removes unwanted characters and blank space from log file
-    #Write-Caption -Text "Cleaning $($Variables.Log)"
-    $logFile = Get-Content $Variables.Log -Raw
-    #$pattern = "[\[\]><\+@),|=]"
-    $pattern = "[\[\]><+@),|=\\-\\(]"
-    # - Replace the unwanted characters with nothing
-    $newLogFile = $logFile -replace $pattern
-    # - Remove empty lines
-    $newLogFile = ($newLogFile | Where-Object { $_ -match '\S' }) -join "`n"
-    Set-Content -Path $Variables.Log -Value $newLogFile
-#>
 
     # - Cleans up Motherboards Output
     #Write-Caption -Text "Generating New Loads Summary"
@@ -2403,7 +2383,7 @@ Function Send-EmailLog {
 
     # - Cleans packages removed text and adds it to email
     ForEach ($Package in $Variables.PackagesRemoved) {
-        $Variables.PackagesRemovedOutput = $Variables.PackagesRemovedOutput + "`n - $Package"
+        $Variables.PackagesRemovedOutput += "`n - $Package"
     }
 
     # - Email Settings
@@ -2421,20 +2401,13 @@ Function Send-EmailLog {
 New Loads summary for $ip\$env:computername\$env:USERNAME
 
 - Script Information:
-    - Program Version: $ProgramVersion
-    - Script Version: $ScriptVersion
+    - Program Version: $($Variables.ProgramVersion)
+    - Script Version: $($Variables.ScriptVersion)
     - Date: $CurrentDate
 
 Completed in - Elapsed Time: $ElapsedTime  - Start Time: $StartTime  - End Time: $EndTime
 
 - Computer Information:
-    - OS: $WindowsVersion ($DisplayVersion)
-    - CPU: $CPU
-    - Motherboard: $Mobo
-    - RAM: $RAM
-    - GPU: $GPU
-    - Drives: $Drives
-
     $SystemSpec
 
 
@@ -2448,7 +2421,7 @@ Completed in - Elapsed Time: $ElapsedTime  - Start Time: $StartTime  - End Time:
     - Windows 11 Start Layout Applied: $StartMenuLayout
     - Registry Keys Modified: $ModifiedRegistryKeys
     - Packages Removed During Debloat: $($Variables.Removed)
-    $($Variables.PackagesRemoved)
+    $($Variables.PackagesRemovedOutput)
 "
     # - Sends the mail
     Send-MailMessage -From $From -To $To -Subject $Sub -Body $EmailBody -Attachments $LogFiles -DN OnSuccess, OnFailure -SmtpServer $smtp
@@ -2532,8 +2505,8 @@ Function Start-BitlockerDecryption {
             Show-Question -Buttons YesNo -Title "New Loads" -Icon Warning -Message $messagebld
             $target = "Bitlocker Decryption on C:"
             if ($PSCmdlet.ShouldProcess($target, "Start Decryption")) {
-                Write-Caption -Text "Alert: Bitlocker is enabled. Starting the decryption process" -Type Warning
-                Disable-BitLocker -MountPoint C:\
+                Write-Status -Types "@" -Status "Alert: Bitlocker is enabled. Starting the decryption process" -Type Warning
+                Disable-BitLocker -MountPoint C:\ | Get-Status
             }
         }
         else {
@@ -2553,11 +2526,7 @@ Function Start-Bootup {
         Exit
     }
 
-    # One Liner
-    #[bool]([Security.Principal.WindowsIdentity]::GetCurrent().Groups -match 'S-1-5-32-544')
-    # Alternative
-    #New-Object Security.Principal.WindowsPrincipal([Security.Principal.WindowsIdentity]::GetCurrent())).IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator
-    
+
     # Checks to make sure New Loads is run as admin otherwise it'll display a message and close
     If (!([bool]([Security.Principal.WindowsIdentity]::GetCurrent().Groups -match 'S-1-5-32-544'))) {
         Write-Host $Variables.errorMessage2 -ForegroundColor Yellow
@@ -2659,25 +2628,6 @@ Function Start-Debloat {
     Show-ScriptStatus -WindowTitle "Debloat" -TweakType "Debloat" -TitleCounterText "Debloat" -TitleText "Win32"
 
     If (!$Revert) {
-        <#
-        Write-Section "Legacy Apps"
-        Write-Caption -Text "Avast"
-        Get-InstalledProgram "Avast" | Out-Null
-        If ($? -eq $True) { (Get-InstalledProgram "Avast").UninstallString | ForEach-Object (Remove-InstalledProgram $_) }
-        Write-Caption -Text "ExpressVPN"
-        Get-InstalledProgram "ExpressVPN" | Out-Null
-        If ($? -eq $True) { (Get-InstalledProgram "ExpressVPN").UninstallString | ForEach-Object (Remove-InstalledProgram $_) }
-        Write-Caption -Text "McAfee"
-        Get-InstalledProgram "McAfee" | Out-Null
-        If ($? -eq $True) { (Get-InstalledProgram "McAfee").UninstallString | ForEach-Object (Remove-InstalledProgram $_) }
-        Write-Caption -Text "Norton"
-        Get-InstalledProgram "Norton" | Out-Null
-        If ($? -eq $True) { (Get-InstalledProgram "Norton").UninstallString | ForEach-Object (Remove-InstalledProgram $_) }
-        Write-Caption -Text "WildTangent Games"
-        Get-InstalledProgram "WildTangent" | Out-Null
-        If ($? -eq $True) { (Get-InstalledProgram "WildTangent").UninstallString | ForEach-Object (Remove-InstalledProgram $_) }
-        #>
-
         Write-Section -Text "Checking for Start Menu Ads"
         ForEach ($app in $apps) {
             try {
@@ -2913,15 +2863,14 @@ Function Write-Status {
     $Time = Get-Date
     $FormattedTime = $Time.ToString("h:mm:ss tt")
 
-    $LogEntry = [PSCustomObject]@{
+    $Global:LogEntry = [PSCustomObject]@{
         Time = "$FormattedTime"
+        Successful = ""
         Types = $Types -join ', '
-        Warning = $WriteWarning
         Status = $Status
+        Warning = $WriteWarning
     }
-    # Append the log entry to the $variables.Log array
-    Add-Content -Path $Variables.Log -Value $logEntry
-
+    $LogEntry | Out-Null
     # Output the log entry to the console
     Write-Host "$FormattedTime " -NoNewline -ForegroundColor DarkGray -BackgroundColor $Variables.BackgroundColor
 
@@ -2931,8 +2880,7 @@ Function Write-Status {
 
     If ($WriteWarning) {
         Write-Host "::Warning:: -> $Status" -ForegroundColor $ForegroundColorText -BackgroundColor $Variables.BackgroundColor -NoNewline:$NoNewLine
-    }
-    Else {
+    }Else {
         Write-Host "-> $Status" -ForegroundColor $ForegroundColorText -BackgroundColor $Variables.BackgroundColor -NoNewline:$NoNewLine
     }
 }
@@ -2948,9 +2896,6 @@ Function Write-Title {
     Write-Host "[" -NoNewline -ForegroundColor $Variables.ForegroundColor -BackgroundColor $Variables.BackgroundColor
     Write-Host "===========================" -NoNewline -ForegroundColor White -BackgroundColor $Variables.BackgroundColor
     Write-Host ">" -ForegroundColor $Variables.ForegroundColor -BackgroundColor $Variables.BackgroundColor
-
-    # Writes to Log
-
     $TitleToLogFormat = "`n`n   $Text`n`n"
     Add-Content -Path $Variables.Log -Value $TitleToLogFormat
 }
@@ -2963,22 +2908,13 @@ Function Write-TitleCounter {
         [Int] 	 $MaxLength
     )
     Write-Host "`n`n" -NoNewline -ForegroundColor $Variables.ForegroundColor -BackgroundColor $Variables.BackgroundColor
-    #Write-Host "<" -NoNewline -ForegroundColor $Variables.ForegroundColor -BackgroundColor $Variables.BackgroundColor
     Write-Host "∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙" -ForegroundColor White -BackgroundColor $Variables.BackgroundColor
-    #Write-Host "░░░░░░░░░░░░░░░░░░░░░░░░░░░" -NoNewline -ForegroundColor White -BackgroundColor $Variables.BackgroundColor
-    #Write-Host "=-=-=-=-=-=-=-=-=-=-=-=-=-=" -NoNewline -ForegroundColor White -BackgroundColor $Variables.BackgroundColor
-    #Write-Host "]" -ForegroundColor $Variables.ForegroundColor -BackgroundColor $Variables.BackgroundColor
     Write-Host "    (" -NoNewline -ForegroundColor $Variables.ForegroundColor -BackgroundColor $Variables.BackgroundColor
     Write-Host " $($Counter)/$($Variables.MaxLength) " -NoNewline -ForegroundColor White -BackgroundColor $Variables.BackgroundColor
     Write-Host ") " -NoNewline -ForegroundColor $Variables.ForegroundColor -BackgroundColor $Variables.BackgroundColor
     Write-Host "|" -NoNewline -ForegroundColor White -BackgroundColor $Variables.BackgroundColor
     Write-Host " $Text " -ForegroundColor $Variables.ForegroundColor -BackgroundColor $Variables.BackgroundColor
-    #Write-Host "[" -NoNewline -ForegroundColor $Variables.ForegroundColor -BackgroundColor $Variables.BackgroundColor
-    #Write-Host "=-=-=-=-=-=-=-=-=-=-=-=-=-=" -NoNewline -ForegroundColor White -BackgroundColor $Variables.BackgroundColor
-    #Write-Host "░░░░░░░░░░░░░░░░░░░░░░░░░░░" -NoNewline -ForegroundColor White -BackgroundColor $Variables.BackgroundColor
     Write-Host "∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙" -ForegroundColor White -BackgroundColor $Variables.BackgroundColor
-    #Write-Host ">" -ForegroundColor $Variables.ForegroundColor -BackgroundColor $Variables.BackgroundColor
-
     $TitleCounterLogFormat = "`n`n∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙`n`n    ($Counter)/$($Variables.MaxLength)) | $Text`n`n∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙`n"
     # Writes to Log
     Add-Content -Path $Variables.Log -Value "$TitleCounterLogFormat"
@@ -2989,21 +2925,6 @@ Function Write-TitleCounter {
 ####################################################################################
 
 Start-Bootup
-<#Try { Stop-Transcript }Catch{ 
-    Try{ 
-        Start-Transcript -Path "$($Variables.Log)" -NoClobber | Out-Null
-    }
-    Catch {
-        return "Failed to Start Transcript: $($_)"
-        Get-Item $Variables.Log -ErrorAction SilentlyContinue | Remove-Item
-        try{
-            Start-Transcript -Path "$($Variables.Log)" -NoClobber | Out-Null
-        }
-        catch{
-            Return "Failed to Start Transcript: $($_)"
-        }
-    }
-}#>
 New-Variable -Name "StartTime" -Value (Get-Date -DisplayHint Time) -Scope Global
 Get-Program
 $Variables.Counter++
