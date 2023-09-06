@@ -2383,7 +2383,7 @@ Function Send-EmailLog {
 
     # - Cleans packages removed text and adds it to email
     ForEach ($Package in $Variables.PackagesRemoved) {
-        $Variables.PackagesRemovedOutput += "`n - $Package"
+        $PackagesRemovedOutput += "`n       - $Package"
     }
 
     # - Email Settings
@@ -2421,7 +2421,7 @@ Completed in - Elapsed Time: $ElapsedTime  - Start Time: $StartTime  - End Time:
     - Windows 11 Start Layout Applied: $StartMenuLayout
     - Registry Keys Modified: $ModifiedRegistryKeys
     - Packages Removed During Debloat: $($Variables.Removed)
-    $($Variables.PackagesRemovedOutput)
+    - List of Packages Removed: $PackagesRemovedOutput
 "
     # - Sends the mail
     Send-MailMessage -From $From -To $To -Subject $Sub -Body $EmailBody -Attachments $LogFiles -DN OnSuccess, OnFailure -SmtpServer $smtp
