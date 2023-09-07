@@ -3,6 +3,25 @@ try { Set-Variable -Name ScriptVersion -Value "2023.r1.06" ; If (! { $! }) { Wri
 $os = Get-CimInstance -ClassName Win32_OperatingSystem
 $global:osVersion = $os.Caption
 
+
+try {
+    Write-Output "Updated version available. Downloading now"
+    Start-Sleep -Seconds 5
+    $wtExists = Get-Command wt
+    If ($wtExists) {
+        Start-Process wt -verb runas -ArgumentList "new-tab powershell -c ""irm run.newloads.ca | iex"""
+        Stop-Process $Pid
+    }else {
+        Write-Output "Opening script in Powershell"
+        Start-Process powershell -verb runas -ArgumentList "-command ""irm run.newloads.ca | iex"""
+        Stop-Process $Pid
+    }
+}catch{
+    throw "Failed to run script, error message: $_"
+    Stop-Process $Pid
+}
+
+
 Function Programs() {
     # Set Window Title
     #Set-ScriptCategory -Category "Apps"
