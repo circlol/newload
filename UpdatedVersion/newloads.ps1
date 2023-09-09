@@ -147,7 +147,7 @@ $Variables = @{
     "PathToLMActivityHistory" = "HKLM:\SOFTWARE\Policies\Microsoft\Windows\System"
     "PathToLMAutoLogger" = "HKLM:\SYSTEM\CurrentControlSet\Control\WMI\AutoLogger"
     "PathToLMControl" = "HKLM:\SYSTEM\CurrentControlSet\Control"
-    "PathToLMCurrentVersion" = "HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion"
+    #"PathToLMCurrentVersion" = "HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion"
     "PathToLMConsentStoreUAI" = "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\CapabilityAccessManager\ConsentStore\userAccountInformation"
     "PathToLMConsentStoreUN" = "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\CapabilityAccessManager\ConsentStore\userNotificationListener"
     "PathToLMConsentStoreAD" = "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\CapabilityAccessManager\ConsentStore\appDiagnostics"
@@ -611,7 +611,7 @@ function Get-DriveSpace {
             $percentageAvailable = [math]::Round(($availableStorage / $totalStorage) * 100, 1)
 
             $driveInfo = "$driveLetter`: $([math]::Round($availableStorage, 1))/$([math]::Round($totalStorage, 1)) GB ($percentageAvailable% Available)"
-            Write-Output "$driveInfo"
+            Write-Output "$driveInfo`n"
         }
     }
 }
@@ -640,18 +640,24 @@ function Get-Motherboard {
     return "$CombinedString"
 }
 function Get-SystemSpec {
-    [OutputType([System.Object[]])]
-    param (
-        [Parameter(Mandatory = $false)]
-        [String] $Separator = '|-----------|'
-    )
-    $osarch = (Get-CimInstance Win32_OperatingSystem).OSArchitecture
-    $WinVer = (Get-CimInstance -class Win32_OperatingSystem).Caption -replace 'Microsoft ', ''
-    $DisplayVersion = (Get-ItemProperty $Variables.PathToLMCurrentVersion).DisplayVersion
-    $OldBuildNumber = (Get-ItemProperty $Variables.PathToLMCurrentVersion).ReleaseId
-    $DisplayedVersionResult = '(' + @{ $true = $DisplayVersion; $false = $OldBuildNumber }[$null -ne $DisplayVersion] + ')'
-    $completedWindowsName = "$WinVer $osarch $DisplayedVersionResult"
-    write-output "CPU: $(Get-CPU)`n$Separator`nMotherboard: $(Get-Motherboard)`n$Separator`nGPU: $(Get-GPU)`n$Separator`nRAM: $(Get-RAM)`n$Separator`nOS: $completedWindowsName`n$Separator`nDrives:`n$(Get-DriveSpace)"
+    begin{
+        $osarch = (Get-CimInstance Win32_OperatingSystem).OSArchitecture
+        $WinVer = (Get-CimInstance -class Win32_OperatingSystem).Caption -replace 'Microsoft ', ''
+        $DisplayVersion = (Get-ItemProperty "HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion").DisplayVersion
+        $OldBuildNumber = (Get-ItemProperty "HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion").ReleaseId
+    }
+    process{
+        $DisplayedVersionResult = '(' + @{ $true = $DisplayVersion; $false = $OldBuildNumber }[$null -ne $DisplayVersion] + ')'
+        $completedWindowsName = "$WinVer $osarch $DisplayedVersionResult"
+        $CPU = Get-CPU
+        $Motherboard = Get-Motherboard
+        $GPU = Get-GPU
+        $RAM = Get-RAM
+        $Drives = Get-DriveSpace
+    }
+    end{
+    write-output "OS: $completedWindowsName`nCPU: $CPU`nMotherboard: $Motherboard`nGPU: $GPU`nRAM: $RAM`nDrives:`n$Drives"
+    }
 }
 Function Get-ADWCleaner {
     Show-ScriptStatus -TitleText "ADWCleaner"
@@ -839,7 +845,7 @@ Function Get-Status {
         $Global:LogEntry.Successful = $true
         Add-Content -Path $Variables.Log -Value $logEntry
     } else {
-        HandleError $_
+        Invoke-ErrorHandling $_
         $CaptionSucceeded = Get-Command Write-Caption -ErrorAction SilentlyContinue
         If ($CaptionSucceeded) {
             Write-Caption -Type Failed
@@ -852,7 +858,7 @@ Function Get-Status {
         Add-Content -Path $Variables.Log -Value $logEntry
     }
 }
-function HandleError {
+function Invoke-ErrorHandling {
     param (
         [string]$errorMessage = $_
     )
@@ -1719,7 +1725,7 @@ Function Optimize-WindowsOptional {
                 Remove-Printer -Name $printer -ErrorAction Stop | Get-Status
             }
             catch {
-                HandleError $_
+                Invoke-ErrorHandling $_
                 Write-Status -Types "?", "Printer" -Status "Failed to remove $printer :`n$($_)" -WriteWarning
             }
         }
@@ -1855,7 +1861,7 @@ Function Remove-UWPAppx {
             if ($PSCmdlet.ShouldProcess($actionDescription, "Remove-AppxPackage")) {
                 $appxPackageToRemove | ForEach-Object -Process {
                     Write-Status -Types "-", $TweakType -Status "Trying to remove $AppxPackage" -NoNewLine
-                    Remove-AppxPackage $_.PackageFullName -WA SilentlyContinue >$NULL | Out-Null | Get-Status #4>&1 | Out-Null
+                    Remove-AppxPackage $_.PackageFullName -ErrorAction Continue | Out-Null | Get-Status #4>&1 | Out-Null
                     #Get-Status
                     If ($?) {
                         $Variables.Removed++
@@ -2034,7 +2040,7 @@ Function Set-ItemPropertyVerified {
                     $Global:ModifiedRegistryKeys++
                 }else { Get-Status }
             }catch {
-                HandleError $_
+                Invoke-ErrorHandling $_
                 Continue
             }
         }
@@ -2079,7 +2085,7 @@ Function Set-OptionalFeatureState {
                             $feature | Where-Object State -Like "Enabled" | Disable-WindowsOptionalFeature -Online -NoRestart -WhatIf:$WhatIf
                         }
                         catch {
-                            HandleError $_
+                            Invoke-ErrorHandling $_
                             continue
                         }
                     }
@@ -2092,7 +2098,7 @@ Function Set-OptionalFeatureState {
                             $feature | Where-Object State -Like "Disabled*" | Enable-WindowsOptionalFeature -Online -NoRestart -WhatIf:$WhatIf
                         }
                         catch {
-                            HandleError $_
+                            Invoke-ErrorHandling $_
                             continue
                         }
                     }
@@ -2155,7 +2161,7 @@ function Set-ScheduledTaskState {
                         }
                     }
                     catch {
-                        HandleError $_
+                        Invoke-ErrorHandling $_
                         Continue
                     }
                 }
@@ -2209,7 +2215,7 @@ function Set-ServiceStartup {
                 }
             }
             catch {
-                HandleError $_
+                Invoke-ErrorHandling $_
                 Continue
             }
         }
@@ -2343,25 +2349,21 @@ function Set-Wallpaper {
 Function Send-EmailLog {
 
     Show-ScriptStatus -WindowTitle "Email Log" #-TweakType "Email" -TitleCounterText "Email Log"
-    # - Stops Transcript
-    #Stop-Transcript | Out-Null
-    #Write-Section -Text "Gathering Logs "
-    #Write-Caption -Text "System Statistics" -Type None
     # - Current Date and Time
     $CurrentDate = Get-Date
-    $EndTime = Get-Date -DisplayHint Time
-    # Subtracts StartTime from EndTime to get ElapsedTime.
+    $EndTime = Get-Date
+    $FormattedStartTime = $StartTime.ToString("h:mm:ss tt")
+    $FormattedEndTime = $EndTime.ToString("h:mm:ss tt")
     $ElapsedTime = $EndTime - $StartTime
+    $FormattedElapsedTime = "{0:hh} hours {0:mm} minutes {0:ss} seconds" -f $ElapsedTime
 
     # - Gathers some information about host
-
     $SystemSpec = Get-SystemSpec
     $Mobo = (Get-CimInstance -ClassName Win32_BaseBoard).Product
     $IP = $(Resolve-DnsName -Name myip.opendns.com -Server 208.67.222.220).IPAddress
 
 
     # - Cleans up Motherboards Output
-    #Write-Caption -Text "Generating New Loads Summary"
     $WallpaperApplied = if ($Variables.CurrentWallpaper -eq $Variables.Wallpaper) { "YES" } else { "NO" }
     $Mobo = ($Mobo -replace 'Product|  ', '') -join "`n"
 
@@ -2383,7 +2385,7 @@ Function Send-EmailLog {
 
     # - Cleans packages removed text and adds it to email
     ForEach ($Package in $Variables.PackagesRemoved) {
-        $PackagesRemovedOutput += "`n       - $Package"
+        $PackagesRemovedOutput = "$PackagesRemovedOutput`n       - $Package"
     }
 
     # - Email Settings
@@ -2392,20 +2394,20 @@ Function Send-EmailLog {
     $From = 'New Loads Log <newloadslogs@shaw.ca>'
     $Sub = "New Loads Log"
     $EmailBody = "
-    ############################
-    #                          #
-    #   NEW LOADS SCRIPT LOG   #
-    #                          #
-    ############################
+    ####################################
+    #                                  #
+    #       NEW LOADS SCRIPT LOG       #
+    #                                  #
+    ####################################
 
 New Loads summary for $ip\$env:computername\$env:USERNAME
 
 - Script Information:
     - Program Version: $($Variables.ProgramVersion)
-    - Script Version: $($Variables.ScriptVersion)
     - Date: $CurrentDate
-
-Completed in - Elapsed Time: $ElapsedTime  - Start Time: $StartTime  - End Time: $EndTime
+    - Elapsed Time: $FormattedElapsedTime
+    - Start Time: $FormattedStartTime
+    - End Time: $FormattedEndTime
 
 - Computer Information:
     $SystemSpec
@@ -2469,7 +2471,7 @@ Function Show-ScriptStatus {
         Write-Section -Text "Section: $SectionText"
     }
     If ($AddCounter) {
-    
+        $Global:Variables.Counter++
     }
 }
 
@@ -2714,7 +2716,7 @@ function Update-Time {
                 }
             }
             catch {
-                HandleError $_
+                Invoke-ErrorHandling $_
                 continue
             }
         }
