@@ -16,18 +16,18 @@ $host.UI.RawUI.ForegroundColor = 'White'
 $host.UI.RawUI.BackgroundColor = 'Black'
 Add-Type -AssemblyName System.Windows.Forms
 Add-Type -AssemblyName System.Drawing
-filter TimeStamp {"$(Get-Date -Format g)- $_"}
+filter TimeStamp { "$(Get-Date -Format g)- $_" }
 $ErrorActionPreference = "SilentlyContinue"
 $NewLoads = $env:temp
 $Variables = @{
-    "Logo" = "
+    "Logo"                                       = "
                     ███╗   ██╗███████╗██╗    ██╗    ██╗      ██████╗  █████╗ ██████╗ ███████╗
                     ████╗  ██║██╔════╝██║    ██║    ██║     ██╔═══██╗██╔══██╗██╔══██╗██╔════╝
                     ██╔██╗ ██║█████╗  ██║ █╗ ██║    ██║     ██║   ██║███████║██║  ██║███████╗
                     ██║╚██╗██║██╔══╝  ██║███╗██║    ██║     ██║   ██║██╔══██║██║  ██║╚════██║
                     ██║ ╚████║███████╗╚███╔███╔╝    ███████╗╚██████╔╝██║  ██║██████╔╝███████║
                     ╚═╝  ╚═══╝╚══════╝ ╚══╝╚══╝     ╚══════╝ ╚═════╝ ╚═╝  ╚═╝╚═════╝ ╚══════╝`n"
-    "errorMessage1" = "
+    "errorMessage1"                              = "
         @|\@@                                                                                    `
         -  @@@@                     New Loads requires a minimum Windows version of 20H2 (19042).`
        /7   @@@@                                                                                 `
@@ -41,7 +41,7 @@ $Variables = @{
                                                                         (           )             `
                                                                        ( (  )   (  ) )            `
                                                                       (__(__)___(__)__)          `n`n"
-    "errorMessage2" = "
+    "errorMessage2"                              = "
         @|\@@                                                                                    `
         -  @@@@                             New Loads REQUIRES administrative privileges         `
        /7   @@@@                                                                                 `
@@ -55,152 +55,178 @@ $Variables = @{
                                                                         (           )            `
                                                                        ( (  )   (  ) )           `
                                                                       (__(__)___(__)__)          `n`n"
-    "ForegroundColor" = "DarkMagenta"
-    "BackgroundColor" = "Black"
-    "LogoColor" = "DarkMagenta"
-    "ProgramVersion" = "v1.06"
-    "ReleaseDate" = "September 6th, 2023"
-    "Time" = Get-Date -UFormat %Y%m%d
-    "MinTime" =20230630
-    "MaxTime" = 20231031
-    "Counter" = 1
-    "SelectedParameters" = @()
-    "temp" = $Env:temp
-    "MaxLength" = "10"
-    "Win11" = "22000"
-    "Win22H2" = "22621"
-    "MinimumBuildNumber" = "19042"
-    "OSVersion" = (Get-CimInstance -ClassName Win32_OperatingSystem).Caption
-    "BuildNumber" = [System.Environment]::OSVersion.Version.Build
-    "NetStatus" = (Get-NetConnectionProfile).IPv4Connectivity
-    "Connected" = "Internet"
+    "ForegroundColor"                            = "DarkMagenta"
+    "BackgroundColor"                            = "Black"
+    "LogoColor"                                  = "DarkMagenta"
+    "ProgramVersion"                             = "v1.06"
+    "ReleaseDate"                                = "September 6th, 2023"
+    "Time"                                       = Get-Date -UFormat %Y%m%d
+    "MinTime"                                    = 20230630
+    "MaxTime"                                    = 20231031
+    "Counter"                                    = 1
+    "SelectedParameters"                         = @()
+    "temp"                                       = $Env:temp
+    "MaxLength"                                  = "10"
+    "Win11"                                      = "22000"
+    "Win22H2"                                    = "22621"
+    "MinimumBuildNumber"                         = "19042"
+    "OSVersion"                                  = (Get-CimInstance -ClassName Win32_OperatingSystem).Caption
+    "BuildNumber"                                = [System.Environment]::OSVersion.Version.Build
+    "Connected"                                  = "Internet"
     # Local File Paths
-    "WallpaperDestination" = "C:\Windows\Resources\Themes\mother.jpg"
-    "WallpaperPath" = "$NewLoads\mother.jpg"
-    "ErrorLog" = "$env:userprofile\Desktop\New Loads Errors.txt"
-    "Log" = "$env:userprofile\Desktop\New Loads.txt"
-    "adwDestination" = "$NewLoads\adwcleaner.exe"
-    "SaRA" = "$newloads\SaRA.zip"
-    "Sexp" = "$newloads\SaRA"
-    "SaRAURL" = "https://github.com/circlol/newload/raw/main/SaRACmd_17_1_0268_3.zip"
-    "StartBinURL" = "https://github.com/circlol/newload/raw/main/assets/start.bin"
-    "StartBin1URL" = "https://github.com/circlol/newload/raw/main/assets/start2.bin"
-    "PackagesRemoved" = @()
-    "Removed" = 0
-    "Failed" = 0
-    "NotFound" = 0
-    "StartBinDefault" = "$Env:SystemDrive\Users\Default\AppData\Local\Packages\Microsoft.Windows.StartMenuExperienceHost_cw5n1h2txyewy\LocalState\"
-    "StartBinCurrent" = "$Env:LocalAppData\Packages\Microsoft.Windows.StartMenuExperienceHost_cw5n1h2txyewy\LocalState"
-    "LayoutFile" = "$Env:LocalAppData\Microsoft\Windows\Shell\LayoutModification.xml"
-    "adwLink" = "https://github.com/circlol/newload/raw/main/adwcleaner.exe"
-    "livesafe" = "$Env:PROGRAMFILES\McAfee\MSC\mcuihost.exe"
-    "WebAdvisor" = "$Env:PROGRAMFILES\McAfee\WebAdvisor\Uninstaller.exe"
-    "WildGames" = "${Env:PROGRAMFILES(x86)}\WildGames\Uninstall.exe"
+    "WallpaperDestination"                       = "C:\Windows\Resources\Themes\mother.jpg"
+    "WallpaperPath"                              = "$NewLoads\mother.jpg"
+    "ErrorLog"                                   = "$env:userprofile\Desktop\New Loads Errors.txt"
+    "Log"                                        = "$env:userprofile\Desktop\New Loads.txt"
+    "adwDestination"                             = "$NewLoads\adwcleaner.exe"
+    "SaRA"                                       = "$newloads\SaRA.zip"
+    "Sexp"                                       = "$newloads\SaRA"
+    "SaRAURL"                                    = "https://github.com/circlol/newload/raw/main/SaRACmd_17_1_0268_3.zip"
+    "StartBinURL"                                = "https://github.com/circlol/newload/raw/main/assets/start.bin"
+    "StartBin1URL"                               = "https://github.com/circlol/newload/raw/main/assets/start2.bin"
+    "PackagesRemoved"                            = @()
+    "Removed"                                    = 0
+    "Failed"                                     = 0
+    "NotFound"                                   = 0
+    "StartBinDefault"                            = "$Env:SystemDrive\Users\Default\AppData\Local\Packages\Microsoft.Windows.StartMenuExperienceHost_cw5n1h2txyewy\LocalState\"
+    "StartBinCurrent"                            = "$Env:LocalAppData\Packages\Microsoft.Windows.StartMenuExperienceHost_cw5n1h2txyewy\LocalState"
+    "LayoutFile"                                 = "$Env:LocalAppData\Microsoft\Windows\Shell\LayoutModification.xml"
+    "adwLink"                                    = "https://github.com/circlol/newload/raw/main/adwcleaner.exe"
+    "livesafe"                                   = "$Env:PROGRAMFILES\McAfee\MSC\mcuihost.exe"
+    "WebAdvisor"                                 = "$Env:PROGRAMFILES\McAfee\WebAdvisor\Uninstaller.exe"
+    "WildGames"                                  = "${Env:PROGRAMFILES(x86)}\WildGames\Uninstall.exe"
     #New-Variable -Name "AcroSC" = "$Env:PUBLIC\Desktop\Adobe Acrobat DC.lnk"
-    "EdgeShortcut" = "$Env:USERPROFILE\Desktop\Microsoft Edge.lnk"
-    "AcroSC" = "$Env:PUBLIC\Desktop\Acrobat Reader DC.lnk"
-    "EdgeSCPub" = "$Env:PUBLIC\Desktop\Microsoft Edge.lnk"
-    "VLCSC" = "$Env:PUBLIC\Desktop\VLC Media Player.lnk"
-    "ZoomSC" = "$Env:PUBLIC\Desktop\Zoom.lnk"
-    "CommonApps" = "$env:ALLUSERSPROFILE\Microsoft\Windows\Start Menu\Programs"
+    "EdgeShortcut"                               = "$Env:USERPROFILE\Desktop\Microsoft Edge.lnk"
+    "AcroSC"                                     = "$Env:PUBLIC\Desktop\Acrobat Reader DC.lnk"
+    "EdgeSCPub"                                  = "$Env:PUBLIC\Desktop\Microsoft Edge.lnk"
+    "VLCSC"                                      = "$Env:PUBLIC\Desktop\VLC Media Player.lnk"
+    "ZoomSC"                                     = "$Env:PUBLIC\Desktop\Zoom.lnk"
+    "CommonApps"                                 = "$env:ALLUSERSPROFILE\Microsoft\Windows\Start Menu\Programs"
     #Wallpaper
     #New-Variable -Name "Wallpaper" = "$env:appdata\Microsoft\Windows\Themes\MotherComputersWallpaper.jpg"
-    "CurrentWallpaper" = (Get-ItemProperty -Path "HKCU:\Control Panel\Desktop" -Name Wallpaper).Wallpaper
+    "CurrentWallpaper"                           = (Get-ItemProperty -Path "HKCU:\Control Panel\Desktop" -Name Wallpaper).Wallpaper
     #Office Removal
-    "PathToOffice86" = "${env:ProgramFiles(x86)}\Microsoft Office"
-    "PathToOffice64" = "$env:ProgramFiles\Microsoft Office 15"
-    "OfficeCheck" = "$false"
-    "Office32" = "$false"
-    "Office64" = "$false"
-    "UsersFolder" = "{59031a47-3f72-44a7-89c5-5595fe6b30ee}"
-    "ThisPC" = "{20D04FE0-3AEA-1069-A2D8-08002B30309D}"
-    "PathToUblockChrome" = "HKLM:\SOFTWARE\Wow6432Node\Google\Chrome\Extensions\cjpalhdlnbpafiamejdnhcphjbkeiagm"
-    "PathToChromeLink" = "https://clients2.google.com/service/update2/crx"
-    "PathToLFSVC" = "HKLM:\SYSTEM\CurrentControlSet\Services\lfsvc\Service\Configuration"
-    "RegCAM" = "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\CapabilityAccessManager\ConsentStore\location"
-    "Website" = "https://www.mothercomputers.com"
-    "Hours" = "Monday - Saturday 9AM-5PM | Sunday - Closed"
-    "Phone" = "(250) 479-8561"
-    "Store" = "Mother Computers"
-    "Model" = "Mother Computers - (250) 479-8561"
-    "Page" = "Model"
-    "TimeoutScreenBattery" = 5
-    "TimeoutScreenPluggedIn" = 10
-    "TimeoutStandByBattery" = 15
-    "TimeoutStandByPluggedIn" = 30
-    "TimeoutDiskBattery" = 15
-    "TimeoutDiskPluggedIn" = 30
-    "TimeoutHibernateBattery" = 15
-    "TimeoutHibernatePluggedIn" = 30
-    "PathToUsersControlPanelDesktop" = "Registry::HKEY_USERS\.DEFAULT\Control Panel\Desktop"
-    "PathToCUControlPanelDesktop" = "HKCU:\Control Panel\Desktop"
-    "PathToCUGameBar" = "HKCU:\SOFTWARE\Microsoft\GameBar"
-    "PathToGraphicsDrives" = "HKLM:\SYSTEM\CurrentControlSet\Control\GraphicsDrivers"
-    "PathToOEMInfo" = "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\OEMInformation"
-    "PathToRegExplorerLocalMachine" = "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer"
-    "PathToRegCurrentVersion" = "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion"
-    "PathToRegAdvertising" = "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\AdvertisingInfo"
-    "PathToRegPersonalize" = "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Themes\Personalize"
-    "PathToPrivacy" = "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Privacy"
+    "PathToOffice86"                             = "${env:ProgramFiles(x86)}\Microsoft Office"
+    "PathToOffice64"                             = "$env:ProgramFiles\Microsoft Office 15"
+    "OfficeCheck"                                = "$false"
+    "Office32"                                   = "$false"
+    "Office64"                                   = "$false"
+    "UsersFolder"                                = "{59031a47-3f72-44a7-89c5-5595fe6b30ee}"
+    "ThisPC"                                     = "{20D04FE0-3AEA-1069-A2D8-08002B30309D}"
+    "PathToUblockChrome"                         = "HKLM:\SOFTWARE\Wow6432Node\Google\Chrome\Extensions\cjpalhdlnbpafiamejdnhcphjbkeiagm"
+    "PathToChromeLink"                           = "https://clients2.google.com/service/update2/crx"
+    "PathToLFSVC"                                = "HKLM:\SYSTEM\CurrentControlSet\Services\lfsvc\Service\Configuration"
+    "RegCAM"                                     = "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\CapabilityAccessManager\ConsentStore\location"
+    "Website"                                    = "https://www.mothercomputers.com"
+    "Hours"                                      = "Monday - Saturday 9AM-5PM | Sunday - Closed"
+    "Phone"                                      = "(250) 479-8561"
+    "Store"                                      = "Mother Computers"
+    "Model"                                      = "Mother Computers - (250) 479-8561"
+    "Page"                                       = "Model"
+    "TimeoutScreenBattery"                       = 5
+    "TimeoutScreenPluggedIn"                     = 10
+    "TimeoutStandByBattery"                      = 15
+    "TimeoutStandByPluggedIn"                    = 30
+    "TimeoutDiskBattery"                         = 15
+    "TimeoutDiskPluggedIn"                       = 30
+    "TimeoutHibernateBattery"                    = 15
+    "TimeoutHibernatePluggedIn"                  = 30
+    "PathToUsersControlPanelDesktop"             = "Registry::HKEY_USERS\.DEFAULT\Control Panel\Desktop"
+    "PathToCUControlPanelDesktop"                = "HKCU:\Control Panel\Desktop"
+    "PathToCUGameBar"                            = "HKCU:\SOFTWARE\Microsoft\GameBar"
+    "PathToGraphicsDrives"                       = "HKLM:\SYSTEM\CurrentControlSet\Control\GraphicsDrivers"
+    "PathToOEMInfo"                              = "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\OEMInformation"
+    "PathToRegExplorerLocalMachine"              = "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer"
+    "PathToRegCurrentVersion"                    = "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion"
+    "PathToRegAdvertising"                       = "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\AdvertisingInfo"
+    "PathToRegPersonalize"                       = "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Themes\Personalize"
+    "PathToPrivacy"                              = "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Privacy"
 
     # Initialize all Path variables used to Registry Tweaks
-    "PathToLMActivityHistory" = "HKLM:\SOFTWARE\Policies\Microsoft\Windows\System"
-    "PathToLMAutoLogger" = "HKLM:\SYSTEM\CurrentControlSet\Control\WMI\AutoLogger"
-    "PathToLMControl" = "HKLM:\SYSTEM\CurrentControlSet\Control"
+    "PathToLMActivityHistory"                    = "HKLM:\SOFTWARE\Policies\Microsoft\Windows\System"
+    "PathToLMAutoLogger"                         = "HKLM:\SYSTEM\CurrentControlSet\Control\WMI\AutoLogger"
+    "PathToLMControl"                            = "HKLM:\SYSTEM\CurrentControlSet\Control"
     #"PathToLMCurrentVersion" = "HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion"
-    "PathToLMConsentStoreUAI" = "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\CapabilityAccessManager\ConsentStore\userAccountInformation"
-    "PathToLMConsentStoreUN" = "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\CapabilityAccessManager\ConsentStore\userNotificationListener"
-    "PathToLMConsentStoreAD" = "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\CapabilityAccessManager\ConsentStore\appDiagnostics"
-    "PathToLMDeviceMetaData" = "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Device Metadata"
-    "PathToLMDriverSearching" = "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\DriverSearching"
-    "PathToLMEventKey" = "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Diagnostics\DiagTrack\EventTranscriptKey"
-    "PathToLMLanmanServer" = "HKLM:\SYSTEM\CurrentControlSet\Services\LanmanServer\Parameters"
-    "PathToLMMemoryManagement" = "HKLM:\SYSTEM\CurrentControlSet\Control\Session Manager\Memory Management"
-    "PathToLMNdu" = "HKLM:\SYSTEM\ControlSet001\Services\Ndu"
+    "PathToLMConsentStoreUAI"                    = "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\CapabilityAccessManager\ConsentStore\userAccountInformation"
+    "PathToLMConsentStoreUN"                     = "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\CapabilityAccessManager\ConsentStore\userNotificationListener"
+    "PathToLMConsentStoreAD"                     = "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\CapabilityAccessManager\ConsentStore\appDiagnostics"
+    "PathToLMDeviceMetaData"                     = "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Device Metadata"
+    "PathToLMDriverSearching"                    = "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\DriverSearching"
+    "PathToLMEventKey"                           = "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Diagnostics\DiagTrack\EventTranscriptKey"
+    "PathToLMLanmanServer"                       = "HKLM:\SYSTEM\CurrentControlSet\Services\LanmanServer\Parameters"
+    "PathToLMMemoryManagement"                   = "HKLM:\SYSTEM\CurrentControlSet\Control\Session Manager\Memory Management"
+    "PathToLMNdu"                                = "HKLM:\SYSTEM\ControlSet001\Services\Ndu"
     #$PathToLMDeliveryOptimizationCfg = "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\DeliveryOptimization\Config"
-    "PathToLMPoliciesAdvertisingInfo" = "HKLM:\SOFTWARE\Policies\Microsoft\Windows\AdvertisingInfo"
-    "PathToLMPoliciesAppCompact" = "HKLM:\SOFTWARE\Policies\Microsoft\Windows\AppCompat"
-    "PathToLMPoliciesCloudContent" = "HKLM:\SOFTWARE\Policies\Microsoft\Windows\CloudContent"
-    "PathToLMPoliciesEdge" = "HKLM:\SOFTWARE\Policies\Microsoft\Edge"
-    "PathToLMPoliciesExplorer" = "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\Explorer"
-    "PathToLMPoliciesMRT" = "HKLM:\SOFTWARE\Policies\Microsoft\MRT"
-    "PathToLMPoliciesPsched" = "HKLM:\SOFTWARE\Policies\Microsoft\Psched"
-    "PathToLMPoliciesSQMClient" = "HKLM:\SOFTWARE\Policies\Microsoft\SQMClient\Windows"
-    "PathToLMPoliciesTelemetry" = "HKLM:\SOFTWARE\Policies\Microsoft\Windows\DataCollection"
-    "PathToLMPoliciesTelemetry2" = "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\DataCollection"
-    "PathToLMPoliciesToWifi" = "HKLM:\SOFTWARE\Microsoft\PolicyManager\default\WiFi"
-    "PathToLMPoliciesWindowsStore" = "HKLM:\SOFTWARE\Policies\Microsoft\WindowsStore"
-    "PathToLMPoliciesSystem" = "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System"
-    "PathToLMOldDotNet" = "HKLM:\SOFTWARE\Microsoft\.NETFramework\v4.0.30319"
-    "PathToLMWowNodeOldDotNet" = "HKLM:\SOFTWARE\Wow6432Node\Microsoft\.NETFramework\v4.0.30319"
+    "PathToLMPoliciesAdvertisingInfo"            = "HKLM:\SOFTWARE\Policies\Microsoft\Windows\AdvertisingInfo"
+    "PathToLMPoliciesAppCompact"                 = "HKLM:\SOFTWARE\Policies\Microsoft\Windows\AppCompat"
+    "PathToLMPoliciesCloudContent"               = "HKLM:\SOFTWARE\Policies\Microsoft\Windows\CloudContent"
+    "PathToLMPoliciesEdge"                       = "HKLM:\SOFTWARE\Policies\Microsoft\Edge"
+    "PathToLMPoliciesExplorer"                   = "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\Explorer"
+    "PathToLMPoliciesMRT"                        = "HKLM:\SOFTWARE\Policies\Microsoft\MRT"
+    "PathToLMPoliciesPsched"                     = "HKLM:\SOFTWARE\Policies\Microsoft\Psched"
+    "PathToLMPoliciesSQMClient"                  = "HKLM:\SOFTWARE\Policies\Microsoft\SQMClient\Windows"
+    "PathToLMPoliciesTelemetry"                  = "HKLM:\SOFTWARE\Policies\Microsoft\Windows\DataCollection"
+    "PathToLMPoliciesTelemetry2"                 = "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\DataCollection"
+    "PathToLMPoliciesToWifi"                     = "HKLM:\SOFTWARE\Microsoft\PolicyManager\default\WiFi"
+    "PathToLMPoliciesWindowsStore"               = "HKLM:\SOFTWARE\Policies\Microsoft\WindowsStore"
+    "PathToLMPoliciesSystem"                     = "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System"
+    "PathToLMOldDotNet"                          = "HKLM:\SOFTWARE\Microsoft\.NETFramework\v4.0.30319"
+    "PathToLMWowNodeOldDotNet"                   = "HKLM:\SOFTWARE\Wow6432Node\Microsoft\.NETFramework\v4.0.30319"
     #$PathToLMPoliciesWindowsUpdate = "HKLM:\SOFTWARE\Policies\Microsoft\Windows\WindowsUpdate\AU"
-    "PathToLMWindowsTroubleshoot" = "HKLM:\SOFTWARE\Microsoft\WindowsMitigation"
-    "PathToCUAccessibility" = "HKCU:\Control Pane\Accessibility"
-    "PathToCUAppHost" = "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\AppHost"
-    "PathToCUContentDeliveryManager" = "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\ContentDeliveryManager"
-    "PathToCUConsentStoreAD" = "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\CapabilityAccessManager\ConsentStore\appDiagnostics"
-    "PathToCUConsentStoreUAI" = "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\CapabilityAccessManager\ConsentStore\userAccountInformation"
-    "PathToCUDeviceAccessGlobal" = "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\DeviceAccess\Global"
-    "PathToCUExplorer" = "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer"
-    "PathToCUExplorerAdvanced" = "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\Advanced"
-    "PathToCUInputPersonalization" = "HKCU:\SOFTWARE\Microsoft\InputPersonalization"
-    "PathToCUInputTIPC" = "HKCU:\SOFTWARE\Microsoft\Input\TIPC"
-    "PathToCUMouse" = "HKCU:\Control Panel\Mouse"
-    "PathToCUFeedsDSB" = "HKCU:\Software\Microsoft\Windows\CurrentVersion\Feeds\DSB"
-    "PathToCUOnlineSpeech" = "HKCU:\SOFTWARE\Microsoft\Speech_OneCore\Settings\OnlineSpeechPrivacy"
-    "PathToCUPersonalization" = "HKCU:\SOFTWARE\Microsoft\Personalization\Settings"
-    "PathToCUPoliciesCloudContent" = "HKCU:\SOFTWARE\Policies\Microsoft\Windows\CloudContent"
-    "PathToCUSearch" = "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Search"
-    "PathToCUSearchSettings" = "HKCU:\Software\Microsoft\Windows\CurrentVersion\SearchSettings"
-    "PathToCUSiufRules" = "HKCU:\SOFTWARE\Microsoft\Siuf\Rules"
-    "PathToCUUserProfileEngagemment" = "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\UserProfileEngagement"
-    "PathToCUUP" = "HKCU:\Control Panel\International\User Profile"
-    "PathToVoiceActivation" = "HKCU:\SOFTWARE\Microsoft\Speech_OneCore\Settings\VoiceActivation\UserPreferenceForAllApps"
-    "PathToBackgroundAppAccess" = "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\BackgroundAccessApplications"
-    "PathToLMMultimediaSystemProfile" = "HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Multimedia\SystemProfile"
+    "PathToLMWindowsTroubleshoot"                = "HKLM:\SOFTWARE\Microsoft\WindowsMitigation"
+    "PathToCUAccessibility"                      = "HKCU:\Control Pane\Accessibility"
+    "PathToCUAppHost"                            = "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\AppHost"
+    "PathToCUContentDeliveryManager"             = "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\ContentDeliveryManager"
+    "PathToCUConsentStoreAD"                     = "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\CapabilityAccessManager\ConsentStore\appDiagnostics"
+    "PathToCUConsentStoreUAI"                    = "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\CapabilityAccessManager\ConsentStore\userAccountInformation"
+    "PathToCUDeviceAccessGlobal"                 = "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\DeviceAccess\Global"
+    "PathToCUExplorer"                           = "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer"
+    "PathToCUExplorerAdvanced"                   = "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\Advanced"
+    "PathToCUInputPersonalization"               = "HKCU:\SOFTWARE\Microsoft\InputPersonalization"
+    "PathToCUInputTIPC"                          = "HKCU:\SOFTWARE\Microsoft\Input\TIPC"
+    "PathToCUMouse"                              = "HKCU:\Control Panel\Mouse"
+    "PathToCUFeedsDSB"                           = "HKCU:\Software\Microsoft\Windows\CurrentVersion\Feeds\DSB"
+    "PathToCUOnlineSpeech"                       = "HKCU:\SOFTWARE\Microsoft\Speech_OneCore\Settings\OnlineSpeechPrivacy"
+    "PathToCUPersonalization"                    = "HKCU:\SOFTWARE\Microsoft\Personalization\Settings"
+    "PathToCUPoliciesCloudContent"               = "HKCU:\SOFTWARE\Policies\Microsoft\Windows\CloudContent"
+    "PathToCUSearch"                             = "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Search"
+    "PathToCUSearchSettings"                     = "HKCU:\Software\Microsoft\Windows\CurrentVersion\SearchSettings"
+    "PathToCUSiufRules"                          = "HKCU:\SOFTWARE\Microsoft\Siuf\Rules"
+    "PathToCUUserProfileEngagemment"             = "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\UserProfileEngagement"
+    "PathToCUUP"                                 = "HKCU:\Control Panel\International\User Profile"
+    "PathToVoiceActivation"                      = "HKCU:\SOFTWARE\Microsoft\Speech_OneCore\Settings\VoiceActivation\UserPreferenceForAllApps"
+    "PathToBackgroundAppAccess"                  = "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\BackgroundAccessApplications"
+    "PathToLMMultimediaSystemProfile"            = "HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Multimedia\SystemProfile"
     "PathToLMMultimediaSystemProfileOnGameTasks" = "HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Multimedia\SystemProfile\Tasks\Games"
+    "KeysToDelete"                               = @(
+        # Remove Background Tasks
+        "HKCR:\Extensions\ContractId\Windows.BackgroundTasks\PackageId\46928bounde.EclipseManager_2.2.4.51_neutral__a5h4egax66k6y"
+        "HKCR:\Extensions\ContractId\Windows.BackgroundTasks\PackageId\ActiproSoftwareLLC.562882FEEB491_2.6.18.18_neutral__24pqs290vpjk0"
+        "HKCR:\Extensions\ContractId\Windows.BackgroundTasks\PackageId\Microsoft.MicrosoftOfficeHub_17.7909.7600.0_x64__8wekyb3d8bbwe"
+        "HKCR:\Extensions\ContractId\Windows.BackgroundTasks\PackageId\Microsoft.PPIProjection_10.0.15063.0_neutral_neutral_cw5n1h2txyewy"
+        "HKCR:\Extensions\ContractId\Windows.BackgroundTasks\PackageId\Microsoft.XboxGameCallableUI_1000.15063.0.0_neutral_neutral_cw5n1h2txyewy"
+        "HKCR:\Extensions\ContractId\Windows.BackgroundTasks\PackageId\Microsoft.XboxGameCallableUI_1000.16299.15.0_neutral_neutral_cw5n1h2txyewy"
+        # Windows File
+        "HKCR:\Extensions\ContractId\Windows.File\PackageId\ActiproSoftwareLLC.562882FEEB491_2.6.18.18_neutral__24pqs290vpjk0"
+        # Registry keys to delete if they aren't uninstalled by RemoveAppXPackage/RemoveAppXProvisionedPackage
+        "HKCR:\Extensions\ContractId\Windows.Launch\PackageId\46928bounde.EclipseManager_2.2.4.51_neutral__a5h4egax66k6y"
+        "HKCR:\Extensions\ContractId\Windows.Launch\PackageId\ActiproSoftwareLLC.562882FEEB491_2.6.18.18_neutral__24pqs290vpjk0"
+        "HKCR:\Extensions\ContractId\Windows.Launch\PackageId\Microsoft.PPIProjection_10.0.15063.0_neutral_neutral_cw5n1h2txyewy"
+        "HKCR:\Extensions\ContractId\Windows.Launch\PackageId\Microsoft.XboxGameCallableUI_1000.15063.0.0_neutral_neutral_cw5n1h2txyewy"
+        "HKCR:\Extensions\ContractId\Windows.Launch\PackageId\Microsoft.XboxGameCallableUI_1000.16299.15.0_neutral_neutral_cw5n1h2txyewy"
+        # Scheduled Tasks to delete
+        "HKCR:\Extensions\ContractId\Windows.PreInstalledConfigTask\PackageId\Microsoft.MicrosoftOfficeHub_17.7909.7600.0_x64__8wekyb3d8bbwe"
+        # Windows Protocol Keys
+        "HKCR:\Extensions\ContractId\Windows.Protocol\PackageId\ActiproSoftwareLLC.562882FEEB491_2.6.18.18_neutral__24pqs290vpjk0"
+        "HKCR:\Extensions\ContractId\Windows.Protocol\PackageId\Microsoft.PPIProjection_10.0.15063.0_neutral_neutral_cw5n1h2txyewy"
+        "HKCR:\Extensions\ContractId\Windows.Protocol\PackageId\Microsoft.XboxGameCallableUI_1000.15063.0.0_neutral_neutral_cw5n1h2txyewy"
+        "HKCR:\Extensions\ContractId\Windows.Protocol\PackageId\Microsoft.XboxGameCallableUI_1000.16299.15.0_neutral_neutral_cw5n1h2txyewy"
+        # Windows Share Target
+        "HKCR:\Extensions\ContractId\Windows.ShareTarget\PackageId\ActiproSoftwareLLC.562882FEEB491_2.6.18.18_neutral__24pqs290vpjk0"
+    )
+
     # - Shortcuts
-    "Shortcuts" = @(
+    "Shortcuts"                                  = @(
         "$Env:USERPROFILE\Desktop\Microsoft Edge.lnk"
         "$Env:PUBLIC\Desktop\Microsoft Edge.lnk"
         "$Env:PUBLIC\Desktop\Adobe Reader.lnk"
@@ -210,15 +236,23 @@ $Variables = @{
         "$Env:PUBLIC\Desktop\VLC Media Player.lnk"
         "$Env:PUBLIC\Desktop\Zoom.lnk"
     )
+    "CloudContentDisableOnOne"                   = @(
+        "DisableWindowsSpotlightFeatures"
+        "DisableWindowsSpotlightOnActionCenter"
+        "DisableWindowsSpotlightOnSettings"
+        "DisableWindowsSpotlightWindowsWelcomeExperience"
+        "DisableTailoredExperiencesWithDiagnosticData"      # Tailored Experiences
+        "DisableThirdPartySuggestions"
+    )
     # - Scheduled Tasks
     # Adapted from: https://docs.microsoft.com/en-us/windows-server/remote/remote-desktop-services/rds-vdi-recommendations#task-scheduler
-    "EnableScheduledTasks" = @(
+    "EnableScheduledTasks"                       = @(
         "\Microsoft\Windows\Defrag\ScheduledDefrag"                 # Defragments all internal storages connected to your computer
         "\Microsoft\Windows\Maintenance\WinSAT"                     # WinSAT detects incorrect system configurations, that causes performance loss, then sends it via telemetry | Reference (PT-BR): https://youtu.be/wN1I0IPgp6U?t=16
         "\Microsoft\Windows\RecoveryEnvironment\VerifyWinRE"        # Verify the Recovery Environment integrity, it's the Diagnostic tools and Troubleshooting when your PC isn't healthy on BOOT, need this ON.
         "\Microsoft\Windows\Windows Error Reporting\QueueReporting" # Windows Error Reporting event, needed to improve compatibility with your hardware
     )
-    "DisableScheduledTasks" = @(
+    "DisableScheduledTasks"                      = @(
         "\Microsoft\Office\OfficeTelemetryAgentLogOn"
         "\Microsoft\Office\OfficeTelemetryAgentFallBack"
         "\Microsoft\Office\Office 15 Subscription Heartbeat"
@@ -245,9 +279,9 @@ $Variables = @{
     )
     #"IsSystemDriveSSD" = $(Get-OSDriveType) -eq "SSD"
     # - Services
-    "EnableServicesOnSSD" = @("SysMain", "WSearch", "fhsvc")
+    "EnableServicesOnSSD"                        = @("SysMain", "WSearch", "fhsvc")
     # Services which will be totally disabled
-    "ServicesToDisabled" = @(
+    "ServicesToDisabled"                         = @(
         "DiagTrack"                                 # DEFAULT: Automatic | Connected User Experiences and Telemetry
         "diagnosticshub.standardcollector.service"  # DEFAULT: Manual    | Microsoft (R) Diagnostics Hub Standard Collector Service
         "dmwappushservice"                          # DEFAULT: Manual    | Device Management Wireless Application Protocol (WAP)
@@ -265,7 +299,7 @@ $Variables = @{
         "LanmanServer"
     )
     # Making the services to run only when needed as 'Manual' | Remove the # to set to Manual
-    "ServicesToManual" = @(
+    "ServicesToManual"                           = @(
         "BITS"                           # DEFAULT: Manual    | Background Intelligent Transfer Service
         "BDESVC"                         # DEFAULT: Manual    | BItLocker Drive Encryption Service
         "edgeupdate"                     # DEFAULT: Automatic | Microsoft Edge Update Service
@@ -305,7 +339,7 @@ $Variables = @{
         "DispBrokerDesktopSvc"           # DEFAULT: Automatic | Manages the connection and configuration of local and remote displays
     )
     # - Content Delivery
-    "ContentDeliveryManagerDisableOnZero" = @(
+    "ContentDeliveryManagerDisableOnZero"        = @(
         "SubscribedContent-310093Enabled"           # "Show me the Windows Welcome Experience after updates and when I sign in highlight whats new and suggested"
         "RotatingLockScreenOverlayEnabled"          # Rotation Lock
         "RotatingLockScreenEnabled"                 # Rotation Lock
@@ -330,8 +364,13 @@ $Variables = @{
         "SubscribedContentEnabled"                  # Disables Subscribed content
         "SystemPaneSuggestionsEnabled"              #
     )
+    "ActivityHistoryDisableOnZero"               = @(
+        "EnableActivityFeed"
+        "PublishUserActivities"
+        "UploadUserActivities"
+    )
     # - Optional Features
-    "DisableFeatures" = @(
+    "DisableFeatures"                            = @(
         #"FaxServicesClientPackage"             # Windows Fax and Scan
         #"Printing-PrintToPDFServices-Features" # Microsoft Print to PDF
         "IIS-*"                                # Internet Information Services
@@ -343,13 +382,13 @@ $Variables = @{
         "Printing-XPSServices-Features"        # Microsoft XPS Document Writer
         "WorkFolders-Client"                   # Work Folders Client
     )
-    "EnableFeatures" = @(
+    "EnableFeatures"                             = @(
         "NetFx3"                            # NET Framework 3.5
         "NetFx4-AdvSrvs"                    # NET Framework 4
         "NetFx4Extended-ASPNET45"           # NET Framework 4.x + ASPNET 4.x
     )
     # - Debloat
-    "apps" = @(
+    "apps"                                       = @(
         "Adobe offers",
         "Amazon",
         "Booking",
@@ -360,7 +399,7 @@ $Variables = @{
         "Planet9 Link",
         "Utomik - Play over 1000 games"
     )
-    "Programs" = @(
+    "Programs"                                   = @(
         # Microsoft Applications
         "Microsoft.549981C3F5F10"                   			# Cortana
         "Microsoft.3DBuilder"                       			# 3D Builder
@@ -474,17 +513,7 @@ $Variables = @{
         "26720RandomSaladGamesLLC.SimpleMahjong"                # Simple Mahjong
         "26720RandomSaladGamesLLC.Spades"                       # Spades
     )
-    "START_MENU_LAYOUT" = @"
-    <LayoutModificationTemplate xmlns:defaultlayout="http://schemas.microsoft.com/Start/2014/FullDefaultLayout" xmlns:start="http://schemas.microsoft.com/Start/2014/StartLayout" Version="1" xmlns:taskbar="http://schemas.microsoft.com/Start/2014/TaskbarLayout" xmlns="http://schemas.microsoft.com/Start/2014/LayoutModification">
-        <LayoutOptions StartTileGroupCellWidth="6" />
-        <DefaultLayoutOverride>
-            <StartLayoutCollection>
-                <defaultlayout:StartLayout GroupCellWidth="6" />
-            </StartLayoutCollection>
-        </DefaultLayoutOverride>
-    </LayoutModificationTemplate>
-"@
-    "StartLayout" = @"
+    "StartLayout"                                = @"
     <LayoutModificationTemplate xmlns="http://schemas.microsoft.com/Start/2014/LayoutModification"
         xmlns:defaultlayout="http://schemas.microsoft.com/Start/2014/FullDefaultLayout"
         xmlns:start="http://schemas.microsoft.com/Start/2014/StartLayout"
@@ -512,14 +541,6 @@ $Variables = @{
     </LayoutModificationTemplate>
 "@
 }
-<#if ($GUI) { $Variables.specifiedParameters += '-GUI' }
-if ($NoBranding) { $Variables.specifiedParameters += '-NoBranding' }
-if ($Undo) { $Variables.specifiedParameters += '-Undo' }
-if ($SkipADW) { $Variables.specifiedParameters += '-SkipADW' }
-if ($SkipBitlocker) { $Variables.specifiedParameters += '-SkipBitlocker' }
-if ($SkipPrograms) { $Variables.specifiedParameters += '-SkipPrograms' }
-if ($WhatIf) { $Variables.specifiedParameters += '-WhatIf' }
-$parametersString = $Variables.specifiedParameters -join ', '#>
 Clear-Host
 
 
@@ -559,32 +580,28 @@ function Get-CPU {
     if ($NameOnly) {
         return $cpuName
     }
-    If ($Formatted){
+    If ($Formatted) {
         $CPUInfo += [PSCustomObject]@{
-            CPU = $cpuName
-            Cores = $cores
+            CPU     = $cpuName
+            Cores   = $cores
             Threads = $threads
         }
         return $CPUInfo
-    }else{
+    }
+    else {
         $cpuCoresAndThreads = "($($cores) Cores $($threads) Threads)"
         $CombinedString = "$cpuCoresAndThreads - $cpuName"
         return $CombinedString
     }
 }
 function Get-DriveInfo {
-    [CmdletBinding()]
-    param ()
-
     $driveInfo = @()
     $physicalDisks = Get-PhysicalDisk | Where-Object { $null -ne $_.MediaType }
-
     foreach ($disk in $physicalDisks) {
         $model = $disk.FriendlyName
         $driveType = $disk.MediaType
         $sizeGB = [math]::Round($disk.Size / 1GB)
         $healthStatus = $disk.HealthStatus
-
         $driveInfo += [PSCustomObject]@{
             Status   = $healthStatus
             Model    = $model
@@ -592,7 +609,6 @@ function Get-DriveInfo {
             Capacity = "${sizeGB} GB"
         }
     }
-
     return $driveInfo
 }
 function Get-DriveSpace {
@@ -609,9 +625,8 @@ function Get-DriveSpace {
             $availableStorage = $drive.Free / 1GB
             $totalStorage = ($drive.Free + $drive.Used) / 1GB
             $percentageAvailable = [math]::Round(($availableStorage / $totalStorage) * 100, 1)
-
             $driveInfo = "$driveLetter`: $([math]::Round($availableStorage, 1))/$([math]::Round($totalStorage, 1)) GB ($percentageAvailable% Available)"
-            Write-Output "$driveInfo`n"
+            Write-Output "$driveInfo"
         }
     }
 }
@@ -639,24 +654,92 @@ function Get-Motherboard {
     [String]$CombinedString = "$motherboardOEM $motherboardModel"
     return "$CombinedString"
 }
-function Get-SystemSpec {
-    begin{
-        $osarch = (Get-CimInstance Win32_OperatingSystem).OSArchitecture
-        $WinVer = (Get-CimInstance -class Win32_OperatingSystem).Caption -replace 'Microsoft ', ''
-        $DisplayVersion = (Get-ItemProperty "HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion").DisplayVersion
-        $OldBuildNumber = (Get-ItemProperty "HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion").ReleaseId
-    }
-    process{
-        $DisplayedVersionResult = '(' + @{ $true = $DisplayVersion; $false = $OldBuildNumber }[$null -ne $DisplayVersion] + ')'
-        $completedWindowsName = "$WinVer $osarch $DisplayedVersionResult"
-        $CPU = Get-CPU
-        $Motherboard = Get-Motherboard
-        $GPU = Get-GPU
-        $RAM = Get-RAM
-        $Drives = Get-DriveSpace
-    }
-    end{
-    write-output "OS: $completedWindowsName`nCPU: $CPU`nMotherboard: $Motherboard`nGPU: $GPU`nRAM: $RAM`nDrives:`n$Drives"
+Function Get-SystemSpecs {
+    [CmdletBinding()]
+    [OutputType([String])]
+    param()
+
+    Begin{
+        # Grab CPU info
+        try {
+            $cpuName = (Get-CimInstance -Class Win32_Processor).Name
+            $cores = (Get-CimInstance -class Win32_Processor).NumberOfCores
+            $threads = (Get-CimInstance -class Win32_Processor).NumberOfLogicalProcessors
+            $cpuCoresAndThreads = "($($cores) Cores $($threads) Threads)"
+            $CPUCombinedString = "$cpuCoresAndThreads - $cpuName"
+        }
+        catch {
+            return "Error retrieving CPU information: $($_)"
+        }
+
+        # Grab GPU info
+        try {
+            $gpu = (Get-CimInstance -Class Win32_VideoController).Name
+        }
+        catch{
+            return "Error retrieving GPU information: $($_)"
+        }
+        
+        # Grab RAM info
+        try {
+            $ram = (Get-CimInstance Win32_ComputerSystem).TotalPhysicalMemory
+            $ram = $ram / 1GB
+            
+        }
+        catch{
+            return "Error retrieving RAM information: $($_)"
+        }
+
+        # Grab Motherboard info
+        try {
+            $motherboardModel = (Get-CimInstance -Class Win32_BaseBoard).Product
+            $motherboardOEM = (Get-CimInstance -Class Win32_BaseBoard).Manufacturer
+            $MotherboardCombinedString = "$motherboardOEM $motherboardModel"
+        }
+        catch {
+            return "Error retrieving Motherboard information: $($_)"
+        }
+
+        # Grab Windows Version
+        try {
+            $PathToLMCurrentVersion = "HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion"
+            $osarch = (Get-CimInstance Win32_OperatingSystem).OSArchitecture
+            $WinVer = (Get-CimInstance -class Win32_OperatingSystem).Caption -replace 'Microsoft ', ''
+            $DisplayVersion = (Get-ItemProperty $PathToLMCurrentVersion).DisplayVersion
+            $OldBuildNumber = (Get-ItemProperty $PathToLMCurrentVersion).ReleaseId
+            $DisplayedVersionResult = '(' + @{ $true = $DisplayVersion; $false = $OldBuildNumber }[$null -ne $DisplayVersion] + ')'
+            $completedWindowsName = "$WinVer $osarch $DisplayedVersionResult"
+        }
+        catch {
+            return "Error retrieving Windows information: $($_)"
+        }
+
+        # Grabs drive space
+        try {
+            $drives = Get-PSDrive -PSProvider FileSystem | Where-Object { $_.Free -ge 0 -and $_.Used -ge 0 }
+            foreach ($drive in $drives) {
+                $driveLetter = $drive.Name
+                $availableStorage = $drive.Free / 1GB
+                $totalStorage = ($drive.Free + $drive.Used) / 1GB
+                $percentageAvailable = [math]::Round(($availableStorage / $totalStorage) * 100, 1)
+                $driveInfo = "$driveLetter`: $([math]::Round($availableStorage, 1))/$([math]::Round($totalStorage, 1)) GB ($percentageAvailable% Available)"
+                $CombinedDriveInfo = "$($CombinedDriveInfo)`n$($driveInfo)"
+                }
+        }
+        catch {
+            return "Error retrieving disk information: $($_)"
+        }
+
+    $CombinedString = "
+CPU: $($CPUCombinedString)
+GPU: $($gpu.Trim())
+RAM: $("{0:N2} GB" -f $ram)
+Motherboard: $($MotherboardCombinedString)
+OS: $($completedWindowsName)
+Disk Info: $($CombinedDriveInfo)
+"
+    }process{
+        return $CombinedString
     }
 }
 Function Get-ADWCleaner {
@@ -665,17 +748,13 @@ Function Get-ADWCleaner {
         Write-Status -Types "@" -Status "Parameter -SkipADW or -Undo detected.. Malwarebytes ADWCleaner will be skipped.." -WriteWarning -ForegroundColorText RED
     }
     else {
-        # - Checks if executable exists
         If (!(Test-Path $Variables.adwDestination)) {
             Write-Status -Types "+", "ADWCleaner" -Status "Downloading ADWCleaner" -NoNewLine
-            # - Downloads ADW
             Start-BitsTransfer -Source $Variables.adwLink -Destination $Variables.adwDestination -Dynamic | Get-Status
         }
         Write-Status -Types "+", "ADWCleaner" -Status "Starting ADWCleaner with ArgumentList /Scan & /Clean"
-        # - Runs ADW
         Start-Process -FilePath $Variables.adwDestination -ArgumentList "/EULA", "/PreInstalled", "/Clean", "/NoReboot" -Wait -NoNewWindow | Out-Host
         Write-Status -Types "-", "ADWCleaner" -Status "Removing traces of ADWCleaner"
-        # - Removes traces of adw from system
         Start-Process -FilePath $Variables.adwDestination -ArgumentList "/Uninstall", "/NoReboot" -WindowStyle Minimized
     }
 }
@@ -683,15 +762,15 @@ Function Get-InstalledProgram {
     [CmdletBinding()]
     [OutputType([Bool])]
     Param(
-        [string]$Keyword
+        [string]$Name
     )
     $registryPath = "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\*"
     $installedPrograms = Get-ChildItem -Path $registryPath
     $matchingPrograms = $installedPrograms | Where-Object {
-        ($_.GetValue("DisplayName") -like "*$Keyword*") -or
-        ($_.GetValue("DisplayVersion") -like "*$Keyword*") -or
-        ($_.GetValue("Publisher") -like "*$Keyword*") -or
-        ($_.GetValue("Comments") -like "*$Keyword*")
+        ($_.GetValue("DisplayName") -like "*$Name*") -or
+        ($_.GetValue("DisplayVersion") -like "*$Name*") -or
+        ($_.GetValue("Publisher") -like "*$Name*") -or
+        ($_.GetValue("Comments") -like "*$Name*")
     }
     # - Output the matching programs as a list of objects with Name, Version, Publisher, and UninstallString properties
     $matchingPrograms | ForEach-Object {
@@ -708,13 +787,14 @@ Function Get-NetworkStatus {
     param(
         [string]$NetworkStatusType = "IPv4Connectivity"
     )
-    $Variables.NetStatus = (Get-NetConnectionProfile).$NetworkStatusType
-    if ($Variables.NetStatus -ne 'Internet') {
+    #$NetStatus = (Get-NetConnectionProfile).IPv4Connectivity
+    $NetStatus = (Get-NetConnectionProfile).$NetworkStatusType
+    if ($NetStatus -ne 'Internet') {
         Write-Status -Types "WAITING" -Status "Seems like there's no network connection. Please reconnect." -WriteWarning
-        while ($Variables.NetStatus -ne 'Internet') {
+        while ($NetStatus -ne 'Internet') {
             Write-Output "Waiting for Internet"
             Start-Sleep -Milliseconds 3500
-            $Variables.NetStatus = (Get-NetConnectionProfile).$NetworkStatusType
+            $NetStatus = (Get-NetConnectionProfile).$NetworkStatusType
         }
         Test-Connection -ComputerName $Env:COMPUTERNAME -AsJob
         Write-Output "Connected: Moving On"
@@ -723,19 +803,45 @@ Function Get-NetworkStatus {
 Function Get-Office {
     Show-ScriptStatus -WindowTitle "Office" -TweakType "Office" -TitleCounterText "Office"
     Write-Status -Types "?" -Status "Checking for Office"
-    If (Test-Path $Variables.PathToOffice64 ) { $Variables.office64 = $true }Else { $Variables.office64 = $false }
-    If (Test-Path $Variables.PathToOffice86 ) { $Variables.Office32 = $true }Else { $Variables.office32 = $false }
-    If ($Variables.office32 -or $Variables.Office64 -eq $true) { $Variables.officecheck = $true }
-    If ($Variables.officecheck -eq $true) { Write-Status -Types "WAITING" -Status "Office Exists" -WriteWarning }
-    Else {
-        Write-Status -Types "?" -Status "There are no Microsoft Office products on this device." -WriteWarning
+    If (Test-Path $Variables.PathToOffice64 ) {
+        $Variables.office64 = $true
     }
-    If ($Variables.officecheck -eq $true) { Remove-Office }
+    Else {
+        $Variables.office64 = $false
+    }
+
+    <#$Spotify = "Jimbo"
+    $Variables.$($Spotify) = "LLS"
+    $Variables.Jimbo#>
+
+    If (Test-Path $Variables.PathToOffice86 ) {
+        $Variables.Office32 = $true
+    }
+    Else {
+        $Variables.office32 = $false
+    }
+
+    If ($Variables.office32 -or $Variables.Office64 -eq $true) {
+        $Variables.officecheck = $true
+    }
+
+    If ($Variables.officecheck -eq $true) {
+        Write-Status -Types "WAITING" -Status "Office Exists" -WriteWarning
+    }
+    Else {
+        $message = "There are no Microsoft Office products on this device."
+        Write-Status -Types "?" -Status $Message -WriteWarning
+        Add-Content -Path $Variables.Log -Value $message
+    }
+
+    If ($Variables.officecheck -eq $true) {
+        Remove-Office
+    }
 }
 Function Get-Program {
     Show-ScriptStatus -WindowTitle "Apps" -TweakType "Apps" -TitleCounterText "Programs" -TitleText "Application Installation"
     If ($SkipPrograms -or $Revert) {
-        Write-Status -Types "@" -Status "Parameter -SkipProgams or -Undo detected.. Ignoring this section." -WriteWarning -ForegroundColorText RED
+        Write-Status -Types "@" -Status "Parameter -SkipProgams and/or -Undo detected.. Ignoring this section." -WriteWarning -ForegroundColorText RED
     }
     else {
         $chrome = @{
@@ -789,7 +895,7 @@ Function Get-Program {
                         Start-BitsTransfer -Source $program.DownloadURL -Destination $program.InstallerLocation -TransferType Download -Dynamic | Get-Status
                     }
                     catch {
-                        Write-Caption $_ -Type Failed
+                        Invoke-ErrorHandling
                         continue
                     }
                 }
@@ -802,7 +908,7 @@ Function Get-Program {
                         $ProgressPreference = $BackupProgressPreference
                     }
                     catch {
-                        Write-Caption $_ -Type Failed
+                        Invoke-ErrorHandling
                         continue
                     }
                 }
@@ -812,7 +918,7 @@ Function Get-Program {
                         Start-Process -FilePath $program.InstallerLocation -ArgumentList $program.ArgumentList -Wait
                     }
                     catch {
-                        Write-Caption $_ -Type Failed
+                        Invoke-ErrorHandling
                         continue
                     }
                 }
@@ -832,37 +938,33 @@ Function Get-Program {
 
     }
 }
-Function Get-Status {
-    if ($?) { 
-        $CaptionSucceeded = Get-Command Write-Caption -ErrorAction SilentlyContinue
-        If ($CaptionSucceeded) {
-            Write-Caption -Type Success
-        } else {
-            Write-Host "=> Successful" -ForegroundColor Green
-        }
-        #Add-Content -Path $Variables.Log -Value "@{Command=Succeeded}"
-        ## Set the Successful property of the global $LogEntry to $true
+function Get-Status {
+    try {
+        # If everything is successful, set the global LogEntry.Successful to true
         $Global:LogEntry.Successful = $true
+
+        # Log a success message
+        Write-Caption -Type Success
         Add-Content -Path $Variables.Log -Value $logEntry
-    } else {
+    }
+    catch {
+        # If an error occurs, handle it using the Invoke-ErrorHandling function
         Invoke-ErrorHandling $_
-        $CaptionSucceeded = Get-Command Write-Caption -ErrorAction SilentlyContinue
-        If ($CaptionSucceeded) {
-            Write-Caption -Type Failed
-        } else {
-            Write-Host "=> Failed" -ForegroundColor Red
-        }
-        #Add-Content -Path $Variables.Log -Value "@{Command=Failed; Error Message=$($_)}"
-        # Set the Successful property of the global $LogEntry to $true
+
+        # Set the global LogEntry.Successful to false
         $Global:LogEntry.Successful = $false
+
+        # Log a failure message
+        Write-Caption -Type Failed
         Add-Content -Path $Variables.Log -Value $logEntry
     }
 }
-function Invoke-ErrorHandling {
+
+
+function Invoke-ErrorHandling() {
     param (
         [string]$errorMessage = $_
     )
-    ""
     $lineNumber = $MyInvocation.ScriptLineNumber
     $command = $MyInvocation.Line
     $errorType = $Error[0].CategoryInfo.Reason
@@ -878,11 +980,10 @@ Error Message: $($errorMessage)
 "@
     try {
         Add-Content -Path $Variables.Errorlog -Value $errorString -ErrorAction Continue
-    } catch {
+    }
+    catch {
         return "Error writing to log: $($_.Exception.Message)"
     }
-
-   #return $errorMessage
 }
 
 
@@ -896,15 +997,26 @@ Function New-SystemRestorePoint {
     if ($PSCmdlet.ShouldProcess($actionDescription, "Enable-SystemRestore")) {
         # Assure System Restore is enabled
         Write-Status -Types "+" -Status "Enabling System Restore" -NoNewLine
-        Enable-ComputerRestore -Drive "$env:SystemDrive\" | Get-Status
+        try {
+            Enable-ComputerRestore -Drive "$env:SystemDrive\" | Get-Status
+        }
+        catch {
+            Invoke-ErrorHandling
+            Continue
+        }
     }
     $actionDescription = "Creating new System Restore Point with description: $description and type: $restorePointType"
     if ($PSCmdlet.ShouldProcess($actionDescription, "Create-RestorePoint")) {
         # Creates a System Restore point
         Write-Status -Types "+" -Status "Creating System Restore Point: $description" -NoNewLine
-        Checkpoint-Computer -Description $description -RestorePointType $restorePointType | Get-Status
+        try {
+            Checkpoint-Computer -Description $description -RestorePointType $restorePointType | Get-Status
+        }
+        catch {
+            Invoke-ErrorHandling
+            Continue
+        }
     }
-
     Show-ScriptStatus -WindowTitle ""
 }
 
@@ -947,10 +1059,8 @@ Function Optimize-General {
 
         ##  Removes 3D Objects from "This PC"
         $PathToHide3DObjects = "$($Variables.PathToRegExplorerLocalMachine)\MyComputer\NameSpace\{0DB7E03F-FC29-4DC6-9020-FF41B59E513A}"
-        If (Test-Path -Path $PathToHide3DObjects) {
-            Write-Status -Types $EnableStatus[0].Symbol, $TweakType -Status "$($EnableStatus[0].Status)  3D Objects from This PC.."
-            Remove-Item -Path $PathToHide3DObjects -Recurse
-        }
+        Write-Status -Types $EnableStatus[0].Symbol, $TweakType -Status "$($EnableStatus[0].Status)  3D Objects from This PC.."
+        Get-Item $PathToHide3DObjects -ErrorAction SilentlyContinue | Remove-Item -Recurse
 
         # Expands ribbon in 10 explorer
         Write-Status -Types $EnableStatus[1].Symbol, $TweakType -Status "$($EnableStatus[1].Status) Expanded Ribbon in Explorer.."
@@ -1238,16 +1348,18 @@ Function Optimize-Privacy {
     }
 
     # Disables content suggestions in settings
-    Write-Status -Types "-", $TweakType -Status "$($EnableStatus[0].Status) 'Suggested Content in the Settings App'..."
-    If (Test-Path "$($Variables.PathToCUContentDeliveryManager)\Subscriptions") {
+    Write-Status -Types "-", $TweakType -Status "$($EnableStatus[0].Status) 'Suggested Content in the Settings App'..." -NoNewLine
+    Get-Item "$($Variables.PathToCUContentDeliveryManager)\Subscriptions" -ErrorAction SilentlyContinue | Remove-Item -Recurse | Get-Status
+    <#If (Test-Path "$($Variables.PathToCUContentDeliveryManager)\Subscriptions") {
         Remove-Item -Path "$($Variables.PathToCUContentDeliveryManager)\Subscriptions" -Recurse
-    }
+    }#>
 
     # Disables content suggestion in start
-    Write-Status -Types $EnableStatus[0].Symbol, $TweakType -Status "$($EnableStatus[0].Status) 'Show Suggestions' in Start..."
-    If (Test-Path "$($Variables.PathToCUContentDeliveryManager)\SuggestedApps") {
+    Write-Status -Types $EnableStatus[0].Symbol, $TweakType -Status "$($EnableStatus[0].Status) 'Show Suggestions' in Start..." -NoNewLine
+    Get-Item "$($Variables.PathToCUContentDeliveryManager)\SuggestedApps" -ErrorAction SilentlyContinue | Remove-Item -Recurse | Get-Status
+    <#If (Test-Path "$($Variables.PathToCUContentDeliveryManager)\SuggestedApps") {
         Remove-Item -Path "$($Variables.PathToCUContentDeliveryManager)\SuggestedApps" -Recurse
-    }
+    }#>
 
     Write-Section -Text "Privacy -> Windows Permissions"
     Write-Caption -Text "General"
@@ -1304,13 +1416,9 @@ Function Optimize-Privacy {
 
     Write-Caption -Text "Activity History"
     Write-Status -Types $EnableStatus[0].Symbol, $TweakType -Status "$($EnableStatus[0].Status) Activity History..."
-    $ActivityHistoryDisableOnZero = @(
-        "EnableActivityFeed"
-        "PublishUserActivities"
-        "UploadUserActivities"
-    )
+
     Write-Status -Types "?", $TweakType -Status "From Path: [$($Variables.PathToLMActivityHistory)]" -WriteWarning
-    ForEach ($Name in $ActivityHistoryDisableOnZero) {
+    ForEach ($Name in $Variables.ActivityHistoryDisableOnZero) {
         Write-Status -Types $EnableStatus[0].Symbol, $TweakType -Status "$($EnableStatus[0].Status) $($Name): $Zero"
         Set-ItemPropertyVerified -Path $Variables.PathToLMActivityHistory -Name $Name -Type DWord -Value $Zero
     }
@@ -1321,12 +1429,16 @@ Function Optimize-Privacy {
 
     ### Privacy
     Write-Section -Text "Privacy"
-    If (Test-Path -Path "$($Variables.PathToCUContentDeliveryManager)\Subscriptionn") {
-        Remove-Item -Path "$($Variables.PathToCUContentDeliveryManager)\Subscriptionn" -Recurse
-    }
-    If (Test-Path -Path "$($Variables.PathToCUContentDeliveryManager)\SuggestedApps") {
+    Write-Status -Types "-" -Status "Removing $($Variables.PathToCUContentDeliveryManager)\Subscription" -NoNewLine
+    Get-Item "$($Variables.PathToCUContentDeliveryManager)\Subscription" | Remove-Item -Recurse | Get-Status
+    <#If (Test-Path -Path "$($Variables.PathToCUContentDeliveryManager)\Subscription") {
+        Remove-Item -Path "$($Variables.PathToCUContentDeliveryManager)\Subscription" -Recurse
+    }#>
+    Write-Status -Types "-" -Status "Removing $($Variables.PathToCUContentDeliveryManager)\SuggestedApps" -NoNewLine
+    Get-Item "$($Variables.PathToCUContentDeliveryManager)\SuggestedApps" | Remove-Item -Recurse | Get-Status
+    <#If (Test-Path -Path "$($Variables.PathToCUContentDeliveryManager)\SuggestedApps") {
         Remove-Item -Path "$($Variables.PathToCUContentDeliveryManager)\SuggestedApps" -Recurse
-    }
+    }#>
 
     # Disables app launch tracking
     Write-Status -Types $EnableStatus[0].Symbol, $TweakType -Status "$($EnableStatus[0].Status) App Launch Tracking..."
@@ -1472,17 +1584,8 @@ Function Optimize-Privacy {
 
     Write-Section -Text "$($EnableStatus[0].Status) More Telemetry Features..."
 
-    $CloudContentDisableOnOne = @(
-        "DisableWindowsSpotlightFeatures"
-        "DisableWindowsSpotlightOnActionCenter"
-        "DisableWindowsSpotlightOnSettings"
-        "DisableWindowsSpotlightWindowsWelcomeExperience"
-        "DisableTailoredExperiencesWithDiagnosticData"      # Tailored Experiences
-        "DisableThirdPartySuggestions"
-    )
-
     Write-Status -Types "?", $TweakType -Status "From Path: [$PathToCUPoliciesCloudContent]." -WriteWarning
-    ForEach ($Name in $CloudContentDisableOnOne) {
+    ForEach ($Name in $Variables.CloudContentDisableOnOne) {
         Write-Status -Types $EnableStatus[0].Symbol, $TweakType -Status "$($EnableStatus[0].Status) $($Name): $One"
         Set-ItemPropertyVerified -Path $Variables.PathToCUPoliciesCloudContent -Name "$Name" -Type DWord -Value $One
     }
@@ -1539,34 +1642,7 @@ Function Optimize-Privacy {
     Set-ItemPropertyVerified -Path "$($Variables.PathToLMPoliciesToWifi)\AllowAutoConnectToWiFiSenseHotspots" -Name "value" -Type DWord -Value $Zero
 
     Write-Caption -Text "Deleting useless registry keys..." -Type None
-    $KeysToDelete = @(
-        # Remove Background Tasks
-        "HKCR:\Extensions\ContractId\Windows.BackgroundTasks\PackageId\46928bounde.EclipseManager_2.2.4.51_neutral__a5h4egax66k6y"
-        "HKCR:\Extensions\ContractId\Windows.BackgroundTasks\PackageId\ActiproSoftwareLLC.562882FEEB491_2.6.18.18_neutral__24pqs290vpjk0"
-        "HKCR:\Extensions\ContractId\Windows.BackgroundTasks\PackageId\Microsoft.MicrosoftOfficeHub_17.7909.7600.0_x64__8wekyb3d8bbwe"
-        "HKCR:\Extensions\ContractId\Windows.BackgroundTasks\PackageId\Microsoft.PPIProjection_10.0.15063.0_neutral_neutral_cw5n1h2txyewy"
-        "HKCR:\Extensions\ContractId\Windows.BackgroundTasks\PackageId\Microsoft.XboxGameCallableUI_1000.15063.0.0_neutral_neutral_cw5n1h2txyewy"
-        "HKCR:\Extensions\ContractId\Windows.BackgroundTasks\PackageId\Microsoft.XboxGameCallableUI_1000.16299.15.0_neutral_neutral_cw5n1h2txyewy"
-        # Windows File
-        "HKCR:\Extensions\ContractId\Windows.File\PackageId\ActiproSoftwareLLC.562882FEEB491_2.6.18.18_neutral__24pqs290vpjk0"
-        # Registry keys to delete if they aren't uninstalled by RemoveAppXPackage/RemoveAppXProvisionedPackage
-        "HKCR:\Extensions\ContractId\Windows.Launch\PackageId\46928bounde.EclipseManager_2.2.4.51_neutral__a5h4egax66k6y"
-        "HKCR:\Extensions\ContractId\Windows.Launch\PackageId\ActiproSoftwareLLC.562882FEEB491_2.6.18.18_neutral__24pqs290vpjk0"
-        "HKCR:\Extensions\ContractId\Windows.Launch\PackageId\Microsoft.PPIProjection_10.0.15063.0_neutral_neutral_cw5n1h2txyewy"
-        "HKCR:\Extensions\ContractId\Windows.Launch\PackageId\Microsoft.XboxGameCallableUI_1000.15063.0.0_neutral_neutral_cw5n1h2txyewy"
-        "HKCR:\Extensions\ContractId\Windows.Launch\PackageId\Microsoft.XboxGameCallableUI_1000.16299.15.0_neutral_neutral_cw5n1h2txyewy"
-        # Scheduled Tasks to delete
-        "HKCR:\Extensions\ContractId\Windows.PreInstalledConfigTask\PackageId\Microsoft.MicrosoftOfficeHub_17.7909.7600.0_x64__8wekyb3d8bbwe"
-        # Windows Protocol Keys
-        "HKCR:\Extensions\ContractId\Windows.Protocol\PackageId\ActiproSoftwareLLC.562882FEEB491_2.6.18.18_neutral__24pqs290vpjk0"
-        "HKCR:\Extensions\ContractId\Windows.Protocol\PackageId\Microsoft.PPIProjection_10.0.15063.0_neutral_neutral_cw5n1h2txyewy"
-        "HKCR:\Extensions\ContractId\Windows.Protocol\PackageId\Microsoft.XboxGameCallableUI_1000.15063.0.0_neutral_neutral_cw5n1h2txyewy"
-        "HKCR:\Extensions\ContractId\Windows.Protocol\PackageId\Microsoft.XboxGameCallableUI_1000.16299.15.0_neutral_neutral_cw5n1h2txyewy"
-        # Windows Share Target
-        "HKCR:\Extensions\ContractId\Windows.ShareTarget\PackageId\ActiproSoftwareLLC.562882FEEB491_2.6.18.18_neutral__24pqs290vpjk0"
-    )
-
-    ForEach ($Key in $KeysToDelete) {
+    ForEach ($Key in $Variables.KeysToDelete) {
         $KeyExist = Test-Path $key
         If ($KeyExist -eq $true) {
             Write-Status -Types "-", $TweakType -Status "Removing Key: [$Key]"
@@ -1669,9 +1745,11 @@ Function Optimize-Security {
 Function Optimize-Service {
     Show-ScriptStatus -TweakType "Services" -TitleText "Services"
     ## Obsolete code
-    If ($Revert) {Write-Status -Types "*", "Services" -Status "Reverting the tweaks is set to '$Revert'."
+    If ($Revert) {
+        Write-Status -Types "*", "Services" -Status "Reverting the tweaks is set to '$Revert'."
         Set-ServiceStartup -State 'Manual' -Services $Variables.ServicesToDisabled -Filter $Variables.EnableServicesOnSSD
-    }Else {Set-ServiceStartup -State 'Disabled' -Services $Variables.ServicesToDisabled -Filter $Variables.EnableServicesOnSSD}
+    }
+    Else { Set-ServiceStartup -State 'Disabled' -Services $Variables.ServicesToDisabled -Filter $Variables.EnableServicesOnSSD }
     ##
 
     Write-Section "Enabling services from Windows"
@@ -1719,7 +1797,7 @@ Function Optimize-WindowsOptional {
     $printers = "Microsoft XPS Document Writer", "Fax", "OneNote"
     foreach ($printer in $printers) {
         $PrinterExists = Get-Printer -Name $Printer -ErrorAction SilentlyContinue
-        If ($PrinterExists){
+        If ($PrinterExists) {
             try {
                 Write-Status -Types "-", "Printer" -Status "Attempting removal of $printer..." -NoNewLine
                 Remove-Printer -Name $printer -ErrorAction Stop | Get-Status
@@ -1775,34 +1853,55 @@ Function Remove-Office {
         'Yes' {
             $actionDescription = "Downloading Microsoft Support and Recovery Assistant (SaRA)..."
             if ($PSCmdlet.ShouldProcess($actionDescription, "Download-SaRA")) {
-                Write-Status "+", $TweakType -Status "Downloading Microsoft Support and Recovery Assistant (SaRA)..." -NoNewLine
-                Get-NetworkStatus
-                Start-BitsTransfer -Source $Variables.SaRAURL -Destination $Variables.SaRA -TransferType Download -Dynamic | Out-Host
-                Expand-Archive -Path $Variables.SaRA -DestinationPath $Variables.Sexp -Force | Get-Status
+                try {
+                    Write-Status "+", $TweakType -Status "Downloading Microsoft Support and Recovery Assistant (SaRA)..." -NoNewLine
+                    Get-NetworkStatus
+                    Start-BitsTransfer -Source $Variables.SaRAURL -Destination $Variables.SaRA -TransferType Download -Dynamic | Out-Host | Get-Status
+                    Write-Status "+", $TweakType -Status "Expanding SaRA" -NoNewLine
+                    Expand-Archive -Path $Variables.SaRA -DestinationPath $Variables.Sexp -Force | Get-Status
+                }
+                catch {
+                    Invoke-ErrorHandling $_
+                }
             }
 
             $SaRAcmdexe = (Get-ChildItem $Variables.Sexp -Include SaRAcmd.exe -Recurse).FullName
             $actionDescription = "Starting OfficeScrubScenario via Microsoft Support and Recovery Assistant (SaRA)..."
             if ($PSCmdlet.ShouldProcess($actionDescription, "Start-OfficeScrubScenario")) {
-                Write-Status "+", $TweakType -Status "Starting OfficeScrubScenario via Microsoft Support and Recovery Assistant (SaRA)... "
-                Start-Process $SaRAcmdexe -ArgumentList "-S OfficeScrubScenario -AcceptEula -OfficeVersion All"
+                try {
+                    Write-Status "+", $TweakType -Status $actionDescription -NoNewLine
+                    Start-Process $SaRAcmdexe -ArgumentList "-S OfficeScrubScenario -AcceptEula -OfficeVersion All" | Get-Status
+                }
+                catch {
+                    Invoke-ErrorHandling $_
+                }
             }
         }
         'No' {
             Write-Status -Types "?" -Status "Skipping Office Removal" -WriteWarning
+            Add-Content -Path $Variables.Log -Value $logEntry
         }
     }
 }
 Function Remove-PinnedStartMenu {
     [CmdletBinding(SupportsShouldProcess)]
     Param()
-
+    $START_MENU_LAYOUT                          = @"
+    <LayoutModificationTemplate xmlns:defaultlayout="http://schemas.microsoft.com/Start/2014/FullDefaultLayout" xmlns:start="http://schemas.microsoft.com/Start/2014/StartLayout" Version="1" xmlns:taskbar="http://schemas.microsoft.com/Start/2014/TaskbarLayout" xmlns="http://schemas.microsoft.com/Start/2014/LayoutModification">
+        <LayoutOptions StartTileGroupCellWidth="6" />
+        <DefaultLayoutOverride>
+            <StartLayoutCollection>
+                <defaultlayout:StartLayout GroupCellWidth="6" />
+            </StartLayoutCollection>
+        </DefaultLayoutOverride>
+    </LayoutModificationTemplate>
+"@
     $layoutFile = "C:\Windows\StartMenuLayout.xml"
     # Delete layout file if it already exists
     # Creates the blank layout file
     if ($PSCmdlet.ShouldProcess("Out-File $StartlayoutFile -Encoding ASCII", "Remove-LayoutModificationFile")) {
         If (Test-Path $layoutFile) { Remove-Item $layoutFile }
-        $Variables.START_MENU_LAYOUT | Out-File $layoutFile -Encoding ASCII
+        $START_MENU_LAYOUT | Out-File $layoutFile -Encoding ASCII
     }
 
     $regAliases = @("HKLM", "HKCU")
@@ -1841,11 +1940,12 @@ Function Remove-PinnedStartMenu {
     if ($PSCmdlet.ShouldProcess("Stop-Process -Name Explorer")) {
         Stop-Process -name explorer
     }
-    <## Uncomment the next line to make clean start menu default for all new users
-    if ($PSCmdlet.ShouldProcess("Import-StartLayout -LayoutPath $($layoutFile) -MountPath $env:SystemDrive\", "Remove-Item $($LayoutFile)")) {
+    # Uncomment the next line to make clean start menu default for all new users
+    if ($PSCmdlet.ShouldProcess(<#"Import-StartLayout -LayoutPath $($layoutFile) -MountPath $env:SystemDrive\",#> "Remove-Item $($LayoutFile)")) {
         Import-StartLayout -LayoutPath $layoutFile -MountPath $env:SystemDrive\
         Remove-Item $layoutFile
-    }#>
+    }
+    <##>
 }
 Function Remove-UWPAppx {
     [CmdletBinding(SupportsShouldProcess)]
@@ -1861,29 +1961,31 @@ Function Remove-UWPAppx {
             if ($PSCmdlet.ShouldProcess($actionDescription, "Remove-AppxPackage")) {
                 $appxPackageToRemove | ForEach-Object -Process {
                     Write-Status -Types "-", $TweakType -Status "Trying to remove $AppxPackage" -NoNewLine
-                    Remove-AppxPackage $_.PackageFullName -ErrorAction Continue | Out-Null | Get-Status #4>&1 | Out-Null
-                    #Get-Status
+                    Remove-AppxPackage $_.PackageFullName -ErrorAction Continue | Out-Null | Get-Status
                     If ($?) {
                         $Variables.Removed++
                         $Variables.PackagesRemoved += $appxPackageToRemove.PackageFullName
-                    } elseif (!($?)) {
+                    }
+                    elseif (!($?)) {
                         $Variabless.Failed++
                     }
                 }
 
                 $actionDescription = "Removing Provisioned Appx $AppxPackage"
                 if ($PSCmdlet.ShouldProcess($actionDescription, "Remove-AppxProvisionedPackage")) {
-                    Write-Status -Types "-", $TweakType -Status "Trying to remove Provisioned $AppxPackage" -NoNewLine
+                    Write-Status -Types "-", $TweakType -Status "Trying to remove provisioned $AppxPackage" -NoNewLine
                     Get-AppxProvisionedPackage -Online | Where-Object DisplayName -like $AppxPackage | Remove-AppxProvisionedPackage -Online -AllUsers | Out-Null | Get-Status
                     If ($?) {
                         $Variables.Removed++
                         $Variables.PackagesRemoved += "Provisioned Appx $($appxPackageToRemove.PackageFullName)"
-                    } elseif (!($?)) {
+                    }
+                    elseif (!($?)) {
                         $Variables.Failed++
                     }
                 }
             }
-        }else { $Variables.NotFound++ }
+        }
+        else { $Variables.NotFound++ }
     }
     $ProgressPreference = "Continue"
 }
@@ -1900,7 +2002,8 @@ Function Restart-Explorer {
         }
         catch {
             Write-Warning "Failed to stop Explorer process: $_"
-            return
+            Invoke-ErrorHandling $_
+            Continue
         }
     }
     try {
@@ -1910,7 +2013,8 @@ Function Restart-Explorer {
     }
     catch {
         Write-Error "Failed to start Explorer process: $_"
-        return
+        Invoke-ErrorHandling $_
+        Continue
     }
 }
 Function Request-PCRestart {
@@ -2036,10 +2140,15 @@ Function Set-ItemPropertyVerified {
                 }
                 Set-ItemProperty @params
 
-                if ($? -eq $True) { Get-Status
+                if ($? -eq $True) {
+                    Get-Status
                     $Global:ModifiedRegistryKeys++
-                }else { Get-Status }
-            }catch {
+                }
+                else {
+                    Get-Status
+                }
+            }
+            catch {
                 Invoke-ErrorHandling $_
                 Continue
             }
@@ -2063,7 +2172,8 @@ Function Set-OptionalFeatureState {
     $SecurityFilterOnEnable = @("IIS-*")
     $TweakType = "OptionalFeature"
 
-    $OptionalFeatures | ForEach-Object {
+    $OptionalFeatures | ForEach-Object
+    {
         $feature = Get-WindowsOptionalFeature -Online -FeatureName $_
         if ($feature) {
             if ($_.DisplayName -in $Filter) {
@@ -2137,9 +2247,14 @@ function Set-ScheduledTaskState {
                 Continue
             }
 
-            If ($Disabled) { $action = "Disable" }
-            ElseIf ($Ready) { $action = "Enable" }
-            Else { Write-Status -Types "?", $TweakType -Status "No parameter received (valid params: -Disabled or -Ready)" -WriteWarning
+            If ($Disabled) {
+                $action = "Disable"
+            }
+            ElseIf ($Ready) {
+                $action = "Enable"
+            }
+            Else {
+                Write-Status -Types "?", $TweakType -Status "No parameter received (valid params: -Disabled or -Ready)" -WriteWarning
                 $action = $null
             }
 
@@ -2227,8 +2342,7 @@ Function Set-StartMenu {
 
     Show-ScriptStatus -WindowTitle "Start Menu" -TweakType "StartMenu" -TitleCounterText "Start Menu Layout" -TitleText "StartMenu"
 
-    If ($Variables.osVersion -like "*Windows 10*")
-    {
+    If ($Variables.osVersion -like "*Windows 10*") {
 
         Write-Section -Text "Clearing pinned start menu items for Windows 10"
         Write-Status -Types "@", $TweakType -Status "Clearing Windows 10 start pins"
@@ -2282,8 +2396,7 @@ Function Set-StartMenu {
             Remove-Item $layoutFile
         }
     }
-    elseif ($Variables.osVersion -like "*Windows 11*")
-    {
+    elseif ($Variables.osVersion -like "*Windows 11*") {
         Write-Section -Text "Applying start menu layout for Windows 11"
         Write-Status -Types "+", $TweakType -Status "Attempting application"
         $StartBinFiles = Get-ChildItem -Path "$newloads" -Filter "start*.bin" -file
@@ -2358,15 +2471,9 @@ Function Send-EmailLog {
     $FormattedElapsedTime = "{0:hh} hours {0:mm} minutes {0:ss} seconds" -f $ElapsedTime
 
     # - Gathers some information about host
-    $SystemSpec = Get-SystemSpec
-    $Mobo = (Get-CimInstance -ClassName Win32_BaseBoard).Product
+    $SystemSpecs = Get-SystemSpecs
     $IP = $(Resolve-DnsName -Name myip.opendns.com -Server 208.67.222.220).IPAddress
-
-
-    # - Cleans up Motherboards Output
     $WallpaperApplied = if ($Variables.CurrentWallpaper -eq $Variables.Wallpaper) { "YES" } else { "NO" }
-    $Mobo = ($Mobo -replace 'Product|  ', '') -join "`n"
-
     # - Checks if all the programs got installed
     $ChromeYN = if (Get-InstalledProgram -Keyword "Google Chrome") { "YES" } else { "NO" }
     $VLCYN = if (Get-InstalledProgram -Keyword "VLC") { "YES" } else { "NO" }
@@ -2383,11 +2490,6 @@ Function Send-EmailLog {
         $LogFiles += $Variables.errorlog
     }
 
-    # - Cleans packages removed text and adds it to email
-    ForEach ($Package in $Variables.PackagesRemoved) {
-        $PackagesRemovedOutput = "$PackagesRemovedOutput`n       - $Package"
-    }
-
     # - Email Settings
     $smtp = 'smtp.shaw.ca'
     $To = '<newloads@shaw.ca>'
@@ -2396,22 +2498,24 @@ Function Send-EmailLog {
     $EmailBody = "
     ####################################
     #                                  #
-    #       NEW LOADS SCRIPT LOG       #
+    #          NEW LOADS LOG           #
     #                                  #
     ####################################
 
-New Loads summary for $ip\$env:computername\$env:USERNAME
+ 
+$ip\$env:computername\$env:USERNAME
 
 - Script Information:
     - Program Version: $($Variables.ProgramVersion)
     - Date: $CurrentDate
-    - Elapsed Time: $FormattedElapsedTime
     - Start Time: $FormattedStartTime
     - End Time: $FormattedEndTime
+    - Elapsed Time: $FormattedElapsedTime
 
-- Computer Information:
-    $SystemSpec
-
+- System Information:
+$SystemSpecs
+- Powershell Table:
+$PSVersionTable
 
 - Summary:
     - Applications Installed: $appsyns
@@ -2423,10 +2527,12 @@ New Loads summary for $ip\$env:computername\$env:USERNAME
     - Windows 11 Start Layout Applied: $StartMenuLayout
     - Registry Keys Modified: $ModifiedRegistryKeys
     - Packages Removed During Debloat: $($Variables.Removed)
-    - List of Packages Removed: $PackagesRemovedOutput
-"
-    # - Sends the mail
-    Send-MailMessage -From $From -To $To -Subject $Sub -Body $EmailBody -Attachments $LogFiles -DN OnSuccess, OnFailure -SmtpServer $smtp
+    - List of Packages Removed: 
+$($Variables.PackagesRemoved)"
+
+
+# - Sends the mail
+Send-MailMessage -From $From -To $To -Subject $Sub -Body $EmailBody -Attachments $LogFiles -DN OnSuccess, OnFailure -SmtpServer $smtp
 }
 Function Show-ScriptLogo {
     $WindowTitle = "New Loads - Initialization" ; $host.UI.RawUI.WindowTitle = $WindowTitle
@@ -2539,7 +2645,8 @@ Function Start-Bootup {
                     $wtExists = Get-Command wt
                     If ($wtExists) {
                         Start-Process wt -verb runas -ArgumentList "new-tab powershell -c ""irm run.newloads.ca | iex"""
-                    }else { Start-Process powershell -verb runas -ArgumentList "-command ""irm run.newloads.ca | iex""" }
+                    }
+                    else { Start-Process powershell -verb runas -ArgumentList "-command ""irm run.newloads.ca | iex""" }
                     Write-Output "Exiting"
                     Stop-Process $pid
                 }
@@ -2579,8 +2686,10 @@ function Start-Chime {
                 $soundPlayer.Play()
                 $soundPlayer.Dispose()
             }
-        }catch { Write-Error "An error occurred while playing the sound: $_.Exception.Message" }
-    }else { Write-Error "The sound file doesn't exist at the specified path." }
+        }
+        catch { Write-Error "An error occurred while playing the sound: $_.Exception.Message" }
+    }
+    else { Write-Error "The sound file doesn't exist at the specified path." }
 }
 Function Start-Cleanup {
     [CmdletBinding(SupportsShouldProcess)]
@@ -2589,7 +2698,8 @@ Function Start-Cleanup {
     Show-ScriptStatus -WindowTitle "Cleanup" -TweakType "Cleanup" -TitleCounterText "Cleanup" -TitleText "Cleanup"
     If ($Revert) {
         Write-Status -Types "@" -Status "Parameter -Undo was detected.. Skipping this section." -WriteWarning -ForegroundColorText Red
-    }else {
+    }
+    else {
         # - Starts Explorer if it isn't already running
         If (!(Get-Process -Name Explorer)) { Restart-Explorer }
         # Removes layout file if it exists
@@ -2668,18 +2778,21 @@ Function Start-Debloat {
             if ($PSCmdlet.ShouldProcess($target, "Remove UWP App")) {
                 Remove-UWPAppx -AppxPackages $Program
                 $CurrentItem++
-                $Variables.PackagesRemoved = "$PackagesRemoved`n  - $Program"
                 $PercentComplete = [int](($CurrentItem / $TotalItems) * 100)
             }
         }
-
         # Disposing the progress bar after the loop finishes
         Write-Progress -Activity "Debloating System" -Completed
+
         # - Debloat Completion
         Write-Host "Debloat Completed!`n" -Foregroundcolor Green
-        Write-Host "Packages Removed: " -NoNewline -ForegroundColor Gray ; Write-Host $Variables.Removed -ForegroundColor Green
-        If ($Failed) { Write-Host "Failed: " -NoNewline -ForegroundColor Gray ; Write-Host $Variables.Failed -ForegroundColor Red }
-        Write-Host "Packages Scanned For: " -NoNewline -ForegroundColor Gray ; Write-Host "$($Variables.NotFound)`n" -ForegroundColor Yellow
+        Write-Host "Packages Removed: " -NoNewline -ForegroundColor Gray
+        Write-Host $Variables.Removed -ForegroundColor Green
+        If ($Failed) { Write-Host "Failed: " -NoNewline -ForegroundColor Gray
+        Write-Host $Variables.Failed -ForegroundColor Red 
+        }
+        Write-Host "Packages Scanned For: " -NoNewline -ForegroundColor Gray
+        Write-Host "$($Variables.NotFound)`n" -ForegroundColor Yellow
     }
     elseif ($Revert) {
         $target = "Reinstall Default Appx from manifest"
@@ -2710,7 +2823,7 @@ function Update-Time {
         $w32TimeService = Get-Service -Name W32Time
         if ($w32TimeService.Status -ne "Running") {
             try {
-                if ($PSCmdlet.ShouldProcess("Starting W32Time Service", "Start-Service -Name W32Time -ErrorAction Stop")) {
+                if ($PSCmdlet.ShouldProcess("Starting W32Time Service", "Start-Service -Name W32Time -ErrorAction SilentlyContinue")) {
                     Write-Status -Types "+" -Status "Starting W32Time Service" -NoNewLine
                     Start-Service -Name W32Time -ErrorAction SilentlyContinue | Get-Status
                 }
@@ -2865,14 +2978,14 @@ Function Write-Status {
     $Time = Get-Date
     $FormattedTime = $Time.ToString("h:mm:ss tt")
 
-    $Global:LogEntry = [PSCustomObject]@{
-        Time = "$FormattedTime"
-        Successful = ""
-        Types = $Types -join ', '
-        Status = $Status
-        Warning = $WriteWarning
+    $LogEntry = [PSCustomObject]@{
+        Time       = "$FormattedTime"
+        Successful = "Successfull"
+        Types      = $Types -join ', '
+        Status     = $Status
+        Warning    = $WriteWarning
     }
-    $LogEntry | Out-Null
+    $Global:LogEntry = $LogEntry
     # Output the log entry to the console
     Write-Host "$FormattedTime " -NoNewline -ForegroundColor DarkGray -BackgroundColor $Variables.BackgroundColor
 
@@ -2882,7 +2995,8 @@ Function Write-Status {
 
     If ($WriteWarning) {
         Write-Host "::Warning:: -> $Status" -ForegroundColor $ForegroundColorText -BackgroundColor $Variables.BackgroundColor -NoNewline:$NoNewLine
-    }Else {
+    }
+    Else {
         Write-Host "-> $Status" -ForegroundColor $ForegroundColorText -BackgroundColor $Variables.BackgroundColor -NoNewline:$NoNewLine
     }
 }
