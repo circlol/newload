@@ -2469,7 +2469,7 @@ Function Send-EmailLog {
     $FormattedEndTime = $EndTime.ToString("h:mm:ss tt")
     $ElapsedTime = $EndTime - $StartTime
     $FormattedElapsedTime = "{0:hh} hours {0:mm} minutes {0:ss} seconds" -f $ElapsedTime
-
+    $PowershellTable = $PSVersionTable | Out-String
     # - Gathers some information about host
     $SystemSpecs = Get-SystemSpecs
     $IP = $(Resolve-DnsName -Name myip.opendns.com -Server 208.67.222.220).IPAddress
@@ -2515,7 +2515,7 @@ $ip\$env:computername\$env:USERNAME
 - System Information:
 $SystemSpecs
 - Powershell Table:
-$PSVersionTable
+$PowershellTable
 
 - Summary:
     - Applications Installed: $appsyns
