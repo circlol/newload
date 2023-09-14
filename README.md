@@ -10,19 +10,13 @@ New Loads, a comprehensive and seamless Windows 10 & 11 setup utility, has been 
 
 - **Program Installation** (Chrome, VLC, Acrobat, Zoom)
 
-  [^]: Use switch parameter `-SkipPrograms` to skip this section
-
 - **Mother Computer's Specific Branding** (Wallpaper, OEM Info in *_About your PC_*)
-
-  [^]: Use switch parameter `-NoBranding` to skip this section
 
 - **Custom Start Menu and Taskbar Layout**
 
 - **Debloat**
 
 - **Malwarebytes ADWCleaner**
-
-  [^]: Use switch parameter `-SkipADW` to skip this section
 
 - **Office Removal** - _by confirmation_
 
@@ -38,17 +32,15 @@ New Loads, a comprehensive and seamless Windows 10 & 11 setup utility, has been 
 
 - **Bitlocker Decryption**
 
-  [^]: Use switch parameter `-SkipBitlocker` to skip this section
-
 ​	 
 
 
 
 <h2>⚠️Things to keep in mind before running</h2>
 
-1. New Loads is primarily used by Mother Computers, a west coast canadian retail/repair shop, therefor the script will set the time-zone of the system it's run on to Pacific Standard Time.
-2. Unless run with switch parameter `-NoBranding` the script will apply OEM information in settings and a wallpaper will be applied. The OEM information is tied to Mother Computers.
-3. New Loads was not designed to account for an already lived in OS, it is meant to be run on a fresh operating system. Please note that you may experience unwanted changes.
+1. New Loads is primarily used by Mother Computers, therefor the script will set the time-zone of the system it's run on to Pacific Standard Time.
+2. ~~Unless run with switch parameter `-NoBranding` the script will apply OEM information in settings and a wallpaper will be applied. The OEM information is tied to Mother Computers.~~ -NoBranding temporarily removed
+3. New Loads was not designed to account for an already lived in OS, it is meant to be run on a fresh operating system. Please note that you may experience unwanted changes
 
 ⚠️ **DISCLAIMER:** _You are using this software at your own risk, I am not responsible for any data loss or damage that may occur. It's not guaranteed that every feature removed from the system can be easily restored._
 
@@ -99,20 +91,20 @@ Github Development branch: [Link](https://github.com/circlol/newloadsTesting)
 <h6>Usage Directly through powershell</h6>
 
 ```powershell
-irm "https://raw.githubusercontent.com/circlol/newload/main/exe/New%20Loads.ps1" | iex
+irm run.newloads.ca | iex
 ```
 
 <h6>Command Line Usage</h6>
 
-`& .\New Loads.exe -GUI` : Initiates New Loads with a WinForm GUI - Cannot be used with other arguments
+~~`& .\New Loads.exe -GUI` : Initiates New Loads with a WinForm GUI - Cannot be used with other arguments~~
 
-`& .\New Loads.exe -NoBranding` : Skips **Branding** and **Visuals** sections of the script
+~~`& .\New Loads.exe -NoBranding` : Skips **Branding** and **Visuals** sections of the script~~
 
-`& .\New Loads.exe -SkipADW` : Skips Malwarebytes ADWCleaner scan
+~~`& .\New Loads.exe -SkipADW` : Skips Malwarebytes ADWCleaner scan~~
 
-`& .\New Loads.exe -SkipBitlocker` : Skips disabling bitlocker
+~~`& .\New Loads.exe -SkipBitlocker` : Skips disabling bitlocker~~
 
-`& .\New Loads.exe -SkipPrograms` : Skips installing programs
+~~`& .\New Loads.exe -SkipPrograms` : Skips installing programs~~
 
 
 
@@ -124,24 +116,15 @@ irm "https://raw.githubusercontent.com/circlol/newload/main/exe/New%20Loads.ps1"
 - Start-Bootup checks requirements and sets execution policy
 - All Variables are imported from function Import-Variables
 - [Assets](https://github.com/circlol/newloadsTesting/blob/48d061e9e1352ad0cebe9d7b2dc0dbbcc0f20514/exe/New%20Loads.ps1#L669) are acquired and imported
-
-​	**Applies to pressing start in GUI_**
-
 - [Get-Programs](https://github.com/circlol/newloadsTesting/blob/73f06a02cbc738639a279486f7dbbbc2c3e039ce/lib/scripts/Programs.psm1#L1) downloads Google Chrome, VLC Media Player, Acrobat Reader, and Zoom
-
-  [^]: Use -SkipPrograms to skip installing these apps.
-
-  [^]: Also installs H.265 Codec from Device Manufacturer and UBlock Origin into Chrome
-
+- ~~[^]: Use -SkipPrograms to skip installing these apps.~~
+- [^]: Also installs H.265 Codec from Device Manufacturer and UBlock Origin into Chrome
 - [Set-Visuals](https://github.com/circlol/newloadsTesting/blob/48d061e9e1352ad0cebe9d7b2dc0dbbcc0f20514/lib/scripts/Visuals.psm1#L1) applies a wallpaper, sets to stretch and changes system to light mode
-
 - [Set-Branding](https://github.com/circlol/newloadsTesting/blob/48d061e9e1352ad0cebe9d7b2dc0dbbcc0f20514/lib/scripts/Branding.psm1#L1) sets Mother Computer's support info     _Seen in Settings -> About Your PC_
-
 - [Set-StartMenu](https://github.com/circlol/newloadsTesting/blob/48d061e9e1352ad0cebe9d7b2dc0dbbcc0f20514/lib/scripts/StartMenu.psm1#L1) applies a taskbar layout then a  custom start menu layout in 11 and clears pinned tiles in 10. 
-
 - [Debloat](https://github.com/circlol/newloadsTesting/blob/48d061e9e1352ad0cebe9d7b2dc0dbbcc0f20514/lib/scripts/Debloat.psm1#L1) checks common Win32 Programs, UWP bloat, Start Menu Ads (Internet Shortcuts) and removes them
 
-  <details>
+- <details>
     <summary>Click to Expand for a list of Debloat Apps</summary>
   ###### _To make suggestions submit a change or send an email to newloads@shaw.ca_
 
@@ -408,7 +391,7 @@ irm "https://raw.githubusercontent.com/circlol/newload/main/exe/New%20Loads.ps1"
 
 - Disables [Bitlocker](https://github.com/circlol/newloadsTesting/blob/48d061e9e1352ad0cebe9d7b2dc0dbbcc0f20514/lib/Start-BitLockerDecryption.psm1#L1C10-L1C18) on the system
 
-  [^]: Use switch `-SkipBitlocker` to avoid this feature
+  ~~[^]: Use switch `-SkipBitlocker` to avoid this feature~~
 
 
 - [Restore point](https://github.com/circlol/newloadsTesting/blob/48d061e9e1352ad0cebe9d7b2dc0dbbcc0f20514/lib/New-SystemRestorePoint.psm1#L1C10-L1C18) is created at the end
