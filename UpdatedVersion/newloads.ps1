@@ -59,7 +59,7 @@ $Variables = @{
     "BackgroundColor"                            = "Black"
     "LogoColor"                                  = "DarkMagenta"
     "ProgramVersion"                             = "v1.06"
-    "ReleaseDate"                                = "September 6th, 2023"
+    "ReleaseDate"                                = "September 13th"
     "Time"                                       = Get-Date -UFormat %Y%m%d
     "MinTime"                                    = 20230630
     "MaxTime"                                    = 20231031
@@ -513,35 +513,35 @@ $Variables = @{
         "26720RandomSaladGamesLLC.SimpleMahjong"                # Simple Mahjong
         "26720RandomSaladGamesLLC.Spades"                       # Spades
     )
-    "StartLayout"                                = @"
-    <LayoutModificationTemplate xmlns="http://schemas.microsoft.com/Start/2014/LayoutModification"
-        xmlns:defaultlayout="http://schemas.microsoft.com/Start/2014/FullDefaultLayout"
-        xmlns:start="http://schemas.microsoft.com/Start/2014/StartLayout"
-        xmlns:taskbar="http://schemas.microsoft.com/Start/2014/TaskbarLayout"
-        Version="1">
-        <LayoutOptions StartTileGroupCellWidth="6" />
-        <DefaultLayoutOverride>
-            <StartLayoutCollection>
-            <defaultlayout:StartLayout GroupCellWidth="6" />
-            </StartLayoutCollection>
-        </DefaultLayoutOverride>
-        <CustomTaskbarLayoutCollection PinListPlacement="Replace">
-            <defaultlayout:TaskbarLayout>
-            <taskbar:TaskbarPinList>
-            <taskbar:UWA AppUserModelID="Microsoft.SecHealthUI_8wekyb3d8bbwe!SecHealthUI" />
-            <taskbar:UWA AppUserModelID="Microsoft.Windows.SecHealthUI_cw5n1h2txyewy!SecHealthUI" />
-            <taskbar:UWA AppUserModelID="windows.immersivecontrolpanel_cw5n1h2txyewy!Microsoft.Windows.ImmersiveControlPanel" />
-            <taskbar:DesktopApp DesktopApplicationID="Microsoft.Windows.SecHealthUI" />
-            <taskbar:DesktopApp DesktopApplicationID="Chrome" />
-            <taskbar:DesktopApp DesktopApplicationID="Microsoft.Windows.Explorer" />
-            <taskbar:DesktopApp DesktopApplicationID="Microsoft.WindowsStore" />
-            </taskbar:TaskbarPinList>
-        </defaultlayout:TaskbarLayout>
-        </CustomTaskbarLayoutCollection>
-    </LayoutModificationTemplate>
+    "StartLayout" = @"
+<LayoutModificationTemplate xmlns="http://schemas.microsoft.com/Start/2014/LayoutModification"
+    xmlns:defaultlayout="http://schemas.microsoft.com/Start/2014/FullDefaultLayout"
+    xmlns:start="http://schemas.microsoft.com/Start/2014/StartLayout"
+    xmlns:taskbar="http://schemas.microsoft.com/Start/2014/TaskbarLayout"
+    Version="1">
+    <LayoutOptions StartTileGroupCellWidth="6" />
+    <DefaultLayoutOverride>
+        <StartLayoutCollection>
+        <defaultlayout:StartLayout GroupCellWidth="6" />
+        </StartLayoutCollection>
+    </DefaultLayoutOverride>
+    <CustomTaskbarLayoutCollection PinListPlacement="Replace">
+        <defaultlayout:TaskbarLayout>
+        <taskbar:TaskbarPinList>
+        <taskbar:UWA AppUserModelID="Microsoft.SecHealthUI_8wekyb3d8bbwe!SecHealthUI" />
+        <taskbar:UWA AppUserModelID="Microsoft.Windows.SecHealthUI_cw5n1h2txyewy!SecHealthUI" />
+        <taskbar:UWA AppUserModelID="windows.immersivecontrolpanel_cw5n1h2txyewy!Microsoft.Windows.ImmersiveControlPanel" />
+        <taskbar:DesktopApp DesktopApplicationID="Microsoft.Windows.SecHealthUI" />
+        <taskbar:DesktopApp DesktopApplicationID="Chrome" />
+        <taskbar:DesktopApp DesktopApplicationID="Microsoft.Windows.Explorer" />
+        <taskbar:DesktopApp DesktopApplicationID="Microsoft.WindowsStore" />
+        </taskbar:TaskbarPinList>
+    </defaultlayout:TaskbarLayout>
+    </CustomTaskbarLayoutCollection>
+</LayoutModificationTemplate>
 "@
 }
-Clear-Host
+#Clear-Host
 
 
 
@@ -1786,11 +1786,11 @@ Function Optimize-WindowsOptional {
         Set-OptionalFeatureState -Enabled -OptionalFeatures $Variables.DisableFeatures -CustomMessage $CustomMessage
     }
     Else {
-        Set-OptionalFeatureState -Disabled -OptionalFeatures $Variables.DisableFeatures | Get-Status
+        Set-OptionalFeatureState -Disabled -OptionalFeatures $Variables.DisableFeatures
     }
 
     Write-Section -Text "Install Optional Features from Windows"
-    Set-OptionalFeatureState -Enabled -OptionalFeatures $Variables.EnableFeatures | Get-Status
+    Set-OptionalFeatureState -Enabled -OptionalFeatures $Variables.EnableFeatures
 
 
     Write-Section -Text "Removing Unnecessary Printers"
@@ -1886,15 +1886,15 @@ Function Remove-Office {
 Function Remove-PinnedStartMenu {
     [CmdletBinding(SupportsShouldProcess)]
     Param()
-    $START_MENU_LAYOUT                          = @"
-    <LayoutModificationTemplate xmlns:defaultlayout="http://schemas.microsoft.com/Start/2014/FullDefaultLayout" xmlns:start="http://schemas.microsoft.com/Start/2014/StartLayout" Version="1" xmlns:taskbar="http://schemas.microsoft.com/Start/2014/TaskbarLayout" xmlns="http://schemas.microsoft.com/Start/2014/LayoutModification">
-        <LayoutOptions StartTileGroupCellWidth="6" />
-        <DefaultLayoutOverride>
-            <StartLayoutCollection>
-                <defaultlayout:StartLayout GroupCellWidth="6" />
-            </StartLayoutCollection>
-        </DefaultLayoutOverride>
-    </LayoutModificationTemplate>
+    $START_MENU_LAYOUT = @"
+<LayoutModificationTemplate xmlns:defaultlayout="http://schemas.microsoft.com/Start/2014/FullDefaultLayout" xmlns:start="http://schemas.microsoft.com/Start/2014/StartLayout" Version="1" xmlns:taskbar="http://schemas.microsoft.com/Start/2014/TaskbarLayout" xmlns="http://schemas.microsoft.com/Start/2014/LayoutModification">
+    <LayoutOptions StartTileGroupCellWidth="6" />
+    <DefaultLayoutOverride>
+        <StartLayoutCollection>
+            <defaultlayout:StartLayout GroupCellWidth="6" />
+        </StartLayoutCollection>
+    </DefaultLayoutOverride>
+</LayoutModificationTemplate>
 "@
     $layoutFile = "C:\Windows\StartMenuLayout.xml"
     # Delete layout file if it already exists
@@ -1964,7 +1964,7 @@ Function Remove-UWPAppx {
                     Remove-AppxPackage $_.PackageFullName -ErrorAction Continue | Out-Null | Get-Status
                     If ($?) {
                         $Variables.Removed++
-                        $Variables.PackagesRemoved += $appxPackageToRemove.PackageFullName
+                        $Variables.PackagesRemoved += "$appxPackageToRemove.PackageFullName`n"
                     }
                     elseif (!($?)) {
                         $Variabless.Failed++
@@ -1977,7 +1977,7 @@ Function Remove-UWPAppx {
                     Get-AppxProvisionedPackage -Online | Where-Object DisplayName -like $AppxPackage | Remove-AppxProvisionedPackage -Online -AllUsers | Out-Null | Get-Status
                     If ($?) {
                         $Variables.Removed++
-                        $Variables.PackagesRemoved += "Provisioned Appx $($appxPackageToRemove.PackageFullName)"
+                        $Variables.PackagesRemoved += "Provisioned Appx $($appxPackageToRemove.PackageFullName)`n"
                     }
                     elseif (!($?)) {
                         $Variables.Failed++
@@ -2172,8 +2172,7 @@ Function Set-OptionalFeatureState {
     $SecurityFilterOnEnable = @("IIS-*")
     $TweakType = "OptionalFeature"
 
-    $OptionalFeatures | ForEach-Object
-    {
+    $OptionalFeatures | ForEach-Object {
         $feature = Get-WindowsOptionalFeature -Online -FeatureName $_
         if ($feature) {
             if ($_.DisplayName -in $Filter) {
@@ -2192,7 +2191,7 @@ Function Set-OptionalFeatureState {
                     if ($PSCmdlet.ShouldProcess($actionDescription)) {
                         Write-Status -Types "-", $TweakType -Status $actionDescription -NoNewLine
                         try {
-                            $feature | Where-Object State -Like "Enabled" | Disable-WindowsOptionalFeature -Online -NoRestart -WhatIf:$WhatIf
+                            $feature | Where-Object State -Like "Enabled" | Disable-WindowsOptionalFeature -Online -NoRestart -WhatIf:$WhatIf | Get-Status
                         }
                         catch {
                             Invoke-ErrorHandling $_
@@ -2205,7 +2204,7 @@ Function Set-OptionalFeatureState {
                     if ($PSCmdlet.ShouldProcess($actionDescription)) {
                         Write-Status -Types "+", $TweakType -Status $actionDescription -NoNewLine
                         try {
-                            $feature | Where-Object State -Like "Disabled*" | Enable-WindowsOptionalFeature -Online -NoRestart -WhatIf:$WhatIf
+                            $feature | Where-Object State -Like "Disabled*" | Enable-WindowsOptionalFeature -Online -NoRestart -WhatIf:$WhatIf | Get-Status
                         }
                         catch {
                             Invoke-ErrorHandling $_
@@ -2464,12 +2463,13 @@ Function Send-EmailLog {
     Show-ScriptStatus -WindowTitle "Email Log" #-TweakType "Email" -TitleCounterText "Email Log"
     # - Current Date and Time
     $CurrentDate = Get-Date
+    $CurrentDateFormatted = $CurrentDate.ToString("h:mm:ss tt")
     $EndTime = Get-Date
     $FormattedStartTime = $StartTime.ToString("h:mm:ss tt")
     $FormattedEndTime = $EndTime.ToString("h:mm:ss tt")
     $ElapsedTime = $EndTime - $StartTime
-    $FormattedElapsedTime = "{0:hh} hours {0:mm} minutes {0:ss} seconds" -f $ElapsedTime
-    $PowershellTable = $PSVersionTable | Out-String
+    $FormattedElapsedTime = "{0:mm} minutes {0:ss} seconds" -f $ElapsedTime
+    $PowershellTable = $PSVersionTable
     # - Gathers some information about host
     $SystemSpecs = Get-SystemSpecs
     $IP = $(Resolve-DnsName -Name myip.opendns.com -Server 208.67.222.220).IPAddress
@@ -2506,11 +2506,11 @@ Function Send-EmailLog {
 $ip\$env:computername\$env:USERNAME
 
 - Script Information:
-    - Program Version: $($Variables.ProgramVersion)
-    - Date: $CurrentDate
-    - Start Time: $FormattedStartTime
-    - End Time: $FormattedEndTime
-    - Elapsed Time: $FormattedElapsedTime
+- Program Version: $($Variables.ProgramVersion)
+- Date: $CurrentDateFormatted
+- Start Time: $FormattedStartTime
+- End Time: $FormattedEndTime
+- Elapsed Time: $FormattedElapsedTime
 
 - System Information:
 $SystemSpecs
@@ -2518,16 +2518,16 @@ $SystemSpecs
 $PowershellTable
 
 - Summary:
-    - Applications Installed: $appsyns
-    - Chrome: $ChromeYN
-    - VLC: $VLCYN
-    - Adobe: $AdobeYN
-    - Zoom: $ZoomYN
-    - Wallpaper Applied: $WallpaperApplied
-    - Windows 11 Start Layout Applied: $StartMenuLayout
-    - Registry Keys Modified: $ModifiedRegistryKeys
-    - Packages Removed During Debloat: $($Variables.Removed)
-    - List of Packages Removed: 
+- Applications Installed: $appsyns
+- Chrome: $ChromeYN
+- VLC: $VLCYN
+- Adobe: $AdobeYN
+- Zoom: $ZoomYN
+- Wallpaper Applied: $WallpaperApplied
+- Windows 11 Start Layout Applied: $StartMenuLayout
+- Registry Keys Modified: $ModifiedRegistryKeys
+- Packages Removed During Debloat: $($Variables.Removed)
+- List of Packages Removed: 
 $($Variables.PackagesRemoved)"
 
 
@@ -2618,7 +2618,9 @@ Function Start-BitlockerDecryption {
             }
         }
         else {
-            Write-Status -Types "?" -Status "Bitlocker is not enabled on this machine"
+            $message = "Bitlocker is not enabled on this machine"
+            Write-Status -Types "?" -Status $message
+            Add-Content -Path $Variables.Log -Value $message
         }
     }
 }
@@ -2980,7 +2982,7 @@ Function Write-Status {
 
     $LogEntry = [PSCustomObject]@{
         Time       = "$FormattedTime"
-        Successful = "Successfull"
+        Successful = ""
         Types      = $Types -join ', '
         Status     = $Status
         Warning    = $WriteWarning
@@ -3012,8 +3014,8 @@ Function Write-Title {
     Write-Host "[" -NoNewline -ForegroundColor $Variables.ForegroundColor -BackgroundColor $Variables.BackgroundColor
     Write-Host "===========================" -NoNewline -ForegroundColor White -BackgroundColor $Variables.BackgroundColor
     Write-Host ">" -ForegroundColor $Variables.ForegroundColor -BackgroundColor $Variables.BackgroundColor
-    $TitleToLogFormat = "`n`n   $Text`n`n"
-    Add-Content -Path $Variables.Log -Value $TitleToLogFormat
+    #$TitleToLogFormat = "`n`n   $Text`n`n"
+    #Add-Content -Path $Variables.Log -Value $TitleToLogFormat
 }
 Function Write-TitleCounter {
     [CmdletBinding()]
@@ -3031,9 +3033,9 @@ Function Write-TitleCounter {
     Write-Host "|" -NoNewline -ForegroundColor White -BackgroundColor $Variables.BackgroundColor
     Write-Host " $Text " -ForegroundColor $Variables.ForegroundColor -BackgroundColor $Variables.BackgroundColor
     Write-Host "∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙" -ForegroundColor White -BackgroundColor $Variables.BackgroundColor
-    $TitleCounterLogFormat = "`n`n∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙`n`n    ($Counter)/$($Variables.MaxLength)) | $Text`n`n∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙`n"
+    #$TitleCounterLogFormat = "`n`n∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙`n`n    ($Counter)/$($Variables.MaxLength)) | $Text`n`n∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙`n"
     # Writes to Log
-    Add-Content -Path $Variables.Log -Value "$TitleCounterLogFormat"
+    #Add-Content -Path $Variables.Log -Value "$TitleCounterLogFormat"
 }
 
 # Initiation #
