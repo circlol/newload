@@ -18,7 +18,7 @@ Add-Type -AssemblyName System.Windows.Forms
 Add-Type -AssemblyName System.Drawing
 filter TimeStamp { "$(Get-Date -Format g)- $_" }
 $ErrorActionPreference = "SilentlyContinue"
-$NewLoads = $env:temp
+$NewLoads = "$env:temp"
 $Variables = @{
     "Logo"                                       = "
                     ███╗   ██╗███████╗██╗    ██╗    ██╗      ██████╗  █████╗ ██████╗ ███████╗
@@ -1238,32 +1238,23 @@ Function Optimize-Performance {
     Write-Status -Types $EnableStatus[1].Symbol, $TweakType -Status "Setting the Monitor Timeout to AC: $($Variables.TimeoutScreenPluggedIn) and DC: $($Variables.TimeoutScreenBattery)..."
     powercfg -Change Monitor-Timeout-AC $Variables.TimeoutScreenPluggedIn
     powercfg -Change Monitor-Timeout-DC $Variables.TimeoutScreenBattery
-
     Write-Status -Types $EnableStatus[1].Symbol, $TweakType -Status "Setting the Standby Timeout to AC: $($Variables.TimeoutStandByPluggedIn) and DC: $($Variables.TimeoutStandByBattery)..."
     powercfg -Change Standby-Timeout-AC $Variables.TimeoutStandByPluggedIn
     powercfg -Change Standby-Timeout-DC $Variables.TimeoutStandByBattery
-
     Write-Status -Types $EnableStatus[1].Symbol, $TweakType -Status "Setting the Disk Timeout to AC: $($Variables.TimeoutDiskPluggedIn) and DC: $($Variables.TimeoutDiskBattery)..."
     powercfg -Change Disk-Timeout-AC $Variables.TimeoutDiskPluggedIn
     powercfg -Change Disk-Timeout-DC $Variables.TimeoutDiskBattery
-
     Write-Status -Types $EnableStatus[1].Symbol, $TweakType -Status "Setting the Hibernate Timeout to AC: $($Variables.TimeoutHibernatePluggedIn) and DC: $($Variables.TimeoutHibernateBattery)..."
     powercfg -Change Hibernate-Timeout-AC $Variables.TimeoutHibernatePluggedIn
     Powercfg -Change Hibernate-Timeout-DC $Variables.TimeoutHibernateBattery
-
     Write-Status -Types $EnableStatus[1].Symbol, $TweakType -Status "Setting Power Plan to High Performance..."
     powercfg -SetActive 8c5e7fda-e8bf-4a96-9a85-a6e23a8c635c
-
-
     Write-Status -Types $EnableStatus[1].Symbol, $TweakType -Status "Creating the Ultimate Performance hidden Power Plan..."
     powercfg -DuplicateScheme e9a42b02-d5df-448d-aa00-03f14749eb61
-
-
     Write-Section "Network & Internet"
     Write-Status -Types $EnableStatus[1].Symbol, $TweakType -Status "Unlimiting your network bandwidth for all your system..." # Based on this Chris Titus video: https://youtu.be/7u1miYJmJ_4
     Set-ItemPropertyVerified -Path $Variables.PathToLMPoliciesPsched -Name "NonBestEffortLimit" -Type DWord -Value 0
     Set-ItemPropertyVerified -Path $Variables.PathToLMMultimediaSystemProfile -Name "NetworkThrottlingIndex" -Type DWord -Value 0xffffffff
-
     Write-Section "System & Apps Timeout behaviors"
     Write-Status -Types $EnableStatus[1].Symbol, $TweakType -Status "Reducing Time to services app timeout to 2s to ALL users..."
     Set-ItemPropertyVerified -Path $Variables.PathToLMControl -Name "WaitToKillServiceTimeout" -Type DWord -Value 2000 # Default: 20000 / 5000
@@ -1271,8 +1262,6 @@ Function Optimize-Performance {
     Set-ItemPropertyVerified -Path $Variables.PathToLMMemoryManagement -Name "ClearPageFileAtShutdown" -Type DWord -Value 0
     Write-Status -Types $EnableStatus[1].Symbol, $TweakType -Status "Reducing mouse hover time events to 10ms..."
     Set-ItemPropertyVerified -Path $Variables.PathToCUMouse -Name "MouseHoverTime" -Type String -Value "1000" # Default: 400
-
-
     # Details: https://windowsreport.com/how-to-speed-up-windows-11-animations/ and https://www.tenforums.com/tutorials/97842-change-hungapptimeout-value-windows-10-a.html
     ForEach ($DesktopRegistryPath in @($Variables.PathToUsersControlPanelDesktop, $Variables.PathToCUControlPanelDesktop)) {
         <# $DesktopRegistryPath is the path related to all users and current user configuration #>
@@ -1900,7 +1889,7 @@ Function Remove-PinnedStartMenu {
     # Delete layout file if it already exists
     # Creates the blank layout file
     if ($PSCmdlet.ShouldProcess("Out-File $StartlayoutFile -Encoding ASCII", "Remove-LayoutModificationFile")) {
-        If (Test-Path $layoutFile) { Remove-Item $layoutFile }
+        Get-Item $LayoutFile -ErrorAction SilentlyContinue | Remove-Item
         $START_MENU_LAYOUT | Out-File $layoutFile -Encoding ASCII
     }
 
@@ -1916,8 +1905,8 @@ Function Remove-PinnedStartMenu {
     }
 
     #Restart Explorer, open the start menu (necessary to load the new layout), and give it a few seconds to process
-    if ($PSCmdlet.ShouldProcess("Stop-Process -Name Explorer")) {
-        Stop-Process -name explorer
+    if ($PSCmdlet.ShouldProcess("Restart-Explorer")) {
+        Restart-Explorer
     }
 
     if ($PSCmdlet.ShouldProcess("New-Object")) {
@@ -1935,10 +1924,9 @@ Function Remove-PinnedStartMenu {
         }
     }
 
-
     #Restart Explorer and delete the layout file
-    if ($PSCmdlet.ShouldProcess("Stop-Process -Name Explorer")) {
-        Stop-Process -name explorer
+    if ($PSCmdlet.ShouldProcess("Restart-Explorer")) {
+        Restart-Explorer
     }
     # Uncomment the next line to make clean start menu default for all new users
     if ($PSCmdlet.ShouldProcess(<#"Import-StartLayout -LayoutPath $($layoutFile) -MountPath $env:SystemDrive\",#> "Remove-Item $($LayoutFile)")) {
@@ -2399,11 +2387,13 @@ Function Set-StartMenu {
         Write-Section -Text "Applying start menu layout for Windows 11"
         Write-Status -Types "+", $TweakType -Status "Attempting application"
         $StartBinFiles = Get-ChildItem -Path "$newloads" -Filter "start*.bin" -file
-        If ($null -eq $StartBinFiles) {
+        If (!(Test-Path -Path "$newloads\start.bin")){
             Start-BitsTransfer -Source $Variables.StartBinURL -Destination $Newloads -Dynamic
-            Start-BitsTransfer -Source $Variables.StartBinURL1 -Destination $Newloads -Dynamic
-            $StartBinFiles = Get-ChildItem -Path "$newloads" -Filter "start*.bin" -file
         }
+        If (!(Test-Path -Path "$newloads\start1.bin")){
+            Start-BitsTransfer -Source $Variables.StartBinURL1 -Destination $Newloads -Dynamic
+        }
+        $StartBinFiles = Get-ChildItem -Path "$newloads" -Filter "start*.bin" -file
         $TotalBinFiles = ($StartBinFiles).Count * 2
         $progress = 0
 
@@ -2418,10 +2408,12 @@ Function Set-StartMenu {
     }
 }
 Function Set-Taskbar {
-    [CmdletBinding(SupportsShouldProcess)]
-    param ()
+    #[CmdletBinding(SupportsShouldProcess)]
+    #param ()
     Write-Status -Types "+" -Status "Applying Taskbar Layout" -NoNewLine
-    If (Test-Path $Variables.layoutFile) { Remove-Item $Variables.layoutFile -Verbose | Out-Null }
+    If (Test-Path $Variables.layoutFile) {
+        Remove-Item $Variables.layoutFile -Verbose | Out-Null
+    }
     $Variables.StartLayout | Out-File $Variables.layoutFile -Encoding ASCII | Get-Status
     Restart-Explorer
     Start-Sleep -Seconds 4
@@ -2580,7 +2572,6 @@ Function Show-ScriptStatus {
         $Global:Variables.Counter++
     }
 }
-
 function Show-Question {
     param (
         [string]$Message,
@@ -2592,7 +2583,6 @@ function Show-Question {
     If ($Chime) { Start-Chime }
     [System.Windows.Forms.MessageBox]::Show($Message, $Title, $Buttons, $Icon)
 }
-
 
 Function Start-BitlockerDecryption {
     [CmdletBinding(SupportsShouldProcess)]
