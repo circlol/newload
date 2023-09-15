@@ -15,6 +15,7 @@
 > - Logging rewritten to be more clear and concise - Improved from `Start-Transcript`
 > - Consolidated `.\lib`, `.\assets`, `assets.psm1` `Online: New Loads.ps1`, `Local: New Loads.ps1`
 > - Error Handling improved and added into Get-Status
+> - Use-Command function completely removed due to false positives with Virus scanners
 
 #### Formatting Changes
 
