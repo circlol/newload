@@ -1,7 +1,6 @@
-﻿
-###############################################
-#                 New Loads                   #
-###############################################
+﻿<###############################################>
+<#                 New Loads                   #>
+<###############################################>
 
 <#
 .NOTES
@@ -14,6 +13,7 @@ $WindowTitle = "New Loads"
 $host.UI.RawUI.WindowTitle = $WindowTitle
 $host.UI.RawUI.ForegroundColor = 'White'
 $host.UI.RawUI.BackgroundColor = 'Black'
+Clear-Host
 Add-Type -AssemblyName System.Windows.Forms
 Add-Type -AssemblyName System.Drawing
 filter TimeStamp { "$(Get-Date -Format g)- $_" }
@@ -83,7 +83,7 @@ $Variables = @{
     "Sexp"                                       = "$newloads\SaRA"
     "SaRAURL"                                    = "https://github.com/circlol/newload/raw/main/SaRACmd_17_1_0268_3.zip"
     "StartBinURL"                                = "https://github.com/circlol/newload/raw/main/assets/start.bin"
-    "StartBin1URL"                               = "https://github.com/circlol/newload/raw/main/assets/start2.bin"
+    "StartBin2URL"                               = "https://github.com/circlol/newload/raw/main/assets/start2.bin"
     "PackagesRemoved"                            = @()
     "Removed"                                    = 0
     "Failed"                                     = 0
@@ -848,8 +848,8 @@ Function Get-Program {
             Name              = "Google Chrome"
             Installed         = Test-Path -Path "$Env:PROGRAMFILES\Google\Chrome\Application\chrome.exe"
             DownloadURL       = "https://dl.google.com/dl/chrome/install/googlechromestandaloneenterprise64.msi"
-            InstallerLocation = "$temp\googlechromestandaloneenterprise64.msi"
-            FileExists        = Test-Path -Path "$temp\googlechromestandaloneenterprise64.msi"
+            InstallerLocation = "$NewLoads\googlechromestandaloneenterprise64.msi"
+            FileExists        = Test-Path -Path "$NewLoads\googlechromestandaloneenterprise64.msi"
             ArgumentList      = "/passive"
         }
         $vlc = @{
@@ -857,32 +857,32 @@ Function Get-Program {
             Installed         = Test-Path -Path "$Env:PROGRAMFILES\VideoLAN\VLC\vlc.exe"
             #DownloadURL         = "https://ftp.osuosl.org/pub/videolan/vlc/3.0.18/win64/vlc-3.0.18-win64.exe"
             DownloadURL       = "https://get.videolan.org/vlc/3.0.18/win64/vlc-3.0.18-win64.exe"
-            InstallerLocation = "$temp\vlc-3.0.18-win64.exe"
-            FileExists        = Test-Path -Path "$temp\vlc-3.0.18-win64.exe"
+            InstallerLocation = "$NewLoads\vlc-3.0.18-win64.exe"
+            FileExists        = Test-Path -Path "$NewLoads\vlc-3.0.18-win64.exe"
             ArgumentList      = "/S /L=1033"
         }
         $zoom = @{
             Name              = "Zoom"
             Installed         = Test-Path -Path "$Env:PROGRAMFILES\Zoom\bin\Zoom.exe"
             DownloadURL       = "https://zoom.us/client/5.15.2.18096/ZoomInstallerFull.msi?archType=x64"
-            InstallerLocation = "$temp\ZoomInstallerFull.msi"
-            FileExists        = Test-Path -Path "$temp\ZoomInstallerFull.msi"
+            InstallerLocation = "$NewLoads\ZoomInstallerFull.msi"
+            FileExists        = Test-Path -Path "$NewLoads\ZoomInstallerFull.msi"
             ArgumentList      = "/quiet"
         }
         $acrobat = @{
             Name              = "Adobe Acrobat Reader"
             Installed         = Test-Path -Path "${Env:Programfiles(x86)}\Adobe\Acrobat Reader DC\Reader\AcroRd32.exe"
             DownloadURL       = "https://ardownload2.adobe.com/pub/adobe/reader/win/AcrobatDC/2200120169/AcroRdrDC2200120169_en_US.exe"
-            InstallerLocation = "$temp\AcroRdrDCx642200120085_MUI.exe"
-            FileExists        = Test-Path -Path "$temp\AcroRdrDCx642200120085_MUI.exe"
+            InstallerLocation = "$newLoads\AcroRdrDCx642200120085_MUI.exe"
+            FileExists        = Test-Path -Path "$NewLoads\AcroRdrDCx642200120085_MUI.exe"
             ArgumentList      = "/sPB"
         }
         $HEVC = @{
             Name              = "HEVC/H.265 Codec"
             Installed         = $False
             DownloadURL       = "https://github.com/circlol/newload/raw/main/assets/Microsoft.HEVCVideoExtension_2.0.60091.0_x64__8wekyb3d8bbwe.Appx"
-            InstallerLocation = "$temp\Microsoft.HEVCVideoExtension_2.0.60091.0_x64__8wekyb3d8bbwe.Appx"
-            FileExists        = Test-Path -Path "$temp\Microsoft.HEVCVideoExtension_2.0.60091.0_x64__8wekyb3d8bbwe.Appx"
+            InstallerLocation = "$NewLoads\Microsoft.HEVCVideoExtension_2.0.60091.0_x64__8wekyb3d8bbwe.Appx"
+            FileExists        = Test-Path -Path "$NewLoads \Microsoft.HEVCVideoExtension_2.0.60091.0_x64__8wekyb3d8bbwe.Appx"
         }
 
         foreach ( $program in $chrome, $vlc, $zoom, $acrobat, $hevc ) {
@@ -913,9 +913,9 @@ Function Get-Program {
                     }
                 }
                 else {
-                    Write-Status -Types "+", $TweakType -Status "Installing $($program.Name)"
+                    Write-Status -Types "+", $TweakType -Status "Installing $($program.Name)" -NoNewLine
                     try {
-                        Start-Process -FilePath $program.InstallerLocation -ArgumentList $program.ArgumentList -Wait
+                        Start-Process -FilePath $program.InstallerLocation -ArgumentList $program.ArgumentList -Wait | Get-Status
                     }
                     catch {
                         Invoke-ErrorHandling
@@ -939,21 +939,21 @@ Function Get-Program {
     }
 }
 function Get-Status {
-    try {
-        # If everything is successful, set the global LogEntry.Successful to true
-        $Global:LogEntry.Successful = $true
+    param (
+        [string]$ErrorMessage = $Error[0].Exception.Message
+    )
 
-        # Log a success message
+    If ($? -eq $True) {
+        # If no error message is provided, assume success
+        $Global:LogEntry.Successful = $true
         Write-Caption -Type Success
         Add-Content -Path $Variables.Log -Value $logEntry
     }
-    catch {
-        # If an error occurs, handle it using the Invoke-ErrorHandling function
-        Invoke-ErrorHandling $_
-
+    else {
+        # Handle the error message
+        Invoke-ErrorHandling $ErrorMessage
         # Set the global LogEntry.Successful to false
         $Global:LogEntry.Successful = $false
-
         # Log a failure message
         Write-Caption -Type Failed
         Add-Content -Path $Variables.Log -Value $logEntry
@@ -961,7 +961,7 @@ function Get-Status {
 }
 
 
-function Invoke-ErrorHandling() {
+function Invoke-ErrorHandling2 {
     param (
         [string]$errorMessage = $_
     )
@@ -978,6 +978,44 @@ Error Message: $($errorMessage)
 -
 
 "@
+    try {
+        Add-Content -Path $Variables.Errorlog -Value $errorString -ErrorAction Continue
+    }
+    catch {
+        return "Error writing to log: $($_.Exception.Message)"
+    }
+}
+
+function Invoke-ErrorHandling {
+    param (
+        [string]$errorMessage = $null
+    )
+
+    $lineNumber = $MyInvocation.ScriptLineNumber
+    $command = $MyInvocation.Line
+    $errorType = $Error[0].CategoryInfo.Reason
+    $timestamp = Get-Date -Format "yyyy-MM-dd HH:mm:ss"
+    $scriptName = $MyInvocation.MyCommand.Name
+    #$scriptPath = $MyInvocation.MyCommand.Definition
+    $userName = [System.Security.Principal.WindowsIdentity]::GetCurrent().Name
+
+    $errorString = @"
+
+
+**********************************************************************
+Error occurred in script: $($scriptName)
+Script Path: $($scriptPath)
+Timestamp: $($timestamp)
+Executed by: $($userName)
+Command: $($command)
+Error Type: $($errorType)
+Offending line number: $($lineNumber)
+Error Message: $($errorMessage)
+**********************************************************************
+
+
+"@
+
     try {
         Add-Content -Path $Variables.Errorlog -Value $errorString -ErrorAction Continue
     }
@@ -2391,19 +2429,19 @@ Function Set-StartMenu {
             Start-BitsTransfer -Source $Variables.StartBinURL -Destination $Newloads -Dynamic
         }
         If (!(Test-Path -Path "$newloads\start1.bin")){
-            Start-BitsTransfer -Source $Variables.StartBinURL1 -Destination $Newloads -Dynamic
+            Start-BitsTransfer -Source $Variables.StartBin2URL -Destination $Newloads -Dynamic
         }
-        $StartBinFiles = Get-ChildItem -Path "$newloads" -Filter "start*.bin" -file
+        $StartBinFiles = Get-ChildItem -Path $newloads -Filter "start*.bin" -file
         $TotalBinFiles = ($StartBinFiles).Count * 2
         $progress = 0
 
         Foreach ($StartBinFile in $StartBinFiles) {
             $progress++
             Write-Status -Types "+", $TweakType -Status "Copying $($StartBinFile.Name) for new users ($progress/$TotalBinFiles)" -NoNewLine
-            xcopy $StartBinFile.FullName $Variables.StartBinDefault /y | Out-Null | Get-Status
+            xcopy $StartBinFile.FullName $Variables.StartBinDefault /y | Get-Status
             $progress++
             Write-Status -Types "+", $TweakType -Status "Copying $($StartBinFile.Name) to current user ($progress)/$TotalBinFiles)" -NoNewLine
-            xcopy $StartBinFile.FullName $Variables.StartBinCurrent /y | Out-Null | Get-Status
+            xcopy $StartBinFile.FullName $Variables.StartBinCurrent /y | Get-Status
         }
     }
 }
@@ -2461,7 +2499,7 @@ Function Send-EmailLog {
     $FormattedEndTime = $EndTime.ToString("h:mm:ss tt")
     $ElapsedTime = $EndTime - $StartTime
     $FormattedElapsedTime = "{0:mm} minutes {0:ss} seconds" -f $ElapsedTime
-    $PowershellTable = $PSVersionTable
+    $PowershellTable = $PSVersionTable | Out-String
     # - Gathers some information about host
     $SystemSpecs = Get-SystemSpecs
     $IP = $(Resolve-DnsName -Name myip.opendns.com -Server 208.67.222.220).IPAddress
@@ -2488,11 +2526,11 @@ Function Send-EmailLog {
     $From = 'New Loads Log <newloadslogs@shaw.ca>'
     $Sub = "New Loads Log"
     $EmailBody = "
-    ####################################
-    #                                  #
-    #          NEW LOADS LOG           #
-    #                                  #
-    ####################################
+    <####################################>
+    <#                                  #>
+    <#          NEW LOADS LOG           #>
+    <#                                  #>
+    <####################################>
 
  
 $ip\$env:computername\$env:USERNAME
