@@ -750,7 +750,8 @@ Function Get-ADWCleaner {
     else {
         If (!(Test-Path $Variables.adwDestination)) {
             Write-Status -Types "+", "ADWCleaner" -Status "Downloading ADWCleaner" -NoNewLine
-            Start-BitsTransfer -Source $Variables.adwLink -Destination $Variables.adwDestination -Dynamic | Get-Status
+            Start-BitsTransfer -Source $Variables.adwLink -Destination $Variables.adwDestination -Dynamic
+            Get-Status
         }
         Write-Status -Types "+", "ADWCleaner" -Status "Starting ADWCleaner with ArgumentList /Scan & /Clean"
         Start-Process -FilePath $Variables.adwDestination -ArgumentList "/EULA", "/PreInstalled", "/Clean", "/NoReboot" -Wait -NoNewWindow | Out-Host
@@ -892,7 +893,8 @@ Function Get-Program {
                     Get-NetworkStatus
                     try {
                         Write-Status -Types "+", $TweakType -Status "Downloading $($program.Name)" -NoNewLine
-                        Start-BitsTransfer -Source $program.DownloadURL -Destination $program.InstallerLocation -TransferType Download -Dynamic | Get-Status
+                        Start-BitsTransfer -Source $program.DownloadURL -Destination $program.InstallerLocation -TransferType Download -Dynamic
+                        Get-Status
                     }
                     catch {
                         Invoke-ErrorHandling
@@ -904,7 +906,8 @@ Function Get-Program {
                     try {
                         $BackupProgressPreference = $ProgressPreference
                         $ProgressPreference = 'SilentlyContinue'
-                        Add-AppPackage -Path $HEVC.InstallerLocation | Get-Status
+                        Add-AppPackage -Path $HEVC.InstallerLocation
+                        Get-Status
                         $ProgressPreference = $BackupProgressPreference
                     }
                     catch {
@@ -915,7 +918,8 @@ Function Get-Program {
                 else {
                     Write-Status -Types "+", $TweakType -Status "Installing $($program.Name)" -NoNewLine
                     try {
-                        Start-Process -FilePath $program.InstallerLocation -ArgumentList $program.ArgumentList -Wait | Get-Status
+                        Start-Process -FilePath $program.InstallerLocation -ArgumentList $program.ArgumentList -Wait
+                        Get-Status
                     }
                     catch {
                         Invoke-ErrorHandling
@@ -924,14 +928,16 @@ Function Get-Program {
                 }
                 if ($program.Name -eq $Chrome.name) {
                     Write-Status "+", $TweakType -Status "Adding UBlock Origin to Google Chrome"
-                    Set-ItemPropertyVerified -Path $Variables.PathToUblockChrome -Name "update_url" -value $Variables.PathToChromeLink -Type STRING | Get-Status
+                    Set-ItemPropertyVerified -Path $Variables.PathToUblockChrome -Name "update_url" -value $Variables.PathToChromeLink -Type STRING
+                    Get-Status
                 }
             }
             else {
                 Write-Status -Types "@", $TweakType -Status "$($program.Name) already seems to be installed on this system.. Skipping Installation"
                 if ($program.Name -eq $Chrome.name) {
                     Write-Status "+", $TweakType -Status "Adding UBlock Origin to Google Chrome"
-                    Set-ItemPropertyVerified -Path $Variables.PathToUblockChrome -Name "update_url" -value $Variables.PathToChromeLink -Type STRING | Get-Status
+                    Set-ItemPropertyVerified -Path $Variables.PathToUblockChrome -Name "update_url" -value $Variables.PathToChromeLink -Type STRING
+                    Get-Status
                 }
             }
         }
@@ -1036,7 +1042,8 @@ Function New-SystemRestorePoint {
         # Assure System Restore is enabled
         Write-Status -Types "+" -Status "Enabling System Restore" -NoNewLine
         try {
-            Enable-ComputerRestore -Drive "$env:SystemDrive\" | Get-Status
+            Enable-ComputerRestore -Drive "$env:SystemDrive\"
+            Get-Status
         }
         catch {
             Invoke-ErrorHandling
@@ -1048,7 +1055,8 @@ Function New-SystemRestorePoint {
         # Creates a System Restore point
         Write-Status -Types "+" -Status "Creating System Restore Point: $description" -NoNewLine
         try {
-            Checkpoint-Computer -Description $description -RestorePointType $restorePointType | Get-Status
+            Checkpoint-Computer -Description $description -RestorePointType $restorePointType
+            Get-Status
         }
         catch {
             Invoke-ErrorHandling
@@ -1264,12 +1272,14 @@ Function Optimize-Performance {
             }
             Else {
                 Write-Status -Types "-", $TweakType -Status "Duplicated '$PowerPlanName' power plan found, deleting $PowerPlanGUID ..." -NoNewLine
-                powercfg -Delete $PowerPlanGUID | Get-Status
+                powercfg -Delete $PowerPlanGUID
+                Get-Status
             }
         }
         Catch {
             Write-Status -Types "-", $TweakType -Status "Duplicated '$PowerPlanName' power plan found, deleting $PowerPlanGUID ..." -NoNewLine
-            powercfg -Delete $PowerPlanGUID | Get-Status
+            powercfg -Delete $PowerPlanGUID
+            Get-Status
         }
     }
 
@@ -1376,14 +1386,16 @@ Function Optimize-Privacy {
 
     # Disables content suggestions in settings
     Write-Status -Types "-", $TweakType -Status "$($EnableStatus[0].Status) 'Suggested Content in the Settings App'..." -NoNewLine
-    Get-Item "$($Variables.PathToCUContentDeliveryManager)\Subscriptions" -ErrorAction SilentlyContinue | Remove-Item -Recurse | Get-Status
+    Get-Item "$($Variables.PathToCUContentDeliveryManager)\Subscriptions" -ErrorAction SilentlyContinue | Remove-Item -Recurse
+    Get-Status
     <#If (Test-Path "$($Variables.PathToCUContentDeliveryManager)\Subscriptions") {
         Remove-Item -Path "$($Variables.PathToCUContentDeliveryManager)\Subscriptions" -Recurse
     }#>
 
     # Disables content suggestion in start
     Write-Status -Types $EnableStatus[0].Symbol, $TweakType -Status "$($EnableStatus[0].Status) 'Show Suggestions' in Start..." -NoNewLine
-    Get-Item "$($Variables.PathToCUContentDeliveryManager)\SuggestedApps" -ErrorAction SilentlyContinue | Remove-Item -Recurse | Get-Status
+    Get-Item "$($Variables.PathToCUContentDeliveryManager)\SuggestedApps" -ErrorAction SilentlyContinue | Remove-Item -Recurse
+    Get-Status
     <#If (Test-Path "$($Variables.PathToCUContentDeliveryManager)\SuggestedApps") {
         Remove-Item -Path "$($Variables.PathToCUContentDeliveryManager)\SuggestedApps" -Recurse
     }#>
@@ -1457,12 +1469,14 @@ Function Optimize-Privacy {
     ### Privacy
     Write-Section -Text "Privacy"
     Write-Status -Types "-" -Status "Removing $($Variables.PathToCUContentDeliveryManager)\Subscription" -NoNewLine
-    Get-Item "$($Variables.PathToCUContentDeliveryManager)\Subscription" | Remove-Item -Recurse | Get-Status
+    Get-Item "$($Variables.PathToCUContentDeliveryManager)\Subscription" | Remove-Item -Recurse
+    Get-Status
     <#If (Test-Path -Path "$($Variables.PathToCUContentDeliveryManager)\Subscription") {
         Remove-Item -Path "$($Variables.PathToCUContentDeliveryManager)\Subscription" -Recurse
     }#>
     Write-Status -Types "-" -Status "Removing $($Variables.PathToCUContentDeliveryManager)\SuggestedApps" -NoNewLine
-    Get-Item "$($Variables.PathToCUContentDeliveryManager)\SuggestedApps" | Remove-Item -Recurse | Get-Status
+    Get-Item "$($Variables.PathToCUContentDeliveryManager)\SuggestedApps" | Remove-Item -Recurse
+    Get-Status
     <#If (Test-Path -Path "$($Variables.PathToCUContentDeliveryManager)\SuggestedApps") {
         Remove-Item -Path "$($Variables.PathToCUContentDeliveryManager)\SuggestedApps" -Recurse
     }#>
@@ -1718,14 +1732,18 @@ Function Optimize-Security {
 
     Write-Section "Windows Defender"
     Write-Status -Types "+", $TweakType -Status "Enabling Microsoft Defender Exploit Guard network protection..." -NoNewLine
-    try { Set-MpPreference -EnableNetworkProtection Enabled -Force | Get-Status }catch {
+    try { Set-MpPreference -EnableNetworkProtection Enabled -Force
+        Get-Status
+    }catch {
         Write-Caption $_ -Type Failed
         continue
     }
 
 
     Write-Status -Types "+", $TweakType -Status "Enabling detection for potentially unwanted applications and block them..." -NoNewLine
-    try { Set-MpPreference -PUAProtection Enabled -Force | Get-Status }catch {
+    try { Set-MpPreference -PUAProtection Enabled -Force
+        Get-Status
+    }catch {
         Write-Caption $_ -Type Failed
         continue
     }
@@ -1739,7 +1757,9 @@ Function Optimize-Security {
 
     Write-Section "Old SMB Protocol"
     Write-Status -Types "+", $TweakType -Status "Disabling SMB 1.0 protocol..." -NoNewLine
-    try { Set-SmbServerConfiguration -EnableSMB1Protocol $false -Force | Get-Status }catch {
+    try { Set-SmbServerConfiguration -EnableSMB1Protocol $false -Force
+        Get-Status
+    }catch {
         Write-Caption $_ -Type Failed
         continue
     }
@@ -1789,7 +1809,8 @@ function Optimize-SSD {
     # SSD life improvement
     Write-Section "SSD Optimization"
     Write-Status -Types "+" -Status "Disabling last access timestamps updates on files"
-    fsutil behavior set DisableLastAccess 1 | Get-Status
+    fsutil behavior set DisableLastAccess 1
+    Get-Status
 }
 Function Optimize-TaskScheduler {
     Show-ScriptStatus -TweakType "TaskScheduler" -TitleText "Task Scheduler"
@@ -1827,7 +1848,8 @@ Function Optimize-WindowsOptional {
         If ($PrinterExists) {
             try {
                 Write-Status -Types "-", "Printer" -Status "Attempting removal of $printer..." -NoNewLine
-                Remove-Printer -Name $printer -ErrorAction Stop | Get-Status
+                Remove-Printer -Name $printer -ErrorAction Stop
+                Get-Status
             }
             catch {
                 Invoke-ErrorHandling $_
@@ -1883,9 +1905,11 @@ Function Remove-Office {
                 try {
                     Write-Status "+", $TweakType -Status "Downloading Microsoft Support and Recovery Assistant (SaRA)..." -NoNewLine
                     Get-NetworkStatus
-                    Start-BitsTransfer -Source $Variables.SaRAURL -Destination $Variables.SaRA -TransferType Download -Dynamic | Out-Host | Get-Status
+                    Start-BitsTransfer -Source $Variables.SaRAURL -Destination $Variables.SaRA -TransferType Download -Dynamic | Out-Host
+                    Get-Status
                     Write-Status "+", $TweakType -Status "Expanding SaRA" -NoNewLine
-                    Expand-Archive -Path $Variables.SaRA -DestinationPath $Variables.Sexp -Force | Get-Status
+                    Expand-Archive -Path $Variables.SaRA -DestinationPath $Variables.Sexp -Force
+                    Get-Status
                 }
                 catch {
                     Invoke-ErrorHandling $_
@@ -1897,7 +1921,8 @@ Function Remove-Office {
             if ($PSCmdlet.ShouldProcess($actionDescription, "Start-OfficeScrubScenario")) {
                 try {
                     Write-Status "+", $TweakType -Status $actionDescription -NoNewLine
-                    Start-Process $SaRAcmdexe -ArgumentList "-S OfficeScrubScenario -AcceptEula -OfficeVersion All" | Get-Status
+                    Start-Process $SaRAcmdexe -ArgumentList "-S OfficeScrubScenario -AcceptEula -OfficeVersion All"
+                    Get-Status
                 }
                 catch {
                     Invoke-ErrorHandling $_
@@ -1987,7 +2012,8 @@ Function Remove-UWPAppx {
             if ($PSCmdlet.ShouldProcess($actionDescription, "Remove-AppxPackage")) {
                 $appxPackageToRemove | ForEach-Object -Process {
                     Write-Status -Types "-", $TweakType -Status "Trying to remove $AppxPackage" -NoNewLine
-                    Remove-AppxPackage $_.PackageFullName -ErrorAction Continue | Out-Null | Get-Status
+                    Remove-AppxPackage $_.PackageFullName -ErrorAction Continue | Out-Null
+                    Get-Status
                     If ($?) {
                         $Variables.Removed++
                         $Variables.PackagesRemoved += "$appxPackageToRemove.PackageFullName`n"
@@ -2000,7 +2026,8 @@ Function Remove-UWPAppx {
                 $actionDescription = "Removing Provisioned Appx $AppxPackage"
                 if ($PSCmdlet.ShouldProcess($actionDescription, "Remove-AppxProvisionedPackage")) {
                     Write-Status -Types "-", $TweakType -Status "Trying to remove provisioned $AppxPackage" -NoNewLine
-                    Get-AppxProvisionedPackage -Online | Where-Object DisplayName -like $AppxPackage | Remove-AppxProvisionedPackage -Online -AllUsers | Out-Null | Get-Status
+                    Get-AppxProvisionedPackage -Online | Where-Object DisplayName -like $AppxPackage | Remove-AppxProvisionedPackage -Online -AllUsers | Out-Null
+                    Get-Status
                     If ($?) {
                         $Variables.Removed++
                         $Variables.PackagesRemoved += "Provisioned Appx $($appxPackageToRemove.PackageFullName)`n"
@@ -2217,7 +2244,8 @@ Function Set-OptionalFeatureState {
                     if ($PSCmdlet.ShouldProcess($actionDescription)) {
                         Write-Status -Types "-", $TweakType -Status $actionDescription -NoNewLine
                         try {
-                            $feature | Where-Object State -Like "Enabled" | Disable-WindowsOptionalFeature -Online -NoRestart -WhatIf:$WhatIf | Get-Status
+                            $feature | Where-Object State -Like "Enabled" | Disable-WindowsOptionalFeature -Online -NoRestart -WhatIf:$WhatIf
+                            Get-Status
                         }
                         catch {
                             Invoke-ErrorHandling $_
@@ -2230,7 +2258,8 @@ Function Set-OptionalFeatureState {
                     if ($PSCmdlet.ShouldProcess($actionDescription)) {
                         Write-Status -Types "+", $TweakType -Status $actionDescription -NoNewLine
                         try {
-                            $feature | Where-Object State -Like "Disabled*" | Enable-WindowsOptionalFeature -Online -NoRestart -WhatIf:$WhatIf | Get-Status
+                            $feature | Where-Object State -Like "Disabled*" | Enable-WindowsOptionalFeature -Online -NoRestart -WhatIf:$WhatIf
+                            Get-Status
                         }
                         catch {
                             Invoke-ErrorHandling $_
@@ -2293,11 +2322,13 @@ function Set-ScheduledTaskState {
 
                     Try {
                         If ($action -eq "Disable") {
-                            Get-ScheduledTask -TaskName (Split-Path -Path $ScheduledTask -Leaf) | Where-Object State -Like "R*" | Disable-ScheduledTask | Out-Null | Get-Status # R* = Ready/Running
+                            Get-ScheduledTask -TaskName (Split-Path -Path $ScheduledTask -Leaf) | Where-Object State -Like "R*" | Disable-ScheduledTask | Out-Null
+                            Get-Status # R* = Ready/Running
                             #Get-Status
                         }
                         ElseIf ($action -eq "Enable") {
-                            Get-ScheduledTask -TaskName (Split-Path -Path $ScheduledTask -Leaf) | Where-Object State -Like "Disabled" | Enable-ScheduledTask | Out-Null | Get-Status
+                            Get-ScheduledTask -TaskName (Split-Path -Path $ScheduledTask -Leaf) | Where-Object State -Like "Disabled" | Enable-ScheduledTask | Out-Null
+                            Get-Status
                         }
                     }
                     catch {
@@ -2347,10 +2378,12 @@ function Set-ServiceStartup {
                 if ($PSCmdlet.ShouldProcess($target, "Set Startup Type")) {
                     Write-Status -Types "@", $TweakType -Status "Setting $target" -NoNewLine
                     If ($WhatIf) {
-                        Get-Service -Name "$Service" | Set-Service -StartupType $State -WhatIf | Get-Status
+                        Get-Service -Name "$Service" | Set-Service -StartupType $State -WhatIf
+                        Get-Status
                     }
                     Else {
-                        Get-Service -Name "$Service" | Set-Service -StartupType $State | Get-Status
+                        Get-Service -Name "$Service" | Set-Service -StartupType $State
+                        Get-Status
                     }
                 }
             }
@@ -2438,10 +2471,12 @@ Function Set-StartMenu {
         Foreach ($StartBinFile in $StartBinFiles) {
             $progress++
             Write-Status -Types "+", $TweakType -Status "Copying $($StartBinFile.Name) for new users ($progress/$TotalBinFiles)" -NoNewLine
-            xcopy $StartBinFile.FullName $Variables.StartBinDefault /y | Get-Status
+            xcopy $StartBinFile.FullName $Variables.StartBinDefault /y
+            Get-Status
             $progress++
             Write-Status -Types "+", $TweakType -Status "Copying $($StartBinFile.Name) to current user ($progress)/$TotalBinFiles)" -NoNewLine
-            xcopy $StartBinFile.FullName $Variables.StartBinCurrent /y | Get-Status
+            xcopy $StartBinFile.FullName $Variables.StartBinCurrent /y
+            Get-Status
         }
     }
 }
@@ -2452,7 +2487,8 @@ Function Set-Taskbar {
     If (Test-Path $Variables.layoutFile) {
         Remove-Item $Variables.layoutFile -Verbose | Out-Null
     }
-    $Variables.StartLayout | Out-File $Variables.layoutFile -Encoding ASCII | Get-Status
+    $Variables.StartLayout | Out-File $Variables.layoutFile -Encoding ASCII
+    Get-Status
     Restart-Explorer
     Start-Sleep -Seconds 4
 }
@@ -2467,14 +2503,16 @@ function Set-Wallpaper {
         If (!$WallpaperPathExists) {
             $WallpaperURL = "https://raw.githubusercontent.com/circlol/newload/main/assets/mother.jpg"
             Write-Status "@", $TweakType -Status "Downloading Wallpaper" -NoNewLine
-            Start-BitsTransfer -Source $WallpaperURL -Destination $Variables.WallpaperDestination -Dynamic | Get-Status
+            Start-BitsTransfer -Source $WallpaperURL -Destination $Variables.WallpaperDestination -Dynamic
+            Get-Status
         }
         Write-Status -Types "+", $TweakType -Status "Applying Wallpaper"
         Write-Host " REMINDER " -BackgroundColor Red -ForegroundColor White -NoNewLine
         Write-Host ": Wallpaper might not Apply UNTIL System is Rebooted`n"
         If (!(Test-Path $Variables.WallpaperDestination)) {
             Write-Status -Types "+", $TweakType -Status "Copying Wallpaper to Destination" -NoNewLine
-            Copy-Item -Path $Variables.wallpaperPath -Destination $Variables.WallpaperDestination -Force -Confirm:$False | Get-Status
+            Copy-Item -Path $Variables.wallpaperPath -Destination $Variables.WallpaperDestination -Force -Confirm:$False
+            Get-Status
         }
         Write-Status -Types "+", $TweakType -Status "Setting WallpaperStyle to 'Stretch'"
         Set-ItemPropertyVerified -Path $Variables.PathToCUControlPanelDesktop -Name WallpaperStyle -Value '2' -Type String
@@ -2485,7 +2523,8 @@ function Set-Wallpaper {
         Write-Status -Types "+", $TweakType -Status "Setting Apps to use Light Mode"
         Set-ItemPropertyVerified -Path $Variables.PathToRegPersonalize -Name "AppsUseLightTheme" -Value 1 -Type DWord
         Write-Status -Types "+", $TweakType -Status "Updating Wallpaper" -NoNewLine
-        Start-Process "RUNDLL32.EXE" "user32.dll, UpdatePerUserSystemParameters" | Get-Status
+        Start-Process "RUNDLL32.EXE" "user32.dll, UpdatePerUserSystemParameters"
+        Get-Status
     }
 }
 Function Send-EmailLog {
@@ -2642,7 +2681,8 @@ Function Start-BitlockerDecryption {
             $target = "Bitlocker Decryption on C:"
             if ($PSCmdlet.ShouldProcess($target, "Start Decryption")) {
                 Write-Status -Types "@" -Status "Alert: Bitlocker is enabled. Starting the decryption process" -Type Warning
-                Disable-BitLocker -MountPoint C:\ | Get-Status
+                Disable-BitLocker -MountPoint C:\
+                Get-Status
             }
         }
         else {
@@ -2778,7 +2818,8 @@ Function Start-Debloat {
                     $target = "Start Menu .url: $app"
                     if ($PSCmdlet.ShouldProcess($target, "Remove .url")) {
                         Write-Status -Types "-", "$TweakType", "$TweakTypeLocal" -Status "Removing $app.url" -NoNewLine
-                        Remove-Item -Path "$commonapps\$app.url" -Force | Get-Status
+                        Remove-Item -Path "$commonapps\$app.url" -Force
+                        Get-Status
                     }
                 }
                 if (Test-Path -Path "$commonapps\$app.lnk") {
@@ -2786,7 +2827,8 @@ Function Start-Debloat {
                     $target = "Start Menu .lnk: $app"
                     if ($PSCmdlet.ShouldProcess($target, "Remove .lnk")) {
                         Write-Status -Types "-", "$TweakType", "$TweakTypeLocal" -Status "Removing $app.lnk" -NoNewLine
-                        Remove-Item -Path "$commonapps\$app.lnk" -Force | Get-Status
+                        Remove-Item -Path "$commonapps\$app.lnk" -Force
+                        Get-Status
                     }
                 }
             }
@@ -2855,7 +2897,8 @@ function Update-Time {
             try {
                 if ($PSCmdlet.ShouldProcess("Starting W32Time Service", "Start-Service -Name W32Time -ErrorAction SilentlyContinue")) {
                     Write-Status -Types "+" -Status "Starting W32Time Service" -NoNewLine
-                    Start-Service -Name W32Time -ErrorAction SilentlyContinue | Get-Status
+                    Start-Service -Name W32Time -ErrorAction SilentlyContinue
+                    Get-Status
                 }
             }
             catch {
