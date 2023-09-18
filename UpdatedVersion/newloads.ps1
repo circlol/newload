@@ -2517,7 +2517,7 @@ Function Send-EmailLog {
     Show-ScriptStatus -WindowTitle "Email Log" #-TweakType "Email" -TitleCounterText "Email Log"
     # - Current Date and Time
     $CurrentDate = Get-Date
-    $CurrentDateFormatted = $CurrentDate.ToString("h:mm:ss tt")
+    $CurrentDateFormatted = $CurrentDate.ToString("dd MMMM yyyy h:mm:ss tt")
     $EndTime = Get-Date
     $FormattedStartTime = $StartTime.ToString("h:mm:ss tt")
     $FormattedEndTime = $EndTime.ToString("h:mm:ss tt")
