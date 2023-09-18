@@ -945,10 +945,6 @@ Function Get-Program {
     }
 }
 function Get-Status {
-    param (
-        [string]$ErrorMessage = $Error[0].Exception.Message
-    )
-
     If ($? -eq $True) {
         # If no error message is provided, assume success
         $Global:LogEntry.Successful = $true
@@ -956,13 +952,13 @@ function Get-Status {
         Add-Content -Path $Variables.Log -Value $logEntry
     }
     else {
-        # Handle the error message
-        Invoke-ErrorHandling $ErrorMessage
         # Set the global LogEntry.Successful to false
         $Global:LogEntry.Successful = $false
         # Log a failure message
         Write-Caption -Type Failed
         Add-Content -Path $Variables.Log -Value $logEntry
+        # Handle the error message
+        Invoke-ErrorHandling $Error
     }
 }
 
@@ -1001,7 +997,6 @@ function Invoke-ErrorHandling {
     $command = $MyInvocation.Line
     $errorType = $Error[0].CategoryInfo.Reason
     $timestamp = Get-Date -Format "yyyy-MM-dd HH:mm:ss"
-    $scriptName = $MyInvocation.MyCommand.Name
     #$scriptPath = $MyInvocation.MyCommand.Definition
     $userName = [System.Security.Principal.WindowsIdentity]::GetCurrent().Name
 
@@ -1009,8 +1004,6 @@ function Invoke-ErrorHandling {
 
 
 **********************************************************************
-Error occurred in script: $($scriptName)
-Script Path: $($scriptPath)
 Timestamp: $($timestamp)
 Executed by: $($userName)
 Command: $($command)
@@ -1938,7 +1931,7 @@ Function Remove-Office {
 Function Remove-PinnedStartMenu {
     [CmdletBinding(SupportsShouldProcess)]
     Param()
-    $START_MENU_LAYOUT = @"
+$START_MENU_LAYOUT = @"
 <LayoutModificationTemplate xmlns:defaultlayout="http://schemas.microsoft.com/Start/2014/FullDefaultLayout" xmlns:start="http://schemas.microsoft.com/Start/2014/StartLayout" Version="1" xmlns:taskbar="http://schemas.microsoft.com/Start/2014/TaskbarLayout" xmlns="http://schemas.microsoft.com/Start/2014/LayoutModification">
     <LayoutOptions StartTileGroupCellWidth="6" />
     <DefaultLayoutOverride>
@@ -1948,16 +1941,16 @@ Function Remove-PinnedStartMenu {
     </DefaultLayoutOverride>
 </LayoutModificationTemplate>
 "@
-    $layoutFile = "C:\Windows\StartMenuLayout.xml"
-    # Delete layout file if it already exists
-    # Creates the blank layout file
-    if ($PSCmdlet.ShouldProcess("Out-File $StartlayoutFile -Encoding ASCII", "Remove-LayoutModificationFile")) {
-        Get-Item $LayoutFile -ErrorAction SilentlyContinue | Remove-Item
-        $START_MENU_LAYOUT | Out-File $layoutFile -Encoding ASCII
-    }
+$layoutFile="C:\Windows\StartMenuLayout.xml"
 
-    $regAliases = @("HKLM", "HKCU")
+    #Delete layout file if it already exists
+    Get-Item $LayoutFile -ErrorAction SilentlyContinue | Remove-Item
+
+    #Creates the blank layout file
+    $START_MENU_LAYOUT | Out-File $layoutFile -Encoding ASCII
+
     #Assign the start layout and force it to apply with "LockedStartLayout" at both the machine and user level
+    $regAliases = @("HKLM", "HKCU")# | % {
     foreach ($regAlias in $regAliases) {
         $basePath = $regAlias + ":\SOFTWARE\Policies\Microsoft\Windows"
         $keyPath = $basePath + "\Explorer"
@@ -1968,15 +1961,12 @@ Function Remove-PinnedStartMenu {
     }
 
     #Restart Explorer, open the start menu (necessary to load the new layout), and give it a few seconds to process
-    if ($PSCmdlet.ShouldProcess("Restart-Explorer")) {
-        Restart-Explorer
-    }
+    Restart-Explorer
 
-    if ($PSCmdlet.ShouldProcess("New-Object")) {
-        Start-Sleep -s 5
-        $wshell = New-Object -ComObject wscript.shell; $wshell.SendKeys('^{ESCAPE}')
-        Start-Sleep -s 5
-    }
+    Start-Sleep -s 5
+    # CTRL + ESCAPE
+    $wshell = New-Object -ComObject wscript.shell; $wshell.SendKeys('^{ESCAPE}')
+    Start-Sleep -s 5
 
     #Enable the ability to pin items again by disabling "LockedStartLayout"
     foreach ($regAlias in $regAliases) {
@@ -1988,15 +1978,10 @@ Function Remove-PinnedStartMenu {
     }
 
     #Restart Explorer and delete the layout file
-    if ($PSCmdlet.ShouldProcess("Restart-Explorer")) {
-        Restart-Explorer
-    }
+    Restart-Explorer
     # Uncomment the next line to make clean start menu default for all new users
-    if ($PSCmdlet.ShouldProcess(<#"Import-StartLayout -LayoutPath $($layoutFile) -MountPath $env:SystemDrive\",#> "Remove-Item $($LayoutFile)")) {
-        Import-StartLayout -LayoutPath $layoutFile -MountPath $env:SystemDrive\
-        Remove-Item $layoutFile
-    }
-    <##>
+    Import-StartLayout -LayoutPath $layoutFile -MountPath $env:SystemDrive
+    Remove-Item $layoutFile
 }
 Function Remove-UWPAppx {
     [CmdletBinding(SupportsShouldProcess)]
@@ -3056,7 +3041,6 @@ Function Write-Status {
         Successful = ""
         Types      = $Types -join ', '
         Status     = $Status
-        Warning    = $WriteWarning
     }
     $Global:LogEntry = $LogEntry
     # Output the log entry to the console
@@ -3154,8 +3138,8 @@ Request-PCRestart
 # SIG # Begin signature block
 # MIIFiQYJKoZIhvcNAQcCoIIFejCCBXYCAQExCzAJBgUrDgMCGgUAMGkGCisGAQQB
 # gjcCAQSgWzBZMDQGCisGAQQBgjcCAR4wJgIDAQAABBAfzDtgWUsITrck0sYpfvNR
-# AgEAAgEAAgEAAgEAAgEAMCEwCQYFKw4DAhoFAAQUqAN0uQzmJWfXak1oyudXs4Rx
-# NEWgggMkMIIDIDCCAgigAwIBAgIQU3x04/OYsb1NqZt3cgzIXTANBgkqhkiG9w0B
+# AgEAAgEAAgEAAgEAAgEAMCEwCQYFKw4DAhoFAAQUBJfvk8GtzVKtlMQxYOdHjdCu
+# ZamgggMkMIIDIDCCAgigAwIBAgIQU3x04/OYsb1NqZt3cgzIXTANBgkqhkiG9w0B
 # AQsFADAaMRgwFgYDVQQDDA9jaXJjbG9sQHNoYXcuY2EwHhcNMjMwODE1MDQxMTQz
 # WhcNMjQwODE1MDQzMTQzWjAaMRgwFgYDVQQDDA9jaXJjbG9sQHNoYXcuY2EwggEi
 # MA0GCSqGSIb3DQEBAQUAA4IBDwAwggEKAoIBAQCvOOSeehF7db8BeRjJkV2L6aaD
@@ -3175,11 +3159,11 @@ Request-PCRestart
 # AcsCAQEwLjAaMRgwFgYDVQQDDA9jaXJjbG9sQHNoYXcuY2ECEFN8dOPzmLG9Tamb
 # d3IMyF0wCQYFKw4DAhoFAKB4MBgGCisGAQQBgjcCAQwxCjAIoAKAAKECgAAwGQYJ
 # KoZIhvcNAQkDMQwGCisGAQQBgjcCAQQwHAYKKwYBBAGCNwIBCzEOMAwGCisGAQQB
-# gjcCARUwIwYJKoZIhvcNAQkEMRYEFIMp6hSRcdL+xECF0J8DLc+a8u9LMA0GCSqG
-# SIb3DQEBAQUABIIBAKH7FbXzRtBIXsn0sKaLwPOTdpnMBB4JYAZBP8ZeeWAKyM9O
-# g+NHM/L8H2JljmjScclIPl3I0B7S6lix2IIHMRTlZxKJ3ZVEAk3V/biZ81SPB+L3
-# pNrC3QNPrsKeJe14UmJuUOjJcH1th7z3rf1DmpJxiScAJdjkSTSDQ4WtnWyIV1f8
-# d6/GVb6/mtCsi7xEmWXroHOXPViglmV8azkZ47/ehhCXsbKxPEdsW5IqlRngSkbd
-# WbZNA/uPnowhZfJhQra1+VaA2/EVC9rQABMbjjZ4bnk8DoDgm7YIie8XHNqDJ08g
-# sUq8Cqr9NLCjUxfe/ohoEYj2ll5e342cTB1LvBg=
+# gjcCARUwIwYJKoZIhvcNAQkEMRYEFMCxT4UIbxOicL9qm/0KzQef4+2OMA0GCSqG
+# SIb3DQEBAQUABIIBAJcqGPaN97JqTD6jPobHPHA7kDBSx2Yw1BOp5QeqgixyXlXV
+# YlvILCcpuIVfirMckCSoxcNtp41PQ/09wdz2oAzdD0MqwZBuxXv1l12sJNAxDr6Y
+# QVVxAPQw7N77MtEaL/2uUBbqegkJUryDuuNCGXOTwx95cfG9G7bT8V3FWP8xAfQI
+# zEbcbx7yCTea3aEj5f4scoVLN03ziGIk8eW+eNlE3low2YXtyiQIszP6WSnGk+7o
+# aAWPbKdY8wPxzv9SlbwaDYNiKO6m1p/3BV2+qn8BpHTozxslweDJ443Y46g+KtuO
+# WEK4lEBDhhRQmqi+atOgB5/tMB143gy87PWj364=
 # SIG # End signature block
