@@ -966,31 +966,6 @@ function Get-Status {
 }
 
 
-function Invoke-ErrorHandling2 {
-    param (
-        [string]$errorMessage = $_
-    )
-    $lineNumber = $MyInvocation.ScriptLineNumber
-    $command = $MyInvocation.Line
-    $errorType = $Error[0].CategoryInfo.Reason
-    $errorString = @"
--
-Error occured at $(Get-Date -Format "yyyy-MM-dd HH:mm:ss")
-The command run was: $($command)
-Error Type: $($errorType)
-Offending line number: $($lineNumber)
-Error Message: $($errorMessage)
--
-
-"@
-    try {
-        Add-Content -Path $Variables.Errorlog -Value $errorString -ErrorAction Continue
-    }
-    catch {
-        return "Error writing to log: $($_.Exception.Message)"
-    }
-}
-
 function Invoke-ErrorHandling {
     param (
         [string]$errorMessage = $Error[0]
@@ -1907,8 +1882,8 @@ function Remove-InstalledProgram {
     $uninstall64 = Get-ChildItem "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall" |
         ForEach-Object { Get-ItemProperty $_.PSPath } |
         Where-Object { $_.DisplayName -like "*$Name*" } |
-        Select-Object UninstallString
 
+        Select-Object UninstallString
         if ($uninstall64) {
             if ($PSCmdlet.ShouldProcess("Uninstalling program: $Name")) {
                 $uninstall64 = $uninstall64.UninstallString -Replace "msiexec.exe","" -Replace "/I","" -Replace "/X",""
@@ -2836,6 +2811,7 @@ Function Start-Debloat {
         Show-ScriptStatus -WindowTitle "Debloat" -TweakType "Debloat" -TitleCounterText "Debloat" -TitleText "Win32"
 
         Write-Section -Text "Tradition Win32 & Win64 Applications"
+        <#
         $Win32apps = @(
             "Avast"
             "ExpressVPN"
@@ -2844,6 +2820,7 @@ Function Start-Debloat {
             "WildTangent"
         )
         foreach ($app in $Win32apps) { Remove-InstalledProgram "$app" -ErrorAction SilentlyContinue }
+        #>
         #Remove-InstalledProgram -Name "*WildTangent*" -ErrorAction SilentlyContinue
         #Remove-InstalledProgram -Name "*Norton*"-ErrorAction SilentlyContinue
         #Remove-InstalledProgram -Name "*McAfee*"-ErrorAction SilentlyContinue
