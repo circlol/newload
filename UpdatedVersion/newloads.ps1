@@ -1854,6 +1854,10 @@ Function Optimize-WindowsOptional {
         }
     }
 }
+<#
+
+-    Old Code :  Soon to be removed   -
+
 
 Function Remove-InstalledProgram {
     Param(
@@ -1872,7 +1876,7 @@ Function Remove-InstalledProgram {
             }
             elseif ($UninstallString -match 'msiexec.exe /x') {
 
-                <# add this part later #> } #TODO Add Remove-InstalledProgram section
+                <# add this part later # } 
 
             else {
                 # Uninstall using regular command
@@ -1886,6 +1890,87 @@ Function Remove-InstalledProgram {
     }
 }
 
+#>
+
+function Remove-InstalledProgram {
+    [CmdletBinding(SupportsShouldProcess)]
+    param (
+        [parameter(Mandatory = $True)]
+        $Name
+    )
+
+    $uninstall32 = Get-ChildItem "HKLM:\SOFTWARE\Wow6432Node\Microsoft\Windows\CurrentVersion\Uninstall" |
+        ForEach-Object { Get-ItemProperty $_.PSPath } |
+        Where-Object { $_.DisplayName -like "*$Name*" } |
+        Select-Object UninstallString
+
+    $uninstall64 = Get-ChildItem "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall" |
+        ForEach-Object { Get-ItemProperty $_.PSPath } |
+        Where-Object { $_.DisplayName -like "*$Name*" } |
+        Select-Object UninstallString
+
+        if ($uninstall64) {
+            if ($PSCmdlet.ShouldProcess("Uninstalling program: $Name")) {
+                $uninstall64 = $uninstall64.UninstallString -Replace "msiexec.exe","" -Replace "/I","" -Replace "/X",""
+                $uninstall64 = $uninstall64.Trim()
+                #Write-Output "Uninstalling $Name..."
+
+                Write-Status -Types "-", "x64" -Status "Uninstalling $Name..." -NoNewLine
+
+                try {
+                    $process = Start-Process "msiexec.exe" -ArgumentList "/X $uninstall64 /qb" -Wait -PassThru
+                    $exitCode = $process.ExitCode
+                    if ($exitCode -eq 0) {
+                        $Global:LogEntry.Successful = $True
+                        Write-Output "Uninstall of $Name succeeded with exit code $exitCode."
+                        Add-Content -Path $Variables.Log -Value $logEntry
+                    } else {
+                        $Global:LogEntry.Successful = $false
+                        $status = "Uninstall of $Name failed with exit code $exitCode."
+                        Write-Output $status
+                        Add-Content -Path $Variables.Log -Value $logEntry
+                        Add-Content -Path $Variables.Log -Value $status
+                    }
+                }
+                catch {
+                    $status = "Uninstall of $Name failed with error: $_"
+                    Write-Output $status
+                    Add-Content -Path $Variables.Log -Value $status
+                }
+            }
+        }
+
+
+        if ($uninstall32) {
+            if ($PSCmdlet.ShouldProcess("Uninstalling program: $Name")) {
+                $uninstall32 = $uninstall32.UninstallString -Replace "msiexec.exe","" -Replace "/I","" -Replace "/X",""
+                $uninstall32 = $uninstall32.Trim()
+                
+                #Write-Output "Uninstalling $Name..."
+                Write-Status -Types "-", "x86" -Status "Uninstalling $Name..." -NoNewLine
+                
+                try {
+                    $process = Start-Process "msiexec.exe" -ArgumentList "/X $uninstall32 /qb" -Wait -PassThru
+                    if ($exitCode -eq 0) {
+                        $Global:LogEntry.Successful = $True
+                        Write-Output "Uninstall of $Name succeeded with exit code $exitCode."
+                        Add-Content -Path $Variables.Log -Value $logEntry
+                    } else {
+                        $Global:LogEntry.Successful = $false
+                        $status = "Uninstall of $Name failed with exit code $exitCode."
+                        Write-Output $status
+                        Add-Content -Path $Variables.Log -Value $logEntry
+                        Add-Content -Path $Variables.Log -Value $status
+                    }
+                }
+                catch {
+                    $status = "Uninstall of $Name failed with error: $_"
+                    Write-Output $status
+                    Add-Content -Path $Variables.Log -Value $status
+                }
+            }
+        }   
+}
 
 
 
@@ -2174,15 +2259,16 @@ Function Set-ItemPropertyVerified {
             }
             else {
                 Get-Status
+                $Global:FailedRegistryKeys++
             }
-            }
-            catch {
-                Invoke-ErrorHandling $_
-                Continue
-            }
-        else {
-            Write-Status -Types "@" -Status "Key already set to the desired value. Skipping"
         }
+        catch {
+            Invoke-ErrorHandling $_
+            Continue
+        }
+    }
+    else {
+        Write-Status -Types "@" -Status "Key already set to the desired value. Skipping"
     }
 }
 Function Set-OptionalFeatureState {
@@ -2483,15 +2569,17 @@ Function Send-EmailLog {
     $ElapsedTime = $EndTime - $StartTime
     $FormattedElapsedTime = "{0:mm} minutes {0:ss} seconds" -f $ElapsedTime
     $PowershellTable = $PSVersionTable | Out-String
+    $ListOfInstalledApplications = (Get-InstalledProgram "*").Name | Sort-Object
+    $ListOfInstalledPackages = (Get-appxpackage -User $Env:USERNAME).Name | Sort-Object
     # - Gathers some information about host
     $SystemSpecs = Get-SystemInfo
     $IP = $(Resolve-DnsName -Name myip.opendns.com -Server 208.67.222.220).IPAddress
     $WallpaperApplied = if ($Variables.CurrentWallpaper -eq $Variables.Wallpaper) { "YES" } else { "NO" }
     # - Checks if all the programs got installed
-    $ChromeYN = if (Get-InstalledProgram -Keyword "Google Chrome") { "YES" } else { "NO" }
-    $VLCYN = if (Get-InstalledProgram -Keyword "VLC") { "YES" } else { "NO" }
-    $ZoomYN = if (Get-InstalledProgram -Keyword "Zoom") { "YES" } else { "NO" }
-    $AdobeYN = if (Get-InstalledProgram -Keyword "Acrobat") { "YES" } else { "NO" }
+    $ChromeYN = if (Get-InstalledProgram "Google Chrome") { "YES" } else { "NO" }
+    $VLCYN = if (Get-InstalledProgram "VLC") { "YES" } else { "NO" }
+    $ZoomYN = if (Get-InstalledProgram "Zoom") { "YES" } else { "NO" }
+    $AdobeYN = if (Get-InstalledProgram "Acrobat") { "YES" } else { "NO" }
 
 
     # - Joins log files to send as attachments
@@ -2525,11 +2613,6 @@ $ip\$env:computername\$env:USERNAME
 - End Time: $FormattedEndTime
 - Elapsed Time: $FormattedElapsedTime
 
-- System Information:
-$SystemSpecs
-- Powershell Table:
-$PowershellTable
-
 - Summary:
 - Applications Installed: $appsyns
 - Chrome: $ChromeYN
@@ -2539,9 +2622,27 @@ $PowershellTable
 - Wallpaper Applied: $WallpaperApplied
 - Windows 11 Start Layout Applied: $StartMenuLayout
 - Registry Keys Modified: $ModifiedRegistryKeys
+- Failed Registry Keys: $FailedRegistryKeys
+
+- System Information:
+$SystemSpecs
+- Powershell Table:
+$PowershellTable
+
+
 - Packages Removed During Debloat: $($Variables.Removed)
 - List of Packages Removed:
-$($Variables.PackagesRemoved)"
+$($Variables.PackagesRemoved)
+
+
+- List of Installed Win32 Applications:
+$ListOfInstalledApplications
+
+
+- List of Installed Appx Packages:
+$ListOfInstalledPackages
+
+"
 
 
 # - Sends the mail
@@ -2731,11 +2832,28 @@ Function Start-Debloat {
     param(
         [Switch] $Revert
     )
-
-    Show-ScriptStatus -WindowTitle "Debloat" -TweakType "Debloat" -TitleCounterText "Debloat" -TitleText "Win32"
-
     If (!$Revert) {
-        Write-Section -Text "Checking for Start Menu Ads"
+        Show-ScriptStatus -WindowTitle "Debloat" -TweakType "Debloat" -TitleCounterText "Debloat" -TitleText "Win32"
+
+        Write-Section -Text "Tradition Win32 & Win64 Applications"
+        $Win32apps = @(
+            "Avast"
+            "ExpressVPN"
+            "McAfee"
+            "Norton"
+            "WildTangent"
+        )
+        $Win32apps | ForEach-Object { Remove-InstalledProgram "*$app*" -ErrorAction SilentlyContinue }
+
+        #Remove-InstalledProgram -Name "*WildTangent*" -ErrorAction SilentlyContinue
+        #Remove-InstalledProgram -Name "*Norton*"-ErrorAction SilentlyContinue
+        #Remove-InstalledProgram -Name "*McAfee*"-ErrorAction SilentlyContinue
+        #Remove-InstalledProgram -Name "*ExpressVPN*"-ErrorAction SilentlyContinue
+        #Remove-InstalledProgram -Name "*Avast*"-ErrorAction SilentlyContinue
+
+
+
+        Write-Section -Text "Start Menu Ads (.url, .lnk)"
         ForEach ($app in $apps) {
             try {
                 if (Test-Path -Path "$commonapps\$app.url") {
