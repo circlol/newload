@@ -654,7 +654,7 @@ function Get-Motherboard {
     [String]$CombinedString = "$motherboardOEM $motherboardModel"
     return "$CombinedString"
 }
-Function Get-SystemSpecs {
+Function Get-SystemInfo {
     [CmdletBinding()]
     [OutputType([String])]
     param()
@@ -679,12 +679,11 @@ Function Get-SystemSpecs {
         catch{
             return "Error retrieving GPU information: $($_)"
         }
-        
+
         # Grab RAM info
         try {
             $ram = (Get-CimInstance Win32_ComputerSystem).TotalPhysicalMemory
             $ram = $ram / 1GB
-            
         }
         catch{
             return "Error retrieving RAM information: $($_)"
@@ -731,12 +730,12 @@ Function Get-SystemSpecs {
         }
 
     $CombinedString = "
-CPU: $($CPUCombinedString)
-GPU: $($gpu.Trim())
-RAM: $("{0:N2} GB" -f $ram)
-Motherboard: $($MotherboardCombinedString)
-OS: $($completedWindowsName)
-Disk Info: $($CombinedDriveInfo)
+- CPU: $($CPUCombinedString)
+- GPU: $($gpu.Trim())
+- RAM: $("{0:N2} GB" -f $ram)
+- Motherboard: $($MotherboardCombinedString)
+- OS: $($completedWindowsName)
+- Disk Info: $($CombinedDriveInfo)
 "
     }process{
         return $CombinedString
@@ -956,9 +955,10 @@ function Get-Status {
         $Global:LogEntry.Successful = $false
         # Log a failure message
         Write-Caption -Type Failed
+
         Add-Content -Path $Variables.Log -Value $logEntry
-        # Handle the error message
-        Invoke-ErrorHandling $Error
+#        # Handle the error message
+#        Invoke-ErrorHandling
     }
 }
 
@@ -990,11 +990,11 @@ Error Message: $($errorMessage)
 
 function Invoke-ErrorHandling {
     param (
-        [string]$errorMessage = $null
+        [string]$errorMessage = $Error[0]
     )
 
     $lineNumber = $MyInvocation.ScriptLineNumber
-    $command = $MyInvocation.Line
+    $command = $Error[0].InvocationInfo.MyCommand
     $errorType = $Error[0].CategoryInfo.Reason
     $timestamp = Get-Date -Format "yyyy-MM-dd HH:mm:ss"
     #$scriptPath = $MyInvocation.MyCommand.Definition
@@ -1004,8 +1004,7 @@ function Invoke-ErrorHandling {
 
 
 **********************************************************************
-Timestamp: $($timestamp)
-Executed by: $($userName)
+$($timestamp) Executed by: $($userName)
 Command: $($command)
 Error Type: $($errorType)
 Offending line number: $($lineNumber)
@@ -1027,36 +1026,37 @@ Error Message: $($errorMessage)
 Function New-SystemRestorePoint {
     [CmdletBinding(SupportsShouldProcess)]
     Param()
-    Show-ScriptStatus -WindowTitle "Restore Point" -TweakType "Backup" -TitleCounterText "Creating Restore Point"
     $description = "Mother Computers Courtesy Restore Point"
     $restorePointType = "MODIFY_SETTINGS"
-    $actionDescription = "Enabling system drive Restore Point..."
-    if ($PSCmdlet.ShouldProcess($actionDescription, "Enable-SystemRestore")) {
-        # Assure System Restore is enabled
-        Write-Status -Types "+" -Status "Enabling System Restore" -NoNewLine
-        try {
-            Enable-ComputerRestore -Drive "$env:SystemDrive\"
-            Get-Status
-        }
-        catch {
-            Invoke-ErrorHandling
-            Continue
-        }
+
+
+    if ($PSCmdlet.ShouldProcess("Create System Restore Point", "Creating a new restore point with description: $description")) {
+    Show-ScriptStatus -WindowTitle "Restore Point" -TweakType "Backup" -TitleCounterText "Creating Restore Point"
+    # Assure System Restore is enabled
+    Write-Status -Types "+" -Status "Enabling System Restore" -NoNewLine
+    try {
+        Enable-ComputerRestore -Drive "$env:SystemDrive\"
+        Get-Status
     }
-    $actionDescription = "Creating new System Restore Point with description: $description and type: $restorePointType"
-    if ($PSCmdlet.ShouldProcess($actionDescription, "Create-RestorePoint")) {
-        # Creates a System Restore point
-        Write-Status -Types "+" -Status "Creating System Restore Point: $description" -NoNewLine
-        try {
-            Checkpoint-Computer -Description $description -RestorePointType $restorePointType
-            Get-Status
-        }
-        catch {
-            Invoke-ErrorHandling
-            Continue
-        }
+    catch {
+        Invoke-ErrorHandling $_
+        Continue
+    }
+    # Creates a System Restore point
+    Write-Status -Types "+" -Status "Creating System Restore Point: $description" -NoNewLine
+    try {
+        Checkpoint-Computer -Description $description -RestorePointType $restorePointType
+        Get-Status
+    }
+    catch {
+        Invoke-ErrorHandling $_
+        Continue
     }
     Show-ScriptStatus -WindowTitle ""
+    }
+    else {
+        Write-Output "Operation Canceled."
+    }
 }
 
 Function Optimize-General {
@@ -1793,7 +1793,7 @@ Function Optimize-Service {
     ##
 
     Write-Section "Enabling services from Windows"
-    If ($Variables.IsSystemDriveSSD -or $Revert) { 
+    If ($Variables.IsSystemDriveSSD -or $Revert) {
         Set-ServiceStartup -State 'Automatic' -Services $Variables.EnableServicesOnSSD
     }
     Set-ServiceStartup -State 'Manual' -Services $Variables.ServicesToManual
@@ -1853,7 +1853,6 @@ Function Optimize-WindowsOptional {
 }
 
 Function Remove-InstalledProgram {
-    [CmdletBinding(SupportsShouldProcess)]
     Param(
         [Parameter(ValueFromPipeline = $true, Mandatory = $true)]
         [string]$UninstallString,
@@ -1862,39 +1861,42 @@ Function Remove-InstalledProgram {
     )
     process {
         try {
-            $actionDescription = "Uninstalling $Name..."
-            if ($PSCmdlet.ShouldProcess($actionDescription, "Uninstall")) {
-                Write-Host "Uninstalling $Name..."
-                if ($UninstallString -match "msiexec.exe /i*") {
-                    # Uninstall using MSIExec
-                    $arguments = $UninstallString.Split(" ", 2)[1]
-                    Start-Process -FilePath 'msiexec.exe' -ArgumentList "$arguments" -Wait -NoNewWindow
-                }
-                elseif ($UninstallString -match 'msiexec.exe /x') { <# add this part later #> }
-                else {
-                    # Uninstall using regular command
-                    Start-Process "$UninstallString" -Wait -NoNewWindow
-                }
-                Write-Host "$Name uninstalled successfully."
+            Write-Host "Uninstalling $Name..."
+            if ($UninstallString -match "msiexec.exe /i*") {
+                # Uninstall using MSIExec
+                $arguments = $UninstallString.Split(" ", 2)[1]
+                Start-Process -FilePath 'msiexec.exe' -ArgumentList "$arguments" -Wait -NoNewWindow
             }
+            elseif ($UninstallString -match 'msiexec.exe /x') {
+
+                <# add this part later #> } #TODO Add Remove-InstalledProgram section
+
+            else {
+                # Uninstall using regular command
+                Start-Process "$UninstallString" -Wait -NoNewWindow
+            }
+            Write-Host "$Name uninstalled successfully."
         }
         catch {
             Write-Host "An error occurred during program uninstallation: $_"
         }
     }
-
 }
 
+
+
+
 Function Remove-Office {
-    [CmdletBinding(SupportsShouldProcess)]
-    Param()
+    [CmdletBinding(SupportsShouldProcess=$true)]
+    param()
 
-
-    $msgBoxInput = Show-Question -Buttons YesNo -Message "Office was found on this system. Should I remove it?" -Icon Warning
-    switch ($msgBoxInput) {
-        'Yes' {
-            $actionDescription = "Downloading Microsoft Support and Recovery Assistant (SaRA)..."
-            if ($PSCmdlet.ShouldProcess($actionDescription, "Download-SaRA")) {
+    $confirmationMessage = "Office was found on this system. Do you want to remove it?"
+    $actionDescription = "Remove Office"
+    if ($PSCmdlet.ShouldProcess($actionDescription, $confirmationMessage)) {
+        $msgBoxInput = Show-Question -Buttons YesNo -Message "Office was found on this system. Should I remove it?" -Icon Warning
+        switch ($msgBoxInput) {
+            'Yes' {
+                $actionDescription = "Downloading Microsoft Support and Recovery Assistant (SaRA)..."
                 try {
                     Write-Status "+", $TweakType -Status "Downloading Microsoft Support and Recovery Assistant (SaRA)..." -NoNewLine
                     Get-NetworkStatus
@@ -1907,11 +1909,9 @@ Function Remove-Office {
                 catch {
                     Invoke-ErrorHandling $_
                 }
-            }
 
-            $SaRAcmdexe = (Get-ChildItem $Variables.Sexp -Include SaRAcmd.exe -Recurse).FullName
-            $actionDescription = "Starting OfficeScrubScenario via Microsoft Support and Recovery Assistant (SaRA)..."
-            if ($PSCmdlet.ShouldProcess($actionDescription, "Start-OfficeScrubScenario")) {
+                $SaRAcmdexe = (Get-ChildItem $Variables.Sexp -Include SaRAcmd.exe -Recurse).FullName
+                $actionDescription = "Starting OfficeScrubScenario via Microsoft Support and Recovery Assistant (SaRA)..."
                 try {
                     Write-Status "+", $TweakType -Status $actionDescription -NoNewLine
                     Start-Process $SaRAcmdexe -ArgumentList "-S OfficeScrubScenario -AcceptEula -OfficeVersion All"
@@ -1921,17 +1921,20 @@ Function Remove-Office {
                     Invoke-ErrorHandling $_
                 }
             }
-        }
-        'No' {
-            Write-Status -Types "?" -Status "Skipping Office Removal" -WriteWarning
-            Add-Content -Path $Variables.Log -Value $logEntry
+            'No' {
+                Write-Status -Types "?" -Status "Skipping Office Removal" -WriteWarning
+                Add-Content -Path $Variables.Log -Value $logEntry
+            }
         }
     }
 }
 Function Remove-PinnedStartMenu {
-    [CmdletBinding(SupportsShouldProcess)]
-    Param()
-$START_MENU_LAYOUT = @"
+    [CmdletBinding(SupportsShouldProcess=$true)]
+    param()
+
+    $confirmationMessage = "This action will remove pinned items from the Start menu. Do you want to proceed?"
+    $actionDescription = "Remove Pinned Start Menu Items"
+    $START_MENU_LAYOUT = @"
 <LayoutModificationTemplate xmlns:defaultlayout="http://schemas.microsoft.com/Start/2014/FullDefaultLayout" xmlns:start="http://schemas.microsoft.com/Start/2014/StartLayout" Version="1" xmlns:taskbar="http://schemas.microsoft.com/Start/2014/TaskbarLayout" xmlns="http://schemas.microsoft.com/Start/2014/LayoutModification">
     <LayoutOptions StartTileGroupCellWidth="6" />
     <DefaultLayoutOverride>
@@ -1941,50 +1944,47 @@ $START_MENU_LAYOUT = @"
     </DefaultLayoutOverride>
 </LayoutModificationTemplate>
 "@
-$layoutFile="C:\Windows\StartMenuLayout.xml"
+    if ($PSCmdlet.ShouldProcess($actionDescription, $confirmationMessage)) {
+        $layoutFile="C:\Windows\StartMenuLayout.xml"
+            #Delete layout file if it already exists
+            Get-Item $LayoutFile -ErrorAction SilentlyContinue | Remove-Item
 
-    #Delete layout file if it already exists
-    Get-Item $LayoutFile -ErrorAction SilentlyContinue | Remove-Item
+            #Creates the blank layout file
+            $START_MENU_LAYOUT | Out-File $layoutFile -Encoding ASCII
 
-    #Creates the blank layout file
-    $START_MENU_LAYOUT | Out-File $layoutFile -Encoding ASCII
+            #Assign the start layout and force it to apply with "LockedStartLayout" at both the machine and user level
+            $regAliases = @("HKLM", "HKCU")# | % {
+            foreach ($regAlias in $regAliases) {
+                $basePath = $regAlias + ":\SOFTWARE\Policies\Microsoft\Windows"
+                $keyPath = $basePath + "\Explorer"
+                Set-ItemPropertyVerified -Path $keyPath -Name "LockedStartLayout" -Value 1 -Type DWORD
+                Set-ItemPropertyVerified -Path $keyPath -Name "StartLayoutFile" -Value $layoutFile -Type ExpandString
+            }
 
-    #Assign the start layout and force it to apply with "LockedStartLayout" at both the machine and user level
-    $regAliases = @("HKLM", "HKCU")# | % {
-    foreach ($regAlias in $regAliases) {
-        $basePath = $regAlias + ":\SOFTWARE\Policies\Microsoft\Windows"
-        $keyPath = $basePath + "\Explorer"
-        if ($PSCmdlet.ShouldProcess("Setting LockedStartLayout to 1", "Set-ItemPropertyVerified")) {
-            Set-ItemPropertyVerified -Path $keyPath -Name "LockedStartLayout" -Value 1 -Type DWORD
-            Set-ItemPropertyVerified -Path $keyPath -Name "StartLayoutFile" -Value $layoutFile -Type ExpandString
-        }
+            #Restart Explorer, open the start menu (necessary to load the new layout), and give it a few seconds to process
+            Restart-Explorer
+
+            Start-Sleep -s 5
+            # CTRL + ESCAPE
+            $wshell = New-Object -ComObject wscript.shell; $wshell.SendKeys('^{ESCAPE}')
+            Start-Sleep -s 5
+
+            #Enable the ability to pin items again by disabling "LockedStartLayout"
+            foreach ($regAlias in $regAliases) {
+                $basePath = $regAlias + ":\SOFTWARE\Policies\Microsoft\Windows"
+                $keyPath = $basePath + "\Explorer"
+                Set-ItemPropertyVerified -Path $keyPath -Name "LockedStartLayout" -Value 0 -Type DWORD
+            }
+
+            #Restart Explorer and delete the layout file
+            Restart-Explorer
+            # Uncomment the next line to make clean start menu default for all new users
+            Import-StartLayout -LayoutPath $layoutFile -MountPath $env:SystemDrive
+            Remove-Item $layoutFile
     }
-
-    #Restart Explorer, open the start menu (necessary to load the new layout), and give it a few seconds to process
-    Restart-Explorer
-
-    Start-Sleep -s 5
-    # CTRL + ESCAPE
-    $wshell = New-Object -ComObject wscript.shell; $wshell.SendKeys('^{ESCAPE}')
-    Start-Sleep -s 5
-
-    #Enable the ability to pin items again by disabling "LockedStartLayout"
-    foreach ($regAlias in $regAliases) {
-        $basePath = $regAlias + ":\SOFTWARE\Policies\Microsoft\Windows"
-        $keyPath = $basePath + "\Explorer"
-        if ($PSCmdlet.ShouldProcess("Setting LockedStartLayout to 0", "Set-ItemPropertyVerified")) {
-            Set-ItemPropertyVerified -Path $keyPath -Name "LockedStartLayout" -Value 0 -Type DWORD
-        }
-    }
-
-    #Restart Explorer and delete the layout file
-    Restart-Explorer
-    # Uncomment the next line to make clean start menu default for all new users
-    Import-StartLayout -LayoutPath $layoutFile -MountPath $env:SystemDrive
-    Remove-Item $layoutFile
 }
 Function Remove-UWPAppx {
-    [CmdletBinding(SupportsShouldProcess)]
+    [CmdletBinding(SupportsShouldProcess=$true)]
     param (
         [Array] $AppxPackages
     )
@@ -1994,7 +1994,7 @@ Function Remove-UWPAppx {
         $appxPackageToRemove = Get-AppxPackage -AllUsers -Name $AppxPackage
         if ($appxPackageToRemove) {
             $actionDescription = "Removing $AppxPackage"
-            if ($PSCmdlet.ShouldProcess($actionDescription, "Remove-AppxPackage")) {
+            if ($PSCmdlet.ShouldProcess($actionDescription, "Do you want to remove the app $AppxPackage?")) {
                 $appxPackageToRemove | ForEach-Object -Process {
                     Write-Status -Types "-", $TweakType -Status "Trying to remove $AppxPackage" -NoNewLine
                     Remove-AppxPackage $_.PackageFullName -ErrorAction Continue | Out-Null
@@ -2006,10 +2006,6 @@ Function Remove-UWPAppx {
                     elseif (!($?)) {
                         $Variabless.Failed++
                     }
-                }
-
-                $actionDescription = "Removing Provisioned Appx $AppxPackage"
-                if ($PSCmdlet.ShouldProcess($actionDescription, "Remove-AppxProvisionedPackage")) {
                     Write-Status -Types "-", $TweakType -Status "Trying to remove provisioned $AppxPackage" -NoNewLine
                     Get-AppxProvisionedPackage -Online | Where-Object DisplayName -like $AppxPackage | Remove-AppxProvisionedPackage -Online -AllUsers | Out-Null
                     Get-Status
@@ -2028,85 +2024,77 @@ Function Remove-UWPAppx {
     $ProgressPreference = "Continue"
 }
 Function Restart-Explorer {
-    [CmdletBinding(SupportsShouldProcess)]
-    Param()
+    [CmdletBinding(SupportsShouldProcess=$true)]
+    param()
     # Checks is explorer is running
-    $ExplorerActive = Get-Process -Name explorer
-    if ($ExplorerActive) {
-        try {
-            if ($PSCmdlet.ShouldProcess("Stop explorer process")) {
+    $confirmationMessage = "This action will restart Windows Explorer. Do you wish to continue?"
+    $actionDescription = "Restarts Windows Explorer."
+    if ($PSCmdlet.ShouldProcess($actionDescription, $confirmationMessage)) {
+        $ExplorerActive = Get-Process -Name explorer
+        if ($ExplorerActive) {
+            try {
                 taskkill /f /im explorer.exe
             }
+            catch {
+                Write-Warning "Failed to stop Explorer process: $_"
+                Invoke-ErrorHandling $_
+                Continue
+            }
+        }
+        try {
+            Start-Process explorer -Wait
         }
         catch {
-            Write-Warning "Failed to stop Explorer process: $_"
+            Write-Error "Failed to start Explorer process: $_"
             Invoke-ErrorHandling $_
             Continue
         }
     }
-    try {
-        if ($PSCmdlet.ShouldProcess("Start explorer process")) {
-            Start-Process explorer -Wait
-        }
-    }
-    catch {
-        Write-Error "Failed to start Explorer process: $_"
-        Invoke-ErrorHandling $_
-        Continue
-    }
 }
 Function Request-PCRestart {
-    [CmdletBinding(SupportsShouldProcess)]
     Param()
-    if ($PSCmdlet.ShouldProcess("Host")) {
-        Write-Status -Types "WAITING" -Status "User action needed - You may have to ALT + TAB " -WriteWarning
-        $restartMessage = "For changes to apply please restart your computer. Ready?"
-        switch (Show-Question -Chime -Buttons YesNoCancel -Title "New Loads Completed" -Icon Warning -Message $restartMessage) {
-            'Yes' {
-                Write-Host "You choose to Restart now"
-                Restart-Computer
-            }
-            'No' {
-                Write-Host "You choose to Restart later"
-            }
-            'Cancel' {
-                Write-Host "You choose to Restart later"
-            }
+    Write-Status -Types "WAITING" -Status "User action needed - You may have to ALT + TAB " -WriteWarning
+    $restartMessage = "For changes to apply please restart your computer. Ready?"
+    switch (Show-Question -Chime -Buttons YesNoCancel -Title "New Loads Completed" -Icon Warning -Message $restartMessage) {
+        'Yes' {
+            Write-Host "You choose to Restart now"
+            Restart-Computer
+        }
+        'No' {
+            Write-Host "You choose to Restart later"
+        }
+        'Cancel' {
+            Write-Host "You choose to Restart later"
         }
     }
 }
 Function Set-Branding {
-    [CmdletBinding(SupportsShouldProcess)]
+    [CmdletBinding(SupportsShouldProcess=$true)]
     Param (
         [Switch]$Revert,
         [Switch]$NoBranding
     )
     Show-ScriptStatus -WindowTitle "Branding" -TweakType "Branding" -TitleText "Branding" -TitleCounterText "Mother Branding"
-    If (!$Revert) {
-        If ($NoBranding) {
-            Write-Status -Types "@" -Status "Parameter -NoBranding detected.. Skipping Mother Computers branding" -WriteWarning -ForegroundColorText RED
-        }
-        else {
-            # - Adds Mother Computers support info to About.
-            $actionDescription = "Adding Mother Computers branding"
-            if ($PSCmdlet.ShouldProcess($actionDescription)) {
-                Write-Status -Types "+", $TweakType -Status "Adding Mother Computers to Support Page"
-                Set-ItemPropertyVerified -Path $Variables.PathToOEMInfo -Name "Manufacturer" -Type String -Value $Variables.store
-                Write-Status -Types "+", $TweakType -Status "Adding Mothers Number to Support Page"
-                Set-ItemPropertyVerified -Path $Variables.PathToOEMInfo -Name "SupportPhone" -Type String -Value $Variables.phone
-                Write-Status -Types "+", $TweakType -Status "Adding Store Hours to Support Page"
-                Set-ItemPropertyVerified -Path $Variables.PathToOEMInfo -Name "SupportHours" -Type String -Value $Variables.hours
-                Write-Status -Types "+", $TweakType -Status "Adding Store URL to Support Page"
-                Set-ItemPropertyVerified -Path $Variables.PathToOEMInfo -Name "SupportURL" -Type String -Value $Variables.website
-                Write-Status -Types "+", $TweakType -Status "Adding Store Number to Settings Page"
-                Set-ItemPropertyVerified -Path $Variables.PathToOEMInfo -Name $Variables.page -Type String -Value $Variables.Model
+    if ($PSCmdlet.ShouldProcess($actionDescription, "Do you want to modify the branding?")) {
+        If (!$Revert) {
+            If ($NoBranding) {
+                Write-Status -Types "@" -Status "Parameter -NoBranding detected.. Skipping Mother Computers branding" -WriteWarning -ForegroundColorText RED
             }
-        }
-    }
-    elseif ($Revert) {
-        # - Removes Mother Computers support info from About.
-        $actionDescription = "Removing Mother Computers branding"
-        if ($PSCmdlet.ShouldProcess($actionDescription)) {
+            else {
+            # - Adds Mother Computers support info to About.
+            Write-Status -Types "+", $TweakType -Status "Adding Mother Computers to Support Page"
+            Set-ItemPropertyVerified -Path $Variables.PathToOEMInfo -Name "Manufacturer" -Type String -Value $Variables.store
+            Write-Status -Types "+", $TweakType -Status "Adding Mothers Number to Support Page"
+            Set-ItemPropertyVerified -Path $Variables.PathToOEMInfo -Name "SupportPhone" -Type String -Value $Variables.phone
+            Write-Status -Types "+", $TweakType -Status "Adding Store Hours to Support Page"
+            Set-ItemPropertyVerified -Path $Variables.PathToOEMInfo -Name "SupportHours" -Type String -Value $Variables.hours
+            Write-Status -Types "+", $TweakType -Status "Adding Store URL to Support Page"
+            Set-ItemPropertyVerified -Path $Variables.PathToOEMInfo -Name "SupportURL" -Type String -Value $Variables.website
+            Write-Status -Types "+", $TweakType -Status "Adding Store Number to Settings Page"
+            Set-ItemPropertyVerified -Path $Variables.PathToOEMInfo -Name $Variables.page -Type String -Value $Variables.Model
+            }
+            elseif ($Revert) {
+            # - Removes Mother Computers support info from About.
             Write-Status -Types "-", $TweakType -Status "Removing Mother Computers from Support Page"
             Set-ItemPropertyVerified -Path $Variables.PathToOEMInfo -Name "Manufacturer" -Type String -Value ""
             Write-Status -Types "-", $TweakType -Status "Removing Mothers Number from Support Page"
@@ -2117,11 +2105,14 @@ Function Set-Branding {
             Set-ItemPropertyVerified -Path $Variables.PathToOEMInfo -Name "SupportURL" -Type String -Value ""
             Write-Status -Types "-", $TweakType -Status "Removing Store Number from Settings Page"
             Set-ItemPropertyVerified -Path $Variables.PathToOEMInfo -Name $Variables.page -Type String -Value ""
+            }
         }
+    }
+    else {
+        Write-Host "$actionDescription operation canceled."
     }
 }
 Function Set-ItemPropertyVerified {
-    [CmdletBinding(SupportsShouldProcess)]
     Param(
         [Alias("V")]
         [Parameter(Mandatory = $true)]
@@ -2150,54 +2141,48 @@ Function Set-ItemPropertyVerified {
 
     $keyExists = Test-Path -Path $Path
     if (!$keyExists) {
-        if ($PSCmdlet.ShouldProcess("Creating key at $Path", "New-Item")) {
-            New-Item -Path $Path -Force | Out-Null
-            $Global:CreatedKeys++
-        }
+        New-Item -Path $Path -Force | Out-Null
+        $Global:CreatedKeys++
     }
 
     $currentValue = Get-ItemProperty -Path $Path -Name $Name -ErrorAction SilentlyContinue
     if ($null -eq $currentValue -or $currentValue.$Name -ne $Value) {
-        $actionDescription = "Setting $Name to $Value in $Path"
-        if ($PSCmdlet.ShouldProcess($actionDescription, "Set")) {
-            try {
-                Write-Status -Types "+" -Status "$Name set to $Value in $Path" -NoNewLine
+        try {
+            Write-Status -Types "+" -Status "$Name set to $Value in $Path" -NoNewLine
 
-                $params = @{
-                    Path          = $Path
-                    Name          = $Name
-                    Value         = $Value
-                    Type          = $Type
-                    ErrorAction   = 'Stop'
-                    Passthru      = $Passthru
-                    WarningAction = $warningPreference
-                }
+            $params = @{
+                Path          = $Path
+                Name          = $Name
+                Value         = $Value
+                Type          = $Type
+                ErrorAction   = 'Stop'
+                Passthru      = $Passthru
+                WarningAction = $warningPreference
+            }
 
-                if ($Force) {
-                    $params['Force'] = $true
-                }
-                Set-ItemProperty @params
+            if ($Force) {
+                $params['Force'] = $true
+            }
+            Set-ItemProperty @params
 
-                if ($? -eq $True) {
-                    Get-Status
-                    $Global:ModifiedRegistryKeys++
-                }
-                else {
-                    Get-Status
-                }
+            if ($? -eq $True) {
+                Get-Status
+                $Global:ModifiedRegistryKeys++
+            }
+            else {
+                Get-Status
+            }
             }
             catch {
                 Invoke-ErrorHandling $_
                 Continue
             }
+        else {
+            Write-Status -Types "@" -Status "Key already set to the desired value. Skipping"
         }
-    }
-    else {
-        Write-Status -Types "@" -Status "Key already set to the desired value. Skipping"
     }
 }
 Function Set-OptionalFeatureState {
-    [CmdletBinding(SupportsShouldProcess)]
     param (
         [ScriptBlock] $CustomMessage,
         [Switch] $Enabled,
@@ -2225,31 +2210,25 @@ Function Set-OptionalFeatureState {
 
             if (!$CustomMessage) {
                 if ($Disabled) {
-                    $actionDescription = "Uninstalling the $_ ($($feature.DisplayName)) optional feature..."
-                    if ($PSCmdlet.ShouldProcess($actionDescription)) {
-                        Write-Status -Types "-", $TweakType -Status $actionDescription -NoNewLine
-                        try {
-                            $feature | Where-Object State -Like "Enabled" | Disable-WindowsOptionalFeature -Online -NoRestart -WhatIf:$WhatIf
-                            Get-Status
-                        }
-                        catch {
-                            Invoke-ErrorHandling $_
-                            continue
-                        }
+                    Write-Status -Types "-", $TweakType -Status $actionDescription -NoNewLine
+                    try {
+                        $feature | Where-Object State -Like "Enabled" | Disable-WindowsOptionalFeature -Online -NoRestart -WhatIf:$WhatIf
+                        Get-Status
+                    }
+                    catch {
+                        Invoke-ErrorHandling $_
+                        continue
                     }
                 }
                 elseif ($Enabled) {
-                    $actionDescription = "Installing the $_ ($($feature.DisplayName)) optional feature..."
-                    if ($PSCmdlet.ShouldProcess($actionDescription)) {
-                        Write-Status -Types "+", $TweakType -Status $actionDescription -NoNewLine
-                        try {
-                            $feature | Where-Object State -Like "Disabled*" | Enable-WindowsOptionalFeature -Online -NoRestart -WhatIf:$WhatIf
-                            Get-Status
-                        }
-                        catch {
-                            Invoke-ErrorHandling $_
-                            continue
-                        }
+                    Write-Status -Types "+", $TweakType -Status $actionDescription -NoNewLine
+                    try {
+                        $feature | Where-Object State -Like "Disabled*" | Enable-WindowsOptionalFeature -Online -NoRestart -WhatIf:$WhatIf
+                        Get-Status
+                    }
+                    catch {
+                        Invoke-ErrorHandling $_
+                        continue
                     }
                 }
                 else {
@@ -2267,7 +2246,6 @@ Function Set-OptionalFeatureState {
     }
 }
 function Set-ScheduledTaskState {
-    [CmdletBinding(SupportsShouldProcess)]
     param (
         [Parameter(Mandatory = $false)]
         [Switch] $Disabled,
@@ -2298,28 +2276,20 @@ function Set-ScheduledTaskState {
             }
 
             If ($action) {
-                $confirmationMessage = "Are you sure you want to $action the scheduled task '$ScheduledTask'?"
-                $caption = "Confirm $action"
-                $result = $PSCmdlet.ShouldProcess($ScheduledTask, $confirmationMessage, $caption)
-
-                If ($result) {
-                    Write-Status -Types $action.Substring(0, 1), $TweakType -Status "$action the $ScheduledTask task..." -NoNewLine
-
-                    Try {
-                        If ($action -eq "Disable") {
-                            Get-ScheduledTask -TaskName (Split-Path -Path $ScheduledTask -Leaf) | Where-Object State -Like "R*" | Disable-ScheduledTask | Out-Null
-                            Get-Status # R* = Ready/Running
-                            #Get-Status
-                        }
-                        ElseIf ($action -eq "Enable") {
-                            Get-ScheduledTask -TaskName (Split-Path -Path $ScheduledTask -Leaf) | Where-Object State -Like "Disabled" | Enable-ScheduledTask | Out-Null
-                            Get-Status
-                        }
+                Write-Status -Types $action.Substring(0, 1), $TweakType -Status "$action the $ScheduledTask task..." -NoNewLine
+                Try {
+                    If ($action -eq "Disable") {
+                        Get-ScheduledTask -TaskName (Split-Path -Path $ScheduledTask -Leaf) | Where-Object State -Like "R*" | Disable-ScheduledTask | Out-Null  # R* = Ready/Running
+                        Get-Status
                     }
-                    catch {
-                        Invoke-ErrorHandling $_
-                        Continue
+                    ElseIf ($action -eq "Enable") {
+                        Get-ScheduledTask -TaskName (Split-Path -Path $ScheduledTask -Leaf) | Where-Object State -Like "Disabled" | Enable-ScheduledTask | Out-Null
+                        Get-Status
                     }
+                }
+                catch {
+                    Invoke-ErrorHandling $_
+                    Continue
                 }
             }
         }
@@ -2360,16 +2330,14 @@ function Set-ServiceStartup {
 
             Try {
                 $target = "$Service ($(( Get-Service $Service).DisplayName )) as '$State' on Startup"
-                if ($PSCmdlet.ShouldProcess($target, "Set Startup Type")) {
-                    Write-Status -Types "@", $TweakType -Status "Setting $target" -NoNewLine
-                    If ($WhatIf) {
-                        Get-Service -Name "$Service" | Set-Service -StartupType $State -WhatIf
-                        Get-Status
-                    }
-                    Else {
-                        Get-Service -Name "$Service" | Set-Service -StartupType $State
-                        Get-Status
-                    }
+                Write-Status -Types "@", $TweakType -Status "Setting $target" -NoNewLine
+                If ($WhatIf) {
+                    Get-Service -Name "$Service" | Set-Service -StartupType $State -WhatIf
+                    Get-Status
+                }
+                Else {
+                    Get-Service -Name "$Service" | Set-Service -StartupType $State
+                    Get-Status
                 }
             }
             catch {
@@ -2380,7 +2348,6 @@ function Set-ServiceStartup {
     }
 }
 Function Set-StartMenu {
-    [CmdletBinding(SupportsShouldProcess)]
     Param()
 
     Show-ScriptStatus -WindowTitle "Start Menu" -TweakType "StartMenu" -TitleCounterText "Start Menu Layout" -TitleText "StartMenu"
@@ -2392,52 +2359,38 @@ Function Set-StartMenu {
         $layoutFile = "C:\Windows\StartMenuLayout.xml"
         # Delete layout file if it already exists
         # Creates the blank layout file
-        if ($PSCmdlet.ShouldProcess("Out-File $StartlayoutFile -Encoding ASCII", "Remove-LayoutModificationFile")) {
-            If (Test-Path $layoutFile) { Remove-Item $layoutFile }
-            $Varaibles.START_MENU_LAYOUT | Out-File $layoutFile -Encoding ASCII
-        }
+        If (Test-Path $layoutFile) { Remove-Item $layoutFile }
+        $Varaibles.START_MENU_LAYOUT | Out-File $layoutFile -Encoding ASCII
 
         $regAliases = @("HKLM", "HKCU")
         #Assign the start layout and force it to apply with "LockedStartLayout" at both the machine and user level
         foreach ($regAlias in $regAliases) {
             $basePath = $regAlias + ":\SOFTWARE\Policies\Microsoft\Windows"
             $keyPath = $basePath + "\Explorer"
-            if ($PSCmdlet.ShouldProcess("Setting LockedStartLayout to 1", "Set-ItemPropertyVerified")) {
-                Set-ItemPropertyVerified -Path $keyPath -Name "LockedStartLayout" -Value 1 -Type DWORD
-                Set-ItemPropertyVerified -Path $keyPath -Name "StartLayoutFile" -Value $layoutFile -Type ExpandString
-            }
+            Set-ItemPropertyVerified -Path $keyPath -Name "LockedStartLayout" -Value 1 -Type DWORD
+            Set-ItemPropertyVerified -Path $keyPath -Name "StartLayoutFile" -Value $layoutFile -Type ExpandString
         }
 
         #Restart Explorer, open the start menu (necessary to load the new layout), and give it a few seconds to process
-        if ($PSCmdlet.ShouldProcess("Stop-Process -Name Explorer")) {
-            Stop-Process -name explorer
-        }
+        Stop-Process -name explorer
 
-        if ($PSCmdlet.ShouldProcess("New-Object")) {
-            Start-Sleep -s 5
-            $wshell = New-Object -ComObject wscript.shell; $wshell.SendKeys('^{ESCAPE}')
-            Start-Sleep -s 5
-        }
+        Start-Sleep -s 5
+        $wshell = New-Object -ComObject wscript.shell; $wshell.SendKeys('^{ESCAPE}')
+        Start-Sleep -s 5
 
         #Enable the ability to pin items again by disabling "LockedStartLayout"
         foreach ($regAlias in $regAliases) {
             $basePath = $regAlias + ":\SOFTWARE\Policies\Microsoft\Windows"
             $keyPath = $basePath + "\Explorer"
-            if ($PSCmdlet.ShouldProcess("Setting LockedStartLayout to 0", "Set-ItemPropertyVerified")) {
-                Set-ItemPropertyVerified -Path $keyPath -Name "LockedStartLayout" -Value 0 -Type DWORD
-            }
+            Set-ItemPropertyVerified -Path $keyPath -Name "LockedStartLayout" -Value 0 -Type DWORD
         }
 
 
         #Restart Explorer and delete the layout file
-        if ($PSCmdlet.ShouldProcess("Stop-Process -Name Explorer")) {
-            Stop-Process -name explorer
-        }
+        Stop-Process -name explorer
         # Uncomment the next line to make clean start menu default for all new users
-        if ($PSCmdlet.ShouldProcess("Import-StartLayout -LayoutPath $($layoutFile) -MountPath $env:SystemDrive\", "Remove-Item $($LayoutFile)")) {
-            Import-StartLayout -LayoutPath $layoutFile -MountPath $env:SystemDrive\
-            Remove-Item $layoutFile
-        }
+        Import-StartLayout -LayoutPath $layoutFile -MountPath $env:SystemDrive\
+        Remove-Item $layoutFile
     }
     elseif ($Variables.osVersion -like "*Windows 11*") {
         Write-Section -Text "Applying start menu layout for Windows 11"
@@ -2466,8 +2419,6 @@ Function Set-StartMenu {
     }
 }
 Function Set-Taskbar {
-    #[CmdletBinding(SupportsShouldProcess)]
-    #param ()
     Write-Status -Types "+" -Status "Applying Taskbar Layout" -NoNewLine
     If (Test-Path $Variables.layoutFile) {
         Remove-Item $Variables.layoutFile -Verbose | Out-Null
@@ -2478,12 +2429,10 @@ Function Set-Taskbar {
     Start-Sleep -Seconds 4
 }
 function Set-Wallpaper {
-    [CmdletBinding(SupportsShouldProcess)]
     param (
     )
 
     Show-ScriptStatus -WindowTitle "Visual" -TweakType "Visuals" -TitleCounterText "Visuals"
-    if ($PSCmdlet.ShouldProcess("Apply Wallpaper")) {
         $WallpaperPathExists = Test-Path $Variables.wallpaperPath
         If (!$WallpaperPathExists) {
             $WallpaperURL = "https://raw.githubusercontent.com/circlol/newload/main/assets/mother.jpg"
@@ -2510,22 +2459,21 @@ function Set-Wallpaper {
         Write-Status -Types "+", $TweakType -Status "Updating Wallpaper" -NoNewLine
         Start-Process "RUNDLL32.EXE" "user32.dll, UpdatePerUserSystemParameters"
         Get-Status
-    }
 }
 Function Send-EmailLog {
 
     Show-ScriptStatus -WindowTitle "Email Log" #-TweakType "Email" -TitleCounterText "Email Log"
     # - Current Date and Time
     $CurrentDate = Get-Date
-    $CurrentDateFormatted = $CurrentDate.ToString("dd MMMM yyyy h:mm:ss tt")
     $EndTime = Get-Date
+    $CurrentDateFormatted = $CurrentDate.ToString("dd MMMM yyyy h:mm:ss tt")
     $FormattedStartTime = $StartTime.ToString("h:mm:ss tt")
     $FormattedEndTime = $EndTime.ToString("h:mm:ss tt")
     $ElapsedTime = $EndTime - $StartTime
     $FormattedElapsedTime = "{0:mm} minutes {0:ss} seconds" -f $ElapsedTime
     $PowershellTable = $PSVersionTable | Out-String
     # - Gathers some information about host
-    $SystemSpecs = Get-SystemSpecs
+    $SystemSpecs = Get-SystemInfo
     $IP = $(Resolve-DnsName -Name myip.opendns.com -Server 208.67.222.220).IPAddress
     $WallpaperApplied = if ($Variables.CurrentWallpaper -eq $Variables.Wallpaper) { "YES" } else { "NO" }
     # - Checks if all the programs got installed
@@ -2556,7 +2504,7 @@ Function Send-EmailLog {
     <#                                  #>
     <####################################>
 
- 
+
 $ip\$env:computername\$env:USERNAME
 
 - Script Information:
@@ -2581,7 +2529,7 @@ $PowershellTable
 - Windows 11 Start Layout Applied: $StartMenuLayout
 - Registry Keys Modified: $ModifiedRegistryKeys
 - Packages Removed During Debloat: $($Variables.Removed)
-- List of Packages Removed: 
+- List of Packages Removed:
 $($Variables.PackagesRemoved)"
 
 
@@ -2647,7 +2595,6 @@ function Show-Question {
 }
 
 Function Start-BitlockerDecryption {
-    [CmdletBinding(SupportsShouldProcess)]
     param (
         [Switch]$SkipBitlocker
     )
@@ -2663,12 +2610,9 @@ Function Start-BitlockerDecryption {
             # Starts Bitlocker Decryption
             $messagebld = "Bitlocker was detected turned on. Do you want to start the decryption process?"
             Show-Question -Buttons YesNo -Title "New Loads" -Icon Warning -Message $messagebld
-            $target = "Bitlocker Decryption on C:"
-            if ($PSCmdlet.ShouldProcess($target, "Start Decryption")) {
-                Write-Status -Types "@" -Status "Alert: Bitlocker is enabled. Starting the decryption process" -Type Warning
-                Disable-BitLocker -MountPoint C:\
-                Get-Status
-            }
+            Write-Status -Types "@" -Status "Alert: Bitlocker is enabled. Starting the decryption process" -Type Warning
+            Disable-BitLocker -MountPoint C:\
+            Get-Status
         }
         else {
             $message = "Bitlocker is not enabled on this machine"
@@ -2678,7 +2622,6 @@ Function Start-BitlockerDecryption {
     }
 }
 Function Start-Bootup {
-    [CmdletBinding(SupportsShouldProcess)]
     param()
     Show-ScriptStatus -WindowTitle "Checking Requirements"
 
@@ -2729,25 +2672,21 @@ Function Start-Bootup {
     }
 }
 function Start-Chime {
-    [CmdletBinding(SupportsShouldProcess)]
-    param( 
-        $File = "C:\Windows\Media\Alarm06.wav" 
+    param(
+        $File = "C:\Windows\Media\Alarm06.wav"
     )
     if (Test-Path $File) {
         try {
             $soundPlayer = New-Object System.Media.SoundPlayer
             $soundPlayer.SoundLocation = $File
-            if ($PSCmdlet.ShouldProcess("Play the sound", "Play sound from $File")) {
-                $soundPlayer.Play()
-                $soundPlayer.Dispose()
-            }
+            $soundPlayer.Play()
+            $soundPlayer.Dispose()
         }
         catch { Write-Error "An error occurred while playing the sound: $_.Exception.Message" }
     }
     else { Write-Error "The sound file doesn't exist at the specified path." }
 }
 Function Start-Cleanup {
-    [CmdletBinding(SupportsShouldProcess)]
     param ()
 
     Show-ScriptStatus -WindowTitle "Cleanup" -TweakType "Cleanup" -TitleCounterText "Cleanup" -TitleText "Cleanup"
@@ -2760,34 +2699,24 @@ Function Start-Cleanup {
         # Removes layout file if it exists
         Get-Item $Variables.layoutFile | Remove-Item
         # - Launches Chrome to initiate UBlock Origin
-        $target = "Google Chrome"
-        if ($PSCmdlet.ShouldProcess($target, "Launch Chrome")) {
-            Write-Status -Types "+", $TweakType -Status "Launching Google Chrome"
-            Start-Process Chrome -WarningAction SilentlyContinue
-        }
+        Write-Status -Types "+", $TweakType -Status "Launching Google Chrome"
+        Start-Process Chrome -WarningAction SilentlyContinue
 
         # - Clears Temp Folder
-        $target = "Temp Folder"
-        if ($PSCmdlet.ShouldProcess($target, "Clean Temp Folder")) {
-            Write-Status -Types "-", $TweakType -Status "Cleaning Temp Folder"
-            Remove-Item "$env:temp\*.*" -Force -Recurse -Exclude "New Loads"
-        }
+        Write-Status -Types "-", $TweakType -Status "Cleaning Temp Folder"
+        Remove-Item "$env:temp\*.*" -Force -Recurse -Exclude "New Loads"
 
         # - Removes installed program shortcuts from Public/User Desktop
         foreach ($shortcut in $Variables.shortcuts) {
-            $target = "Shortcut: $shortcut"
-            if ($PSCmdlet.ShouldProcess($target, "Remove Shortcut")) {
-                $ShortcutExist = Test-Path $shortcut
-                If ($ShortcutExist) {
-                    Write-Status -Types "-", $TweakType -Status "Removing $shortcut"
-                    Remove-Item -Path "$shortcut" -Force | Out-Null
-                }
+            $ShortcutExist = Test-Path $shortcut
+            If ($ShortcutExist) {
+                Write-Status -Types "-", $TweakType -Status "Removing $shortcut"
+                Remove-Item -Path "$shortcut" -Force | Out-Null
             }
         }
     }
 }
 Function Start-Debloat {
-    [CmdletBinding(SupportsShouldProcess)]
     param(
         [Switch] $Revert
     )
@@ -2800,25 +2729,18 @@ Function Start-Debloat {
             try {
                 if (Test-Path -Path "$commonapps\$app.url") {
                     # - Checks common start menu .urls
-                    $target = "Start Menu .url: $app"
-                    if ($PSCmdlet.ShouldProcess($target, "Remove .url")) {
-                        Write-Status -Types "-", "$TweakType", "$TweakTypeLocal" -Status "Removing $app.url" -NoNewLine
-                        Remove-Item -Path "$commonapps\$app.url" -Force
-                        Get-Status
-                    }
+                    Write-Status -Types "-", "$TweakType", "$TweakTypeLocal" -Status "Removing $app.url" -NoNewLine
+                    Remove-Item -Path "$commonapps\$app.url" -Force
+                    Get-Status
                 }
                 if (Test-Path -Path "$commonapps\$app.lnk") {
                     # - Checks common start menu .lnks
-                    $target = "Start Menu .lnk: $app"
-                    if ($PSCmdlet.ShouldProcess($target, "Remove .lnk")) {
-                        Write-Status -Types "-", "$TweakType", "$TweakTypeLocal" -Status "Removing $app.lnk" -NoNewLine
-                        Remove-Item -Path "$commonapps\$app.lnk" -Force
-                        Get-Status
-                    }
+                    Write-Status -Types "-", "$TweakType", "$TweakTypeLocal" -Status "Removing $app.lnk" -NoNewLine
+                    Remove-Item -Path "$commonapps\$app.lnk" -Force
+                    Get-Status
                 }
             }
             catch {
-                $target = "Start Menu Item: $app"
                 Write-Status -Types "!", "$TweakType", "$TweakTypeLocal" -Status "An error occurred while removing $app`: $_"
             }
         }
@@ -2831,12 +2753,9 @@ Function Start-Debloat {
             # - Uses blue progress bar to show debloat progress -- ## Doesn't seem to be working currently.
             Write-Progress -Activity "Debloating System" -Status " $PercentComplete% Complete:" -PercentComplete $PercentComplete
             # - Starts Debloating the system
-            $target = "UWP App: $($Program.Name)"
-            if ($PSCmdlet.ShouldProcess($target, "Remove UWP App")) {
-                Remove-UWPAppx -AppxPackages $Program
-                $CurrentItem++
-                $PercentComplete = [int](($CurrentItem / $TotalItems) * 100)
-            }
+            Remove-UWPAppx -AppxPackages $Program
+            $CurrentItem++
+            $PercentComplete = [int](($CurrentItem / $TotalItems) * 100)
         }
         # Disposing the progress bar after the loop finishes
         Write-Progress -Activity "Debloating System" -Completed
@@ -2846,22 +2765,18 @@ Function Start-Debloat {
         Write-Host "Packages Removed: " -NoNewline -ForegroundColor Gray
         Write-Host $Variables.Removed -ForegroundColor Green
         If ($Failed) { Write-Host "Failed: " -NoNewline -ForegroundColor Gray
-        Write-Host $Variables.Failed -ForegroundColor Red 
+        Write-Host $Variables.Failed -ForegroundColor Red
         }
         Write-Host "Packages Scanned For: " -NoNewline -ForegroundColor Gray
         Write-Host "$($Variables.NotFound)`n" -ForegroundColor Yellow
     }
     elseif ($Revert) {
-        $target = "Reinstall Default Appx from manifest"
-        if ($PSCmdlet.ShouldProcess($target, "Reinstall Default Appx")) {
-            Write-Status -Types "+", "Appx" -Status "Reinstalling Default Apps from manifest"
-            Get-AppxPackage -allusers | ForEach-Object { Add-AppxPackage -register "$($_.InstallLocation)\appxmanifest.xml" -DisableDevelopmentMode -Verbose } | Out-Host
-        }
+        Write-Status -Types "+", "Appx" -Status "Reinstalling Default Apps from manifest"
+        Get-AppxPackage -allusers | ForEach-Object { Add-AppxPackage -register "$($_.InstallLocation)\appxmanifest.xml" -DisableDevelopmentMode -Verbose } | Out-Host
     }
 }
 
 function Update-Time {
-    [CmdletBinding(SupportsShouldProcess)]
     param (
         [string]$TimeZoneId = "Pacific Standard Time"
     )
@@ -2871,20 +2786,16 @@ function Update-Time {
         Write-Status -Types "" -Status "Current Time Zone: $currentTimeZone"
 
         # Set time zone
-        if ($PSCmdlet.ShouldProcess("Setting Time Zone", "Set-TimeZone -Id $TimeZoneId -ErrorAction Stop")) {
-            Set-TimeZone -Id $TimeZoneId -ErrorAction Stop
-            Write-Status -Types "+" -Status "Time Zone successfully updated to: $TimeZoneId"
-        }
+        Set-TimeZone -Id $TimeZoneId -ErrorAction Stop
+        Write-Status -Types "+" -Status "Time Zone successfully updated to: $TimeZoneId"
 
         # Synchronize Time
         $w32TimeService = Get-Service -Name W32Time
         if ($w32TimeService.Status -ne "Running") {
             try {
-                if ($PSCmdlet.ShouldProcess("Starting W32Time Service", "Start-Service -Name W32Time -ErrorAction SilentlyContinue")) {
-                    Write-Status -Types "+" -Status "Starting W32Time Service" -NoNewLine
-                    Start-Service -Name W32Time -ErrorAction SilentlyContinue
-                    Get-Status
-                }
+                Write-Status -Types "+" -Status "Starting W32Time Service" -NoNewLine
+                Start-Service -Name W32Time -ErrorAction SilentlyContinue
+                Get-Status
             }
             catch {
                 Invoke-ErrorHandling $_
@@ -2899,10 +2810,8 @@ function Update-Time {
             New-Variable -Name currentDateTime -Value (Get-Date) -Force -Scope Global
             $serverDateTime = $resyncOutput | Select-String -Pattern "Time: (\S+)" | ForEach-Object { $_.Matches.Groups[1].Value }
 
-            if ($PSCmdlet.ShouldProcess("Setting System Time", "Set-Date -Date $serverDateTime")) {
-                Set-Date -Date $serverDateTime
-                Write-Status -Types "+" -Status "System time updated manually to: $serverDateTime"
-            }
+            Set-Date -Date $serverDateTime
+            Write-Status -Types "+" -Status "System time updated manually to: $serverDateTime"
         }
     }
     catch {
