@@ -1,7 +1,6 @@
-﻿<###############################################>
-<#                 New Loads                   #>
-<###############################################>
-
+﻿###############################################
+#                 New Loads                   #
+###############################################
 <#
 .NOTES
     Author         : @Circlol
@@ -81,7 +80,7 @@ $Variables = @{
     "adwDestination"                             = "$NewLoads\adwcleaner.exe"
     "SaRA"                                       = "$newloads\SaRA.zip"
     "Sexp"                                       = "$newloads\SaRA"
-    "SaRAURL"                                    = "https://github.com/circlol/newload/raw/main/SaRACmd_17_1_0268_3.zip"
+    "SaRAURL"                                    = "https://github.com/circlol/newload/raw/main/SaRACmd_17_01_0495_021.zip"
     "StartBinURL"                                = "https://github.com/circlol/newload/raw/main/assets/start.bin"
     "StartBin2URL"                               = "https://github.com/circlol/newload/raw/main/assets/start2.bin"
     "PackagesRemoved"                            = @()
@@ -557,7 +556,9 @@ function Find-ScheduledTask {
         return $true
     }
     Else {
-        Write-Status -Types "?", $TweakType -Status "The $ScheduledTask task was not found." -WriteWarning
+        $Status = "The $ScheduledTask task was not found."
+        Write-Status -Types "?", $TweakType -Status $Status -WriteWarning
+        Add-Content -Path $Variables.Log -Value $Status
         return $false
     }
 }
@@ -953,10 +954,12 @@ function Get-Status {
     else {
         # Set the global LogEntry.Successful to false
         $Global:LogEntry.Successful = $false
+        $Global:LogEntry.ErrorMessage = $Error[0]
         # Log a failure message
         Write-Caption -Type Failed
-
+        
         Add-Content -Path $Variables.Log -Value $logEntry
+        Add-Content -Path $Variables.Log -Value $Error[0]
 #        # Handle the error message
 #        Invoke-ErrorHandling
     }
@@ -2241,7 +2244,9 @@ Function Set-OptionalFeatureState {
             }
         }
         else {
-            Write-Status -Types "?", $TweakType -Status "The $_ optional feature was not found." -WriteWarning
+            $Status = "The $_ optional feature was not found."
+            Write-Status -Types "?", $TweakType -Status $Status -WriteWarning
+            Add-Content -Path $Variables.Log -Value $Status
         }
     }
 }
@@ -2314,17 +2319,23 @@ function Set-ServiceStartup {
     Process {
         ForEach ($Service in $Services) {
             If (!( Get-Service $Service -ErrorAction SilentlyContinue )) {
-                Write-Status -Types "?", $TweakType -Status "The $Service service was not found." -WriteWarning
+                $Status = "The $Service service was not found."
+                Write-Status -Types "?", $TweakType -Status $Status -WriteWarning
+                Add-Content -Path $Variables.Log -Value $Status
                 Continue
             }
 
             If (($Service -in $SecurityFilterOnEnable) -and (($State -eq 'Automatic') -or ($State -eq 'Manual'))) {
-                Write-Status -Types "!", $TweakType -Status "Skipping $Service ($((Get-Service $Service).DisplayName)) to avoid a security vulnerability..." -WriteWarning
+                $Status = "Skipping $Service ($((Get-Service $Service).DisplayName)) to avoid a security vulnerability..."
+                Write-Status -Types "!", $TweakType -Status $Status -WriteWarning
+                Add-Content -Path $Variables.Log -Value $Status
                 Continue
             }
 
             If ($Service -in $Filter) {
-                Write-Status -Types "!", $TweakType -Status "The $Service ($((Get-Service $Service).DisplayName)) will be skipped as set on Filter..." -WriteWarning
+                $Status = "The $Service ($((Get-Service $Service).DisplayName)) will be skipped as set on Filter..."
+                Write-Status -Types "!", $TweakType -Status $Status -WriteWarning
+                Add-Content -Path $Variables.Log -Value $Status
                 Continue
             }
 
