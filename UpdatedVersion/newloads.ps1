@@ -57,8 +57,8 @@ $Variables = @{
     "ForegroundColor"                            = "DarkMagenta"
     "BackgroundColor"                            = "Black"
     "LogoColor"                                  = "DarkMagenta"
-    "ProgramVersion"                             = "v1.06"
-    "ReleaseDate"                                = "September 13th"
+    "ProgramVersion"                             = "v1.07"
+    "ReleaseDate"                                = "September 21st"
     "Time"                                       = Get-Date -UFormat %Y%m%d
     "MinTime"                                    = 20230630
     "MaxTime"                                    = 20231031
@@ -2843,8 +2843,7 @@ Function Start-Debloat {
             "Norton"
             "WildTangent"
         )
-        $Win32apps | ForEach-Object { Remove-InstalledProgram "*$app*" -ErrorAction SilentlyContinue }
-
+        foreach ($app in $Win32apps) { Remove-InstalledProgram "$app" -ErrorAction SilentlyContinue }
         #Remove-InstalledProgram -Name "*WildTangent*" -ErrorAction SilentlyContinue
         #Remove-InstalledProgram -Name "*Norton*"-ErrorAction SilentlyContinue
         #Remove-InstalledProgram -Name "*McAfee*"-ErrorAction SilentlyContinue
