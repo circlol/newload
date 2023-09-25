@@ -268,7 +268,6 @@ $Variables = @{
         "\Microsoft\Windows\Location\WindowsActionDialog"                                 # Recommended state for VDI use
         "\Microsoft\Windows\Maps\MapsToastTask"                                           # Recommended state for VDI use
         "\Microsoft\Windows\Maps\MapsUpdateTask"                                          # Recommended state for VDI use
-        "\Microsoft\Windows\Mobile Broadband Accounts\MNO Metadata Parser"                # Recommended state for VDI use
         "\Microsoft\Windows\Power Efficiency Diagnostics\AnalyzeSystem"                   # Recommended state for VDI use
         "\Microsoft\Windows\Retail Demo\CleanupOfflineContent"                            # Recommended state for VDI use
         "\Microsoft\Windows\Shell\FamilySafetyMonitor"                                    # Recommended state for VDI use
@@ -294,8 +293,6 @@ $Variables = @{
         "RemoteRegistry"                            # DEFAULT: Disabled  | Remote Registry
         "RetailDemo"                                # DEFAULT: Manual    | The Retail Demo Service controls device activity while the device is in retail demo mode.
         "TrkWks"                                    # DEFAULT: Automatic | Distributed Link Tracking Client
-        "NPSMSvc_df772"
-        "LanmanServer"
     )
     # Making the services to run only when needed as 'Manual' | Remove the # to set to Manual
     "ServicesToManual"                           = @(
@@ -304,7 +301,7 @@ $Variables = @{
         "edgeupdate"                     # DEFAULT: Automatic | Microsoft Edge Update Service
         "edgeupdatem"                    # DEFAULT: Manual    | Microsoft Edge Update Service²
         "FontCache"                      # DEFAULT: Automatic | Windows Font Cache
-        "iphlpsvc"                       # DEFAULT: Automatic | IP Helper Service (IPv6 (6to4, ISATAP, Port Proxy and Teredo) and IP-HTTPS)
+        #"iphlpsvc"                       # DEFAULT: Automatic | IP Helper Service (IPv6 (6to4, ISATAP, Port Proxy and Teredo) and IP-HTTPS)
         "lmhosts"                        # DEFAULT: Manual    | TCP/IP NetBIOS Helper
         "ndu"                            # DEFAULT: Automatic | Windows Network Data Usage Monitoring Driver (Shows network usage per-process on Task Manager)
         "PhoneSvc"                       # DEFAULT: Manual    | Phone Service (Manages the telephony state on the device)
@@ -334,8 +331,6 @@ $Variables = @{
         # - 3rd Party Services
         "gupdate"                        # DEFAULT: Automatic | Google Update Service
         "gupdatem"                       # DEFAULT: Manual    | Google Update Service²
-        "DisplayEnhancementService"      # DEFAULT: Manual    | A service for managing display enhancement such as brightness control.
-        "DispBrokerDesktopSvc"           # DEFAULT: Automatic | Manages the connection and configuration of local and remote displays
     )
     # - Content Delivery
     "ContentDeliveryManagerDisableOnZero"        = @(
@@ -1403,20 +1398,15 @@ Function Optimize-Privacy {
     Set-ItemPropertyVerified -Path $Variables.PathToLMPoliciesTelemetry -Name "AllowTelemetry" -Type DWord -Value $Zero
     Set-ItemPropertyVerified -Path $Variables.PathToLMPoliciesTelemetry2 -Name "AllowTelemetry" -Type DWord -Value $Zero
     Set-ItemPropertyVerified -Path $Variables.PathToLMPoliciesTelemetry -Name "AllowDeviceNameInTelemetry" -Type DWord -Value $Zero
-
-
     # Disables Microsofts collection of inking and typing data
     Write-Status -Types $EnableStatus[0].Symbol, $TweakType -Status "$($EnableStatus[0].Status) send inking and typing data to Microsoft..."
     Set-ItemPropertyVerified -Path $Variables.PathToCUInputTIPC -Name "Enabled" -Type DWord -Value $Zero
-
     # Disables Microsoft's tailored experiences.
     Write-Status -Types $EnableStatus[0].Symbol, $TweakType -Status "$($EnableStatus[0].Status) Tailored Experiences..."
     Set-ItemPropertyVerified -Path $Variables.PathToPrivacy -Name "TailoredExperiencesWithDiagnosticDataEnabled" -Type DWord -Value $Zero
-
     # Disables transcript of diagnostic data for collection
     Write-Status -Types $EnableStatus[0].Symbol, $TweakType -Status "$($EnableStatus[0].Status) View diagnostic data..."
     Set-ItemPropertyVerified -Path $Variables.PathToLMEventKey -Name "EnableEventTranscript" -Type DWord -Value $Zero
-
     # Sets feedback frequency to 0
     Write-Status -Types $EnableStatus[0].Symbol, $TweakType -Status "$($EnableStatus[0].Status) feedback frequency..."
     If ((Test-Path "$($Variables.PathToCUSiufRules)\PeriodInNanoSeconds")) {
@@ -1426,31 +1416,29 @@ Function Optimize-Privacy {
 
     Write-Caption -Text "Activity History"
     Write-Status -Types $EnableStatus[0].Symbol, $TweakType -Status "$($EnableStatus[0].Status) Activity History..."
-
     Write-Status -Types "?", $TweakType -Status "From Path: [$($Variables.PathToLMActivityHistory)]" -WriteWarning
     ForEach ($Name in $Variables.ActivityHistoryDisableOnZero) {
         Write-Status -Types $EnableStatus[0].Symbol, $TweakType -Status "$($EnableStatus[0].Status) $($Name): $Zero"
         Set-ItemPropertyVerified -Path $Variables.PathToLMActivityHistory -Name $Name -Type DWord -Value $Zero
     }
-
     # Disables Suggested ways of getting the most out of windows (Microsoft account spam)
     Write-Status -Types "-" , $TweakType -Status "$($EnableStatus[1].Status) 'Suggest ways i can finish setting up my device to get the most out of windows.')"
     Set-ItemPropertyVerified -Path $Variables.PathToCUUserProfileEngagemment -Name "ScoobeSystemSettingEnabled" -Value $Zero -Type DWord
 
     ### Privacy
     Write-Section -Text "Privacy"
-    Write-Status -Types "-" -Status "Removing $($Variables.PathToCUContentDeliveryManager)\Subscription" -NoNewLine
-    Get-Item "$($Variables.PathToCUContentDeliveryManager)\Subscription" | Remove-Item -Recurse
-    Get-Status
-    <#If (Test-Path -Path "$($Variables.PathToCUContentDeliveryManager)\Subscription") {
-        Remove-Item -Path "$($Variables.PathToCUContentDeliveryManager)\Subscription" -Recurse
-    }#>
-    Write-Status -Types "-" -Status "Removing $($Variables.PathToCUContentDeliveryManager)\SuggestedApps" -NoNewLine
-    Get-Item "$($Variables.PathToCUContentDeliveryManager)\SuggestedApps" | Remove-Item -Recurse
-    Get-Status
-    <#If (Test-Path -Path "$($Variables.PathToCUContentDeliveryManager)\SuggestedApps") {
+
+    If (Test-Path "$($Variables.PathToCUContentDeliveryManager)\Subscription" ) {
+        Write-Status -Types "-" -Status "Removing $($Variables.PathToCUContentDeliveryManager)\Subscription" -NoNewLine
+        Remove-Item "$($Variables.PathToCUContentDeliveryManager)\Subscription" -Recurse
+        Get-Status
+    }
+    #Get-Item "$($Variables.PathToCUContentDeliveryManager)\SuggestedApps" | Remove-Item -Recurse
+    If (Test-Path -Path "$($Variables.PathToCUContentDeliveryManager)\SuggestedApps") {
+        Write-Status -Types "-" -Status "Removing $($Variables.PathToCUContentDeliveryManager)\SuggestedApps" -NoNewLine
         Remove-Item -Path "$($Variables.PathToCUContentDeliveryManager)\SuggestedApps" -Recurse
-    }#>
+        Get-Status
+    }
 
     # Disables app launch tracking
     Write-Status -Types $EnableStatus[0].Symbol, $TweakType -Status "$($EnableStatus[0].Status) App Launch Tracking..."
@@ -2810,8 +2798,8 @@ Function Start-Debloat {
     If (!$Revert) {
         Show-ScriptStatus -WindowTitle "Debloat" -TweakType "Debloat" -TitleCounterText "Debloat" -TitleText "Win32"
 
-        Write-Section -Text "Tradition Win32 & Win64 Applications"
-        <#
+        <# TODO - Fix Debloat Remove Win32 apps
+        Write-Section -Text "TraditiFixon Win32 Applications"
         $Win32apps = @(
             "Avast"
             "ExpressVPN"
@@ -2908,11 +2896,29 @@ function Update-Time {
             }
         }
 
+
         Write-Status -Types "F5" -Status "Syncing Time"
-        $resyncOutput = w32tm /resync
+        If ((Get-Service W32Time).StartType -eq "Disabled"){
+            Set-Service W32Time -StartupType Manual
+        }
+        If ((Get-Service W32Time).Status -ne "Running"){
+            Start-Service 
+        }
+        try {
+            $resyncOutput = w32tm /resync
+            if ($resyncOutput -like "*The computer did not resync because the required time change was too big.*") {
+                w32tm /resync /force
+            }
+        }
+        catch {
+            w32tm /resync /force
+        }
+
+
+        $resyncOutput = w32tm /resync /force
         if ($resyncOutput -like "*The computer did not resync because the required time change was too big.*") {
             Write-Status -Types "@" -Status "Time change is too big. Setting time manually." -WriteWarning
-            New-Variable -Name currentDateTime -Value (Get-Date) -Force -Scope Global
+            #New-Variable -Name currentDateTime -Value (Get-Date) -Force -Scope Global
             $serverDateTime = $resyncOutput | Select-String -Pattern "Time: (\S+)" | ForEach-Object { $_.Matches.Groups[1].Value }
 
             Set-Date -Date $serverDateTime
@@ -2923,7 +2929,6 @@ function Update-Time {
         Write-Error "An error occurred: $_"
     }
 }
-
 
 # # # Formatting functions # # #
 
