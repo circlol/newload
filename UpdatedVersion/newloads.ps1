@@ -557,7 +557,23 @@ function Find-ScheduledTask {
         return $false
     }
 }
-
+Function Get-ADWCleaner {
+    Show-ScriptStatus -TitleText "ADWCleaner"
+    If ($SkipADW -or $Revert) {
+        Write-Status -Types "@" -Status "Parameter -SkipADW or -Undo detected.. Malwarebytes ADWCleaner will be skipped.." -WriteWarning -ForegroundColorText RED
+    }
+    else {
+        If (!(Test-Path $Variables.adwDestination)) {
+            Write-Status -Types "+", "ADWCleaner" -Status "Downloading ADWCleaner" -NoNewLine
+            Start-BitsTransfer -Source $Variables.adwLink -Destination $Variables.adwDestination -Dynamic
+            Get-Status
+        }
+        Write-Status -Types "+", "ADWCleaner" -Status "Starting ADWCleaner with ArgumentList /Scan & /Clean"
+        Start-Process -FilePath $Variables.adwDestination -ArgumentList "/EULA", "/PreInstalled", "/Clean", "/NoReboot" -Wait -NoNewWindow | Out-Host
+        Write-Status -Types "-", "ADWCleaner" -Status "Removing traces of ADWCleaner"
+        Start-Process -FilePath $Variables.adwDestination -ArgumentList "/Uninstall", "/NoReboot" -WindowStyle Minimized
+    }
+}
 function Get-CPU {
     [CmdletBinding()]
     [OutputType([String])]
@@ -626,6 +642,39 @@ function Get-DriveSpace {
         }
     }
 }
+function Get-Error {
+    param (
+        [string]$errorMessage = $Error[0]
+    )
+
+    $lineNumber = $MyInvocation.ScriptLineNumber
+    $command = $Error[0].InvocationInfo.MyCommand
+    $errorType = $Error[0].CategoryInfo.Reason
+    $timestamp = Get-Date -Format "yyyy-MM-dd HH:mm:ss"
+    #$scriptPath = $MyInvocation.MyCommand.Definition
+    $userName = [System.Security.Principal.WindowsIdentity]::GetCurrent().Name
+
+    $errorString = @"
+
+
+**********************************************************************
+$($timestamp) Executed by: $($userName)
+Command: $($command)
+Error Type: $($errorType)
+Offending line number: $($lineNumber)
+Error Message: $($errorMessage)
+**********************************************************************
+
+
+"@
+
+    try {
+        Add-Content -Path $Variables.Errorlog -Value $errorString -ErrorAction Continue
+    }
+    catch {
+        return "Error writing to log: $($_.Exception.Message)"
+    }
+}
 function Get-GPU {
     [CmdletBinding()]
     [OutputType([String])]
@@ -633,130 +682,9 @@ function Get-GPU {
     $gpu = Get-CimInstance -Class Win32_VideoController | Select-Object -ExpandProperty Name
     return $gpu.Trim()
 }
-function Get-RAM {
-    [CmdletBinding()]
-    [OutputType([String])]
-    param ()
-    $ram = Get-CimInstance Win32_ComputerSystem | Select-Object -ExpandProperty TotalPhysicalMemory
-    $ram = $ram / 1GB
-    return "{0:N2} GB" -f $ram
-}
-function Get-Motherboard {
-    [CmdletBinding()]
-    [OutputType([String])]
-    param ()
-    $motherboardModel = Get-CimInstance -Class Win32_BaseBoard | Select-Object -ExpandProperty Product
-    $motherboardOEM = Get-CimInstance -Class Win32_BaseBoard | Select-Object -ExpandProperty Manufacturer
-    [String]$CombinedString = "$motherboardOEM $motherboardModel"
-    return "$CombinedString"
-}
-Function Get-SystemInfo {
-    [CmdletBinding()]
-    [OutputType([String])]
-    param()
-
-    Begin{
-        # Grab CPU info
-        try {
-            $cpuName = (Get-CimInstance -Class Win32_Processor).Name
-            $cores = (Get-CimInstance -class Win32_Processor).NumberOfCores
-            $threads = (Get-CimInstance -class Win32_Processor).NumberOfLogicalProcessors
-            $cpuCoresAndThreads = "($($cores) Cores $($threads) Threads)"
-            $CPUCombinedString = "$cpuCoresAndThreads - $cpuName"
-        }
-        catch {
-            return "Error retrieving CPU information: $($_)"
-        }
-
-        # Grab GPU info
-        try {
-            $gpu = (Get-CimInstance -Class Win32_VideoController).Name
-        }
-        catch{
-            return "Error retrieving GPU information: $($_)"
-        }
-
-        # Grab RAM info
-        try {
-            $ram = (Get-CimInstance Win32_ComputerSystem).TotalPhysicalMemory
-            $ram = $ram / 1GB
-        }
-        catch{
-            return "Error retrieving RAM information: $($_)"
-        }
-
-        # Grab Motherboard info
-        try {
-            $motherboardModel = (Get-CimInstance -Class Win32_BaseBoard).Product
-            $motherboardOEM = (Get-CimInstance -Class Win32_BaseBoard).Manufacturer
-            $MotherboardCombinedString = "$motherboardOEM $motherboardModel"
-        }
-        catch {
-            return "Error retrieving Motherboard information: $($_)"
-        }
-
-        # Grab Windows Version
-        try {
-            $PathToLMCurrentVersion = "HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion"
-            $osarch = (Get-CimInstance Win32_OperatingSystem).OSArchitecture
-            $WinVer = (Get-CimInstance -class Win32_OperatingSystem).Caption -replace 'Microsoft ', ''
-            $DisplayVersion = (Get-ItemProperty $PathToLMCurrentVersion).DisplayVersion
-            $OldBuildNumber = (Get-ItemProperty $PathToLMCurrentVersion).ReleaseId
-            $DisplayedVersionResult = '(' + @{ $true = $DisplayVersion; $false = $OldBuildNumber }[$null -ne $DisplayVersion] + ')'
-            $completedWindowsName = "$WinVer $osarch $DisplayedVersionResult"
-        }
-        catch {
-            return "Error retrieving Windows information: $($_)"
-        }
-
-        # Grabs drive space
-        try {
-            $drives = Get-PSDrive -PSProvider FileSystem | Where-Object { $_.Free -ge 0 -and $_.Used -ge 0 }
-            foreach ($drive in $drives) {
-                $driveLetter = $drive.Name
-                $availableStorage = $drive.Free / 1GB
-                $totalStorage = ($drive.Free + $drive.Used) / 1GB
-                $percentageAvailable = [math]::Round(($availableStorage / $totalStorage) * 100, 1)
-                $driveInfo = "$driveLetter`: $([math]::Round($availableStorage, 1))/$([math]::Round($totalStorage, 1)) GB ($percentageAvailable% Available)"
-                $CombinedDriveInfo = "$($CombinedDriveInfo)`n$($driveInfo)"
-                }
-        }
-        catch {
-            return "Error retrieving disk information: $($_)"
-        }
-
-    $CombinedString = "
-- CPU: $($CPUCombinedString)
-- GPU: $($gpu.Trim())
-- RAM: $("{0:N2} GB" -f $ram)
-- Motherboard: $($MotherboardCombinedString)
-- OS: $($completedWindowsName)
-- Disk Info: $($CombinedDriveInfo)
-"
-    }process{
-        return $CombinedString
-    }
-}
-Function Get-ADWCleaner {
-    Show-ScriptStatus -TitleText "ADWCleaner"
-    If ($SkipADW -or $Revert) {
-        Write-Status -Types "@" -Status "Parameter -SkipADW or -Undo detected.. Malwarebytes ADWCleaner will be skipped.." -WriteWarning -ForegroundColorText RED
-    }
-    else {
-        If (!(Test-Path $Variables.adwDestination)) {
-            Write-Status -Types "+", "ADWCleaner" -Status "Downloading ADWCleaner" -NoNewLine
-            Start-BitsTransfer -Source $Variables.adwLink -Destination $Variables.adwDestination -Dynamic
-            Get-Status
-        }
-        Write-Status -Types "+", "ADWCleaner" -Status "Starting ADWCleaner with ArgumentList /Scan & /Clean"
-        Start-Process -FilePath $Variables.adwDestination -ArgumentList "/EULA", "/PreInstalled", "/Clean", "/NoReboot" -Wait -NoNewWindow | Out-Host
-        Write-Status -Types "-", "ADWCleaner" -Status "Removing traces of ADWCleaner"
-        Start-Process -FilePath $Variables.adwDestination -ArgumentList "/Uninstall", "/NoReboot" -WindowStyle Minimized
-    }
-}
 Function Get-InstalledProgram {
     [CmdletBinding()]
-    [OutputType([Bool])]
+    [OutputType([String])]
     Param(
         [string]$Name
     )
@@ -777,6 +705,15 @@ Function Get-InstalledProgram {
             Publisher       = $_.GetValue("Publisher")
         }
     }
+}
+function Get-Motherboard {
+    [CmdletBinding()]
+    [OutputType([String])]
+    param ()
+    $motherboardModel = Get-CimInstance -Class Win32_BaseBoard | Select-Object -ExpandProperty Product
+    $motherboardOEM = Get-CimInstance -Class Win32_BaseBoard | Select-Object -ExpandProperty Manufacturer
+    [String]$CombinedString = "$motherboardOEM $motherboardModel"
+    return "$CombinedString"
 }
 Function Get-NetworkStatus {
     [CmdletBinding()]
@@ -892,7 +829,7 @@ Function Get-Program {
                         Get-Status
                     }
                     catch {
-                        Invoke-ErrorHandling
+                        Get-Error
                         continue
                     }
                 }
@@ -906,7 +843,7 @@ Function Get-Program {
                         $ProgressPreference = $BackupProgressPreference
                     }
                     catch {
-                        Invoke-ErrorHandling
+                        Get-Error
                         continue
                     }
                 }
@@ -917,7 +854,7 @@ Function Get-Program {
                         Get-Status
                     }
                     catch {
-                        Invoke-ErrorHandling
+                        Get-Error
                         continue
                     }
                 }
@@ -939,6 +876,14 @@ Function Get-Program {
 
     }
 }
+function Get-RAM {
+    [CmdletBinding()]
+    [OutputType([String])]
+    param ()
+    $ram = Get-CimInstance Win32_ComputerSystem | Select-Object -ExpandProperty TotalPhysicalMemory
+    $ram = $ram / 1GB
+    return "{0:N2} GB" -f $ram
+}
 function Get-Status {
     If ($? -eq $True) {
         # If no error message is provided, assume success
@@ -956,42 +901,94 @@ function Get-Status {
         Add-Content -Path $Variables.Log -Value $logEntry
         Add-Content -Path $Variables.Log -Value $Error[0]
 #        # Handle the error message
-#        Invoke-ErrorHandling
+#        Get-Error
     }
 }
+Function Get-SystemInfo {
+    [CmdletBinding()]
+    [OutputType([String])]
+    param()
 
+    Begin{
+        # Grab CPU info
+        try {
+            $cpuName = (Get-CimInstance -Class Win32_Processor).Name
+            $cores = (Get-CimInstance -class Win32_Processor).NumberOfCores
+            $threads = (Get-CimInstance -class Win32_Processor).NumberOfLogicalProcessors
+            $cpuCoresAndThreads = "($($cores) Cores $($threads) Threads)"
+            $CPUCombinedString = "$cpuCoresAndThreads - $cpuName"
+        }
+        catch {
+            return "Error retrieving CPU information: $($_)"
+        }
 
-function Invoke-ErrorHandling {
-    param (
-        [string]$errorMessage = $Error[0]
-    )
+        # Grab GPU info
+        try {
+            $gpu = (Get-CimInstance -Class Win32_VideoController).Name
+        }
+        catch{
+            return "Error retrieving GPU information: $($_)"
+        }
 
-    $lineNumber = $MyInvocation.ScriptLineNumber
-    $command = $Error[0].InvocationInfo.MyCommand
-    $errorType = $Error[0].CategoryInfo.Reason
-    $timestamp = Get-Date -Format "yyyy-MM-dd HH:mm:ss"
-    #$scriptPath = $MyInvocation.MyCommand.Definition
-    $userName = [System.Security.Principal.WindowsIdentity]::GetCurrent().Name
+        # Grab RAM info
+        try {
+            $ram = (Get-CimInstance Win32_ComputerSystem).TotalPhysicalMemory
+            $ram = $ram / 1GB
+        }
+        catch{
+            return "Error retrieving RAM information: $($_)"
+        }
 
-    $errorString = @"
+        # Grab Motherboard info
+        try {
+            $motherboardModel = (Get-CimInstance -Class Win32_BaseBoard).Product
+            $motherboardOEM = (Get-CimInstance -Class Win32_BaseBoard).Manufacturer
+            $MotherboardCombinedString = "$motherboardOEM $motherboardModel"
+        }
+        catch {
+            return "Error retrieving Motherboard information: $($_)"
+        }
 
+        # Grab Windows Version
+        try {
+            $PathToLMCurrentVersion = "HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion"
+            $osarch = (Get-CimInstance Win32_OperatingSystem).OSArchitecture
+            $WinVer = (Get-CimInstance -class Win32_OperatingSystem).Caption -replace 'Microsoft ', ''
+            $DisplayVersion = (Get-ItemProperty $PathToLMCurrentVersion).DisplayVersion
+            $OldBuildNumber = (Get-ItemProperty $PathToLMCurrentVersion).ReleaseId
+            $DisplayedVersionResult = '(' + @{ $true = $DisplayVersion; $false = $OldBuildNumber }[$null -ne $DisplayVersion] + ')'
+            $completedWindowsName = "$WinVer $osarch $DisplayedVersionResult"
+        }
+        catch {
+            return "Error retrieving Windows information: $($_)"
+        }
 
-**********************************************************************
-$($timestamp) Executed by: $($userName)
-Command: $($command)
-Error Type: $($errorType)
-Offending line number: $($lineNumber)
-Error Message: $($errorMessage)
-**********************************************************************
+        # Grabs drive space
+        try {
+            $drives = Get-PSDrive -PSProvider FileSystem | Where-Object { $_.Free -ge 0 -and $_.Used -ge 0 }
+            foreach ($drive in $drives) {
+                $driveLetter = $drive.Name
+                $availableStorage = $drive.Free / 1GB
+                $totalStorage = ($drive.Free + $drive.Used) / 1GB
+                $percentageAvailable = [math]::Round(($availableStorage / $totalStorage) * 100, 1)
+                $driveInfo = "$driveLetter`: $([math]::Round($availableStorage, 1))/$([math]::Round($totalStorage, 1)) GB ($percentageAvailable% Available)"
+                $CombinedDriveInfo = "$($CombinedDriveInfo)`n$($driveInfo)"
+                }
+        }
+        catch {
+            return "Error retrieving disk information: $($_)"
+        }
 
-
-"@
-
-    try {
-        Add-Content -Path $Variables.Errorlog -Value $errorString -ErrorAction Continue
-    }
-    catch {
-        return "Error writing to log: $($_.Exception.Message)"
+    $CombinedString = "
+- CPU: $($CPUCombinedString)
+- GPU: $($gpu.Trim())
+- RAM: $("{0:N2} GB" -f $ram)
+- Motherboard: $($MotherboardCombinedString)
+- OS: $($completedWindowsName)
+- Disk Info: $($CombinedDriveInfo)
+"
+    }process{
+        return $CombinedString
     }
 }
 
@@ -1012,7 +1009,7 @@ Function New-SystemRestorePoint {
         Get-Status
     }
     catch {
-        Invoke-ErrorHandling $_
+        Get-Error $_
         Continue
     }
     # Creates a System Restore point
@@ -1022,7 +1019,7 @@ Function New-SystemRestorePoint {
         Get-Status
     }
     catch {
-        Invoke-ErrorHandling $_
+        Get-Error $_
         Continue
     }
     Show-ScriptStatus -WindowTitle ""
@@ -1811,7 +1808,7 @@ Function Optimize-WindowsOptional {
                 Get-Status
             }
             catch {
-                Invoke-ErrorHandling $_
+                Get-Error $_
                 Write-Status -Types "?", "Printer" -Status "Failed to remove $printer :`n$($_)" -WriteWarning
             }
         }
@@ -1958,7 +1955,7 @@ Function Remove-Office {
                     Get-Status
                 }
                 catch {
-                    Invoke-ErrorHandling $_
+                    Get-Error $_
                 }
 
                 $SaRAcmdexe = (Get-ChildItem $Variables.Sexp -Include SaRAcmd.exe -Recurse).FullName
@@ -1969,7 +1966,7 @@ Function Remove-Office {
                     Get-Status
                 }
                 catch {
-                    Invoke-ErrorHandling $_
+                    Get-Error $_
                 }
             }
             'No' {
@@ -2088,7 +2085,7 @@ Function Restart-Explorer {
             }
             catch {
                 Write-Warning "Failed to stop Explorer process: $_"
-                Invoke-ErrorHandling $_
+                Get-Error $_
                 Continue
             }
         }
@@ -2097,7 +2094,7 @@ Function Restart-Explorer {
         }
         catch {
             Write-Error "Failed to start Explorer process: $_"
-            Invoke-ErrorHandling $_
+            Get-Error $_
             Continue
         }
     }
@@ -2226,7 +2223,7 @@ Function Set-ItemPropertyVerified {
             }
         }
         catch {
-            Invoke-ErrorHandling $_
+            Get-Error $_
             Continue
         }
     }
@@ -2268,7 +2265,7 @@ Function Set-OptionalFeatureState {
                         Get-Status
                     }
                     catch {
-                        Invoke-ErrorHandling $_
+                        Get-Error $_
                         continue
                     }
                 }
@@ -2279,7 +2276,7 @@ Function Set-OptionalFeatureState {
                         Get-Status
                     }
                     catch {
-                        Invoke-ErrorHandling $_
+                        Get-Error $_
                         continue
                     }
                 }
@@ -2342,7 +2339,7 @@ function Set-ScheduledTaskState {
                     }
                 }
                 catch {
-                    Invoke-ErrorHandling $_
+                    Get-Error $_
                     Continue
                 }
             }
@@ -2401,7 +2398,7 @@ function Set-ServiceStartup {
                 }
             }
             catch {
-                Invoke-ErrorHandling $_
+                Get-Error $_
                 Continue
             }
         }
@@ -2569,7 +2566,13 @@ Function Send-EmailLog {
 
 $ip\$env:computername\$env:USERNAME
 
+- System Information:
+
+$SystemSpecs
+
+
 - Script Information:
+
 - Program Version: $($Variables.ProgramVersion)
 - Date: $CurrentDateFormatted
 - Start Time: $FormattedStartTime
@@ -2587,8 +2590,7 @@ $ip\$env:computername\$env:USERNAME
 - Registry Keys Modified: $ModifiedRegistryKeys
 - Failed Registry Keys: $FailedRegistryKeys
 
-- System Information:
-$SystemSpecs
+
 - Powershell Table:
 $PowershellTable
 
@@ -2891,7 +2893,7 @@ function Update-Time {
                 Get-Status
             }
             catch {
-                Invoke-ErrorHandling $_
+                Get-Error $_
                 continue
             }
         }
