@@ -7,17 +7,8 @@
     GitHub         : https://github.com/Circlol/newload
     Version        : 1.07
     Release        : Sept 21st, 2023
-#>
-[CmdletBinding(SupportsShouldProcess)]
-param (
-    [Switch]$Undo,
-    [Switch]$NoBranding,
-    [Switch]$GUI
-)
 
-If ($NoBranding){
-    $Global:NoBranding = $True
-}
+#>
 
 $WindowTitle = "New Loads"
 $host.UI.RawUI.WindowTitle = $WindowTitle
@@ -68,7 +59,7 @@ $Variables = @{
     "ForegroundColor"                            = "DarkMagenta"
     "BackgroundColor"                            = "Black"
     "LogoColor"                                  = "DarkMagenta"
-    "ProgramVersion"                             = "v1.07"
+    "ProgramVersion"                             = "v1.07.02"
     "ReleaseDate"                                = "September 21st"
     "Time"                                       = Get-Date -UFormat %Y%m%d
     "MinTime"                                    = 20230630
@@ -530,7 +521,8 @@ $Variables = @{
         <taskbar:UWA AppUserModelID="Microsoft.SecHealthUI_8wekyb3d8bbwe!SecHealthUI" />
         <taskbar:UWA AppUserModelID="Microsoft.Windows.SecHealthUI_cw5n1h2txyewy!SecHealthUI" />
         <taskbar:UWA AppUserModelID="windows.immersivecontrolpanel_cw5n1h2txyewy!Microsoft.Windows.ImmersiveControlPanel" />
-        <taskbar:UWA AppUserModelID="Microsoft.WindowsStore_8wekyb3d8bbwe" /
+        <taskbar:UWA AppUserModelID="Microsoft.WindowsStore_8wekyb3d8bbwe!App" />
+        <taskbar:UWA AppUserModelID="Microsoft.OutlookForWindows_8wekyb3d8bbwe!Microsoft.OutlookforWindows" />
         <taskbar:DesktopApp DesktopApplicationID="Microsoft.Windows.SecHealthUI" />
         <taskbar:DesktopApp DesktopApplicationID="Chrome" />
         <taskbar:DesktopApp DesktopApplicationID="Microsoft.Windows.Explorer" />
@@ -564,8 +556,7 @@ function Find-ScheduledTask {
 }
 Function Get-ADWCleaner {
     [CmdletBinding(
-        SupportsShouldProcess,
-        ConfirmImpact = 'High'
+        SupportsShouldProcess
     )]
     param(
         [Switch]$Undo,
@@ -838,7 +829,6 @@ Function Get-Program {
         FileExists        = Test-Path -Path "$NewLoads \Microsoft.HEVCVideoExtension_2.0.60091.0_x64__8wekyb3d8bbwe.Appx"
     }
 
-
     If ($Skip -or $Undo) {
         Write-Status -Types "@" -Status "Parameter -SkipProgams and/or -Undo detected.. Ignoring this section." -WriteWarning -ForegroundColorText RED
     }
@@ -897,6 +887,28 @@ Function Get-Program {
                         Set-ItemPropertyVerified -Path $Variables.PathToUblockChrome -Name "update_url" -value $Variables.PathToChromeLink -Type STRING
                         Get-Status
                     }
+                }
+            }
+
+            $WingetInstalled = Get-Command Winget -ErrorAction SilentlyContinue
+            If (!$WingetInstalled){
+                Write-Host "Running Alternative Installer and Direct Installing"
+                Start-Process -Verb runas -FilePath powershell.exe -NoNewWindow -ArgumentList "irm https://raw.githubusercontent.com/ChrisTitusTech/winutil/main/winget.ps1 | iex"
+            }
+            $WingetInstalled = Get-Command Winget -ErrorAction SilentlyContinue
+            If ($WingetInstalled){
+                try {
+                    Write-Section "Adding the *NEW* Outlook"
+                    Write-Status -Types "-", $TweakType -Status "Removing old Mail & Calendar Apps" -NoNewLine
+                    Get-Appxpackage -Name "*windowscommunicationsapps*" | Remove-AppxPackage
+                    Get-Status
+                    Write-Status -Types "+", $TweakType -Status "Installing *NEW* Outlook for Windows" -NoNewLine
+                    Winget install --id 9NRX63209R7B -s msstore --accept-package-agreements --accept-source-agreements
+                    Get-Status
+                }
+                catch {
+                    Get-Error $_
+                    Continue
                 }
             }
         }
@@ -2955,24 +2967,18 @@ function Update-Time {
 
     try {
         $currentTimeZone = (Get-TimeZone).DisplayName
-        Write-Status -Types "" -Status "Current Time Zone: $currentTimeZone"
-
-        # Set time zone
-        Set-TimeZone -Id $TimeZoneId -ErrorAction Stop
-        Write-Status -Types "+" -Status "Time Zone successfully updated to: $TimeZoneId"
+        If ($currentTimeZone -ne $TimeZoneId){
+            Write-Status -Types "" -Status "Current Time Zone: $currentTimeZone, Setting to $TimeZoneId" -NoNewLine
+            Set-TimeZone -Id $TimeZoneId -ErrorAction Stop
+            Get-Status
+        }
 
         # Synchronize Time
         $w32TimeService = Get-Service -Name W32Time
         if ($w32TimeService.Status -ne "Running") {
-            try {
-                Write-Status -Types "+" -Status "Starting W32Time Service" -NoNewLine
-                Start-Service -Name W32Time -ErrorAction SilentlyContinue
-                Get-Status
-            }
-            catch {
-                Get-Error $_
-                continue
-            }
+            Write-Status -Types "+" -Status "Starting W32Time Service" -NoNewLine
+            Start-Service -Name W32Time
+            Get-Status
         }
 
 
@@ -2981,31 +2987,21 @@ function Update-Time {
             Set-Service W32Time -StartupType Manual
         }
         If ((Get-Service W32Time).Status -ne "Running"){
-            Start-Service 
+            Start-Service W32Time
         }
-        try {
-            $resyncOutput = w32tm /resync
-            if ($resyncOutput -like "*The computer did not resync because the required time change was too big.*") {
-                w32tm /resync /force
-            }
-        }
-        catch {
+
+
+        $resyncOutput = w32tm /resync
+        if ($resyncOutput -like "*The computer did not resync because the required time change was too big.*") {
+            Write-Status -Types "@" -Status "Time change is too big. Setting time manually." -WriteWarning
+            w32tm /config /manualpeerlist:"time.microsoft.com" /syncfromflags:manual /reliable:YES /update
             w32tm /resync /force
         }
 
-
-        $resyncOutput = w32tm /resync /force
-        if ($resyncOutput -like "*The computer did not resync because the required time change was too big.*") {
-            Write-Status -Types "@" -Status "Time change is too big. Setting time manually." -WriteWarning
-            #New-Variable -Name currentDateTime -Value (Get-Date) -Force -Scope Global
-            $serverDateTime = $resyncOutput | Select-String -Pattern "Time: (\S+)" | ForEach-Object { $_.Matches.Groups[1].Value }
-
-            Set-Date -Date $serverDateTime
-            Write-Status -Types "+" -Status "System time updated manually to: $serverDateTime"
-        }
     }
     catch {
-        Write-Error "An error occurred: $_"
+        Get-Error $_
+        Continue
     }
 }
 
