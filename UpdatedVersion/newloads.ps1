@@ -66,14 +66,16 @@ $Variables = @{
     # Local File Paths
     "WallpaperDestination"                       = "C:\Windows\Resources\Themes\mother.jpg"
     "WallpaperPath"                              = "$NewLoads\mother.jpg"
-    "ErrorLog"                                   = "$env:userprofile\Desktop\New Loads Errors.txt"
-    "Log"                                        = "$env:userprofile\Desktop\New Loads.txt"
+    "ErrorLog"                                   = "$env:uUerProfile\Desktop\New Loads Errors.txt"
+    "Log"                                        = "$env:UserProfile\Desktop\New Loads.txt"
     "adwDestination"                             = "$NewLoads\adwcleaner.exe"
-    "SaRA"                                       = "$newloads\SaRA.zip"
-    "Sexp"                                       = "$newloads\SaRA"
+    "SaRA"                                       = "$NewLoads\SaRA.zip"
+    "Sexp"                                       = "$NewLoads\SaRA"
     "SaRAURL"                                    = "https://github.com/circlol/newload/raw/main/SaRACmd_17_01_0495_021.zip"
     "StartBinURL"                                = "https://github.com/circlol/newload/raw/main/assets/start.bin"
     "StartBin2URL"                               = "https://github.com/circlol/newload/raw/main/assets/start2.bin"
+    "OutlookForWindowsURL"                       = "https://github.com/circlol/newload/raw/main/assets/Microsoft.OutlookForWindows_1.2023.920.0_x64__8wekyb3d8bbwe.Msix"
+    "OutlookForWindowsDestination"               = "$NewLoads\Microsoft.OutlookForWindows_1.2023.920.0_x64__8wekyb3d8bbwe.Msix"
     "PackagesRemoved"                            = @()
     "Removed"                                    = 0
     "Failed"                                     = 0
@@ -891,7 +893,39 @@ Function Get-Program {
                 }
             }
 
-            $WingetInstalled = Get-Command Winget -ErrorAction SilentlyContinue
+            $OutlookForWinPackageID = "9NRX63209R7B"
+            $OutlookForWinExists = Get-AppxPackage -Name $OutlookForWinPackageID
+            $OutlookForWinName = "*NEW* Outlook for Windows"
+            If (!$OutlookForWinExists){
+                Write-Status -Types "+", $TweakType -Status "Downloading: $OutlookForWinName" -NoNewLine
+                try {
+                    Start-BitsTransfer -Source $Variables.OutlookForWindowsURL -Destination $Variables.OutlookForWindowsDestination -Dynamic
+                    Get-Status
+                }
+                catch {
+                    Get-Error $_
+                    Continue
+                }
+
+                $OutlookForWinLocalExists = Test-Path $Variables.OutlookForWindowsDestination
+                If ($OutlookForWinLocalExists){
+                    Write-Status -Types "+", $TweakType -Status "Installing: $OutlookForWinName" -NoNewLine
+                    try {
+                        Add-AppxPackage -Path $Variables.OutlookForWindowsDestination
+                        Get-Status
+                    }
+                    catch {
+                        Get-Error $_
+                        Continue
+                    }
+                }
+
+
+            }
+
+
+
+            <#$WingetInstalled = Get-Command Winget -ErrorAction SilentlyContinue
             If (!$WingetInstalled){
                 Write-Host "Running Alternative Installer and Direct Installing"
                 Start-Process -Verb runas -FilePath powershell.exe -Wait -NoNewWindow -ArgumentList "irm https://raw.githubusercontent.com/ChrisTitusTech/winutil/main/winget.ps1 | iex"
@@ -903,7 +937,6 @@ Function Get-Program {
                     #Write-Status -Types "-", $TweakType -Status "Removing old Mail & Calendar Apps" -NoNewLine
                     #Get-Appxpackage -Name "*windowscommunicationsapps*" | Remove-AppxPackage
                     #Get-Status
-                    Write-Status -Types "+", $TweakType -Status "Installing *NEW* Outlook for Windows" -NoNewLine
                     Winget install --id 9NRX63209R7B -s msstore --accept-package-agreements --accept-source-agreements
                     Get-Status
                 }
@@ -911,7 +944,7 @@ Function Get-Program {
                     Get-Error $_
                     Continue
                 }
-            }
+            }#>
         }
     }
 }
