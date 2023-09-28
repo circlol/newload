@@ -545,7 +545,7 @@ Function Add-LogSection {
 Section: $Section
 
 "
-    Add-Content -Path $Variables.ErrorLog -Value $Title
+    Add-Content -Path $Variables.Log -Value $Title
 }
 function Find-ScheduledTask {
     [CmdletBinding()]
