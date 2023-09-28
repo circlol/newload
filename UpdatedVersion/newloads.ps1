@@ -11,7 +11,7 @@ $WindowTitle = "New Loads"
 $host.UI.RawUI.WindowTitle = $WindowTitle
 $host.UI.RawUI.ForegroundColor = 'White'
 $host.UI.RawUI.BackgroundColor = 'Black'
-Clear-Host
+#Clear-Host
 Add-Type -AssemblyName System.Windows.Forms
 Add-Type -AssemblyName System.Drawing
 filter TimeStamp { "$(Get-Date -Format g)- $_" }
@@ -909,9 +909,9 @@ Function Get-Program {
             If ($WingetInstalled){
                 try {
                     Write-Section "Adding the *NEW* Outlook"
-                    Write-Status -Types "-", $TweakType -Status "Removing old Mail & Calendar Apps" -NoNewLine
-                    Get-Appxpackage -Name "*windowscommunicationsapps*" | Remove-AppxPackage
-                    Get-Status
+                    #Write-Status -Types "-", $TweakType -Status "Removing old Mail & Calendar Apps" -NoNewLine
+                    #Get-Appxpackage -Name "*windowscommunicationsapps*" | Remove-AppxPackage
+                    #Get-Status
                     Write-Status -Types "+", $TweakType -Status "Installing *NEW* Outlook for Windows" -NoNewLine
                     Winget install --id 9NRX63209R7B -s msstore --accept-package-agreements --accept-source-agreements
                     Get-Status
