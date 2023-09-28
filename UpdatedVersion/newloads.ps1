@@ -1,7 +1,4 @@
-﻿###############################################
-#                 New Loads                   #
-###############################################
-<#
+﻿<#
 .NOTES
     Author         : @Circlol
     GitHub         : https://github.com/Circlol/newload
@@ -406,6 +403,7 @@ $Variables = @{
         "Microsoft.BingWeather"                     			# Weather
         "Microsoft.CommsPhone"                      			# Your Phone
         "Microsoft.ConnectivityStore"               			# Connectivity Store
+        "Microsoft.windowscommunicationsapps"                   # Old mail and calendar
         "Microsoft.Messaging"                       			# Messaging
         "Microsoft.Microsoft3DViewer"               			# 3D Viewer
         "Microsoft.MicrosoftOfficeHub"              			# Office
