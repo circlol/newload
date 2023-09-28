@@ -1,4 +1,5 @@
-﻿$WindowTitle = "New Loads"
+﻿$ErrorActionPreference = "SilentlyContinue"
+$WindowTitle = "New Loads"
 $host.UI.RawUI.WindowTitle = $WindowTitle
 $host.UI.RawUI.ForegroundColor = 'White'
 $host.UI.RawUI.BackgroundColor = 'Black'
@@ -6,7 +7,6 @@ $host.UI.RawUI.BackgroundColor = 'Black'
 Add-Type -AssemblyName System.Windows.Forms
 Add-Type -AssemblyName System.Drawing
 filter TimeStamp { "$(Get-Date -Format g)- $_" }
-$ErrorActionPreference = "SilentlyContinue"
 $NewLoads = "$env:temp"
 $Variables = @{
     "Logo"                                       = "
