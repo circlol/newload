@@ -59,8 +59,9 @@ $Variables = @{
     "ForegroundColor"                            = "DarkMagenta"
     "BackgroundColor"                            = "Black"
     "LogoColor"                                  = "DarkMagenta"
+    "Creator"                                    = "Circlol"
     "ProgramVersion"                             = "v1.07.02"
-    "ReleaseDate"                                = "September 21st"
+    "ReleaseDate"                                = "Sept 26, 2023"
     "Time"                                       = Get-Date -UFormat %Y%m%d
     "MinTime"                                    = 20230630
     "MaxTime"                                    = 20231031
@@ -535,7 +536,17 @@ $Variables = @{
 #Clear-Host
 
 
+Function Add-LogSection {
+    param (
+        $Section = "Next Section"
+    )
+    $Title = "
 
+Section: $Section
+
+"
+    Add-Content -Path $Variables.ErrorLog -Value $Title
+}
 function Find-ScheduledTask {
     [CmdletBinding()]
     [OutputType([Bool])]
@@ -563,7 +574,7 @@ Function Get-ADWCleaner {
         [Switch]$Skip
     )
     Show-ScriptStatus -TitleText "ADWCleaner"
-
+    Add-LogSection -Section "ADWCleaner"
     If ($Skip -or $Undo) {
         Write-Status -Types "@" -Status "Parameter -SkipADW or -Undo detected.. Malwarebytes ADWCleaner will be skipped.." -WriteWarning -ForegroundColorText RED
     }
@@ -787,6 +798,7 @@ Function Get-Program {
     )
 
     Show-ScriptStatus -WindowTitle "Apps" -TweakType "Apps" -TitleCounterText "Programs" -TitleText "Application Installation"
+    Add-LogSection -Section "Program Installation"
 
     $chrome = @{
         Name              = "Google Chrome"
@@ -893,7 +905,7 @@ Function Get-Program {
             $WingetInstalled = Get-Command Winget -ErrorAction SilentlyContinue
             If (!$WingetInstalled){
                 Write-Host "Running Alternative Installer and Direct Installing"
-                Start-Process -Verb runas -FilePath powershell.exe -NoNewWindow -ArgumentList "irm https://raw.githubusercontent.com/ChrisTitusTech/winutil/main/winget.ps1 | iex"
+                Start-Process -Verb runas -FilePath powershell.exe -Wait -NoNewWindow -ArgumentList "irm https://raw.githubusercontent.com/ChrisTitusTech/winutil/main/winget.ps1 | iex"
             }
             $WingetInstalled = Get-Command Winget -ErrorAction SilentlyContinue
             If ($WingetInstalled){
@@ -1039,9 +1051,9 @@ Function New-SystemRestorePoint {
     $restorePointType = "MODIFY_SETTINGS"
     if ($PSCmdlet.ShouldProcess("Create System Restore Point", "Creating a new restore point with description: $description")) {
         Show-ScriptStatus -WindowTitle "Restore Point" -TweakType "Backup" -TitleCounterText "Creating Restore Point"
-        # Assure System Restore is enabled
-        Write-Status -Types "+" -Status "Enabling System Restore" -NoNewLine
+        Add-LogSection -Section "System Restore"
         try {
+            Write-Status -Types "+" -Status "Enabling System Restore" -NoNewLine
             Enable-ComputerRestore -Drive "$env:SystemDrive\"
             Get-Status
             Write-Status -Types "+" -Status "Creating System Restore Point: $description" -NoNewLine
@@ -1069,7 +1081,7 @@ Function Optimize-General {
     )
 
     Show-ScriptStatus -WindowTitle "Optimization" -TweakType "Registry" -TitleCounterText "Optimization" -TitleText "General"
-
+    Add-LogSection -Section "Optimize: General Tweaks"
     $EnableStatus = @(
         @{ Symbol = "-"; Status = "Disabling"; }
         @{ Symbol = "+"; Status = "Enabling"; }
@@ -1207,6 +1219,7 @@ Function Optimize-Performance {
         [Switch] $Undo
     )
     Show-ScriptStatus -TweakType "Performance" -TitleText "Performance" -SectionText "System"
+    Add-LogSection -Section "Optimize: Performance Tweaks"
     $EnableStatus = @(
         @{ Symbol = "-"; Status = "Disabling"; }
         @{ Symbol = "+"; Status = "Enabling"; }
@@ -1361,6 +1374,7 @@ Function Optimize-Privacy {
         [Switch] $Undo
     )
     Show-ScriptStatus -TweakType "Privacy" -TitleText "Privacy"
+    Add-LogSection -Section "Optimize: Privacy Tweaks"
     $EnableStatus = @(
         @{ Symbol = "-"; Status = "Disabling"; }
         @{ Symbol = "+"; Status = "Enabling"; }
@@ -1700,6 +1714,7 @@ Function Optimize-Security {
         [Switch] $Undo
     )
     Show-ScriptStatus -TweakType "Security" -TitleText "Security"
+    Add-LogSection -Section "Optimize: Security Tweaks"
     $EnableStatus = @(
         @{ Symbol = "-"; Status = "Disabling"; } # 0 = Disabled
         @{ Symbol = "+"; Status = "Enabling"; } # 1 = Enabled
@@ -1811,6 +1826,7 @@ Function Optimize-Service {
         [Switch]$Undo
     )
     Show-ScriptStatus -TweakType "Services" -TitleText "Services"
+    Add-LogSection -Section "Optimize: Service Tweaks"
     ## Obsolete code
     If ($Undo) {
         Write-Status -Types "*", "Services" -Status "Reverting the tweaks is set to '$Undo'."
@@ -1833,6 +1849,7 @@ function Optimize-SSD {
         [Parameter()]
         [Switch]$Undo
     )
+    Add-LogSection -Section "Optimize: SSD Performamnce"
     if ($PSCmdlet.ShouldProcess("Get-Program", "Perform program installation")) {
         # SSD life improvement
         Write-Section "SSD Optimization"
@@ -1852,6 +1869,7 @@ Function Optimize-TaskScheduler {
         [Switch]$Undo
     )
     Show-ScriptStatus -TweakType "TaskScheduler" -TitleText "Task Scheduler"
+    Add-LogSection -Section "Optimize: Task Scheduler"
     if ($PSCmdlet.ShouldProcess("Get-Program", "Perform program installation")) {
         If ($Undo) {
             Write-Status -Types "*", $TweakType -Status "Reverting the tweaks is set to '$Undo'."
@@ -1872,6 +1890,7 @@ Function Optimize-TaskScheduler {
         [Switch]$Undo
     )
     Show-ScriptStatus -TweakType "OptionalFeatures" -TitleText "Optional Features"
+    Add-LogSection -Section "Optimize: Optional Features"
     if ($PSCmdlet.ShouldProcess("Get-Program", "Perform program installation")) {
         If ($Undo) {
             Write-Status -Types "*", "OptionalFeature" -Status "Reverting the tweaks is set to '$Undo'."
@@ -2196,6 +2215,7 @@ Function Set-Branding {
     if ($PSCmdlet.ShouldProcess('Set-Branding', "Mother Computers Branding")) {
     
         Show-ScriptStatus -WindowTitle "Branding" -TweakType "Branding" -TitleText "Branding" -TitleCounterText "Mother Branding"
+        Add-LogSection -Section "Mother's Branding"
         If (!$NoBranding) {
             # - Adds Mother Computers support info to About.
             Write-Status -Types "+", $TweakType -Status "Adding Mother Computers to Support Page"
@@ -2467,6 +2487,7 @@ Function Set-StartMenu {
         [Switch]$Skip
     )
     Show-ScriptStatus -WindowTitle "Start Menu" -TweakType "StartMenu" -TitleCounterText "Start Menu Layout" -TitleText "StartMenu"
+    Add-LogSection -Section "Start Menu & Taskbar"
     if ($PSCmdlet.ShouldProcess("Set-StartMenu", "Applies a Start Menu Layout")) {
         If (!$Skip){
             If ($Variables.osVersion -like "*Windows 10*") {
@@ -2541,7 +2562,6 @@ Function Set-Taskbar {
     param (
         [Switch]$Undo
     )
-    
     if ($PSCmdlet.ShouldProcess("Set-Taskbar", "Applies a taskbar layout")) {
         If ($Undo){
             Write-Output "Skipping Set-Taskbar"
@@ -2563,7 +2583,7 @@ function Set-Wallpaper {
         [Switch]$Undo
     )
     Show-ScriptStatus -WindowTitle "Visual" -TweakType "Visuals" -TitleCounterText "Visuals"
-
+    Add-LogSection -Section "Wallpaper & Visuals"
     if ($PSCmdlet.ShouldProcess("Get-Program", "Perform program installation")) {
         If ($Undo){
             Start-Process "C:\Windows\Resources\Themes\aero.theme"
@@ -2700,7 +2720,7 @@ Function Show-ScriptLogo {
     Write-Host "`n`n"
     Write-Host "$($Variables.Logo)`n`n" -ForegroundColor $Variables.LogoColor -BackgroundColor Black -NoNewline
     Write-Host "                               Created by " -NoNewLine -ForegroundColor White -BackgroundColor Black
-    Write-Host "Papi" -ForegroundColor Red -BackgroundColor Black -NoNewLine
+    Write-Host "$($Variables.Creator)" -ForegroundColor Red -BackgroundColor Black -NoNewLine
     Write-Host "      Last Update: " -NoNewLine -ForegroundColor White -BackgroundColor Black
     Write-Host "$($Variables.ProgramVersion) - $($Variables.ReleaseDate)" -ForegroundColor Green -BackgroundColor Black
     Write-Host "`n`n  Notice: " -NoNewLine -ForegroundColor RED -BackgroundColor Black
@@ -2758,6 +2778,7 @@ Function Start-BitlockerDecryption {
     )
 
     Show-ScriptStatus -WindowTitle "Bitlocker" -TweakType "Bitlocker" -TitleCounterText "Bitlocker Decryption"
+    Add-LogSection -Section "Bitlocker Decryption"
     If ($Skip) {
         Write-Status -Types "@" -Status "Parameter -Skip detected.. Skipping Bitlocker Decryption." -WriteWarning -ForegroundColorText RED
     }
@@ -2854,6 +2875,7 @@ Function Start-Cleanup {
     )
 
     Show-ScriptStatus -WindowTitle "Cleanup" -TweakType "Cleanup" -TitleCounterText "Cleanup" -TitleText "Cleanup"
+    Add-LogSection -Section "Cleanup"
     If ($Undo -or $Skip) {
         Write-Status -Types "@" -Status "Parameter -Undo or -Skip was detected.. Skipping this section." -WriteWarning -ForegroundColorText Red
     }
@@ -2887,6 +2909,7 @@ Function Start-Debloat {
         [Switch] $Undo
     )
     Show-ScriptStatus -WindowTitle "Debloat" -TweakType "Debloat" -TitleCounterText "Debloat" -TitleText "Win32"
+    Add-LogSection -Section "Debloat"
     If (!$Undo) {
 
         <# TODO - Fix Debloat Remove Win32 apps
@@ -3212,10 +3235,10 @@ If (!$Undo){
     $Variables.Counter++
     Optimize-General
     Optimize-Performance
-    Optimize-SSD
     Optimize-Privacy
     Optimize-Security
     Optimize-Service
+    Optimize-SSD
     Optimize-TaskScheduler
     Optimize-WindowsOptional
     $Variables.Counter++
@@ -3270,10 +3293,10 @@ If (!$Undo){
     $Variables.Counter++
     Optimize-General -Undo
     Optimize-Performance -Undo
-    Optimize-SSD -Undo
     Optimize-Privacy -Undo
     Optimize-Security -Undo
     Optimize-Service -Undo
+    Optimize-SSD -Undo
     Optimize-TaskScheduler -Undo
     Optimize-WindowsOptional -Undo
     $Variables.Counter++
