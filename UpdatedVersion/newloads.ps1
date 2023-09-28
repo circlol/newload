@@ -1,13 +1,4 @@
-﻿<#
-.NOTES
-    Author         : @Circlol
-    GitHub         : https://github.com/Circlol/newload
-    Version        : 1.07
-    Release        : Sept 21st, 2023
-
-#>
-
-$WindowTitle = "New Loads"
+﻿$WindowTitle = "New Loads"
 $host.UI.RawUI.WindowTitle = $WindowTitle
 $host.UI.RawUI.ForegroundColor = 'White'
 $host.UI.RawUI.BackgroundColor = 'Black'
