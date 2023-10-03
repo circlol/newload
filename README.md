@@ -39,7 +39,7 @@ New Loads, a comprehensive and seamless Windows 10 & 11 setup utility, has been 
 <h2>⚠️Things to keep in mind before running</h2>
 
 1. New Loads is primarily used by Mother Computers, therefor the script will set the time-zone of the system it's run on to Pacific Standard Time.
-2. ~~Unless run with switch parameter `-NoBranding` the script will apply OEM information in settings and a wallpaper will be applied. The OEM information is tied to Mother Computers.~~ -NoBranding temporarily removed
+2. Unless run with switch parameter `-NoBranding` the script will apply OEM information in settings and a wallpaper will be applied. The OEM information is tied to Mother Computers.
 3. New Loads was not designed to account for an already lived in OS, it is meant to be run on a fresh operating system. Please note that you may experience unwanted changes
 
 ⚠️ **DISCLAIMER:** _You are using this software at your own risk, I am not responsible for any data loss or damage that may occur. It's not guaranteed that every feature removed from the system can be easily restored._
