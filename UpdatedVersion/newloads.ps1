@@ -7,10 +7,32 @@ Clear-Host
 Add-Type -AssemblyName System.Windows.Forms
 Add-Type -AssemblyName System.Drawing
 filter TimeStamp { "$(Get-Date -Format g)- $_" }
+filter Write-ModifiedStatus {
+    param(
+        [string]$Types,
+        [string]$Status,
+        [switch]$WriteWarning
+    )
+    Write-Host "$($LogEntry.Time) " -NoNewline -ForegroundColor DarkGray -BackgroundColor $Variables.BackgroundColor
+
+    ForEach ($Type in $Types) {
+        Write-Host "$Type " -NoNewline -ForegroundColor $Variables.ForegroundColor -BackgroundColor $Variables.BackgroundColor
+    }
+
+    If ($WriteWarning) {
+        Write-Host "::Warning:: -> $Status" -ForegroundColor Red -BackgroundColor $Variables.BackgroundColor -NoNewline
+    }
+    Else {
+        Write-Host "-> $Status" -ForegroundColor White -BackgroundColor $Variables.BackgroundColor
+    }
+}
 $NewLoads = "$env:temp"
-New-Variable -Name "CreatedKeys" -Value 0 -Scope Global
-New-Variable -Name "FailedRegistryKeys" -Value 0 -Scope Global
-New-Variable -Name "ModifiedRegistryKeys" -Value 0 -Scope Global
+$CreatedKeys = 0
+$FailedRegistryKeys = 0
+$ModifiedRegistryKeys = 0
+#New-Variable -Name "CreatedKeys" -Value 0 -Scope Global
+#New-Variable -Name "FailedRegistryKeys" -Value 0 -Scope Global  ## TODO - Fix FailedRegistryKey
+#New-Variable -Name "ModifiedRegistryKeys" -Value 0 -Scope Global ## TODO - Fix ModifiedRegistryKey
 $Variables = @{
     "Logo"                                       = "
                     ███╗   ██╗███████╗██╗    ██╗    ██╗      ██████╗  █████╗ ██████╗ ███████╗
@@ -47,18 +69,17 @@ $Variables = @{
                                                                         (           )            `
                                                                        ( (  )   (  ) )           `
                                                                       (__(__)___(__)__)          `n`n"
-    "ForegroundColor"                            = "DarkMagenta"
     "BackgroundColor"                            = "Black"
+    "ForegroundColor"                            = "DarkMagenta"
     "LogoColor"                                  = "DarkMagenta"
     "Creator"                                    = "Circlol"
-    "ProgramVersion"                             = "v1.07.06"
-    "ReleaseDate"                                = "October 18th, 2023"
+    "ProgramVersion"                             = "v1.07.07"
+    "ReleaseDate"                                = "October 24th, 2023"
     "Time"                                       = Get-Date -UFormat %Y%m%d
     "MinTime"                                    = 20230901
     "MaxTime"                                    = 20231231
     "Counter"                                    = 1
     "SelectedParameters"                         = @()
-    "temp"                                       = $Env:temp
     "MaxLength"                                  = 10
     "Win11"                                      = 22000
     "Win22H2"                                    = 22621
@@ -513,28 +534,30 @@ Function Get-ADWCleaner {
         }
     }
 }
+
+
+<#
+.SYNOPSIS
+Retrieves information about the CPU.
+
+.DESCRIPTION
+This function retrieves information about the CPU, including the name, number of cores, and number of threads.
+
+.PARAMETER Formatted
+Formats the output as a string.
+
+.PARAMETER NameOnly
+Returns only the name of the CPU.
+
+.EXAMPLE
+Get-CPU
+
+This example retrieves information about the CPU.
+
+#>
 function Get-CPU {
-    <#
-    .SYNOPSIS
-    Retrieves information about the CPU.
-
-    .DESCRIPTION
-    This function retrieves information about the CPU, including the name, number of cores, and number of threads.
-
-    .PARAMETER Formatted
-    Formats the output as a string.
-
-    .PARAMETER NameOnly
-    Returns only the name of the CPU.
-
-    .EXAMPLE
-    Get-CPU
-
-    This example retrieves information about the CPU.
-
-    #>
     [CmdletBinding()]
-    [OutputType([String])]
+    [OutputType([System.Collections.Hashtable],[String])]
     param (
         [switch] $Formatted,
         [Switch] $NameOnly
@@ -563,20 +586,23 @@ function Get-CPU {
         Threads = $threads
     }
 }
+
+
+
+<#
+.SYNOPSIS
+Retrieves information about physical disks.
+
+.DESCRIPTION
+This function retrieves information about physical disks, including the model, type, capacity, and health status.
+
+.EXAMPLE
+Get-DriveInfo
+
+This example retrieves information about physical disks.
+
+#>
 function Get-DriveInfo {
-    <#
-    .SYNOPSIS
-    Retrieves information about physical disks.
-
-    .DESCRIPTION
-    This function retrieves information about physical disks, including the model, type, capacity, and health status.
-
-    .EXAMPLE
-    Get-DriveInfo
-
-    This example retrieves information about physical disks.
-
-    #>
     $driveInfo = @()
     $physicalDisks = Get-PhysicalDisk | Where-Object { $null -ne $_.MediaType }
     foreach ($disk in $physicalDisks) {
@@ -625,36 +651,35 @@ function Get-Error {
     param (
         [Parameter(Mandatory = $true, ValueFromPipeline = $true)]
         [string]$ErrorMessage,
-        [Parameter(Mandatory = $false, ValueFromPipeline = $false)]
         [string]$ErrorLog = $Variables.Log
         #[string]$ErrorLog = $Variables.Errorlog
 
     )
+    process {
 
-    $lineNumber = $MyInvocation.ScriptLineNumber
-    $command = $Error[0].InvocationInfo.MyCommand
-    $errorType = $Error[0].CategoryInfo.Reason
-    $timestamp = Get-Date -Format "yyyy-MM-dd HH:mm:ss"
-    $scriptPath = $MyInvocation.MyCommand.Path
-    $userName = [System.Security.Principal.WindowsIdentity]::GetCurrent().Name
-
-    $errorString = @"
+        $lineNumber = $MyInvocation.ScriptLineNumber
+        $command = $Error[0].InvocationInfo.MyCommand
+        $errorType = $Error[0].CategoryInfo.Reason
+        $timestamp = Get-Date -Format "yyyy-MM-dd HH:mm:ss"
+        $scriptPath = $MyInvocation.MyCommand.Path
+        $userName = [System.Security.Principal.WindowsIdentity]::GetCurrent().Name
+        $errorString = @"
 **********************************************************************
 $timestamp Executed by: $userName
 Command: $command
 Script Path: $scriptPath
 Error Type: $errorType
 Offending line number: $lineNumber
-Error Message: 
+Error Message:
 $ErrorMessage
 **********************************************************************
 "@
-
-    try {
-        Add-Content -Path $ErrorLog -Value $errorString -ErrorAction Continue
-    }
-    catch {
-        Write-Error "Error writing to log: $($_.Exception.Message)"
+        try {
+            Add-Content -Path $ErrorLog -Value $errorString -ErrorAction Continue
+        }
+        catch {
+            Write-Error "Error writing to log: $($_.Exception.Message)"
+        }
     }
 }
 function Get-GPU {
@@ -664,23 +689,20 @@ function Get-GPU {
     $gpu = Get-CimInstance -Class Win32_VideoController | Select-Object -ExpandProperty Name
     return $gpu.Trim()
 }
+
+<#
+.SYNOPSIS
+Retrieves information about installed programs on a Windows system.
+.DESCRIPTION
+This function retrieves information about installed programs on a Windows system, including the name, version, publisher, and uninstall string.
+.PARAMETER Name
+The name of the program to search for.
+.EXAMPLE
+Get-InstalledProgram -Name "Microsoft Office"
+
+This example retrieves information about installed programs that match the name "Microsoft Office".
+#>
 Function Get-InstalledProgram {
-    <#
-    .SYNOPSIS
-    Retrieves information about installed programs on a Windows system.
-
-    .DESCRIPTION
-    This function retrieves information about installed programs on a Windows system, including the name, version, publisher, and uninstall string.
-
-    .PARAMETER Name
-    The name of the program to search for.
-
-    .EXAMPLE
-    Get-InstalledProgram -Name "Microsoft Office"
-
-    This example retrieves information about installed programs that match the name "Microsoft Office".
-
-    #>
     [CmdletBinding()]
     [OutputType([String])]
     Param(
@@ -706,7 +728,7 @@ Function Get-InstalledProgram {
         }
     }
     catch {
-        $Status = "Failed to retrieve installed programs: $_"
+        $Status = "Failed to retrieve installed programs: $Name"
         Write-Status -Types "?", "Get-InstalledProgram" -Status $Status -WriteWarning
         Add-Content -Path $Variables.Log -Value $Status
     }
@@ -720,12 +742,29 @@ function Get-Motherboard {
     [String]$CombinedString = "$motherboardOEM $motherboardModel"
     return "$CombinedString"
 }
+
+
+<#
+.SYNOPSIS
+    Checks the network status and waits for internet connection if necessary.
+.DESCRIPTION
+    This function checks the network status and waits for internet connection if necessary. If the network status is not 'Internet', it displays a warning message and waits until the status changes to 'Internet'. Once the status changes, it tests the connection to the local computer and displays a message indicating that the computer is connected.
+.PARAMETER NetworkStatusType
+    Specifies the type of network status to check. The default value is 'IPv4Connectivity'.
+.EXAMPLE
+    Get-NetworkStatus
+    This example checks the network status and waits for internet connection if necessary.
+.NOTES
+    Author: Circlol
+    Version: 1.0
+    History:
+        1.0 - Function created.
+#>
 Function Get-NetworkStatus {
     [CmdletBinding()]
     param(
         [string]$NetworkStatusType = "IPv4Connectivity"
     )
-    #$NetStatus = (Get-NetConnectionProfile).IPv4Connectivity
     $NetStatus = (Get-NetConnectionProfile).$NetworkStatusType
     if ($NetStatus -ne 'Internet') {
         Write-Status -Types "WAITING" -Status "Seems like there's no network connection. Please reconnect." -WriteWarning
@@ -738,6 +777,23 @@ Function Get-NetworkStatus {
         Write-Output "Connected: Moving On"
     }
 }
+
+
+<#
+.SYNOPSIS
+    This function checks if Microsoft Office is installed on the device and removes it if it exists.
+.DESCRIPTION
+    The Get-Office function checks if Microsoft Office is installed on the device by looking for the installation paths of both 32-bit and 64-bit versions of Office. If either path exists, the function sets the $Variables.officecheck variable to true, indicating that Office is installed. If Office is installed, the function calls the Remove-Office function to remove it.
+.EXAMPLE
+    Get-Office
+
+    This command checks if Microsoft Office is installed on the device and removes it if it exists.
+.NOTES
+    Author: Circlol
+    Version: 1.0
+    History:
+        1.0 - Function created.
+#>
 Function Get-Office {
     Show-ScriptStatus -WindowTitle "Office" -TweakType "Office" -TitleCounterText "Office"
     Write-Status -Types "?" -Status "Checking for Office"
@@ -785,6 +841,15 @@ Function Get-Office {
 .EXAMPLE
     Get-Program
     Installs the programs on the system.
+.NOTES
+    Author: Circlol
+    Version: 1.0
+    History:
+        1.1 - Added support for undoing the program installation process.
+            - Added support for skipping the program installation process.
+            - Added support for logging the program installation process.
+            - Added Outlook for Windows.
+        1.0 - Started recording history of changes.
 #>
 Function Get-Program {
     [CmdletBinding(SupportsShouldProcess = $true)]
@@ -795,7 +860,7 @@ Function Get-Program {
 
     Show-ScriptStatus -WindowTitle "Apps" -TweakType "Apps" -TitleCounterText "Programs" -TitleText "Application Installation"
     Add-LogSection -Section "Program Installation"
-
+    # - Program Information
     $chrome = @{
         Name              = "Google Chrome"
         Installed         = Test-Path -Path "$Env:PROGRAMFILES\Google\Chrome\Application\chrome.exe"
@@ -807,7 +872,6 @@ Function Get-Program {
     $vlc = @{
         Name              = "VLC Media Player"
         Installed         = Test-Path -Path "$Env:ProgramFiles\VideoLAN\VLC\vlc.exe"
-        #DownloadURL       = "https://ftp.osuosl.org/pub/videolan/vlc/3.0.18/win64/vlc-3.0.18-win64.exe"
         DownloadURL       = "https://get.videolan.org/vlc/3.0.18/win64/vlc-3.0.18-win64.exe"
         InstallerLocation = "$NewLoads\vlc-3.0.18-win64.exe"
         FileExists        = Test-Path -Path "$NewLoads\vlc-3.0.18-win64.exe"
@@ -816,7 +880,6 @@ Function Get-Program {
     $zoom = @{
         Name              = "Zoom"
         Installed         = Test-Path -Path "$Env:ProgramFiles\Zoom\bin\Zoom.exe"
-        #DownloadURL       = "https://zoom.us/client/5.15.2.18096/ZoomInstallerFull.msi?archType=x64"
         DownloadURL       = "https://zoom.us/client/5.16.2.22807/ZoomInstallerFull.msi?archType=x64"
         InstallerLocation = "$NewLoads\ZoomInstallerFull.msi"
         FileExists        = Test-Path -Path "$NewLoads\ZoomInstallerFull.msi"
@@ -869,7 +932,7 @@ Function Get-Program {
                             Get-Error $Error[0]
                         }
                     }
-                    # Installs HEVC codec & Outlook for Windows through MSIX & MSIXBUNDLE
+                    # Checks if the program is HEVC/H.265 Codec or Outlook for Windows
                     If ($program.Name -eq $hevc.Name -or $program.Name -eq $OutlookForWindows.Name) {
                         $BackupProgressPreference = $ProgressPreference
                         $ProgressPreference = 'SilentlyContinue'
@@ -883,7 +946,7 @@ Function Get-Program {
                                 Get-Status
                                 Get-Error $Error[0]
                             }
-                        } 
+                        }
                         elseif ($program.Name -eq $OutlookForWindows.Name) {
                             try {
                                 Add-AppPackage -Path $OutlookForWindows.InstallerLocation
@@ -930,20 +993,63 @@ Function Get-Program {
     }
 }
 
+
+
+<#
+.SYNOPSIS
+    This function retrieves the total physical memory of the computer and returns it in GB.
+.DESCRIPTION
+    The Get-RAM function uses the Get-CimInstance cmdlet to retrieve the total physical memory of the computer.
+    It then converts the value to GB and returns it as a formatted string.
+.PARAMETER None
+    This function does not accept any parameters.
+.OUTPUTS
+    Returns a formatted string representing the total physical memory of the computer in GB.
+.EXAMPLE
+    PS C:\> Get-RAM
+    16.00 GB
+.NOTES
+    Author: Circlol
+    Date: October 19, 2023
+    Version: 1.0
+    Changes:
+        1.0 - Initial release.
+#>
 function Get-RAM {
     [CmdletBinding()]
     [OutputType([String])]
     param ()
+
+    # Retrieve total physical memory of the computer
     $ram = Get-CimInstance Win32_ComputerSystem | Select-Object -ExpandProperty TotalPhysicalMemory
+
+    # Convert value to GB and return as formatted string
     $ram = $ram / 1GB
     return "{0:N2} GB" -f $ram
 }
-function Get-Status {
+
+
+
+<#
+.SYNOPSIS
+    This function gets the status of a network operation and logs the result.
+.DESCRIPTION
+    This function checks if the previous command executed successfully and logs the result to a file. If the command failed, it logs the error message as well.
+.EXAMPLE
+    Get-Status
+.NOTES
+    Author: Circlol
+    Version: 1.0
+    History:
+        1.0 - Function created.
+#>
+function Get-Status2 {
     If ($? -eq $True) {
         # If no error message is provided, assume success
         $Global:LogEntry.Successful = $true
         Write-Caption -Type Success
-        Add-Content -Path $Variables.Log -Value $logEntry
+        #Add-Content -Path $Variables.Log -Value $logEntry
+        Write-Output $LogEntry | Out-File -FilePath $Variables.Log -Append
     }
     else {
         # Set the global LogEntry.Successful to false
@@ -954,33 +1060,81 @@ function Get-Status {
 
         Add-Content -Path $Variables.Log -Value $logEntry
         Add-Content -Path $Variables.Log -Value $Error[0]
+        Write-Output $LogEntry | Out-File -FilePath $Variables.Log -Append
         #        # Handle the error message
         #        Get-Error
     }
 }
 
-Function Get-SystemInfo {
-    <#
+# Similar function to Get-Status, instead it stores all the information in a variable and outputs to a log at the end of the script. the function has a passhrough to start a new log entry. and end the log entry.
+
+Function Get-Status {
+    [CmdletBinding()]
+    [OutputType([String])]
+    param (
+        [Parameter(Mandatory = $false, ValueFromPipeline = $true)]
+        [String] $LogEntry,
+        [Switch] $EndLogEntry,
+        [Switch] $StartTranscript,
+        [Switch] $StopTranscript
+    )
+    process {
+        If ($StartTranscript) {
+            Start-Transcript -Path $Variables.Log -Append | Write-ModifiedStatus -Types "STARTING" -Status "Starting Transcript"
+        }
+
+        If ($StopTranscript) {
+            Stop-Transcript | Write-ModifiedStatus -Types "STOPPING" -Status "Stopping Transcript"
+        }
+
+        If (!$EndLogEntry) {
+            If ($? -eq $True) {
+                # If no error message is provided, assume success
+                #$Global:LogEntry.Successful = $true
+                Write-Caption -Type Success
+                #$GlobalLogEntry += $logEntry
+            }
+            else {
+                # Set the global LogEntry.Successful to false
+                #$Global:LogEntry.Successful = $false
+                #$Global:LogEntry.ErrorMessage = $Error[0]
+                # Log a failure message
+                Write-Caption -Type Failed
+                #$Global:LogEntry += $logEntry
+                #        # Handle the error message
+                #        Get-Error
+            }
+        } else {
+            Write-Output $LogEntry | Out-File -FilePath $Variables.Log -Append
+        }
+    }
+}
+
+
+
+
+<#
 .SYNOPSIS
-    This function retrieves system information such as CPU, GPU, RAM, Motherboard, OS, and Disk Info.
+This function retrieves system information such as CPU, GPU, RAM, Motherboard, OS, and Disk Info.
 
 .DESCRIPTION
-    This function uses PowerShell's CIM cmdlets to retrieve system information such as CPU, GPU, RAM, Motherboard, OS, and Disk Info.
+This function uses PowerShell's CIM cmdlets to retrieve system information such as CPU, GPU, RAM, Motherboard, OS, and Disk Info.
 
 .PARAMETER None
-    This function does not accept any parameters.
+This function does not accept any parameters.
 
 .EXAMPLE
-    Get-SystemInfo
-    This example retrieves system information such as CPU, GPU, RAM, Motherboard, OS, and Disk Info.
+Get-SystemInfo
+This example retrieves system information such as CPU, GPU, RAM, Motherboard, OS, and Disk Info.
 
 .OUTPUTS
-    System information in the form of a string.
+System information in the form of a string.
 
 .NOTES
-    Author: Circlol
-    Last Edit: 10-16-2023
+Author: Circlol
+Last Edit: 10-16-2023
 #>
+Function Get-SystemInfo {
     [CmdletBinding()]
     [OutputType([String])]
     param()
@@ -1058,9 +1212,9 @@ Function Get-SystemInfo {
                 $availableStorage = $drive.Free / 1TB
                 $totalStorage = ($drive.Free + $drive.Used) / 1TB
                 $percentageAvailable = [math]::Round(($availableStorage / $totalStorage) * 100, 1)
-            
+
                 $unit = "TB"
-            
+
                 # Check if the available storage is less than 1 TB, then display it in GB
                 if ($availableStorage -lt 1) {
                     $availableStorage = $availableStorage * 1024
@@ -1072,7 +1226,7 @@ Function Get-SystemInfo {
                     $totalStorage = $totalStorage * 1024 * 1024
                     $unit = "MB"
                 }
-            
+
                 $driveInfo = "    $driveRoot $([math]::Round($availableStorage, 1)) $unit free of $([math]::Round($totalStorage, 1)) $unit ($percentageAvailable% Available)"
                 $CombinedDriveInfo = "$($CombinedDriveInfo)`n$($driveInfo)"
             }
@@ -1093,14 +1247,14 @@ Function Get-SystemInfo {
             return "Error retrieving screen information: $($_)"
             Continue
         }
-    
+
         $title = "$env:USERNAME@$env:COMPUTERNAME"
         $line = "-" * $title.Length
         $CombinedString = "
     $title
     $line
 
-    OS: $WinVer 
+    OS: $WinVer
     Build: $completedBuildNumber
     Resolution: $screenCombinedString
     CPU: $($CPUCombinedString)
@@ -1640,7 +1794,7 @@ Function Optimize-Privacy {
             }
             try {
                 Write-Status -Types "-" -Status ' Stopping Superfetch service' -NoNewLine
-                Set-Service "SysMain" -StartupType Disabled 
+                Set-Service "SysMain" -StartupType Disabled
                 Get-Status
             }
             catch {
@@ -1649,7 +1803,7 @@ Function Optimize-Privacy {
             }
         }
 
-        
+
 
         # Disables volume lowering during calls
         Write-Status -Types $EnableStatus[0].Symbol, $TweakType -Status "$($EnableStatus[0].Status) Volume Adjustment During Calls..."
@@ -2440,7 +2594,7 @@ Function Set-ItemPropertyVerified {
         }
         catch {
             Get-Status
-            $Global:FailedRegistryKeys++
+            $FailedRegistryKeys++
             Get-Error $Error[0]
             Continue
         }
@@ -2454,8 +2608,6 @@ Function Set-OptionalFeatureState {
         [ScriptBlock] $CustomMessage,
         [Switch] $Enabled,
         [Switch] $Disabled,
-        #[Array] $Filter,
-        #[Parameter(Mandatory = $true)]
         [Array] $OptionalFeatures
     )
 
@@ -2514,7 +2666,42 @@ Function Set-OptionalFeatureState {
         }
     }
 }
+
+
+<#
+.SYNOPSIS
+Sets the state of one or more scheduled tasks.
+
+.DESCRIPTION
+This function sets the state of one or more scheduled tasks. The state can be either disabled or ready.
+
+.PARAMETER Disabled
+If specified, the scheduled task(s) will be disabled.
+
+.PARAMETER Ready
+If specified, the scheduled task(s) will be set to ready.
+
+.PARAMETER ScheduledTasks
+An array of scheduled task paths to modify.
+
+.PARAMETER Filter
+An array of scheduled task names to skip.
+
+.EXAMPLE
+Set-ScheduledTaskState -Disabled -ScheduledTasks "C:\Windows\System32\Tasks\Task1", "C:\Windows\System32\Tasks\Task2"
+
+This example disables the scheduled tasks "Task1" and "Task2".
+
+.EXAMPLE
+Set-ScheduledTaskState -Ready -ScheduledTasks "C:\Windows\System32\Tasks\Task1", "C:\Windows\System32\Tasks\Task2" -Filter "Task2"
+
+This example sets the scheduled task "Task1" to ready, but skips "Task2".
+
+.NOTES
+Author: Circlol
+#>
 function Set-ScheduledTaskState {
+    [CmdletBinding(SupportsShouldProcess, ConfirmImpact = 'High')]
     param (
         [Parameter(Mandatory = $false)]
         [Switch] $Disabled,
@@ -2525,6 +2712,8 @@ function Set-ScheduledTaskState {
         [Parameter(Mandatory = $false)]
         [Array] $Filter
     )
+
+    $TweakType = "ScheduledTask"
 
     ForEach ($ScheduledTask in $ScheduledTasks) {
         If (Find-ScheduledTask $ScheduledTask) {
@@ -2545,21 +2734,23 @@ function Set-ScheduledTaskState {
             }
 
             If ($action) {
-                Write-Status -Types $action.Substring(0, 1), $TweakType -Status "$action the $ScheduledTask task..." -NoNewLine
-                Try {
-                    If ($action -eq "Disable") {
-                        Get-ScheduledTask -TaskName (Split-Path -Path $ScheduledTask -Leaf) -ErrorAction SilentlyContinue | Where-Object State -Like "R*" | Disable-ScheduledTask | Out-Null  # R* = Ready/Running
-                        Get-Status
+                if ($PSCmdlet.ShouldProcess("$ScheduledTask task", "Set state to $action")) {
+                    Write-Status -Types $action.Substring(0, 1), $TweakType -Status "$action the $ScheduledTask task..." -NoNewLine
+                    Try {
+                        If ($action -eq "Disable") {
+                            Get-ScheduledTask -TaskName (Split-Path -Path $ScheduledTask -Leaf) -ErrorAction SilentlyContinue | Where-Object State -Like "R*" | Disable-ScheduledTask | Out-Null  # R* = Ready/Running
+                            Get-Status
+                        }
+                        ElseIf ($action -eq "Enable") {
+                            Get-ScheduledTask -TaskName (Split-Path -Path $ScheduledTask -Leaf) -ErrorAction SilentlyContinue | Where-Object State -Like "Disabled" | Enable-ScheduledTask | Out-Null
+                            Get-Status
+                            }
                     }
-                    ElseIf ($action -eq "Enable") {
-                        Get-ScheduledTask -TaskName (Split-Path -Path $ScheduledTask -Leaf) -ErrorAction SilentlyContinue | Where-Object State -Like "Disabled" | Enable-ScheduledTask | Out-Null
+                    catch {
                         Get-Status
+                        Get-Error $Error[0]
+                        Continue
                     }
-                }
-                catch {
-                    Get-Status
-                    Get-Error $Error[0]
-                    Continue
                 }
             }
         }
@@ -2778,6 +2969,7 @@ Function Send-EmailLog {
     $ListOfInstalledApplications = (Get-InstalledProgram -Name "*").Name | Sort-Object
     $ListOfInstalledApplications = $ListOfInstalledApplications -join "`n"
     $ListOfInstalledPackages = (Get-appxpackage -User $Env:USERNAME).Name | Sort-Object
+    $ListOfInstalledPackages = $ListOfInstalledPackages -join "`n"
     # - Gathers some information about host
     $SystemSpecs = Get-SystemInfo
     $IP = $(Resolve-DnsName -Name myip.opendns.com -Server 208.67.222.220).IPAddress
@@ -3001,19 +3193,25 @@ Function Start-Bootup {
     }
 }
 function Start-Chime {
+    [CmdletBinding(SupportsShouldProcess = $true)]
     param(
-        $File = "C:\Windows\Media\Alarm06.wav"
+        [Parameter(Mandatory = $False)]
+        [ValidateScript({ Test-Path $_ })]
+        [String]$File = "C:\Windows\Media\Alarm06.wav"
     )
-    if (Test-Path $File) {
-        try {
-            $soundPlayer = New-Object System.Media.SoundPlayer
-            $soundPlayer.SoundLocation = $File
-            $soundPlayer.Play()
-            $soundPlayer.Dispose()
+
+    if ($PSCmdlet.ShouldProcess("Play sound file", "Play sound file at $File")) {
+        if (Test-Path $File) {
+            try {
+                $soundPlayer = New-Object System.Media.SoundPlayer
+                $soundPlayer.SoundLocation = $File
+                $soundPlayer.Play()
+                $soundPlayer.Dispose()
+            }
+            catch { Write-Error "An error occurred while playing the sound: $_.Exception.Message" }
         }
-        catch { Write-Error "An error occurred while playing the sound: $_.Exception.Message" }
+        else { Write-Error "The sound file doesn't exist at the specified path." }
     }
-    else { Write-Error "The sound file doesn't exist at the specified path." }
 }
 Function Start-Cleanup {
     [CmdletBinding(SupportsShouldProcess = $true)]
@@ -3053,48 +3251,45 @@ Function Start-Cleanup {
     }
 }
 Function Start-Debloat {
+    [CmdletBinding(SupportsShouldProcess)]
     param(
         [Switch] $Undo
     )
+
     Show-ScriptStatus -WindowTitle "Debloat" -TweakType "Debloat" -TitleCounterText "Debloat" -TitleText "Win32"
     Add-LogSection -Section "Debloat"
+
     If (!$Undo) {
+        # Remove Win32 apps
+        # TODO: Fix Debloat Remove Win32 apps
+        # $Win32apps = @(
+        #     "Avast"
+        #     "ExpressVPN"
+        #     "McAfee"
+        #     "WebAdvisor"
+        #     "Norton"
+        #     "WildTangent"
+        # )
+        # foreach ($app in $Win32apps) { Remove-InstalledProgram "$app" -ErrorAction SilentlyContinue }
 
-        <# TODO - Fix Debloat Remove Win32 apps
-        Write-Section -Text "TraditiFixon Win32 Applications"
-        $Win32apps = @(
-            "Avast"
-            "ExpressVPN"
-            "McAfee"
-            "WebAdvisor"
-            "Norton"
-            "WildTangent"
-        )
-        foreach ($app in $Win32apps) { Remove-InstalledProgram "$app" -ErrorAction SilentlyContinue }
-        #>
-        #Remove-InstalledProgram -Name "*WildTangent*" -ErrorAction SilentlyContinue
-        #Remove-InstalledProgram -Name "*Norton*"-ErrorAction SilentlyContinue
-        #Remove-InstalledProgram -Name "*McAfee*"-ErrorAction SilentlyContinue
-        #Remove-InstalledProgram -Name "*Web*Advisor*"-ErrorAction SilentlyContinue
-        #Remove-InstalledProgram -Name "*ExpressVPN*"-ErrorAction SilentlyContinue
-        #Remove-InstalledProgram -Name "*Avast*"-ErrorAction SilentlyContinue
-
-
-
-        Write-Section -Text "Start Menu Ads (.url, .lnk)"
+        # Remove Start Menu Ads (.url, .lnk)
         ForEach ($app in $apps) {
             try {
                 if (Test-Path -Path "$commonapps\$app.url") {
                     # - Checks common start menu .urls
-                    Write-Status -Types "-", "$TweakType", "$TweakTypeLocal" -Status "Removing $app.url" -NoNewLine
-                    Remove-Item -Path "$commonapps\$app.url" -Force
-                    Get-Status
+                    if ($PSCmdlet.ShouldProcess("$app.url", "Remove")) {
+                        Write-Status -Types "-", "$TweakType", "$TweakTypeLocal" -Status "Removing $app.url" -NoNewLine
+                        Remove-Item -Path "$commonapps\$app.url" -Force
+                        Get-Status
+                    }
                 }
                 if (Test-Path -Path "$commonapps\$app.lnk") {
                     # - Checks common start menu .lnks
-                    Write-Status -Types "-", "$TweakType", "$TweakTypeLocal" -Status "Removing $app.lnk" -NoNewLine
-                    Remove-Item -Path "$commonapps\$app.lnk" -Force
-                    Get-Status
+                    if ($PSCmdlet.ShouldProcess("$app.lnk", "Remove")) {
+                        Write-Status -Types "-", "$TweakType", "$TweakTypeLocal" -Status "Removing $app.lnk" -NoNewLine
+                        Remove-Item -Path "$commonapps\$app.lnk" -Force
+                        Get-Status
+                    }
                 }
             }
             catch {
@@ -3102,6 +3297,7 @@ Function Start-Debloat {
             }
         }
 
+        # Remove UWP Apps
         Write-Section -Text "UWP Apps"
         $TotalItems = $Variables.Programs.Count
         $CurrentItem = 0
@@ -3110,14 +3306,16 @@ Function Start-Debloat {
             # - Uses blue progress bar to show debloat progress -- ## Doesn't seem to be working currently.
             Write-Progress -Activity "Debloating System" -Status " $PercentComplete% Complete:" -PercentComplete $PercentComplete
             # - Starts Debloating the system
-            Remove-UWPAppx -AppxPackages $Program
+            if ($PSCmdlet.ShouldProcess($Program, "Remove")) {
+                Remove-UWPAppx -AppxPackages $Program
+            }
             $CurrentItem++
             $PercentComplete = [int](($CurrentItem / $TotalItems) * 100)
         }
         # Disposing the progress bar after the loop finishes
         Write-Progress -Activity "Debloating System" -Completed
 
-        # - Debloat Completion
+        # Debloat Completion
         Write-Host "Debloat Completed!`n" -Foregroundcolor Green
         Write-Host "Packages Removed: " -NoNewline -ForegroundColor Gray
         Write-Host $Variables.Removed -ForegroundColor Green
@@ -3129,12 +3327,30 @@ Function Start-Debloat {
         Write-Host "$($Variables.NotFound)`n" -ForegroundColor Yellow
     }
     elseif ($Undo) {
-        Write-Status -Types "+", "Appx" -Status "Reinstalling Default Apps from manifest"
-        Get-AppxPackage -allusers | ForEach-Object { Add-AppxPackage -register "$($_.InstallLocation)\appxmanifest.xml" -DisableDevelopmentMode } | Out-Host
+        if ($PSCmdlet.ShouldProcess("Default Apps", "Reinstall")) {
+            Write-Status -Types "+", "Appx" -Status "Reinstalling Default Apps from manifest"
+            Get-AppxPackage -allusers | ForEach-Object { Add-AppxPackage -register "$($_.InstallLocation)\appxmanifest.xml" -DisableDevelopmentMode } | Out-Host
+        }
     }
 }
 
+<#
+.SYNOPSIS
+Updates the time zone and synchronizes the system time.
+
+.DESCRIPTION
+This function updates the system time zone to the specified time zone and synchronizes the system time with the time server. If the time change is too big, it sets the time manually.
+
+.PARAMETER TimeZoneId
+Specifies the time zone to set. The default value is "(UTC-08:00) Pacific Time (US & Canada)".
+
+.EXAMPLE
+Update-Time -TimeZoneId "(UTC-05:00) Eastern Time (US & Canada)"
+This example updates the system time zone to Eastern Time (US & Canada) and synchronizes the system time.
+
+#>
 function Update-Time {
+    [CmdletBinding(SupportsShouldProcess)]
     param (
         [string]$TimeZoneId = "(UTC-08:00) Pacific Time (US & Canada)"
     )
@@ -3142,34 +3358,40 @@ function Update-Time {
     try {
         $currentTimeZone = (Get-TimeZone).DisplayName
         If ($currentTimeZone -ne $TimeZoneId) {
-            Write-Status -Types "" -Status "Current Time Zone: $currentTimeZone, Setting to $TimeZoneId" -NoNewLine
-            Set-TimeZone -Id $TimeZoneId -ErrorAction Stop
-            Get-Status
+            if ($PSCmdlet.ShouldProcess("Time zone change", "Setting time zone to $TimeZoneId")) {
+                Write-Status -Types "" -Status "Current Time Zone: $currentTimeZone, Setting to $TimeZoneId" -NoNewLine
+                Set-TimeZone -Id $TimeZoneId -ErrorAction Stop
+                Get-Status
+            }
         }
 
         # Synchronize Time
         $w32TimeService = Get-Service -Name W32Time
         if ($w32TimeService.Status -ne "Running") {
-            Write-Status -Types "+" -Status "Starting W32Time Service" -NoNewLine
-            Start-Service -Name W32Time
-            Get-Status
+            if ($PSCmdlet.ShouldProcess("W32Time Service", "Starting service")) {
+                Write-Status -Types "+" -Status "Starting W32Time Service" -NoNewLine
+                Start-Service -Name W32Time
+                Get-Status
+            }
         }
 
+        if ($PSCmdlet.ShouldProcess("Time synchronization", "Syncing time")) {
+            Write-Status -Types "F5" -Status "Syncing Time"
+            If ((Get-Service W32Time).StartType -eq "Disabled") {
+                Set-Service W32Time -StartupType Manual
+            }
+            If ((Get-Service W32Time).Status -ne "Running") {
+                Start-Service W32Time
+            }
 
-        Write-Status -Types "F5" -Status "Syncing Time"
-        If ((Get-Service W32Time).StartType -eq "Disabled") {
-            Set-Service W32Time -StartupType Manual
-        }
-        If ((Get-Service W32Time).Status -ne "Running") {
-            Start-Service W32Time
-        }
-
-
-        $resyncOutput = w32tm /resync
-        if ($resyncOutput -like "*The computer did not resync because the required time change was too big.*") {
-            Write-Status -Types "@" -Status "Time change is too big. Setting time manually." -WriteWarning
-            w32tm /config /manualpeerlist:"time.microsoft.com" /syncfromflags:manual /reliable:YES /update
-            w32tm /resync /force
+            $resyncOutput = w32tm /resync
+            if ($resyncOutput -like "*The computer did not resync because the required time change was too big.*") {
+                if ($PSCmdlet.ShouldProcess("Time synchronization", "Setting time manually")) {
+                    Write-Status -Types "@" -Status "Time change is too big. Setting time manually." -WriteWarning
+                    w32tm /config /manualpeerlist:"time.microsoft.com" /syncfromflags:manual /reliable:YES /update
+                    w32tm /resync /force
+                }
+            }
         }
 
     }
@@ -3263,20 +3485,19 @@ Function Write-Status {
     If ($WriteWarning -eq $True -And $ForegroundColorText -eq "White") {
         $ForegroundColorText = "Yellow"
     }
-
+    $time = (Get-Date).ToString("h:mm:ss tt")
+    <#
     # Prints date in line, converts to Month Day Year Hour Minute Period
-    $Time = Get-Date
-    $FormattedTime = $Time.ToString("h:mm:ss tt")
-
     $LogEntry = [PSCustomObject]@{
-        Time       = "$FormattedTime"
+        Time       = $time
         Successful = $False
         Types      = $Types -join ', '
         Status     = $Status
     }
     $Global:LogEntry = $LogEntry
+    #>
     # Output the log entry to the console
-    Write-Host "$FormattedTime " -NoNewline -ForegroundColor DarkGray -BackgroundColor $Variables.BackgroundColor
+    Write-Host "$time " -NoNewline -ForegroundColor DarkGray -BackgroundColor $Variables.BackgroundColor
 
     ForEach ($Type in $Types) {
         Write-Host "$Type " -NoNewline -ForegroundColor $Variables.ForegroundColor -BackgroundColor $Variables.BackgroundColor
@@ -3331,6 +3552,7 @@ Function Write-TitleCounter {
 If (!$Undo -and !$WhatIfPreference) {
     Start-Bootup
     New-Variable -Name "StartTime" -Value (Get-Date -DisplayHint Time) -Scope Global
+    Get-Status -StartTranscript
     Get-Program
     $Variables.Counter++
     Set-StartMenu
@@ -3359,6 +3581,7 @@ If (!$Undo -and !$WhatIfPreference) {
     New-SystemRestorePoint
     $Variables.Counter++
     Start-Cleanup
+    Get-Status -StopTranscript# -EndLogEntry
     Send-EmailLog
     Request-PCRestart
 }
@@ -3389,6 +3612,7 @@ elseif ($WhatIfPreference -or $Undo) {
     Optimize-WindowsOptional -WhatIf:$WhatIfPreference -Undo:$Undo
     $Variables.Counter++
     Start-Cleanup -WhatIf:$WhatIfPreference -Undo:$Undo
+    Get-Status -EndLogEntry
     Send-EmailLog
     Request-PCRestart
 }
