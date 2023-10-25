@@ -481,12 +481,12 @@ Function Add-LogSection {
     param (
         $Section = "Next Section"
     )
-    $Title = "
+    <#$Title = "
 
 Section: $Section
 
 "
-    Add-Content -Path $Variables.Log -Value $Title
+    #Add-Content -Path $Variables.Log -Value $Title#>
 }
 Function Find-ScheduledTask {
     [CmdletBinding()]
@@ -503,7 +503,7 @@ Function Find-ScheduledTask {
     Catch {
         $Status = "The $ScheduledTask task was not found."
         Write-Status -Types "?", $TweakType -Status $Status -WriteWarning
-        Add-Content -Path $Variables.Log -Value $Status
+        #Add-Content -Path $Variables.Log -Value $Status
         return $false
     }
 }
@@ -675,7 +675,8 @@ $ErrorMessage
 **********************************************************************
 "@
         try {
-            Add-Content -Path $ErrorLog -Value $errorString -ErrorAction Continue
+            Add-Content -Path $ErrorLog -Value $errorString -ErrorAction
+            Continue
         }
         catch {
             Write-Error "Error writing to log: $($_.Exception.Message)"
@@ -821,7 +822,7 @@ Function Get-Office {
     Else {
         $message = "There are no Microsoft Office products on this device."
         Write-Status -Types "?" -Status $Message -WriteWarning
-        Add-Content -Path $Variables.Log -Value $message
+        #Add-Content -Path $Variables.Log -Value $message
     }
 
     If ($Variables.officecheck -eq $true) {
@@ -1058,8 +1059,8 @@ function Get-Status2 {
         # Log a failure message
         Write-Caption -Type Failed
 
-        Add-Content -Path $Variables.Log -Value $logEntry
-        Add-Content -Path $Variables.Log -Value $Error[0]
+        #Add-Content -Path $Variables.Log -Value $logEntry
+        #Add-Content -Path $Variables.Log -Value $Error[0]
         Write-Output $LogEntry | Out-File -FilePath $Variables.Log -Append
         #        # Handle the error message
         #        Get-Error
