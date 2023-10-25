@@ -73,7 +73,7 @@ $Variables = @{
     "ForegroundColor"                            = "DarkMagenta"
     "LogoColor"                                  = "DarkMagenta"
     "Creator"                                    = "Circlol"
-    "ProgramVersion"                             = "v1.07.07"
+    "ProgramVersion"                             = "v1.07.071"
     "ReleaseDate"                                = "October 24th, 2023"
     "Time"                                       = Get-Date -UFormat %Y%m%d
     "MinTime"                                    = 20230901
@@ -2212,20 +2212,20 @@ Function Remove-InstalledProgram {
                 if ($exitCode -eq 0) {
                     $Global:LogEntry.Successful = $True
                     Write-Output "Uninstall of $Name succeeded with exit code $exitCode."
-                    Add-Content -Path $Variables.Log -Value $logEntry
+                    #Add-Content -Path $Variables.Log -Value $logEntry
                 }
                 else {
                     $Global:LogEntry.Successful = $false
                     $status = "Uninstall of $Name failed with exit code $exitCode."
                     Write-Output $status
-                    Add-Content -Path $Variables.Log -Value $logEntry
-                    Add-Content -Path $Variables.Log -Value $status
+                    #Add-Content -Path $Variables.Log -Value $logEntry
+                    #Add-Content -Path $Variables.Log -Value $status
                 }
             }
             catch {
                 $status = "Uninstall of $Name failed with error: $_"
                 Write-Output $status
-                Add-Content -Path $Variables.Log -Value $status
+                #Add-Content -Path $Variables.Log -Value $status
             }
         }
     }
@@ -2244,20 +2244,20 @@ Function Remove-InstalledProgram {
                 if ($exitCode -eq 0) {
                     $Global:LogEntry.Successful = $True
                     Write-Output "Uninstall of $Name succeeded with exit code $exitCode."
-                    Add-Content -Path $Variables.Log -Value $logEntry
+                    #Add-Content -Path $Variables.Log -Value $logEntry
                 }
                 else {
                     $Global:LogEntry.Successful = $false
                     $status = "Uninstall of $Name failed with exit code $exitCode."
                     Write-Output $status
-                    Add-Content -Path $Variables.Log -Value $logEntry
-                    Add-Content -Path $Variables.Log -Value $status
+                    #Add-Content -Path $Variables.Log -Value $logEntry
+                    #Add-Content -Path $Variables.Log -Value $status
                 }
             }
             catch {
                 $status = "Uninstall of $Name failed with error: $_"
                 Write-Output $status
-                Add-Content -Path $Variables.Log -Value $status
+                #Add-Content -Path $Variables.Log -Value $status
             }
         }
     }
@@ -2342,7 +2342,7 @@ Function Remove-Office {
             }
             'No' {
                 Write-Status -Types "?" -Status "Skipping Office Removal" -WriteWarning
-                Add-Content -Path $Variables.Log -Value $logEntry
+                #Add-Content -Path $Variables.Log -Value $logEntry
             }
         }
     }
@@ -2662,7 +2662,7 @@ Function Set-OptionalFeatureState {
         else {
             $Status = "The $_ optional feature was not found."
             Write-Status -Types "?", $TweakType -Status $Status -WriteWarning
-            Add-Content -Path $Variables.Log -Value $Status
+            #Add-Content -Path $Variables.Log -Value $Status
         }
     }
 }
@@ -2777,21 +2777,21 @@ function Set-ServiceStartup {
             If (!( Get-Service $Service -ErrorAction SilentlyContinue )) {
                 $Status = "The $Service service was not found."
                 Write-Status -Types "?", $TweakType -Status $Status -WriteWarning
-                Add-Content -Path $Variables.Log -Value $Status
+                #Add-Content -Path $Variables.Log -Value $Status
                 Continue
             }
 
             If (($Service -in $SecurityFilterOnEnable) -and (($State -eq 'Automatic') -or ($State -eq 'Manual'))) {
                 $Status = "Skipping $Service ($((Get-Service $Service).DisplayName)) to avoid a security vulnerability..."
                 Write-Status -Types "!", $TweakType -Status $Status -WriteWarning
-                Add-Content -Path $Variables.Log -Value $Status
+                #Add-Content -Path $Variables.Log -Value $Status
                 Continue
             }
 
             If ($Service -in $Filter) {
                 $Status = "The $Service ($((Get-Service $Service).DisplayName)) will be skipped as set on Filter..."
                 Write-Status -Types "!", $TweakType -Status $Status -WriteWarning
-                Add-Content -Path $Variables.Log -Value $Status
+                #Add-Content -Path $Variables.Log -Value $Status
                 Continue
             }
 
@@ -3137,7 +3137,7 @@ Function Start-BitlockerDecryption {
             else {
                 $message = "Bitlocker is not enabled on this machine"
                 Write-Status -Types "?" -Status $message
-                Add-Content -Path $Variables.Log -Value $message
+                #Add-Content -Path $Variables.Log -Value $message
             }
         }
     }
@@ -3581,7 +3581,7 @@ If (!$Undo -and !$WhatIfPreference) {
     New-SystemRestorePoint
     $Variables.Counter++
     Start-Cleanup
-    Get-Status -StopTranscript# -EndLogEntry
+    Get-Status -StopTranscript #-EndLogEntry
     Send-EmailLog
     Request-PCRestart
 }
@@ -3612,7 +3612,7 @@ elseif ($WhatIfPreference -or $Undo) {
     Optimize-WindowsOptional -WhatIf:$WhatIfPreference -Undo:$Undo
     $Variables.Counter++
     Start-Cleanup -WhatIf:$WhatIfPreference -Undo:$Undo
-    Get-Status -EndLogEntry
+    Get-Status -StopTranscript #-EndLogEntry
     Send-EmailLog
     Request-PCRestart
 }
