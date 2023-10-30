@@ -163,8 +163,7 @@ $Variables = @{
 
 
     # Initialize all Path variables used to Registry Tweaks
-    #"PathToLMCurrentVersion" = "HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion"
-    #$PathToLMDeliveryOptimizationCfg = "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\DeliveryOptimization\Config"
+    "PathToLMCurrentVersion"                     = "HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion"
     "PathToLMOldDotNet"                          = "HKLM:\SOFTWARE\Microsoft\.NETFramework\v4.0.30319"
     "PathToLMPoliciesToWifi"                     = "HKLM:\SOFTWARE\Microsoft\PolicyManager\default\WiFi"
     "PathToLMConsentStoreAD"                     = "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\CapabilityAccessManager\ConsentStore\appDiagnostics"
@@ -659,7 +658,7 @@ Function Find-ScheduledTask {
     Catch {
         $Status = "The $ScheduledTask task was not found."
         Write-Status -Types "?", $TweakType -Status $Status -WriteWarning
-        Add-Content -Path $Variables.Log -Value $Status
+        #Add-Content -Path $Variables.Log -Value $Status
         return $false
     }
 }
@@ -818,12 +817,15 @@ function Get-DriveInfo {
 
 <#
 .SYNOPSIS
-    Retrieves information about the available and total storage space for all file system drives.
+Retrieves information about the available and total storage space for all file system drives.
+
 .DESCRIPTION
-    The Get-DriveSpace function retrieves information about the available and total storage space for all file system drives.
-    The function calculates the percentage of available storage space and outputs the results in a formatted string.
+The Get-DriveSpace function retrieves information about the available and total storage space for all file system drives.
+The function calculates the percentage of available storage space and outputs the results in a formatted string.
+
 .PARAMETER DriveLetter
-    Specifies the drive letter for which to retrieve information. If not specified, the function retrieves information for all file system drives.
+Specifies the drive letter for which to retrieve information. If not specified, the function retrieves information for all file system drives.
+
 .NOTES
     Author: Circlol
     Version: 1.0
@@ -1495,14 +1497,13 @@ Function Get-SystemInfo {
 
         # Grab Windows Version
         try {
-            $PathToLMCurrentVersion = "HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion"
             $WinVer = (Get-CimInstance -class Win32_OperatingSystem).Caption -replace 'Microsoft ', ''
-            $DisplayVersion = (Get-ItemProperty $PathToLMCurrentVersion).DisplayVersion
-            $osBuildNumber = (Get-ItemProperty $PathToLMCurrentVersion).CurrentBuild
+            $DisplayVersion = (Get-ItemProperty $Variables.PathToLMCurrentVersion).DisplayVersion
+            $osBuildNumber = (Get-ItemProperty $Variables.PathToLMCurrentVersion).CurrentBuild
             $completedBuildNumber = "$DisplayVersion ($osBuildNumber)"
             #$osarch = (Get-CimInstance Win32_OperatingSystem).OSArchitecture
-            #$OldBuildNumber = (Get-ItemProperty $PathToLMCurrentVersion).ReleaseId
-            #$DisplayLanguage = (Get-ItemProperty $PathToLMCurrentVersion).DisplayLanguage
+            #$OldBuildNumber = (Get-ItemProperty $Variables.PathToLMCurrentVersion).ReleaseId
+            #$DisplayLanguage = (Get-ItemProperty $Variables.PathToLMCurrentVersion).DisplayLanguage
             #$DisplayedVersionResult = '(' + @{ $true = $DisplayVersion; $false = $OldBuildNumber }[$null -ne $DisplayVersion] + ')'
             #$completedWindowsName = "$WinVer $osarch $DisplayedVersionResult - $DisplayLanguage"
         }
@@ -2296,9 +2297,13 @@ Function Optimize-Privacy {
 
         # Reference: https://forums.guru3d.com/threads/windows-10-registry-tweak-for-disabling-drivers-auto-update-controversy.418033/
         Write-Status -Types $EnableStatus[0].Symbol, $TweakType -Status "$($EnableStatus[0].Status) automatic driver updates..."
-        # [@] (0 = Yes, do this automatically, 1 = No, let me choose what to do, Always install the best, 2 = [...] Install driver software from Windows Update, 3 = [...] Never install driver software from Windows Update
+        # [@] (0 = Yes, do this automatically,
+        #      1 = No, let me choose what to do, Always install the best,
+        #      2 = [...] Install driver software from Windows Update,
+        #      3 = [...] Never install driver software from Windows Update)
         Set-ItemPropertyVerified -Path $Variables.PathToLMDeviceMetaData -Name "PreventDeviceMetadataFromNetwork" -Type DWord -Value $One
-        # [@] (0 = Enhanced icons enabled, 1 = Enhanced icons disabled)
+        # [@] (0 = Enhanced icons enabled, 
+        #      1 = Enhanced icons disabled)
         Set-ItemPropertyVerified -Path $Variables.PathToLMDriverSearching -Name "SearchOrderConfig" -Type DWord -Value $Zero
 
 
@@ -3409,7 +3414,7 @@ This example sets the scheduled task "Task1" to ready, but skips "Task2".
 Author: Circlol
 #>
 function Set-ScheduledTaskState {
-    [CmdletBinding(SupportsShouldProcess, ConfirmImpact = 'High')]
+    [CmdletBinding(SupportsShouldProcess)]
     param (
         [Parameter(Mandatory = $false)]
         [Switch] $Disabled,
@@ -4398,8 +4403,9 @@ Write-Break
             - Started logging changes.
 #>
 Function Write-Break {
+    $line = "=" * 96
     Write-Host "`n`n[" -NoNewline -ForegroundColor $Variables.ForegroundColor -Backgroundcolor $Variables.BackgroundColor
-    Write-Host "================================================================================================" -NoNewLine -ForegroundColor White -BackgroundColor $Variables.BackgroundColor
+    Write-Host $line -NoNewLine -ForegroundColor White -BackgroundColor $Variables.BackgroundColor
     Write-Host "]`n" -ForegroundColor $Variables.ForegroundColor -BackgroundColor $Variables.BackgroundColor
 }
 
@@ -4500,22 +4506,25 @@ Write-Section -Text "Section Title"
 
 .NOTES
     Author: Circlol
-    Version: 1.0
+    Version: 1.1
     History:
+        1.1: (10.29.2023)
+            - Added break paramater with purpose of modularity
         1.0:
             - Started logging changes.
 #>
 Function Write-Section {
     [CmdletBinding()]
     param (
-        [String] $Text = "No Text"
+        [String] $Text = "No Text",
+        [String] $break = "=" * 17
     )
     Write-Host "`n<" -NoNewline -ForegroundColor $Variables.ForegroundColor -BackgroundColor $Variables.BackgroundColor
-    Write-Host "=================" -NoNewline -ForegroundColor White -BackgroundColor $Variables.BackgroundColor
+    Write-Host $break -NoNewline -ForegroundColor White -BackgroundColor $Variables.BackgroundColor
     Write-Host "] " -NoNewline -ForegroundColor $Variables.ForegroundColor -BackgroundColor $Variables.BackgroundColor
     Write-Host "$Text " -NoNewline -ForegroundColor White -BackgroundColor $Variables.BackgroundColor
     Write-Host "[" -NoNewline -ForegroundColor $Variables.ForegroundColor -BackgroundColor $Variables.BackgroundColor
-    Write-Host "=================" -NoNewline -ForegroundColor White -BackgroundColor $Variables.BackgroundColor
+    Write-Host $break -NoNewline -ForegroundColor White -BackgroundColor $Variables.BackgroundColor
     Write-Host ">" -ForegroundColor $Variables.ForegroundColor -BackgroundColor $Variables.BackgroundColor
 }
 
@@ -4594,22 +4603,25 @@ Write-Title -Text "Title Text"
 
 .NOTES
     Author: Circlol
-    Version: 1.0
+    Version: 1.1
     History:
+        1.1: (10.29.2023)
+            - Added break parameter with purpose of modularity
         1.0:
             - Started logging changes.
 #>
 Function Write-Title {
     [CmdletBinding()]
     param (
-        [String] $Text = "No Text"
+        [String] $Text = "No Text",
+        [String] $break = "=" * 27
     )
     Write-Host "`n<" -NoNewline -ForegroundColor $Variables.ForegroundColor -BackgroundColor $Variables.BackgroundColor
-    Write-Host "===========================" -NoNewline -ForegroundColor White -BackgroundColor $Variables.BackgroundColor
+    Write-Host $break -NoNewline -ForegroundColor White -BackgroundColor $Variables.BackgroundColor
     Write-Host "] " -NoNewline -ForegroundColor $Variables.ForegroundColor -BackgroundColor $Variables.BackgroundColor
     Write-Host "$Text " -NoNewline -ForegroundColor White -BackgroundColor $Variables.BackgroundColor
     Write-Host "[" -NoNewline -ForegroundColor $Variables.ForegroundColor -BackgroundColor $Variables.BackgroundColor
-    Write-Host "===========================" -NoNewline -ForegroundColor White -BackgroundColor $Variables.BackgroundColor
+    Write-Host $break -NoNewline -ForegroundColor White -BackgroundColor $Variables.BackgroundColor
     Write-Host ">" -ForegroundColor $Variables.ForegroundColor -BackgroundColor $Variables.BackgroundColor
     #$TitleToLogFormat = "`n`n   $Text`n`n"
     #Add-Content -Path $Variables.Log -Value $TitleToLogFormat
@@ -4636,8 +4648,10 @@ Function Write-Title {
 
 .NOTES
     Author: Circlol
-    Version: 1.0
+    Version: 1.1
     History:
+        1.1: (10.29.2023)
+            - Added break parameter with purpose of modularity. 
         1.0:
             - Started logging changes.
 #>
@@ -4647,16 +4661,18 @@ Function Write-TitleCounter {
     param (
         [String] $Text = "No Text",
         [Int]    $Counter = 0,
-        [Int] 	 $MaxLength
+        [Int] 	 $MaxLength,
+        [String] $Break = "∙" * 35
     )
-    Write-Host "`n`n∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙" -ForegroundColor White -BackgroundColor $Variables.BackgroundColor
+    
+    Write-Host "`n`n$break" -ForegroundColor White -BackgroundColor $Variables.BackgroundColor
     Write-Host "    (" -NoNewline -ForegroundColor $Variables.ForegroundColor -BackgroundColor $Variables.BackgroundColor
     Write-Host " $($Counter)/$($Variables.MaxLength) " -NoNewline -ForegroundColor White -BackgroundColor $Variables.BackgroundColor
     Write-Host ") " -NoNewline -ForegroundColor $Variables.ForegroundColor -BackgroundColor $Variables.BackgroundColor
     Write-Host "|" -NoNewline -ForegroundColor White -BackgroundColor $Variables.BackgroundColor
     Write-Host " $Text " -ForegroundColor $Variables.ForegroundColor -BackgroundColor $Variables.BackgroundColor
-    Write-Host "∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙" -ForegroundColor White -BackgroundColor $Variables.BackgroundColor
-    #$TitleCounterLogFormat = "`n`n∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙`n`n    ($Counter)/$($Variables.MaxLength)) | $Text`n`n∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙`n"
+    Write-Host $break -ForegroundColor White -BackgroundColor $Variables.BackgroundColor
+    #$TitleCounterLogFormat = "`n`n$break`n`n    ($Counter)/$($Variables.MaxLength)) | $Text`n`n$break`n"
     # Writes to Log
     #Add-Content -Path $Variables.Log -Value "$TitleCounterLogFormat"
 }
