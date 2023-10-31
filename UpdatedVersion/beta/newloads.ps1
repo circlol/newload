@@ -88,8 +88,8 @@ $Variables = @{
     "ForegroundColor"                            = "DarkMagenta"
     "LogoColor"                                  = "DarkMagenta"
     "Creator"                                    = "Circlol"
-    "ProgramVersion"                             = "v1.07.073"
-    "ReleaseDate"                                = "October 29th, 2023"
+    "ProgramVersion"                             = "v1.07.074"
+    "ReleaseDate"                                = "October 30th, 2023"
 
     "Time"                                       = Get-Date -UFormat %Y%m%d
     "MinTime"                                    = 20230901
@@ -160,8 +160,7 @@ $Variables = @{
     "Office64"                                   = "$false"
     "UsersFolder"                                = "{59031a47-3f72-44a7-89c5-5595fe6b30ee}"
     "ThisPC"                                     = "{20D04FE0-3AEA-1069-A2D8-08002B30309D}"
-
-
+    
     # Initialize all Path variables used to Registry Tweaks
     "PathToLMCurrentVersion"                     = "HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion"
     "PathToLMOldDotNet"                          = "HKLM:\SOFTWARE\Microsoft\.NETFramework\v4.0.30319"
@@ -175,6 +174,7 @@ $Variables = @{
     "PathToLMEventKey"                           = "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Diagnostics\DiagTrack\EventTranscriptKey"
     "PathToLMDriverSearching"                    = "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\DriverSearching"
     "PathToRegExplorerLocalMachine"              = "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer"
+    "PathToHide3DObjects"                        = "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\MyComputer\NameSpace\{0DB7E03F-FC29-4DC6-9020-FF41B59E513A}"
     "PathToLMPoliciesTelemetry2"                 = "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\DataCollection"
     "PathToLMPoliciesExplorer"                   = "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\Explorer"
     "PathToLMPoliciesSystem"                     = "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System"
@@ -214,6 +214,7 @@ $Variables = @{
     "PathToCUOnlineSpeech"                       = "HKCU:\SOFTWARE\Microsoft\Speech_OneCore\Settings\OnlineSpeechPrivacy"
     "PathToVoiceActivation"                      = "HKCU:\SOFTWARE\Microsoft\Speech_OneCore\Settings\VoiceActivation\UserPreferenceForAllApps"
     "PathToRegCurrentVersion"                    = "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion"
+    "PathToRegCurrentVersionFeeds"               = "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Feeds"
     "PathToRegAdvertising"                       = "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\AdvertisingInfo"
     "PathToCUAppHost"                            = "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\AppHost"
     "PathToBackgroundAppAccess"                  = "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\BackgroundAccessApplications"
@@ -223,7 +224,9 @@ $Variables = @{
     "PathToCUDeviceAccessGlobal"                 = "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\DeviceAccess\Global"
     "PathToCUExplorer"                           = "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer"
     "PathToCUExplorerAdvanced"                   = "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\Advanced"
+    "PathToCUExplorerRibbon"                     = "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\Ribbon"
     "PathToCUFeedsDSB"                           = "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Feeds\DSB"
+    "PathToRegCurrentVersionExplorerPolicy"      = "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\Explorer"
     "PathToPrivacy"                              = "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Privacy"
     "PathToOEMInfo"                              = "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\OEMInformation"
     "PathToCUSearch"                             = "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Search"
@@ -1642,12 +1645,12 @@ Release Notes:
 Function Optimize-General {
     [CmdletBinding(SupportsShouldProcess = $true)]
     param(
-        [Int]    $Zero = 0,
-        [Int]    $One = 1,
-        [Int]    $OneTwo = 1,
         [Switch] $Undo
-    )
-
+        )
+        $Zero = 0
+        $One = 1
+        $OneTwo = 1
+        
     Show-ScriptStatus -WindowTitle "Optimization" -TweakType "Registry" -TitleCounterText "Optimization" -TitleText "General"
     Add-LogSection -Section "Optimize: General Tweaks"
     $EnableStatus = @(
@@ -1679,19 +1682,17 @@ Function Optimize-General {
             Write-Status -Types $EnableStatus[0].Symbol, $TweakType -Status "$($EnableStatus[0].Status) Cortana Button from Taskbar..."
             Set-ItemPropertyVerified -Path $Variables.PathToCUExplorerAdvanced -Name "ShowCortanaButton" -Value $Zero -Type DWord
 
-
             ##  Removes 3D Objects from "This PC"
-            $PathToHide3DObjects = "$($Variables.PathToRegExplorerLocalMachine)\MyComputer\NameSpace\{0DB7E03F-FC29-4DC6-9020-FF41B59E513A}"
             Write-Status -Types $EnableStatus[0].Symbol, $TweakType -Status "$($EnableStatus[0].Status)  3D Objects from This PC.."
-            Get-Item $PathToHide3DObjects -ea SilentlyContinue | Remove-Item -Recurse
+            Get-Item $Variables.PathToHide3DObjects -ea SilentlyContinue | Remove-Item -Recurse
 
             # Expands ribbon in 10 explorer
             Write-Status -Types $EnableStatus[1].Symbol, $TweakType -Status "$($EnableStatus[1].Status) Expanded Ribbon in Explorer.."
-            Set-ItemPropertyVerified -Path "$($Variables.PathToCUExplorer)\Ribbon" -Name "MinimizedStateTabletModeOff" -Type DWORD -Value $Zero
+            Set-ItemPropertyVerified -Path $Variables.PathToCUExplorerRibbon -Name "MinimizedStateTabletModeOff" -Type DWORD -Value $Zero
 
             ## Disabling Feeds Open on Hover
             Write-Status -Types $EnableStatus[0].Symbol, $TweakType -Status "$($EnableStatus[0].Status) Feeds Open on Hover..."
-            Set-ItemPropertyVerified -Path "$($Variables.PathToRegCurrentVersion)\Feeds" -Name "ShellFeedsTaskbarOpenOnHover" -Value $Zero -Type DWord
+            Set-ItemPropertyVerified -Path $Variables.PathToRegCurrentVersionFeeds -Name "ShellFeedsTaskbarOpenOnHover" -Value $Zero -Type DWord
 
             #Disables live feeds in search
             Write-Status -Types $EnableStatus[0].Symbol, $TweakType -Status "$($EnableStatus[0].Status) Dynamic Content in Windows Search..."
@@ -1720,15 +1721,10 @@ Function Optimize-General {
 
             # Removes Meet Now from the taskbar
             Write-Status -Types $EnableStatus[0].Symbol, $TweakType -Status "$($EnableStatus[0].Status) Meet Now from the Taskbar..."
-            Set-ItemPropertyVerified -Path "$($Variables.PathToRegCurrentVersion)\Policies\Explorer" -Name "HideSCAMeetNow" -Type DWORD -Value $One
-
-            <# Adds Most Used Apps to Start Menu in 11
-            Write-Status -Types $EnableStatus[0].Symbol, $TweakType -Status "$($EnableStatus[0].Status) Most Used Apps to Start Menu" -NoNewLine
-            Set-ItemPropertyVerified #>
+            Set-ItemPropertyVerified -Path $Variables.PathToRegCurrentVersionExplorerPolicy -Name "HideSCAMeetNow" -Type DWORD -Value $One
         }
         else {
             # code for other operating systems
-            # Check Windows version
             Get-Error $Error[0]
             exit
         }
@@ -1741,9 +1737,9 @@ Function Optimize-General {
 
 
         # Pinning This PC to Quick Access Page in Home (11) & Quick Access (10)
-        Write-Status -Types $EnableStatus[1].Symbol, $TweakType -Status "$($EnableStatus[1].Status) This PC to Quick Access..."
-        $Folder = (New-Object -ComObject Shell.Application).Namespace(0).ParseName("::{20D04FE0-3AEA-1069-A2D8-08002B30309D}")
-        $verbs = $Folder.Verbs()
+        Write-Status -Types $EnableStatus[1].Symbol, $TweakType -Status "$($EnableStatus[1].Status) This PC in Quick Access..."
+        $ThisPC = (New-Object -ComObject Shell.Application).Namespace(0).ParseName("::{20D04FE0-3AEA-1069-A2D8-08002B30309D}")
+        $verbs = $ThisPC.Verbs()
         foreach ($verb in $verbs) {
             if ($verb.Name -eq "Pin to Quick access") {
                 $verb.DoIt()
@@ -1844,7 +1840,7 @@ Function Optimize-Performance {
         Set-ItemPropertyVerified -Path $Variables.PathToLMNdu -Name "Start" -Type DWord -Value 4
         # Details: https://www.tenforums.com/tutorials/94628-change-split-threshold-svchost-exe-windows-10-a.html
         # Will reduce Processes number considerably on > 4GB of RAM systems
-
+        
         Write-Status -Types $EnableStatus[1].Symbol, $TweakType -Status "Setting SVCHost to match installed RAM size..."
         $RamInKB = (Get-CimInstance -ClassName Win32_PhysicalMemory | Measure-Object -Property Capacity -Sum).Sum / 1KB
         Set-ItemPropertyVerified -Path $Variables.PathToLMControl -Name "SvcHostSplitThresholdInKB" -Type DWord -Value $RamInKB
@@ -2816,7 +2812,7 @@ Function Remove-ItemPropertyVerified {
         }
         else {
             try {
-                Write-Status -Types "-", $TweakType -Status "Removing Item Property: [$Name] from [$Path]..." - NoNewLine
+                Write-Status -Types "-", $TweakType -Status "Removing Item Property: [$Name] from [$Path]..." -NoNewLine
                 if ($force) {
                     Remove-ItemProperty -Path $Path -Name $Name -Force
                 }
@@ -2919,10 +2915,7 @@ Function Remove-Office {
 Function Remove-PinnedStartMenu {
     [CmdletBinding(SupportsShouldProcess = $true)]
     param()
-
-    $confirmationMessage = "This action will remove pinned items from the Start menu. Do you want to proceed?"
-    $actionDescription = "Remove Pinned Start Menu Items"
-    $START_MENU_LAYOUT = @"
+$START_MENU_LAYOUT = @"
 <LayoutModificationTemplate xmlns:defaultlayout="http://schemas.microsoft.com/Start/2014/FullDefaultLayout" xmlns:start="http://schemas.microsoft.com/Start/2014/StartLayout" Version="1" xmlns:taskbar="http://schemas.microsoft.com/Start/2014/TaskbarLayout" xmlns="http://schemas.microsoft.com/Start/2014/LayoutModification">
     <LayoutOptions StartTileGroupCellWidth="6" />
     <DefaultLayoutOverride>
@@ -2932,44 +2925,51 @@ Function Remove-PinnedStartMenu {
     </DefaultLayoutOverride>
 </LayoutModificationTemplate>
 "@
-    if ($PSCmdlet.ShouldProcess($actionDescription, $confirmationMessage)) {
-        $layoutFile = "C:\Windows\StartMenuLayout.xml"
-        #Delete layout file if it already exists
-        Get-Item $LayoutFile -ea SilentlyContinue | Remove-Item
 
-        #Creates the blank layout file
-        $START_MENU_LAYOUT | Out-File $layoutFile -Encoding ASCII
+$layoutFile="C:\Windows\StartMenuLayout.xml"
 
-        #Assign the start layout and force it to apply with "LockedStartLayout" at both the machine and user level
-        $regAliases = @("HKLM", "HKCU")# | % {
-        foreach ($regAlias in $regAliases) {
-            $basePath = $regAlias + ":\SOFTWARE\Policies\Microsoft\Windows"
-            $keyPath = $basePath + "\Explorer"
-            Set-ItemPropertyVerified -Path $keyPath -Name "LockedStartLayout" -Value 1 -Type DWORD
-            Set-ItemPropertyVerified -Path $keyPath -Name "StartLayoutFile" -Value $layoutFile -Type ExpandString
-        }
+#Delete layout file if it already exists
+If(Test-Path $layoutFile)
+{
+    Remove-Item $layoutFile
+}
 
-        #Restart Explorer, open the start menu (necessary to load the new layout), and give it a few seconds to process
-        Restart-Explorer
+#Creates the blank layout file
+$START_MENU_LAYOUT | Out-File $layoutFile -Encoding ASCII
 
-        Start-Sleep -s 5
-        # CTRL + ESCAPE
-        $wshell = New-Object -ComObject wscript.shell; $wshell.SendKeys('^{ESCAPE}')
-        Start-Sleep -s 5
+$regAliases = @("HKLM", "HKCU")
 
-        #Enable the ability to pin items again by disabling "LockedStartLayout"
-        foreach ($regAlias in $regAliases) {
-            $basePath = $regAlias + ":\SOFTWARE\Policies\Microsoft\Windows"
-            $keyPath = $basePath + "\Explorer"
-            Set-ItemPropertyVerified -Path $keyPath -Name "LockedStartLayout" -Value 0 -Type DWORD
-        }
-
-        #Restart Explorer and delete the layout file
-        Restart-Explorer
-        # Uncomment the next line to make clean start menu default for all new users
-        Import-StartLayout -LayoutPath $layoutFile -MountPath $env:SystemDrive -ea SilentlyContinue
-        Remove-Item $layoutFile -ea SilentlyContinue
+#Assign the start layout and force it to apply with "LockedStartLayout" at both the machine and user level
+foreach ($regAlias in $regAliases){
+    $basePath = $regAlias + ":\SOFTWARE\Policies\Microsoft\Windows"
+    $keyPath = $basePath + "\Explorer" 
+    If(!(Test-Path -Path $keyPath)) { 
+        New-Item -Path $basePath -Name "Explorer"
     }
+    Set-ItemProperty -Path $keyPath -Name "LockedStartLayout" -Value 1
+    Set-ItemProperty -Path $keyPath -Name "StartLayoutFile" -Value $layoutFile
+}
+
+#Restart Explorer, open the start menu (necessary to load the new layout), and give it a few seconds to process
+Restart-Explorer
+Start-Sleep -s 5
+$wshell = New-Object -ComObject wscript.shell; $wshell.SendKeys('^{ESCAPE}')
+Start-Sleep -s 5
+
+#Enable the ability to pin items again by disabling "LockedStartLayout"
+foreach ($regAlias in $regAliases){
+    $basePath = $regAlias + ":\SOFTWARE\Policies\Microsoft\Windows"
+    $keyPath = $basePath + "\Explorer" 
+    Set-ItemProperty -Path $keyPath -Name "LockedStartLayout" -Value 0
+}
+
+#Restart Explorer and delete the layout file
+Restart-Explorer
+
+# Uncomment the next line to make clean start menu default for all new users
+#Import-StartLayout -LayoutPath $layoutFile -MountPath $env:SystemDrive\
+
+Remove-Item $layoutFile
 }
 
 <#
@@ -4366,12 +4366,14 @@ function Update-Time {
             If ((Get-Service W32Time).Status -ne "Running") {
                 Start-Service W32Time
             }
-
+            # Resyncs time
             $resyncOutput = w32tm /resync
+            # Catches resyncs output, if it couldnt change it will be attempted manually here.
             if ($resyncOutput -like "*The computer did not resync because the required time change was too big.*") {
                 if ($PSCmdlet.ShouldProcess("Time synchronization", "Setting time manually")) {
                     Write-Status -Types "@" -Status "Time change is too big. Setting time manually." -WriteWarning
-                    w32tm /config /manualpeerlist:"time.microsoft.com" /syncfromflags:manual /reliable:YES /update
+                    Get-NetworkStatus
+                    w32tm /config /manualpeerlist:"time.google.com" /syncfromflags:manual /reliable:YES /update
                     w32tm /resync /force
                 }
             }
