@@ -8,6 +8,7 @@ $WindowTitle = "New Loads"
 $host.UI.RawUI.WindowTitle = $WindowTitle
 $host.UI.RawUI.ForegroundColor = 'White'
 $host.UI.RawUI.BackgroundColor = 'Black'
+$consoleWidth = $host.UI.RawUI.WindowSize.Width
 $ErrorActionPreference = "SilentlyContinue"
 Clear-Host
 Add-Type -AssemblyName System.Windows.Forms
@@ -33,15 +34,21 @@ filter Write-ModifiedStatus {
         Write-Host "-> $Status" -ForegroundColor White -BackgroundColor $Variables.BackgroundColor
     }
 }
+
+$consoleWidth = $host.UI.RawUI.WindowSize.Width
+$modularLogo = $consoleWidth
+$modularLogo = $modularLogo - 73
+$modularLogo = $modularLogo / 2
+$modularLogo = " " * $modularLogo
 $NewLoads = $env:temp
 $Variables = @{
     "Logo"                                       = "
-                    ███╗   ██╗███████╗██╗    ██╗    ██╗      ██████╗  █████╗ ██████╗ ███████╗
-                    ████╗  ██║██╔════╝██║    ██║    ██║     ██╔═══██╗██╔══██╗██╔══██╗██╔════╝
-                    ██╔██╗ ██║█████╗  ██║ █╗ ██║    ██║     ██║   ██║███████║██║  ██║███████╗
-                    ██║╚██╗██║██╔══╝  ██║███╗██║    ██║     ██║   ██║██╔══██║██║  ██║╚════██║
-                    ██║ ╚████║███████╗╚███╔███╔╝    ███████╗╚██████╔╝██║  ██║██████╔╝███████║
-                    ╚═╝  ╚═══╝╚══════╝ ╚══╝╚══╝     ╚══════╝ ╚═════╝ ╚═╝  ╚═╝╚═════╝ ╚══════╝`n"
+$modularLogo███╗   ██╗███████╗██╗    ██╗    ██╗      ██████╗  █████╗ ██████╗ ███████╗
+$modularLogo████╗  ██║██╔════╝██║    ██║    ██║     ██╔═══██╗██╔══██╗██╔══██╗██╔════╝
+$modularLogo██╔██╗ ██║█████╗  ██║ █╗ ██║    ██║     ██║   ██║███████║██║  ██║███████╗
+$modularLogo██║╚██╗██║██╔══╝  ██║███╗██║    ██║     ██║   ██║██╔══██║██║  ██║╚════██║
+$modularLogo██║ ╚████║███████╗╚███╔███╔╝    ███████╗╚██████╔╝██║  ██║██████╔╝███████║
+$modularLogo╚═╝  ╚═══╝╚══════╝ ╚══╝╚══╝     ╚══════╝ ╚═════╝ ╚═╝  ╚═╝╚═════╝ ╚══════╝`n"
     "errorMessage1"                              = "
         @|\@@                                                                                    `
         -  @@@@                     New Loads requires a minimum Windows version of 20H2 (19042).`
@@ -88,8 +95,8 @@ $Variables = @{
     "ForegroundColor"                            = "DarkMagenta"
     "LogoColor"                                  = "DarkMagenta"
     "Creator"                                    = "Circlol"
-    "ProgramVersion"                             = "v1.07.074"
-    "ReleaseDate"                                = "October 30th, 2023"
+    "ProgramVersion"                             = "v1.07.075"
+    "ReleaseDate"                                = "November 4th, 2023"
 
     "Time"                                       = Get-Date -UFormat %Y%m%d
     "MinTime"                                    = 20230901
@@ -582,7 +589,6 @@ $Variables = @{
         <taskbar:UWA AppUserModelID="Microsoft.Windows.SecHealthUI_cw5n1h2txyewy!SecHealthUI" />
         <taskbar:UWA AppUserModelID="windows.immersivecontrolpanel_cw5n1h2txyewy!Microsoft.Windows.ImmersiveControlPanel" />
         <taskbar:UWA AppUserModelID="Microsoft.WindowsStore_8wekyb3d8bbwe!App" />
-        <taskbar:UWA AppUserModelID="Microsoft.OutlookForWindows_8wekyb3d8bbwe!Microsoft.OutlookforWindows" />
         <taskbar:DesktopApp DesktopApplicationID="Microsoft.Windows.SecHealthUI" />
         <taskbar:DesktopApp DesktopApplicationID="Chrome" />
         <taskbar:DesktopApp DesktopApplicationID="Microsoft.Windows.Explorer" />
@@ -591,6 +597,8 @@ $Variables = @{
     </CustomTaskbarLayoutCollection>
 </LayoutModificationTemplate>
 "@
+#<taskbar:UWA AppUserModelID="Microsoft.OutlookForWindows_8wekyb3d8bbwe!Microsoft.OutlookforWindows" />
+
 }
 #Clear-Host
 
@@ -878,7 +886,7 @@ function Get-DriveSpace {
     Release Notes:
         1.0 - Started logging changes.
 #>
-function Get-Error {
+function Get-Error { ## TODO This functions compatability needs to be increased before it can be deployed
     [CmdletBinding()]
     param (
         [Parameter(Mandatory = $true, ValueFromPipeline = $true)]
@@ -1128,6 +1136,8 @@ Function Get-Office {
     Author: Circlol
     Version: 1.0
     History:
+        1.2:
+            - Replaced the VLC link from v3.0.18 to v3.0.20
         1.1:
             - Added support for undoing the program installation process.
             - Added support for skipping the program installation process.
@@ -1157,7 +1167,8 @@ Function Get-Program {
     $vlc = @{
         Name              = "VLC Media Player"
         Installed         = Test-Path -Path "$Env:ProgramFiles\VideoLAN\VLC\vlc.exe"
-        DownloadURL       = "https://get.videolan.org/vlc/3.0.18/win64/vlc-3.0.18-win64.exe"
+        #DownloadURL       = "https://get.videolan.org/vlc/3.0.18/win64/vlc-3.0.18-win64.exe"
+        DownloadURL       = "https://mirror.csclub.uwaterloo.ca/vlc/vlc/3.0.20/win64/vlc-3.0.20-win64.exe"
         InstallerLocation = "$NewLoads\vlc-3.0.18-win64.exe"
         FileExists        = Test-Path -Path "$NewLoads\vlc-3.0.18-win64.exe"
         ArgumentList      = "/S /L=1033"
@@ -1199,7 +1210,7 @@ Function Get-Program {
     }
     else {
         if ($PSCmdlet.ShouldProcess("Get-Program", "Perform program installation")) {
-            foreach ( $program in $chrome, $vlc, $zoom, $acrobat, $hevc, $OutlookForWindows ) {
+            foreach ( $program in $chrome, $vlc, $zoom, $acrobat, $hevc ) { # , $OutlookForWindows
                 Write-Section -Text $program.Name
                 # Checks if the program is installed
                 if (-not $program.Installed ) {
@@ -3774,24 +3785,36 @@ Function Send-EmailLog {
     Show-ScriptStatus -WindowTitle "Email Log" #-TweakType "Email" -TitleCounterText "Email Log"
     # - Current Date and Time
     $CurrentDate = Get-Date
+    # - Gathers the end time
     $EndTime = Get-Date
+    # - Formats current date to display as 04 November 2023 5:20:22 PM
     $CurrentDateFormatted = $CurrentDate.ToString("dd MMMM yyyy h:mm:ss tt")
+    # - Formats start time to display as 5:20:22 PM
     $FormattedStartTime = $StartTime.ToString("h:mm:ss tt")
+    # - Formats end time to display as 5:20:22 PM
     $FormattedEndTime = $EndTime.ToString("h:mm:ss tt")
+    # - Calculates runtime of script
     $ElapsedTime = $EndTime - $StartTime
+    # - Formats time
     $FormattedElapsedTime = "{0:mm} minutes {0:ss} seconds" -f $ElapsedTime
+    # - Displays the version table of the system - Used to fish out bugs
     $PowershellTable = $PSVersionTable | Out-String
+
     # - Gathers some information about installed programs
     $ListOfInstalledApplications = (Get-InstalledProgram -Name "*").Name | Sort-Object
     $ListOfInstalledApplications = $ListOfInstalledApplications -join "`n"
     $ListOfInstalledPackages = (Get-appxpackage -User $Env:USERNAME).Name | Sort-Object
     $ListOfInstalledPackages = $ListOfInstalledPackages -join "`n"
-    # - Gathers some information about host
+
+    # - System Information
     $SystemSpecs = Get-SystemInfo
+    # - Retrieves the IP Address of the host
+    # # NOTE # # - This is used to calculate how many runs per month for sales reasons
     $IP = $(Resolve-DnsName -Name myip.opendns.com -Server 208.67.222.220).IPAddress
-    $WallpaperApplied = if ($Variables.CurrentWallpaper -eq $Variables.Wallpaper) { "YES" } else { "NO" }
+    # Gathers the current wallpaper reg 
+    $WallpaperApplied = if ($Variables.CurrentWallpaper -eq $Variables.WallpaperDestination) { "YES" } else { "NO" }
     # - Checks if all the programs got installed
-    $Programs = @("Google Chrome", "VLC", "Zoom", "Acrobat")
+    $Programs = @("Google Chrome", "VLC", "Zoom", "Acrobat", "HEVC")
     $ProgramStatus = @{}
     foreach ($program in $Programs) {
         $ProgramStatus[$program] = if (Get-InstalledProgram -Name $program) { "YES" } else { "NO" }
@@ -3840,17 +3863,18 @@ $SystemSpecs
 - VLC: $($ProgramStatus["VLC"])
 - Adobe: $($ProgramStatus["Acrobat"])
 - Zoom: $($ProgramStatus["Zoom"])
+- HEVC: $($ProgramStatus["HEVC"])
+- Packages Removed During Debloat: $($Variables.Removed)
 - Wallpaper Applied: $WallpaperApplied
 - Windows 11 Start Layout Applied: $StartMenuLayout
-- Registry Keys Modified: $ModifiedRegistryKeys
-- Failed Registry Keys: $FailedRegistryKeys
+- Registry Keys Modified: $($Variables.ModifiedRegistryKeys)
+- Failed Registry Keys: $($Variables.FailedRegistryKeys)
 
 
 - Powershell Information:
 $PowershellTable
 
 
-- Packages Removed During Debloat: $($Variables.Removed)
 - List of Packages Removed:
 $($Variables.PackagesRemoved)
 
@@ -4335,7 +4359,7 @@ This example updates the system time zone to Eastern Time (US & Canada) and sync
 function Update-Time {
     [CmdletBinding(SupportsShouldProcess)]
     param (
-        [string]$TimeZoneId = "(UTC-08:00) Pacific Time (US & Canada)"
+        [string]$TimeZoneId = "Pacific Standard Time"
     )
 
     try {
@@ -4664,7 +4688,7 @@ Function Write-TitleCounter {
         [String] $Text = "No Text",
         [Int]    $Counter = 0,
         [Int] 	 $MaxLength,
-        [String] $Break = "∙" * 35
+        [String] $Break = "=" * 35
     )
     
     Write-Host "`n`n$break" -ForegroundColor White -BackgroundColor $Variables.BackgroundColor
