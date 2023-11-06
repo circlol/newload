@@ -1,9 +1,8 @@
-﻿<#BEGIN#>
+﻿<#START#>
 <#  |  #>
 <#  |  #>
 <#  |  #>
 <#  V  #>
-Clear-Host
 $WindowTitle = "New Loads"
 $host.UI.RawUI.WindowTitle = $WindowTitle
 $host.UI.RawUI.ForegroundColor = 'White'
@@ -4057,8 +4056,8 @@ Function Start-Bootup {
     New-Variable -Name Time -Value (Get-Date -UFormat %Y%m%d) -Scope Global
     If ($Time -GT $Variables.MaxTime -or $Time -LT $Variables.MinTime) {
         Clear-Host
-        Write-Status -Types ":(", "::ERROR::" -Status "There was an uncorrectable error.." -ForegroundColorText RED
-        Read-Host -Prompt "Press enter to close New Loads"
+        Write-Status -Types ":(", "::ERROR::" -Status "Please manually update the time before continuing.." -ForegroundColorText RED
+        Read-Host -Prompt "Press enter to close New Loads ::: The Settings page for time will open so you can sync right away"
         Exit
     }
 
@@ -4377,7 +4376,7 @@ This example updates the system time zone to Eastern Time (US & Canada) and sync
                 if ($PSCmdlet.ShouldProcess("Time synchronization", "Setting time manually")) {
                     Write-Status -Types "@" -Status "Time change is too big. Setting time manually." -WriteWarning
                     Get-NetworkStatus
-                    w32tm /config /manualpeerlist:"time.google.com" /syncfromflags:manual /reliable:YES /update
+                    w32tm /config /manualpeerlist:"time.windows.com" /syncfromflags:manual /reliable:YES /update
                     w32tm /resync /force
                 }
             }
