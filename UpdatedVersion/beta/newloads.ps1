@@ -576,7 +576,7 @@ $modularLogo╚═╝  ╚═══╝╚══════╝ ╚══╝╚�
 } # End of $Variables
 
 Function Add-LogSection {
-<#
+    <#
 .SYNOPSIS
 This script contains the function Add-LogSection which adds a new section to the log file.
 
@@ -607,7 +607,7 @@ Section: $Section
     Add-Content -Path $Variables.Log -Value $Title
 }
 Function Find-ScheduledTask {
-<#
+    <#
 .SYNOPSIS
 This script contains a function named Find-ScheduledTask that checks if a scheduled task exists.
 
@@ -646,7 +646,7 @@ Release Notes:
     }
 }
 Function Get-ADWCleaner {
-<#
+    <#
 .SYNOPSIS
     This function downloads and runs Malwarebytes ADWCleaner to scan and clean adware from the system.
 
@@ -699,8 +699,8 @@ Function Get-ADWCleaner {
         }
     }
 }
-function Get-CPU {
-<#
+Function Get-CPU {
+    <#
 .SYNOPSIS
 This function retrieves information about the CPU of the current system.
 
@@ -758,8 +758,8 @@ Release Notes:
         Threads = $threads
     }
 }
-function Get-DriveInfo {
-<#
+Function Get-DriveInfo {
+    <#
 .SYNOPSIS
 Retrieves information about physical disks.
 
@@ -794,8 +794,8 @@ Release Notes:
     }
     return $driveInfo
 }
-function Get-DriveSpace {
-<#
+Function Get-DriveSpace {
+    <#
 .SYNOPSIS
 Retrieves information about the available and total storage space for all file system drives.
 
@@ -838,8 +838,8 @@ Specifies the drive letter for which to retrieve information. If not specified, 
         }
     }
 }
-function Get-Error {
-<#
+Function Get-Error {
+    <#
 .SYNOPSIS
     Logs error messages to a specified file.
 .DESCRIPTION
@@ -890,8 +890,8 @@ $ErrorMessage
         }
     }
 }
-function Get-GPU {
-<#
+Function Get-GPU {
+    <#
 .SYNOPSIS
     Gets the name of the GPU installed on the local computer.
 .DESCRIPTION
@@ -915,7 +915,7 @@ function Get-GPU {
     return $gpu.Trim()
 }
 Function Get-InstalledProgram {
-<#
+    <#
 .SYNOPSIS
     Gets a list of installed programs matching a specified name.
 .DESCRIPTION
@@ -971,8 +971,8 @@ Function Get-InstalledProgram {
         }
     } | Sort-Object -Property Name -Unique
 }
-function Get-Motherboard {
-<#
+Function Get-Motherboard {
+    <#
 .SYNOPSIS
     Retrieves the motherboard model and OEM information.
 .DESCRIPTION
@@ -999,7 +999,7 @@ function Get-Motherboard {
     return "$CombinedString"
 }
 Function Get-NetworkStatus {
-<#
+    <#
 .SYNOPSIS
     Checks the network status and waits for internet connection if necessary.
 .DESCRIPTION
@@ -1033,7 +1033,7 @@ Function Get-NetworkStatus {
     }
 }
 Function Get-Office {
-<#
+    <#
 .SYNOPSIS
     This function checks if Microsoft Office is installed on the device and removes it if it exists.
 .DESCRIPTION
@@ -1083,7 +1083,7 @@ Function Get-Office {
     }
 }
 Function Get-Program {
-<#
+    <#
 .SYNOPSIS
     This function installs various programs on the system.
 .DESCRIPTION
@@ -1223,7 +1223,7 @@ Function Get-Program {
                     else {
                         try {
                             # if it does then installs the program
-                            Write-Status -Types "+", $TweakType -Status "Installing $($program.Name)" -NoNewLine
+                            Write-Status -Types "+", $TweakType -Status "Installing.." -NoNewLine
                             Start-Process -FilePath $program.InstallerLocation -ArgumentList $program.ArgumentList -Wait
                             Get-Status
                         }
@@ -1252,8 +1252,8 @@ Function Get-Program {
         }
     }
 }
-function Get-RAM {
-<#
+Function Get-RAM {
+    <#
 .SYNOPSIS
     This function retrieves the total physical memory of the computer and returns it in GB.
 .DESCRIPTION
@@ -1285,8 +1285,8 @@ function Get-RAM {
     return "{0:N2} GB" -f $ram
 }
 Function Get-Status {
-# Similar function to Get-Status, instead it stores all the information in a variable and outputs to a log at the end of the script. the function has a passhrough to start a new log entry. and end the log entry.
-<#
+    # Similar function to Get-Status, instead it stores all the information in a variable and outputs to a log at the end of the script. the function has a passhrough to start a new log entry. and end the log entry.
+    <#
 .SYNOPSIS
 This function is used to get the status of a log entry and perform actions based on the status.
 
@@ -1379,7 +1379,7 @@ Function Get-LastCheckForUpdates {
     return $lastUpdateCheck
 }
 Function Get-SystemInfo {
-<#
+    <#
 .SYNOPSIS
 This function retrieves system information such as CPU, GPU, RAM, Motherboard, OS, and Disk Info.
 
@@ -1541,7 +1541,7 @@ Release Notes:
 
 }
 Function New-SystemRestorePoint {
-<#
+    <#
 .SYNOPSIS
 Creates a new system restore point with a given description.
 
@@ -1584,7 +1584,7 @@ Release Notes:
     }
 }
 Function Optimize-General {
-<#
+    <#
 .SYNOPSIS
 This function optimizes Windows 10 and 11 by disabling various features and services.
 
@@ -1738,7 +1738,7 @@ Release Notes:
     }
 }
 Function Optimize-Performance {
-<#
+    <#
 .SYNOPSIS
 This function optimizes Windows 10 and 11 by disabling various features and services.
 
@@ -1924,7 +1924,7 @@ Release Notes:
     }
 }
 Function Optimize-Privacy {
-<#
+    <#
 .SYNOPSIS
 Performs privacy optimizations on the Windows operating system.
 
@@ -2306,7 +2306,7 @@ Release Notes:
     }
 }
 Function Optimize-Security {
-<#
+    <#
 .SYNOPSIS
     This function applies various security patches and tweaks to optimize the security of the system.
 
@@ -2434,7 +2434,7 @@ Function Optimize-Security {
     }
 }
 Function Optimize-Service {
-<#
+    <#
 .SYNOPSIS
 This script optimizes Windows services by disabling unnecessary services and enabling essential services.
 .DESCRIPTION
@@ -2475,8 +2475,8 @@ This script optimizes Windows services by disabling unnecessary services and ena
     }
     Set-ServiceStartup -State 'Manual' -Services $Variables.ServicesToManual
 }
-function Optimize-SSD {
-<#
+Function Optimize-SSD {
+    <#
 .SYNOPSIS
     Optimizes SSD performance by disabling/enabling last access timestamps updates on files.
 
@@ -2522,7 +2522,7 @@ function Optimize-SSD {
     }
 }
 Function Optimize-TaskScheduler {
-<#
+    <#
 .SYNOPSIS
     This function optimizes the Task Scheduler by disabling or enabling scheduled tasks in Windows.
 .DESCRIPTION
@@ -2558,7 +2558,7 @@ Function Optimize-TaskScheduler {
     }
 }
 Function Optimize-WindowsOptional {
-<#
+    <#
 .SYNOPSIS
     This function optimizes Windows by disabling unnecessary optional features and removing unnecessary printers.
 
@@ -2614,8 +2614,9 @@ Function Optimize-WindowsOptional {
         }
     }
 }
-Function Remove-InstalledProgram { ## TODO Attempt to make this function compatible with all types of programs and strings
-<#
+Function Remove-InstalledProgram {
+    ## TODO Attempt to make this function compatible with all types of programs and strings
+    <#
 .SYNOPSIS
     Removes an installed program from the system.
 
@@ -2716,7 +2717,7 @@ Function Remove-InstalledProgram { ## TODO Attempt to make this function compati
     }
 }
 Function Remove-ItemPropertyVerified {
-<#
+    <#
 .SYNOPSIS
     Removes a property from an item at the specified path.
 
@@ -2779,7 +2780,7 @@ Function Remove-ItemPropertyVerified {
     }
 }
 Function Remove-Office {
-<#
+    <#
 .SYNOPSIS
     Removes Microsoft Office from the system using Microsoft Support and Recovery Assistant (SaRA).
 
@@ -2844,7 +2845,7 @@ Function Remove-Office {
     }
 }
 Function Remove-PinnedStartMenu {
-<#
+    <#
 .SYNOPSIS
     Removes pinned items from the Start menu by applying a new start menu layout and then deleting it.
 
@@ -2919,7 +2920,7 @@ Function Remove-PinnedStartMenu {
     Remove-Item $layoutFile
 }
 Function Remove-UWPAppx {
-<#
+    <#
 .SYNOPSIS
     Removes specified UWP appx packages from the system.
 
@@ -2979,7 +2980,7 @@ Function Remove-UWPAppx {
     $ProgressPreference = "Continue"
 }
 Function Restart-Explorer {
-<#
+    <#
 .SYNOPSIS
 This script defines a function to restart Windows Explorer.
 
@@ -3026,7 +3027,7 @@ This command restarts Windows Explorer.
     }
 }
 Function Request-PCRestart {
-<#
+    <#
 .SYNOPSIS
     This function prompts the user to restart their computer in order to apply changes.
 
@@ -3060,7 +3061,7 @@ Function Request-PCRestart {
     }
 }
 Function Set-Branding {
-<#
+    <#
 .SYNOPSIS
     Sets the branding information for Mother Computers.
 
@@ -3135,7 +3136,7 @@ Function Set-Branding {
     }
 }
 Function Set-ItemPropertyVerified {
-<#
+    <#
 .SYNOPSIS
     This function sets a registry value if it doesn't exist or if it's different from the desired value.
 
@@ -3236,7 +3237,7 @@ Function Set-ItemPropertyVerified {
     }
 }
 Function Set-OptionalFeatureState {
-<#
+    <#
 .SYNOPSIS
     Sets the state of Windows optional features.
 .DESCRIPTION
@@ -3321,8 +3322,8 @@ Function Set-OptionalFeatureState {
         }
     }
 }
-function Set-ScheduledTaskState {
-<#
+Function Set-ScheduledTaskState {
+    <#
 .SYNOPSIS
 Sets the state of one or more scheduled tasks.
 
@@ -3409,8 +3410,8 @@ Author: Circlol
         }
     }
 }
-function Set-ServiceStartup {
-<#
+Function Set-ServiceStartup {
+    <#
 .SYNOPSIS
 Sets the startup type of one or more services.
 
@@ -3497,7 +3498,7 @@ Sets the startup type of Service1 and Service2 to Automatic.
     }
 }
 Function Set-StartMenu {
-<#
+    <#
 .SYNOPSIS
     Applies a Start Menu Layout for Windows 10 and Windows 11.
 
@@ -3590,7 +3591,7 @@ Function Set-StartMenu {
     }
 }
 Function Set-Taskbar {
-<#
+    <#
 .SYNOPSIS
     Applies a taskbar layout.
 
@@ -3629,8 +3630,8 @@ Function Set-Taskbar {
         }
     }
 }
-function Set-Wallpaper {
-<#
+Function Set-Wallpaper {
+    <#
 .SYNOPSIS
     Sets the wallpaper of the system to a specified image and sets the system to use light mode.
 
@@ -3688,7 +3689,7 @@ function Set-Wallpaper {
     }
 }
 Function Send-EmailLog {
-<#
+    <#
 .SYNOPSIS
     Sends an email with the log files and system information.
 
@@ -3818,7 +3819,7 @@ $ListOfInstalledPackages
     Show-ScriptStatus -WindowTitle ""
 }
 Function Show-ScriptLogo {
-<#
+    <#
 .SYNOPSIS
     Displays the New Loads initialization logo and information.
 
@@ -3853,7 +3854,7 @@ Function Show-ScriptLogo {
     $WindowTitle = "New Loads" ; $host.UI.RawUI.WindowTitle = $WindowTitle
 }
 Function Show-ScriptStatus {
-<#
+    <#
 .SYNOPSIS
     This script defines the Show-ScriptStatus function, which is used to display the status of the script.
 .DESCRIPTION
@@ -3906,8 +3907,8 @@ Function Show-ScriptStatus {
         $Variables.Counter++
     }
 }
-function Show-Question {
-<#
+Function Show-Question {
+    <#
 .SYNOPSIS
     This script defines the Show-Question function which displays a message box with a specified message, title, buttons, and icon.
 
@@ -3950,7 +3951,7 @@ function Show-Question {
     [System.Windows.Forms.MessageBox]::Show($Message, $Title, $Buttons, $Icon)
 }
 Function Start-BitlockerDecryption {
-<#
+    <#
 .SYNOPSIS
     Starts the decryption process for Bitlocker.
 
@@ -4003,7 +4004,7 @@ Function Start-BitlockerDecryption {
     }
 }
 Function Start-Bootup {
-<#
+    <#
 .SYNOPSIS
     This function checks the requirements for running the New Loads script and starts the bootup process.
 
@@ -4061,8 +4062,6 @@ Function Start-Bootup {
         Exit
     }
 
-    Start-Update
-
     try {
         Get-Item $Variables.Log -ea SilentlyContinue | Remove-Item
     }
@@ -4071,8 +4070,8 @@ Function Start-Bootup {
         Continue
     }
 }
-function Start-Chime {
-<#
+Function Start-Chime {
+    <#
 .SYNOPSIS
     This function plays a sound file.
 .DESCRIPTION
@@ -4108,7 +4107,7 @@ function Start-Chime {
     }
 }
 Function Start-Cleanup {
-<#
+    <#
 .SYNOPSIS
 
 .DESCRIPTION
@@ -4159,7 +4158,7 @@ Function Start-Cleanup {
     }
 }
 Function Start-Debloat {
-<#
+    <#
 .SYNOPSIS
     This function is used to debloat Windows 10 by removing Win32 apps, Start Menu Ads, and UWP apps.
 
@@ -4259,7 +4258,7 @@ Function Start-Debloat {
     }
 }
 Function Start-Update {
-<#
+    <#
 .SYNOPSIS
     This function is used to update the system if the user accepts a prompt.
 
@@ -4295,7 +4294,7 @@ Function Start-Update {
                 Install-Module -Name PSWindowsUpdate -Force -Confirm:$false
                 Get-Status
                 Write-Status -Types "+" -Status "Importing PSWindowsUpdate" -NoNewLine
-                Import-Module PSWindowsUpdate -Force
+                Import-Module -Name PSWindowsUpdate -Force
                 Get-Status
                 Write-Status -Types "+" -Status "Starting Windows Updates - Download, Install, IgnoreReboot, AcceptAll"
                 Get-WindowsUpdate -AcceptAll -Install -Download -IgnoreReboot
@@ -4304,11 +4303,11 @@ Function Start-Update {
 
                 # CLEANUP & REMOVAL OF ASSETS
                 Write-Status -Types "-" -Status "Removing Assets"
-                Write-Status -Types "-" -Status "NuGet" -NoNewLine
-                Uninstall-PackageProvider -Name NuGet -Force -Confirm:$false | Out-Null
-                Get-Status
                 Write-Status -Types "-" -Status "PSWindowsUpdate" -NoNewLine
                 Remove-Module -Name PSWindowsUpdate -Force -Confirm:$false
+                Get-Status
+                Write-Status -Types "-" -Status "NuGet" -NoNewLine
+                Uninstall-PackageProvider -Name NuGet -Force -Confirm:$false | Out-Null
                 Get-Status
 
             }
@@ -4316,12 +4315,13 @@ Function Start-Update {
                 Write-Status -Types "D:" "You choose to skip Windows Updates. Naughty Naughty"
             }
         }
-    } else {
+    }
+    else {
         Write-Status -Types "" -Status "The last update check was within the 6 hours."
     }
 }
-function Update-Time {
-<#
+Function Update-Time {
+    <#
 .SYNOPSIS
 Updates the time zone and synchronizes the system time.
 
@@ -4390,7 +4390,7 @@ This example updates the system time zone to Eastern Time (US & Canada) and sync
     }
 }
 Function Write-Break {
-<#
+    <#
 .SYNOPSIS
 Writes a break line to the console.
 
@@ -4413,7 +4413,7 @@ Write-Break
     Write-Host "]`n" -ForegroundColor $Variables.ForegroundColor -BackgroundColor $Variables.BackgroundColor
 }
 Function Write-Caption {
-<#
+    <#
 .SYNOPSIS
 Writes a caption to the console.
 
@@ -4469,7 +4469,7 @@ Write-Caption -Type Success -Text "Operation completed successfully."
     Write-Host "$Text" -ForegroundColor $foreg
 }
 Function Write-HostReminder {
-<#
+    <#
 .SYNOPSIS
 Writes a reminder to the console.
 
@@ -4515,7 +4515,7 @@ Function Write-ModifiedStatus {
     }
 }
 Function Write-Section {
-<#
+    <#
 .SYNOPSIS
 Writes a section to the console.
 
@@ -4548,7 +4548,7 @@ Write-Section -Text "Section Title"
     Write-Host ">" -ForegroundColor $Variables.ForegroundColor -BackgroundColor $Variables.BackgroundColor
 }
 Function Write-Status {
-<#
+    <#
 .SYNOPSIS
 Writes a status to the console.
 
@@ -4610,7 +4610,7 @@ Write-Status -Types "Info", "Verbose" -Status "Operation in progress."
     }
 }
 Function Write-Title {
-<#
+    <#
 .SYNOPSIS
 Writes a title to the console.
 
@@ -4648,7 +4648,7 @@ Write-Title -Text "Title Text"
     #Add-Content -Path $Variables.Log -Value $TitleToLogFormat
 }
 Function Write-TitleCounter {
-<#
+    <#
 .SYNOPSIS
     Writes a title counter to the console.
 
@@ -4705,6 +4705,7 @@ If (!$Undo -and !$WhatIfPreference) {
     Start-Bootup
     New-Variable -Name "StartTime" -Value (Get-Date -DisplayHint Time) -Scope Global
     Get-Status -StartTranscript
+    Start-Update
     Get-Program
     Set-StartMenu ; $Variables.Counter++
     Set-Taskbar
