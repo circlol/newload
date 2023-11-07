@@ -138,14 +138,14 @@ $modularLogo╚═╝  ╚═══╝╚══════╝ ╚══╝╚�
     "Office64"                                   = "$false"
     "UsersFolder"                                = "{59031a47-3f72-44a7-89c5-5595fe6b30ee}"
     "ThisPC"                                     = "{20D04FE0-3AEA-1069-A2D8-08002B30309D}"
-    
+
     # Initialize all Path variables used to Registry Tweaks
     "PathToLMCurrentVersion"                     = "HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion"
     "PathToLMOldDotNet"                          = "HKLM:\SOFTWARE\Microsoft\.NETFramework\v4.0.30319"
     "PathToLMPoliciesToWifi"                     = "HKLM:\SOFTWARE\Microsoft\PolicyManager\default\WiFi"
     "PathToLMConsentStoreAD"                     = "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\CapabilityAccessManager\ConsentStore\appDiagnostics"
     "PathToLMConsentStoreUAI"                    = "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\CapabilityAccessManager\ConsentStore\userAccountInformation"
-    
+
     "RegCAM"                                     = "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\CapabilityAccessManager\ConsentStore\location"
     "PathToLMConsentStoreUN"                     = "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\CapabilityAccessManager\ConsentStore\userNotificationListener"
     "PathToLMDeviceMetaData"                     = "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Device Metadata"
@@ -489,9 +489,9 @@ $modularLogo╚═╝  ╚═══╝╚══════╝ ╚══╝╚�
         #"WdNisSvc"                                 # DEFAULT: Manual    | Windows Defender Network Inspection Service
         "NPSMSvc_df772"
         "LanmanServer"
-    
+
     )
-    
+
     # Making the services to run only when needed as 'Manual' | Remove the # to set to Manual
     "ServicesToManual"                           = @(
         "BITS"                           # DEFAULT: Manual    | Background Intelligent Transfer Service
@@ -541,7 +541,6 @@ $modularLogo╚═╝  ╚═══╝╚══════╝ ╚══╝╚�
         "gupdatem"                       # DEFAULT: Manual    | Google Update Service²
         "DisplayEnhancementService"      # DEFAULT: Manual    | A service for managing display enhancement such as brightness control.
         "DispBrokerDesktopSvc"           # DEFAULT: Automatic | Manages the connection and configuration of local and remote displays
-        
     )
 
     "StartLayout"                                = @"
@@ -948,7 +947,7 @@ Function Get-InstalledProgram {
     $installedPrograms = Get-ChildItem -Path $registryPath
     $installedPrograms += Get-ChildItem -Path $registryPath2
 
-    
+
     $registryPath3 = "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Installer\UserData\S-1-5-18\Products\*"
     # Scan through everything in products to find the InstallProperties key
     $installedPrograms += Get-ChildItem -Path $registryPath3 -Recurse | Where-Object { $_.Name -like "*InstallProperties" }
@@ -986,7 +985,7 @@ Function Get-Motherboard {
 .NOTES
     Author: Circlol
     Version: 1.0
-    Release Notes: 
+    Release Notes:
         1.0:
             - Started logging changes.
 #>
@@ -1111,7 +1110,6 @@ Function Get-Program {
 #>
 [CmdletBinding(SupportsShouldProcess = $true)]
 param (
-        [Array]  $Programs = @($chrome, $vlc, $zoom, $acrobat, $hevc),
         [switch] $Skip,
         [switch] $Undo
     )
@@ -1174,7 +1172,7 @@ param (
     }
     else {
         if ($PSCmdlet.ShouldProcess("Get-Program", "Perform program installation")) {
-            foreach ( $program in $Programs) {
+            foreach ( $program in $chrome, $vlc, $zoom, $acrobat, $hevc, $OutlookForWindows) {
                 # , $OutlookForWindows
                 Write-Section -Text $program.Name
                 # Checks if the program is installed
@@ -1354,7 +1352,7 @@ A switch parameter that indicates whether to stop a transcript.
         }
     }
 }
-Function Get-LastCheckForUpdates {
+Function Get-LastCheckForUpdate {
     <#
 .SYNOPSIS
     Checks last time updates were ran.
@@ -1363,7 +1361,7 @@ Function Get-LastCheckForUpdates {
 .OUTPUTS
     Outputs a date
 .EXAMPLE
-    PS C:\> Get-LastCheckForUpdates
+    PS C:\> Get-LastCheckForUpdate
 
     November 5, 2023 2:53:49 PM
 .NOTES
@@ -1610,7 +1608,7 @@ Release Notes:
     $Zero = 0
     $One = 1
     $OneTwo = 1
-        
+
     Show-ScriptStatus -WindowTitle "Optimization" -TweakType "Registry" -TitleCounterText "Optimization" -TitleText "General"
     Add-LogSection -Section "Optimize: General Tweaks"
     $EnableStatus = @(
@@ -1674,7 +1672,7 @@ Release Notes:
             # Removes Chats from the taskbar
             Write-Status -Types $EnableStatus[0].Symbol, $TweakType -Status "$($EnableStatus[0].Status) Chats from the Taskbar..."
             Set-ItemPropertyVerified -Path $Variables.PathToCUExplorerAdvanced -Name "TaskBarMn" -Value $Zero -Type DWORD
-            
+
             # Removes Copilot from the taskbar
             Write-Status -Types $EnableStatus[0].Symbol, $TweakType -Status "$($EnableStatus[0].Status) Copilot from the Taskbar..."
             Set-ItemPropertyVerified -Path $Variables.PathToCUExplorerAdvanced -Name "ShowCopilotButton" -Type DWORD -Value $Zero
@@ -1799,7 +1797,7 @@ Release Notes:
         Set-ItemPropertyVerified -Path $Variables.PathToLMNdu -Name "Start" -Type DWord -Value 4
         # Details: https://www.tenforums.com/tutorials/94628-change-split-threshold-svchost-exe-windows-10-a.html
         # Will reduce Processes number considerably on > 4GB of RAM systems
-        
+
         Write-Status -Types $EnableStatus[1].Symbol, $TweakType -Status "Setting SVCHost to match installed RAM size..."
         $RamInKB = (Get-CimInstance -ClassName Win32_PhysicalMemory | Measure-Object -Property Capacity -Sum).Sum / 1KB
         Set-ItemPropertyVerified -Path $Variables.PathToLMControl -Name "SvcHostSplitThresholdInKB" -Type DWord -Value $RamInKB
@@ -2256,7 +2254,7 @@ Release Notes:
         #      2 = [...] Install driver software from Windows Update,
         #      3 = [...] Never install driver software from Windows Update)
         Set-ItemPropertyVerified -Path $Variables.PathToLMDeviceMetaData -Name "PreventDeviceMetadataFromNetwork" -Type DWord -Value $One
-        # [@] (0 = Enhanced icons enabled, 
+        # [@] (0 = Enhanced icons enabled,
         #      1 = Enhanced icons disabled)
         Set-ItemPropertyVerified -Path $Variables.PathToLMDriverSearching -Name "SearchOrderConfig" -Type DWord -Value $Zero
 
@@ -2439,7 +2437,7 @@ Function Optimize-Service {
 .SYNOPSIS
 This script optimizes Windows services by disabling unnecessary services and enabling essential services.
 .DESCRIPTION
-    This script disables the services listed in the $Variables.ServicesToDisabled variable and enables the services listed in the $Variables.EnableServicesOnSSD variable. 
+    This script disables the services listed in the $Variables.ServicesToDisabled variable and enables the services listed in the $Variables.EnableServicesOnSSD variable.
     It also sets the startup type of the services listed in the $Variables.ServicesToManual variable to 'Manual'.
 .EXAMPLE
     Optimize-Service
@@ -2482,7 +2480,7 @@ Function Optimize-SSD {
     Optimizes SSD performance by disabling/enabling last access timestamps updates on files.
 
 .DESCRIPTION
-    This function optimizes SSD performance by disabling/enabling last access timestamps updates on files. 
+    This function optimizes SSD performance by disabling/enabling last access timestamps updates on files.
     Disabling last access timestamps updates on files can improve the life of SSDs.
 
 .PARAMETER Undo
@@ -2640,7 +2638,7 @@ Function Remove-InstalledProgram {
     [CmdletBinding(SupportsShouldProcess)]
     param (
         [Parameter(Mandatory = $true, ValueFromPipeline = $true)]
-        $Name
+        [String[]]$Name
     )
 
     $uninstall32 = Get-ChildItem "HKLM:\SOFTWARE\Wow6432Node\Microsoft\Windows\CurrentVersion\Uninstall" |
@@ -2786,7 +2784,7 @@ Function Remove-Office {
     Removes Microsoft Office from the system using Microsoft Support and Recovery Assistant (SaRA).
 
 .DESCRIPTION
-    This function removes Microsoft Office from the system using Microsoft Support and Recovery Assistant (SaRA). 
+    This function removes Microsoft Office from the system using Microsoft Support and Recovery Assistant (SaRA).
     It downloads SaRA from the specified URL, expands it, and starts OfficeScrubScenario via SaRAcmd.exe to remove Office.
     If the user chooses not to remove Office, the function skips the removal process.
 
@@ -2891,8 +2889,8 @@ Function Remove-PinnedStartMenu {
     #Assign the start layout and force it to apply with "LockedStartLayout" at both the machine and user level
     foreach ($regAlias in $regAliases) {
         $basePath = $regAlias + ":\SOFTWARE\Policies\Microsoft\Windows"
-        $keyPath = $basePath + "\Explorer" 
-        If (!(Test-Path -Path $keyPath)) { 
+        $keyPath = $basePath + "\Explorer"
+        If (!(Test-Path -Path $keyPath)) {
             New-Item -Path $basePath -Name "Explorer"
         }
         Set-ItemProperty -Path $keyPath -Name "LockedStartLayout" -Value 1
@@ -2908,7 +2906,7 @@ Function Remove-PinnedStartMenu {
     #Enable the ability to pin items again by disabling "LockedStartLayout"
     foreach ($regAlias in $regAliases) {
         $basePath = $regAlias + ":\SOFTWARE\Policies\Microsoft\Windows"
-        $keyPath = $basePath + "\Explorer" 
+        $keyPath = $basePath + "\Explorer"
         Set-ItemProperty -Path $keyPath -Name "LockedStartLayout" -Value 0
     }
 
@@ -2986,7 +2984,7 @@ Function Restart-Explorer {
 This script defines a function to restart Windows Explorer.
 
 .DESCRIPTION
-The Restart-Explorer function checks if Windows Explorer is running and restarts it if it is. 
+The Restart-Explorer function checks if Windows Explorer is running and restarts it if it is.
 
 .EXAMPLE
 Restart-Explorer
@@ -3737,7 +3735,7 @@ Function Send-EmailLog {
     # - Retrieves the IP Address of the host
     # # NOTE # # - This is used to calculate how many runs per month for sales reasons
     $IP = $(Resolve-DnsName -Name myip.opendns.com -Server 208.67.222.220).IPAddress
-    # Gathers the current wallpaper reg 
+    # Gathers the current wallpaper reg
     $WallpaperApplied = if ($Variables.CurrentWallpaper -eq $Variables.WallpaperDestination) { "YES" } else { "NO" }
     # - Checks if all the programs got installed
     $Programs = @("Google Chrome", "VLC", "Zoom", "Acrobat", "HEVC")
@@ -4148,17 +4146,6 @@ Function Start-Cleanup {
             Write-Status -Types "-", $TweakType -Status "Cleaning Temp Folder"
             Remove-Item "$env:temp\*.*" -Force -Recurse -Exclude "New Loads"
 
-
-            # CLEANUP & REMOVAL OF START-UPDATE ASSETS
-            Write-Status -Types "-" -Status "Removing Start-Update Assets"
-            Write-Status -Types "-" -Status "PSWindowsUpdate" -NoNewLine
-            Remove-Module -Name PSWindowsUpdate -Force -Confirm:$false
-            Get-Status
-            Write-Status -Types "-" -Status "NuGet" -NoNewLine
-            Uninstall-PackageProvider -Name NuGet -Force -Confirm:$false | Out-Null
-            Get-Status
-
-
             # - Removes installed program shortcuts from Public/User Desktop
             foreach ($shortcut in $Variables.shortcuts) {
                 $ShortcutExist = Test-Path $shortcut
@@ -4289,11 +4276,11 @@ Function Start-Update {
         1.0:
             - Created function
 #>
-    $lastUpdateCheckTime = Get-LastCheckForUpdates
+    $lastUpdateCheckTime = Get-LastCheckForUpdate
     $currentTime = Get-Date
     # Calculate time difference in hours
     $timeDifference = ($currentTime - $lastUpdateCheckTime).TotalHours
-    
+
     if ($timeDifference -gt 6) {
         $Message = "The last update check was more than 6 hour ago. Do you want to run Windows Update through New Loads now?"
         Write-Status -Status "Press ALT + TAB if you dont see the form`n$Message"
@@ -4322,9 +4309,16 @@ Function Start-Update {
                 Write-Status -Types "+" -Status "Starting Windows Updates - Download, Install, IgnoreReboot, AcceptAll"
                 Get-WindowsUpdate -AcceptAll -Install -Download -IgnoreReboot
 
+                # CLEANUP & REMOVAL OF START-UPDATE ASSETS
+                Write-Status -Types "-" -Status "Removing Start-Update Assets"
+                Write-Status -Types "-" -Status "PSWindowsUpdate" -NoNewLine
+                Remove-Module -Name PSWindowsUpdate -Force -Confirm:$false
+                Get-Status
+                Write-Status -Types "-" -Status "NuGet" -NoNewLine
+                Uninstall-PackageProvider -Name NuGet -Force -Confirm:$false | Out-Null
+                Get-Status
+
                 Write-Status -Status "Updates finished"
-
-
             }
             'No' {
                 Write-Status -Types "D:" "You choose to skip Windows Updates. Naughty Naughty"
@@ -4687,7 +4681,7 @@ Function Write-TitleCounter {
     Version: 1.1
     History:
         1.1: (10.29.2023)
-            - Added break parameter with purpose of modularity. 
+            - Added break parameter with purpose of modularity.
         1.0:
             - Started logging changes.
 #>
@@ -4699,7 +4693,7 @@ Function Write-TitleCounter {
         [Int] 	 $MaxLength,
         [String] $Break = "=" * 35
     )
-    
+
     Write-Host "`n`n$break" -ForegroundColor White -BackgroundColor $Variables.BackgroundColor
     Write-Host "    (" -NoNewline -ForegroundColor $Variables.ForegroundColor -BackgroundColor $Variables.BackgroundColor
     Write-Host " $($Counter)/$($Variables.MaxLength) " -NoNewline -ForegroundColor White -BackgroundColor $Variables.BackgroundColor
