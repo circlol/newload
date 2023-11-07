@@ -1109,10 +1109,11 @@ Function Get-Program {
         1.0:
             - Started recording history of changes.
 #>
-    [CmdletBinding(SupportsShouldProcess = $true)]
-    param (
-        [switch]$Skip,
-        [switch]$Undo
+[CmdletBinding(SupportsShouldProcess = $true)]
+param (
+        [Array]  $Programs = @($chrome, $vlc, $zoom, $acrobat, $hevc),
+        [switch] $Skip,
+        [switch] $Undo
     )
 
     Show-ScriptStatus -WindowTitle "Apps" -TweakType "Apps" -TitleCounterText "Programs" -TitleText "Application Installation"
@@ -1173,7 +1174,7 @@ Function Get-Program {
     }
     else {
         if ($PSCmdlet.ShouldProcess("Get-Program", "Perform program installation")) {
-            foreach ( $program in $chrome, $vlc, $zoom, $acrobat, $hevc ) {
+            foreach ( $program in $Programs) {
                 # , $OutlookForWindows
                 Write-Section -Text $program.Name
                 # Checks if the program is installed
@@ -4059,6 +4060,7 @@ Function Start-Bootup {
         Clear-Host
         Write-Status -Types ":(", "::ERROR::" -Status "Please manually update the time before continuing.." -ForegroundColorText RED
         Read-Host -Prompt "Press enter to close New Loads ::: The Settings page for time will open so you can sync right away"
+        Start-Process ms-settings:dateandtime
         Exit
     }
 
@@ -4145,6 +4147,17 @@ Function Start-Cleanup {
             # - Clears Temp Folder
             Write-Status -Types "-", $TweakType -Status "Cleaning Temp Folder"
             Remove-Item "$env:temp\*.*" -Force -Recurse -Exclude "New Loads"
+
+
+            # CLEANUP & REMOVAL OF START-UPDATE ASSETS
+            Write-Status -Types "-" -Status "Removing Start-Update Assets"
+            Write-Status -Types "-" -Status "PSWindowsUpdate" -NoNewLine
+            Remove-Module -Name PSWindowsUpdate -Force -Confirm:$false
+            Get-Status
+            Write-Status -Types "-" -Status "NuGet" -NoNewLine
+            Uninstall-PackageProvider -Name NuGet -Force -Confirm:$false | Out-Null
+            Get-Status
+
 
             # - Removes installed program shortcuts from Public/User Desktop
             foreach ($shortcut in $Variables.shortcuts) {
@@ -4283,16 +4296,26 @@ Function Start-Update {
     
     if ($timeDifference -gt 6) {
         $Message = "The last update check was more than 6 hour ago. Do you want to run Windows Update through New Loads now?"
+        Write-Status -Status "Press ALT + TAB if you dont see the form`n$Message"
         switch (Show-Question -Buttons YesNo -Title "Windows Updates Notification" -Icon Information -Message $Message) {
             'Yes' {
                 ## INSTALLATION
                 Write-Status -Types "+" -Status "Installing Assets"
+
+                # Installs NuGet
                 Write-Status -Types "+" -Status "NuGet" -NoNewLine
                 Install-PackageProvider -Name NuGet -MinimumVersion 2.8.5.201 -Force -Confirm:$false | Out-Null
                 Get-Status
+
+                # Installs PSWindowsUpdate
                 Write-Status -Types "+" -Status "PSWindowsUpdate" -NoNewLine
                 Install-Module -Name PSWindowsUpdate -Force -Confirm:$false
                 Get-Status
+
+                # Small sleep to assure PSWindowsUpdate can be loaded
+                Start-Sleep -Seconds 3
+
+                # Imports PSWindowsUpdate
                 Write-Status -Types "+" -Status "Importing PSWindowsUpdate" -NoNewLine
                 Import-Module -Name PSWindowsUpdate -Force
                 Get-Status
@@ -4301,14 +4324,6 @@ Function Start-Update {
 
                 Write-Status -Status "Updates finished"
 
-                # CLEANUP & REMOVAL OF ASSETS
-                Write-Status -Types "-" -Status "Removing Assets"
-                Write-Status -Types "-" -Status "PSWindowsUpdate" -NoNewLine
-                Remove-Module -Name PSWindowsUpdate -Force -Confirm:$false
-                Get-Status
-                Write-Status -Types "-" -Status "NuGet" -NoNewLine
-                Uninstall-PackageProvider -Name NuGet -Force -Confirm:$false | Out-Null
-                Get-Status
 
             }
             'No' {
