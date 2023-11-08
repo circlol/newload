@@ -212,7 +212,6 @@ $modularLogo╚═╝  ╚═══╝╚══════╝ ╚══╝╚�
     "PathToRegPersonalize"                       = "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Themes\Personalize"
     "PathToCUUserProfileEngagemment"             = "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\UserProfileEngagement"
     "PathToCUPoliciesCloudContent"               = "HKCU:\SOFTWARE\Policies\Microsoft\Windows\CloudContent"
-
     "PathToUsersControlPanelDesktop"             = "Registry::HKEY_USERS\.DEFAULT\Control Panel\Desktop"
 
     "KeysToDelete"                               = @(
@@ -4301,22 +4300,29 @@ Function Start-Update {
 
                 # Small sleep to assure PSWindowsUpdate can be loaded
                 Start-Sleep -Seconds 3
+                try {
 
-                # Imports PSWindowsUpdate
-                Write-Status -Types "+" -Status "Importing PSWindowsUpdate" -NoNewLine
-                Import-Module -Name PSWindowsUpdate -Force
-                Get-Status
-                Write-Status -Types "+" -Status "Starting Windows Updates - Download, Install, IgnoreReboot, AcceptAll"
-                Get-WindowsUpdate -AcceptAll -Install -Download -IgnoreReboot
-
-                # CLEANUP & REMOVAL OF START-UPDATE ASSETS
-                Write-Status -Types "-" -Status "Removing Start-Update Assets"
-                Write-Status -Types "-" -Status "PSWindowsUpdate" -NoNewLine
-                Remove-Module -Name PSWindowsUpdate -Force -Confirm:$false
-                Get-Status
-                Write-Status -Types "-" -Status "NuGet" -NoNewLine
-                Uninstall-PackageProvider -Name NuGet -Force -Confirm:$false | Out-Null
-                Get-Status
+                    # Imports PSWindowsUpdate
+                    Write-Status -Types "+" -Status "Importing PSWindowsUpdate" -NoNewLine
+                    Import-Module -Name PSWindowsUpdate -Force
+                    Get-Status
+                    Write-Status -Types "+" -Status "Starting Windows Updates - Download, Install, IgnoreReboot, AcceptAll"
+                    Get-WindowsUpdate -AcceptAll -Install -Download -IgnoreReboot
+                    
+                    # CLEANUP & REMOVAL OF START-UPDATE ASSETS
+                    Write-Status -Types "-" -Status "Removing Start-Update Assets"
+                    Write-Status -Types "-" -Status "PSWindowsUpdate" -NoNewLine
+                    Remove-Module -Name PSWindowsUpdate -Force -Confirm:$false
+                    Get-Status
+                    Write-Status -Types "-" -Status "NuGet" -NoNewLine
+                    Uninstall-PackageProvider -Name NuGet -Force -Confirm:$false | Out-Null
+                    Get-Status
+                }catch {
+                    Start-Process ms-settings:windowsupdate
+                    Write-Status -Status "Failed to Update through the script. Please manually do it."
+                    Read-Host
+                    Exit
+                }
 
                 Write-Status -Status "Updates finished"
             }
