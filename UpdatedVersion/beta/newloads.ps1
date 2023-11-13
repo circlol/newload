@@ -4391,7 +4391,7 @@ This example updates the system time zone to Eastern Time (US & Canada) and sync
                 if ($PSCmdlet.ShouldProcess("Time synchronization", "Setting time manually")) {
                     Write-Status -Types "@" -Status "Time change is too big. Setting time manually." -WriteWarning
                     Get-NetworkStatus
-                    w32tm /config /manualpeerlist:"time.windows.com" /syncfromflags:manual /reliable:YES /update
+                    w32tm /config /manualpeerlist:"time.google.com" /syncfromflags:manual /reliable:YES /update
                     w32tm /resync /force
                 }
             }
