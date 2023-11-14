@@ -3,6 +3,13 @@
 <#  |  #>
 <#  |  #>
 <#  V  #>
+
+<#
+.NOTES
+    Author         : Circlol
+    GitHub         : https://github.com/Circlol
+    Version        : 1.07.076
+#>
 $WindowTitle = "New Loads"
 $host.UI.RawUI.WindowTitle = $WindowTitle
 $host.UI.RawUI.ForegroundColor = 'White'
@@ -75,8 +82,8 @@ $modularLogo╚═╝  ╚═══╝╚══════╝ ╚══╝╚�
                                                                        ( (  )   (  ) )           `
                                                                       (__(__)___(__)__)          `n`n"
     "BackgroundColor"                            = "Black"
-    "ForegroundColor"                            = "DarkMagenta"
-    "LogoColor"                                  = "DarkMagenta"
+    "ForegroundColor"                            = "Yellow"
+    "LogoColor"                                  = "Yellow"
 
     "Time"                                       = Get-Date -UFormat %Y%m%d
     "MaxTime"                                    = 20231231
