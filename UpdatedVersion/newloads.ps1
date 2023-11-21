@@ -3,45 +3,42 @@
 <#  |  #>
 <#  |  #>
 <#  V  #>
-Clear-Host
+
+<#
+.NOTES
+    Author         : Circlol
+    GitHub         : https://github.com/Circlol
+    Version        : 1.07.076
+#>
 $WindowTitle = "New Loads"
 $host.UI.RawUI.WindowTitle = $WindowTitle
 $host.UI.RawUI.ForegroundColor = 'White'
 $host.UI.RawUI.BackgroundColor = 'Black'
+$consoleWidth = $host.UI.RawUI.WindowSize.Width
 $ErrorActionPreference = "SilentlyContinue"
 Clear-Host
 Add-Type -AssemblyName System.Windows.Forms
 Add-Type -AssemblyName System.Drawing
 
-filter TimeStamp { "$(Get-Date -Format g)- $_" }
-filter Write-ModifiedStatus {
-    param(
-        [string]$Types,
-        [string]$Status,
-        [switch]$WriteWarning
-    )
-    Write-Host "$($LogEntry.Time) " -NoNewline -ForegroundColor DarkGray -BackgroundColor $Variables.BackgroundColor
 
-    ForEach ($Type in $Types) {
-        Write-Host "$Type " -NoNewline -ForegroundColor $Variables.ForegroundColor -BackgroundColor $Variables.BackgroundColor
-    }
-
-    If ($WriteWarning) {
-        Write-Host "::Warning:: -> $Status" -ForegroundColor Red -BackgroundColor $Variables.BackgroundColor -NoNewline
-    }
-    Else {
-        Write-Host "-> $Status" -ForegroundColor White -BackgroundColor $Variables.BackgroundColor
-    }
-}
+$consoleWidth = $host.UI.RawUI.WindowSize.Width
+$modularLogo = $consoleWidth
+$modularLogo = $modularLogo - 73
+$modularLogo = $modularLogo / 2
+$modularLogo = " " * $modularLogo
 $NewLoads = $env:temp
+
 $Variables = @{
+    "Creator"                                    = "Circlol"
+    "ProgramVersion"                             = "v1.07.076"
+    "ReleaseDate"                                = "November 5th, 2023"
     "Logo"                                       = "
-                    ███╗   ██╗███████╗██╗    ██╗    ██╗      ██████╗  █████╗ ██████╗ ███████╗
-                    ████╗  ██║██╔════╝██║    ██║    ██║     ██╔═══██╗██╔══██╗██╔══██╗██╔════╝
-                    ██╔██╗ ██║█████╗  ██║ █╗ ██║    ██║     ██║   ██║███████║██║  ██║███████╗
-                    ██║╚██╗██║██╔══╝  ██║███╗██║    ██║     ██║   ██║██╔══██║██║  ██║╚════██║
-                    ██║ ╚████║███████╗╚███╔███╔╝    ███████╗╚██████╔╝██║  ██║██████╔╝███████║
-                    ╚═╝  ╚═══╝╚══════╝ ╚══╝╚══╝     ╚══════╝ ╚═════╝ ╚═╝  ╚═╝╚═════╝ ╚══════╝`n"
+$modularLogo███╗   ██╗███████╗██╗    ██╗    ██╗      ██████╗  █████╗ ██████╗ ███████╗
+$modularLogo████╗  ██║██╔════╝██║    ██║    ██║     ██╔═══██╗██╔══██╗██╔══██╗██╔════╝
+$modularLogo██╔██╗ ██║█████╗  ██║ █╗ ██║    ██║     ██║   ██║███████║██║  ██║███████╗
+$modularLogo██║╚██╗██║██╔══╝  ██║███╗██║    ██║     ██║   ██║██╔══██║██║  ██║╚════██║
+$modularLogo██║ ╚████║███████╗╚███╔███╔╝    ███████╗╚██████╔╝██║  ██║██████╔╝███████║
+$modularLogo╚═╝  ╚═══╝╚══════╝ ╚══╝╚══╝     ╚══════╝ ╚═════╝ ╚═╝  ╚═╝╚═════╝ ╚══════╝`n"
     "errorMessage1"                              = "
         @|\@@                                                                                    `
         -  @@@@                     New Loads requires a minimum Windows version of 20H2 (19042).`
@@ -85,15 +82,12 @@ $Variables = @{
                                                                        ( (  )   (  ) )           `
                                                                       (__(__)___(__)__)          `n`n"
     "BackgroundColor"                            = "Black"
-    "ForegroundColor"                            = "DarkMagenta"
-    "LogoColor"                                  = "DarkMagenta"
-    "Creator"                                    = "Circlol"
-    "ProgramVersion"                             = "v1.07.074"
-    "ReleaseDate"                                = "October 30th, 2023"
+    "ForegroundColor"                            = "Yellow"
+    "LogoColor"                                  = "Yellow"
 
     "Time"                                       = Get-Date -UFormat %Y%m%d
-    "MinTime"                                    = 20230901
     "MaxTime"                                    = 20231231
+    "MinTime"                                    = 20231031
     "Counter"                                    = 1
     "SelectedParameters"                         = @()
     "MaxLength"                                  = 10
@@ -138,16 +132,7 @@ $Variables = @{
     "StartBinDefault"                            = "$Env:SystemDrive\Users\Default\AppData\Local\Packages\Microsoft.Windows.StartMenuExperienceHost_cw5n1h2txyewy\LocalState\"
     "StartBinCurrent"                            = "$Env:LocalAppData\Packages\Microsoft.Windows.StartMenuExperienceHost_cw5n1h2txyewy\LocalState"
     "LayoutFile"                                 = "$Env:LocalAppData\Microsoft\Windows\Shell\LayoutModification.xml"
-    "livesafe"                                   = "$Env:PROGRAMFILES\McAfee\MSC\mcuihost.exe"
-    "WebAdvisor"                                 = "$Env:PROGRAMFILES\McAfee\WebAdvisor\Uninstaller.exe"
-    "WildGames"                                  = "${Env:PROGRAMFILES(x86)}\WildGames\Uninstall.exe"
-    "EdgeShortcut"                               = "$Env:USERPROFILE\Desktop\Microsoft Edge.lnk"
-    "AcroSC"                                     = "$Env:PUBLIC\Desktop\Acrobat Reader DC.lnk"
-    "EdgeSCPub"                                  = "$Env:PUBLIC\Desktop\Microsoft Edge.lnk"
-    "VLCSC"                                      = "$Env:PUBLIC\Desktop\VLC Media Player.lnk"
-    "ZoomSC"                                     = "$Env:PUBLIC\Desktop\Zoom.lnk"
     "CommonApps"                                 = "$Env:ALLUSERSPROFILE\Microsoft\Windows\Start Menu\Programs"
-    "PathToChromeLink"                           = "https://clients2.google.com/service/update2/crx"
 
     #Wallpaper
     "CurrentWallpaper"                           = (Get-ItemProperty -Path "HKCU:\Control Panel\Desktop" -Name Wallpaper).Wallpaper
@@ -160,14 +145,14 @@ $Variables = @{
     "Office64"                                   = "$false"
     "UsersFolder"                                = "{59031a47-3f72-44a7-89c5-5595fe6b30ee}"
     "ThisPC"                                     = "{20D04FE0-3AEA-1069-A2D8-08002B30309D}"
-    
+
     # Initialize all Path variables used to Registry Tweaks
     "PathToLMCurrentVersion"                     = "HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion"
     "PathToLMOldDotNet"                          = "HKLM:\SOFTWARE\Microsoft\.NETFramework\v4.0.30319"
     "PathToLMPoliciesToWifi"                     = "HKLM:\SOFTWARE\Microsoft\PolicyManager\default\WiFi"
     "PathToLMConsentStoreAD"                     = "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\CapabilityAccessManager\ConsentStore\appDiagnostics"
     "PathToLMConsentStoreUAI"                    = "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\CapabilityAccessManager\ConsentStore\userAccountInformation"
-    
+
     "RegCAM"                                     = "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\CapabilityAccessManager\ConsentStore\location"
     "PathToLMConsentStoreUN"                     = "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\CapabilityAccessManager\ConsentStore\userNotificationListener"
     "PathToLMDeviceMetaData"                     = "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Device Metadata"
@@ -234,7 +219,6 @@ $Variables = @{
     "PathToRegPersonalize"                       = "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Themes\Personalize"
     "PathToCUUserProfileEngagemment"             = "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\UserProfileEngagement"
     "PathToCUPoliciesCloudContent"               = "HKCU:\SOFTWARE\Policies\Microsoft\Windows\CloudContent"
-
     "PathToUsersControlPanelDesktop"             = "Registry::HKEY_USERS\.DEFAULT\Control Panel\Desktop"
 
     "KeysToDelete"                               = @(
@@ -269,6 +253,9 @@ $Variables = @{
         "$Env:USERPROFILE\Desktop\Microsoft Edge.lnk"
         "$Env:PUBLIC\Desktop\Microsoft Edge.lnk"
         "$Env:PUBLIC\Desktop\Adobe Reader.lnk"
+        "$Env:PUBLIC\Desktop\Acrobat Reader DC.lnk"
+        "$Env:PUBLIC\Desktop\VLC Media Player.lnk"
+        "$Env:PUBLIC\Desktop\Zoom.lnk"
     )
     # - Content Delivery
     "ContentDeliveryManagerDisableOnZero"        = @(
@@ -448,9 +435,9 @@ $Variables = @{
     )
 
 
-    "IsSystemDriveSSD" = $(Get-OSDriveType) -eq "SSD"
-    "EnableServicesOnSSD" = @("SysMain", "WSearch")
-        # - Scheduled Tasks
+    "IsSystemDriveSSD"                           = $(Get-OSDriveType) -eq "SSD"
+    "EnableServicesOnSSD"                        = @("SysMain", "WSearch")
+    # - Scheduled Tasks
     # Adapted from: https://docs.microsoft.com/en-us/windows-server/remote/remote-desktop-services/rds-vdi-recommendations#task-scheduler
     "EnableScheduledTasks"                       = @(
         "\Microsoft\Windows\Defrag\ScheduledDefrag"                 # Defragments all internal storages connected to your computer
@@ -483,7 +470,7 @@ $Variables = @{
         "\Microsoft\Windows\Windows Media Sharing\UpdateLibrary"                          # Recommended state for VDI use
     )
     # Services which will be totally disabled
-    "ServicesToDisabled" = @(
+    "ServicesToDisabled"                         = @(
         "DiagTrack"                                 # DEFAULT: Automatic | Connected User Experiences and Telemetry
         "diagnosticshub.standardcollector.service"  # DEFAULT: Manual    | Microsoft (R) Diagnostics Hub Standard Collector Service
         "dmwappushservice"                          # DEFAULT: Manual    | Device Management Wireless Application Protocol (WAP)
@@ -508,11 +495,11 @@ $Variables = @{
         #"WdNisSvc"                                 # DEFAULT: Manual    | Windows Defender Network Inspection Service
         "NPSMSvc_df772"
         "LanmanServer"
-    
+
     )
-    
+
     # Making the services to run only when needed as 'Manual' | Remove the # to set to Manual
-    "ServicesToManual"                             = @(
+    "ServicesToManual"                           = @(
         "BITS"                           # DEFAULT: Manual    | Background Intelligent Transfer Service
         "BDESVC"                         # DEFAULT: Manual    | BItLocker Drive Encryption Service
         #"cbdhsvc_*"                      # DEFAULT: Manual    | Clipboard User Service
@@ -560,7 +547,6 @@ $Variables = @{
         "gupdatem"                       # DEFAULT: Manual    | Google Update Service²
         "DisplayEnhancementService"      # DEFAULT: Manual    | A service for managing display enhancement such as brightness control.
         "DispBrokerDesktopSvc"           # DEFAULT: Automatic | Manages the connection and configuration of local and remote displays
-        
     )
 
     "StartLayout"                                = @"
@@ -582,7 +568,6 @@ $Variables = @{
         <taskbar:UWA AppUserModelID="Microsoft.Windows.SecHealthUI_cw5n1h2txyewy!SecHealthUI" />
         <taskbar:UWA AppUserModelID="windows.immersivecontrolpanel_cw5n1h2txyewy!Microsoft.Windows.ImmersiveControlPanel" />
         <taskbar:UWA AppUserModelID="Microsoft.WindowsStore_8wekyb3d8bbwe!App" />
-        <taskbar:UWA AppUserModelID="Microsoft.OutlookForWindows_8wekyb3d8bbwe!Microsoft.OutlookforWindows" />
         <taskbar:DesktopApp DesktopApplicationID="Microsoft.Windows.SecHealthUI" />
         <taskbar:DesktopApp DesktopApplicationID="Chrome" />
         <taskbar:DesktopApp DesktopApplicationID="Microsoft.Windows.Explorer" />
@@ -591,10 +576,12 @@ $Variables = @{
     </CustomTaskbarLayoutCollection>
 </LayoutModificationTemplate>
 "@
-}
-#Clear-Host
+    #<taskbar:UWA AppUserModelID="Microsoft.OutlookForWindows_8wekyb3d8bbwe!Microsoft.OutlookforWindows" />
 
-<#
+} # End of $Variables
+
+Function Add-LogSection {
+    <#
 .SYNOPSIS
 This script contains the function Add-LogSection which adds a new section to the log file.
 
@@ -614,7 +601,6 @@ Release Notes:
         - Started logging changes.
 
 #>
-Function Add-LogSection {
     param (
         $Section = "Next Section"
     )
@@ -625,8 +611,8 @@ Section: $Section
 "
     Add-Content -Path $Variables.Log -Value $Title
 }
-
-<#
+Function Find-ScheduledTask {
+    <#
 .SYNOPSIS
 This script contains a function named Find-ScheduledTask that checks if a scheduled task exists.
 
@@ -646,7 +632,6 @@ Release Notes:
         - Started logging changes.
 
 #>
-Function Find-ScheduledTask {
     [CmdletBinding()]
     [OutputType([Bool])]
     param (
@@ -665,8 +650,8 @@ Function Find-ScheduledTask {
         return $false
     }
 }
-
-<#
+Function Get-ADWCleaner {
+    <#
 .SYNOPSIS
     This function downloads and runs Malwarebytes ADWCleaner to scan and clean adware from the system.
 
@@ -693,7 +678,6 @@ Function Find-ScheduledTask {
             - Added support for the -Undo and -Skip parameters.
             - Added support for shouldprocess.
 #>
-Function Get-ADWCleaner {
     [CmdletBinding(
         SupportsShouldProcess
     )]
@@ -720,8 +704,8 @@ Function Get-ADWCleaner {
         }
     }
 }
-
-<#
+Function Get-CPU {
+    <#
 .SYNOPSIS
 This function retrieves information about the CPU of the current system.
 
@@ -749,9 +733,8 @@ Release Notes:
     1.0:
         - Started logging changes.
 #>
-function Get-CPU {
     [CmdletBinding()]
-    [OutputType([System.Collections.Hashtable],[String])]
+    [OutputType([System.Collections.Hashtable], [String])]
     param (
         [switch] $Formatted,
         [Switch] $NameOnly
@@ -780,8 +763,8 @@ function Get-CPU {
         Threads = $threads
     }
 }
-
-<#
+Function Get-DriveInfo {
+    <#
 .SYNOPSIS
 Retrieves information about physical disks.
 
@@ -800,7 +783,6 @@ Release Notes:
     1.0:
         - Started logging changes.
 #>
-function Get-DriveInfo {
     $driveInfo = @()
     $physicalDisks = Get-PhysicalDisk | Where-Object { $null -ne $_.MediaType }
     foreach ($disk in $physicalDisks) {
@@ -817,8 +799,8 @@ function Get-DriveInfo {
     }
     return $driveInfo
 }
-
-<#
+Function Get-DriveSpace {
+    <#
 .SYNOPSIS
 Retrieves information about the available and total storage space for all file system drives.
 
@@ -835,7 +817,6 @@ Specifies the drive letter for which to retrieve information. If not specified, 
     Release Notes:
         1.0 - Started logging changes.
 #>
-function Get-DriveSpace {
     [CmdletBinding()]
     [OutputType([String])]
     param (
@@ -862,8 +843,8 @@ function Get-DriveSpace {
         }
     }
 }
-
-<#
+Function Get-Error {
+    <#
 .SYNOPSIS
     Logs error messages to a specified file.
 .DESCRIPTION
@@ -878,7 +859,7 @@ function Get-DriveSpace {
     Release Notes:
         1.0 - Started logging changes.
 #>
-function Get-Error {
+    ## TODO This functions compatability needs to be increased before it can be deployed
     [CmdletBinding()]
     param (
         [Parameter(Mandatory = $true, ValueFromPipeline = $true)]
@@ -914,8 +895,8 @@ $ErrorMessage
         }
     }
 }
-
-<#
+Function Get-GPU {
+    <#
 .SYNOPSIS
     Gets the name of the GPU installed on the local computer.
 .DESCRIPTION
@@ -932,15 +913,14 @@ $ErrorMessage
         1.0:
             - Started logging changes.
 #>
-function Get-GPU {
     [CmdletBinding()]
     [OutputType([String])]
     param ()
     $gpu = Get-CimInstance -Class Win32_VideoController | Select-Object -ExpandProperty Name
     return $gpu.Trim()
 }
-
-<#
+Function Get-InstalledProgram {
+    <#
 .SYNOPSIS
     Gets a list of installed programs matching a specified name.
 .DESCRIPTION
@@ -963,7 +943,6 @@ function Get-GPU {
         1.0:
             - Started logging changes.
 #>
-Function Get-InstalledProgram {
     [CmdletBinding()]
     [OutputType([String])]
     Param(
@@ -974,7 +953,7 @@ Function Get-InstalledProgram {
     $installedPrograms = Get-ChildItem -Path $registryPath
     $installedPrograms += Get-ChildItem -Path $registryPath2
 
-    
+
     $registryPath3 = "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Installer\UserData\S-1-5-18\Products\*"
     # Scan through everything in products to find the InstallProperties key
     $installedPrograms += Get-ChildItem -Path $registryPath3 -Recurse | Where-Object { $_.Name -like "*InstallProperties" }
@@ -997,8 +976,8 @@ Function Get-InstalledProgram {
         }
     } | Sort-Object -Property Name -Unique
 }
-
-<#
+Function Get-Motherboard {
+    <#
 .SYNOPSIS
     Retrieves the motherboard model and OEM information.
 .DESCRIPTION
@@ -1012,11 +991,10 @@ Function Get-InstalledProgram {
 .NOTES
     Author: Circlol
     Version: 1.0
-    Release Notes: 
+    Release Notes:
         1.0:
             - Started logging changes.
 #>
-function Get-Motherboard {
     [CmdletBinding()]
     [OutputType([String])]
     param ()
@@ -1025,8 +1003,8 @@ function Get-Motherboard {
     [String]$CombinedString = "$motherboardOEM $motherboardModel"
     return "$CombinedString"
 }
-
-<#
+Function Get-NetworkStatus {
+    <#
 .SYNOPSIS
     Checks the network status and waits for internet connection if necessary.
 .DESCRIPTION
@@ -1043,7 +1021,6 @@ function Get-Motherboard {
         1.0:
             - Started logging changes.
 #>
-Function Get-NetworkStatus {
     [CmdletBinding()]
     param(
         [string]$NetworkStatusType = "IPv4Connectivity"
@@ -1060,8 +1037,8 @@ Function Get-NetworkStatus {
         Write-Output "Connected: Moving On"
     }
 }
-
-<#
+Function Get-Office {
+    <#
 .SYNOPSIS
     This function checks if Microsoft Office is installed on the device and removes it if it exists.
 .DESCRIPTION
@@ -1077,7 +1054,6 @@ Function Get-NetworkStatus {
         1.0:
             - Started logging changes.
 #>
-Function Get-Office {
     Show-ScriptStatus -WindowTitle "Office" -TweakType "Office" -TitleCounterText "Office"
     Write-Status -Types "?" -Status "Checking for Office"
     If (Test-Path $Variables.PathToOffice64 ) {
@@ -1111,8 +1087,8 @@ Function Get-Office {
         Remove-Office
     }
 }
-
-<#
+Function Get-Program {
+    <#
 .SYNOPSIS
     This function installs various programs on the system.
 .DESCRIPTION
@@ -1128,6 +1104,8 @@ Function Get-Office {
     Author: Circlol
     Version: 1.0
     History:
+        1.2:
+            - Replaced the VLC link from v3.0.18 to v3.0.20
         1.1:
             - Added support for undoing the program installation process.
             - Added support for skipping the program installation process.
@@ -1136,11 +1114,10 @@ Function Get-Office {
         1.0:
             - Started recording history of changes.
 #>
-Function Get-Program {
-    [CmdletBinding(SupportsShouldProcess = $true)]
-    param (
-        [switch]$Skip,
-        [switch]$Undo
+[CmdletBinding(SupportsShouldProcess = $true)]
+param (
+        [switch] $Skip,
+        [switch] $Undo
     )
 
     Show-ScriptStatus -WindowTitle "Apps" -TweakType "Apps" -TitleCounterText "Programs" -TitleText "Application Installation"
@@ -1149,6 +1126,7 @@ Function Get-Program {
     $chrome = @{
         Name              = "Google Chrome"
         Installed         = Test-Path -Path "$Env:PROGRAMFILES\Google\Chrome\Application\chrome.exe"
+        ChromeLink        = "https://clients2.google.com/service/update2/crx"
         DownloadURL       = "https://dl.google.com/dl/chrome/install/googlechromestandaloneenterprise64.msi"
         InstallerLocation = "$NewLoads\googlechromestandaloneenterprise64.msi"
         FileExists        = Test-Path -Path "$NewLoads\googlechromestandaloneenterprise64.msi"
@@ -1157,7 +1135,8 @@ Function Get-Program {
     $vlc = @{
         Name              = "VLC Media Player"
         Installed         = Test-Path -Path "$Env:ProgramFiles\VideoLAN\VLC\vlc.exe"
-        DownloadURL       = "https://get.videolan.org/vlc/3.0.18/win64/vlc-3.0.18-win64.exe"
+        #DownloadURL       = "https://get.videolan.org/vlc/3.0.18/win64/vlc-3.0.18-win64.exe"
+        DownloadURL       = "https://mirror.csclub.uwaterloo.ca/vlc/vlc/3.0.20/win64/vlc-3.0.20-win64.exe"
         InstallerLocation = "$NewLoads\vlc-3.0.18-win64.exe"
         FileExists        = Test-Path -Path "$NewLoads\vlc-3.0.18-win64.exe"
         ArgumentList      = "/S /L=1033"
@@ -1199,7 +1178,8 @@ Function Get-Program {
     }
     else {
         if ($PSCmdlet.ShouldProcess("Get-Program", "Perform program installation")) {
-            foreach ( $program in $chrome, $vlc, $zoom, $acrobat, $hevc, $OutlookForWindows ) {
+            foreach ( $program in $chrome, $vlc, $zoom, $acrobat, $hevc, $OutlookForWindows) {
+                # , $OutlookForWindows
                 Write-Section -Text $program.Name
                 # Checks if the program is installed
                 if (-not $program.Installed ) {
@@ -1248,7 +1228,7 @@ Function Get-Program {
                     else {
                         try {
                             # if it does then installs the program
-                            Write-Status -Types "+", $TweakType -Status "Installing $($program.Name)" -NoNewLine
+                            Write-Status -Types "+", $TweakType -Status "Installing.." -NoNewLine
                             Start-Process -FilePath $program.InstallerLocation -ArgumentList $program.ArgumentList -Wait
                             Get-Status
                         }
@@ -1262,7 +1242,7 @@ Function Get-Program {
                     # Adds UBlock Origin to Chrome
                     if ($program.Name -eq $Chrome.name) {
                         Write-Status "+", $TweakType -Status "Adding UBlock Origin to Google Chrome"
-                        Set-ItemPropertyVerified -Path $Variables.PathToUblockChrome -Name "update_url" -value $Variables.PathToChromeLink -Type STRING
+                        Set-ItemPropertyVerified -Path $Variables.PathToUblockChrome -Name "update_url" -value $Chrome.ChromeLink -Type STRING
                     }
                 }
                 else {
@@ -1270,15 +1250,15 @@ Function Get-Program {
                     Write-Status -Types "@", $TweakType -Status "$($program.Name) already seems to be installed on this system.. Skipping Installation"
                     if ($program.Name -eq $Chrome.name) {
                         Write-Status "+", $TweakType -Status "Adding UBlock Origin to Google Chrome"
-                        Set-ItemPropertyVerified -Path $Variables.PathToUblockChrome -Name "update_url" -value $Variables.PathToChromeLink -Type STRING
+                        Set-ItemPropertyVerified -Path $Variables.PathToUblockChrome -Name "update_url" -value $Chrome.ChromeLink -Type STRING
                     }
                 }
             }
         }
     }
 }
-
-<#
+Function Get-RAM {
+    <#
 .SYNOPSIS
     This function retrieves the total physical memory of the computer and returns it in GB.
 .DESCRIPTION
@@ -1298,7 +1278,6 @@ Function Get-Program {
         1.0:
             - Started logging changes.
 #>
-function Get-RAM {
     [CmdletBinding()]
     [OutputType([String])]
     param ()
@@ -1310,46 +1289,9 @@ function Get-RAM {
     $ram = $ram / 1GB
     return "{0:N2} GB" -f $ram
 }
-
-<#
-.SYNOPSIS
-    This function gets the status of a network operation and logs the result.
-.DESCRIPTION
-    This function checks if the previous command executed successfully and logs the result to a file. If the command failed, it logs the error message as well.
-.EXAMPLE
-    Get-Status
-.NOTES
-    Author: Circlol
-    Version: 1.0
-    History:
-        1.0:
-            - Started logging changes.
-#>
-function Get-Status2 {
-    If ($? -eq $True) {
-        # If no error message is provided, assume success
-        $Global:LogEntry.Successful = $true
-        Write-Caption -Type Success
-        #Add-Content -Path $Variables.Log -Value $logEntry
-        Write-Output $LogEntry | Out-File -FilePath $Variables.Log -Append
-    }
-    else {
-        # Set the global LogEntry.Successful to false
-        $Global:LogEntry.Successful = $false
-        $Global:LogEntry.ErrorMessage = $Error[0]
-        # Log a failure message
-        Write-Caption -Type Failed
-
-        Add-Content -Path $Variables.Log -Value $logEntry
-        Add-Content -Path $Variables.Log -Value $Error[0]
-        Write-Output $LogEntry | Out-File -FilePath $Variables.Log -Append
-        #        # Handle the error message
-        #        Get-Error
-    }
-}
-
-# Similar function to Get-Status, instead it stores all the information in a variable and outputs to a log at the end of the script. the function has a passhrough to start a new log entry. and end the log entry.
-<#
+Function Get-Status {
+    # Similar function to Get-Status, instead it stores all the information in a variable and outputs to a log at the end of the script. the function has a passhrough to start a new log entry. and end the log entry.
+    <#
 .SYNOPSIS
 This function is used to get the status of a log entry and perform actions based on the status.
 
@@ -1375,7 +1317,6 @@ A switch parameter that indicates whether to stop a transcript.
         1.0:
             - Started logging changes.
 #>
-Function Get-Status {
     [CmdletBinding()]
     [OutputType([String])]
     param (
@@ -1411,13 +1352,39 @@ Function Get-Status {
                 #        # Handle the error message
                 #        Get-Error
             }
-        } else {
+        }
+        else {
             Write-Output $LogEntry | Out-File -FilePath $Variables.Log -Append
         }
     }
 }
+Function Get-LastCheckForUpdate {
+    <#
+.SYNOPSIS
+    Checks last time updates were ran.
+.DESCRIPTION
+    Checks the last time the user Checked for Updates. This is done to assure technicians have updated before new loads is run.
+.OUTPUTS
+    Outputs a date
+.EXAMPLE
+    PS C:\> Get-LastCheckForUpdate
 
-<#
+    November 5, 2023 2:53:49 PM
+.NOTES
+    Author: Circlol
+    Date Created: Nov 5, 2023
+    Version: 1.0
+    Changes:
+        1.0:
+            - Started logging changes.
+#>
+    $wu = New-Object -ComObject Microsoft.Update.AutoUpdate
+    $lastUpdateCheck = $wu.Results.LastSearchSuccessDate
+    $lastUpdateCheck = $lastUpdateCheck.ToLocalTime()
+    return $lastUpdateCheck
+}
+Function Get-SystemInfo {
+    <#
 .SYNOPSIS
 This function retrieves system information such as CPU, GPU, RAM, Motherboard, OS, and Disk Info.
 
@@ -1446,7 +1413,6 @@ Release Notes:
     1.0:
         - Started logging changes.
 #>
-Function Get-SystemInfo {
     [CmdletBinding()]
     [OutputType([String])]
     param()
@@ -1579,8 +1545,8 @@ Function Get-SystemInfo {
     }
 
 }
-
-<#
+Function New-SystemRestorePoint {
+    <#
 .SYNOPSIS
 Creates a new system restore point with a given description.
 
@@ -1595,7 +1561,6 @@ Release Notes:
         - Started logging changes.
 
 #>
-Function New-SystemRestorePoint {
     [CmdletBinding(SupportsShouldProcess)]
     Param()
     $description = "Mother Computers Courtesy Restore Point"
@@ -1623,8 +1588,8 @@ Function New-SystemRestorePoint {
         Write-Output "Operation Canceled."
     }
 }
-
-<#
+Function Optimize-General {
+    <#
 .SYNOPSIS
 This function optimizes Windows 10 and 11 by disabling various features and services.
 
@@ -1635,22 +1600,21 @@ This function optimizes Windows 10 and 11 by disabling various features and serv
 Author: Circlol
 Version: 1.0
 Release Notes:
-  1.0.1:
+    1.0.1:
         - Added support for undoing the optimization process.
         - Removes copilot from taskbar
     1.0:
         - Started logging changes.
 
 #>
-Function Optimize-General {
     [CmdletBinding(SupportsShouldProcess = $true)]
     param(
         [Switch] $Undo
-        )
-        $Zero = 0
-        $One = 1
-        $OneTwo = 1
-        
+    )
+    $Zero = 0
+    $One = 1
+    $OneTwo = 1
+
     Show-ScriptStatus -WindowTitle "Optimization" -TweakType "Registry" -TitleCounterText "Optimization" -TitleText "General"
     Add-LogSection -Section "Optimize: General Tweaks"
     $EnableStatus = @(
@@ -1714,7 +1678,7 @@ Function Optimize-General {
             # Removes Chats from the taskbar
             Write-Status -Types $EnableStatus[0].Symbol, $TweakType -Status "$($EnableStatus[0].Status) Chats from the Taskbar..."
             Set-ItemPropertyVerified -Path $Variables.PathToCUExplorerAdvanced -Name "TaskBarMn" -Value $Zero -Type DWORD
-            
+
             # Removes Copilot from the taskbar
             Write-Status -Types $EnableStatus[0].Symbol, $TweakType -Status "$($EnableStatus[0].Status) Copilot from the Taskbar..."
             Set-ItemPropertyVerified -Path $Variables.PathToCUExplorerAdvanced -Name "ShowCopilotButton" -Type DWORD -Value $Zero
@@ -1778,8 +1742,8 @@ Function Optimize-General {
 
     }
 }
-
-<#
+Function Optimize-Performance {
+    <#
 .SYNOPSIS
 This function optimizes Windows 10 and 11 by disabling various features and services.
 
@@ -1794,7 +1758,6 @@ Release Notes:
         - Started logging changes.
 
 #>
-Function Optimize-Performance {
     [CmdletBinding(SupportsShouldProcess = $true)]
     param(
         [Int]    $Zero = 0,
@@ -1840,7 +1803,7 @@ Function Optimize-Performance {
         Set-ItemPropertyVerified -Path $Variables.PathToLMNdu -Name "Start" -Type DWord -Value 4
         # Details: https://www.tenforums.com/tutorials/94628-change-split-threshold-svchost-exe-windows-10-a.html
         # Will reduce Processes number considerably on > 4GB of RAM systems
-        
+
         Write-Status -Types $EnableStatus[1].Symbol, $TweakType -Status "Setting SVCHost to match installed RAM size..."
         $RamInKB = (Get-CimInstance -ClassName Win32_PhysicalMemory | Measure-Object -Property Capacity -Sum).Sum / 1KB
         Set-ItemPropertyVerified -Path $Variables.PathToLMControl -Name "SvcHostSplitThresholdInKB" -Type DWord -Value $RamInKB
@@ -1965,8 +1928,8 @@ Function Optimize-Performance {
         Set-ItemPropertyVerified -Path $Variables.PathToLMMultimediaSystemProfileOnGameTasks -Name "Scheduling Category" -Type String -Value "High" # Default: "Medium"
     }
 }
-
-<#
+Function Optimize-Privacy {
+    <#
 .SYNOPSIS
 Performs privacy optimizations on the Windows operating system.
 
@@ -1989,7 +1952,6 @@ Release Notes:
         - Started logging changes.
 
 #>
-Function Optimize-Privacy {
     [CmdletBinding(SupportsShouldProcess = $true)]
     param(
         [Int]    $Zero = 0,
@@ -2298,7 +2260,7 @@ Function Optimize-Privacy {
         #      2 = [...] Install driver software from Windows Update,
         #      3 = [...] Never install driver software from Windows Update)
         Set-ItemPropertyVerified -Path $Variables.PathToLMDeviceMetaData -Name "PreventDeviceMetadataFromNetwork" -Type DWord -Value $One
-        # [@] (0 = Enhanced icons enabled, 
+        # [@] (0 = Enhanced icons enabled,
         #      1 = Enhanced icons disabled)
         Set-ItemPropertyVerified -Path $Variables.PathToLMDriverSearching -Name "SearchOrderConfig" -Type DWord -Value $Zero
 
@@ -2348,8 +2310,8 @@ Function Optimize-Privacy {
         }
     }
 }
-
-<#
+Function Optimize-Security {
+    <#
 .SYNOPSIS
     This function applies various security patches and tweaks to optimize the security of the system.
 
@@ -2367,7 +2329,6 @@ Function Optimize-Privacy {
             - Started logging changes.
 
 #>
-Function Optimize-Security {
     [CmdletBinding(SupportsShouldProcess = $true)]
     param(
         [Int]    $Zero = 0,
@@ -2477,12 +2438,12 @@ Function Optimize-Security {
         Set-ItemPropertyVerified -Path $Variables.PathToLMPoliciesMRT -Name "DontOfferThroughWUAU" -Type DWord -Value $Zero
     }
 }
-
-<#
+Function Optimize-Service {
+    <#
 .SYNOPSIS
-    This script optimizes Windows services by disabling unnecessary services and enabling essential services.
+This script optimizes Windows services by disabling unnecessary services and enabling essential services.
 .DESCRIPTION
-    This script disables the services listed in the $Variables.ServicesToDisabled variable and enables the services listed in the $Variables.EnableServicesOnSSD variable. 
+    This script disables the services listed in the $Variables.ServicesToDisabled variable and enables the services listed in the $Variables.EnableServicesOnSSD variable.
     It also sets the startup type of the services listed in the $Variables.ServicesToManual variable to 'Manual'.
 .EXAMPLE
     Optimize-Service
@@ -2494,7 +2455,6 @@ Function Optimize-Security {
         1.0:
             - Started logging changes.
 #>
-Function Optimize-Service {
     [CmdletBinding()]
     param (
         [Parameter()]
@@ -2520,13 +2480,13 @@ Function Optimize-Service {
     }
     Set-ServiceStartup -State 'Manual' -Services $Variables.ServicesToManual
 }
-
-<#
+Function Optimize-SSD {
+    <#
 .SYNOPSIS
     Optimizes SSD performance by disabling/enabling last access timestamps updates on files.
 
 .DESCRIPTION
-    This function optimizes SSD performance by disabling/enabling last access timestamps updates on files. 
+    This function optimizes SSD performance by disabling/enabling last access timestamps updates on files.
     Disabling last access timestamps updates on files can improve the life of SSDs.
 
 .PARAMETER Undo
@@ -2547,7 +2507,6 @@ Function Optimize-Service {
         1.0:
             - Started logging changes.
 #>
-function Optimize-SSD {
     [CmdletBinding(SupportsShouldProcess = $true)]
     param (
         [Parameter()]
@@ -2567,8 +2526,8 @@ function Optimize-SSD {
         Get-Status
     }
 }
-
-<#
+Function Optimize-TaskScheduler {
+    <#
 .SYNOPSIS
     This function optimizes the Task Scheduler by disabling or enabling scheduled tasks in Windows.
 .DESCRIPTION
@@ -2583,7 +2542,6 @@ function Optimize-SSD {
         1.0:
             - Started logging changes.
 #>
-Function Optimize-TaskScheduler {
     [CmdletBinding(SupportsShouldProcess = $true)]
     param (
         [Switch]$Undo
@@ -2604,8 +2562,8 @@ Function Optimize-TaskScheduler {
         Set-ScheduledTaskState -Ready -ScheduledTask $Variables.EnableScheduledTasks
     }
 }
-
-<#
+Function Optimize-WindowsOptional {
+    <#
 .SYNOPSIS
     This function optimizes Windows by disabling unnecessary optional features and removing unnecessary printers.
 
@@ -2622,7 +2580,6 @@ Function Optimize-TaskScheduler {
         1.0:
             - Started logging changes.
 #>
-Function Optimize-WindowsOptional {
     [CmdletBinding(SupportsShouldProcess = $true)]
     param (
         [Switch]$Undo
@@ -2662,8 +2619,9 @@ Function Optimize-WindowsOptional {
         }
     }
 }
-
-<#
+Function Remove-InstalledProgram {
+    ## TODO Attempt to make this function compatible with all types of programs and strings
+    <#
 .SYNOPSIS
     Removes an installed program from the system.
 
@@ -2683,11 +2641,10 @@ Function Optimize-WindowsOptional {
         1.0:
             - Started logging changes.
 #>
-Function Remove-InstalledProgram {
     [CmdletBinding(SupportsShouldProcess)]
     param (
         [Parameter(Mandatory = $true, ValueFromPipeline = $true)]
-        $Name
+        [String[]]$Name
     )
 
     $uninstall32 = Get-ChildItem "HKLM:\SOFTWARE\Wow6432Node\Microsoft\Windows\CurrentVersion\Uninstall" |
@@ -2764,8 +2721,8 @@ Function Remove-InstalledProgram {
         }
     }
 }
-
-<#
+Function Remove-ItemPropertyVerified {
+    <#
 .SYNOPSIS
     Removes a property from an item at the specified path.
 
@@ -2791,7 +2748,6 @@ Function Remove-InstalledProgram {
         1.0:
             - Started logging changes.
 #>
-Function Remove-ItemPropertyVerified {
     [CmdletBinding(SupportsShouldProcess = $true)]
     param (
         [Parameter(Mandatory = $true)]
@@ -2828,13 +2784,13 @@ Function Remove-ItemPropertyVerified {
         }
     }
 }
-
-<#
+Function Remove-Office {
+    <#
 .SYNOPSIS
     Removes Microsoft Office from the system using Microsoft Support and Recovery Assistant (SaRA).
 
 .DESCRIPTION
-    This function removes Microsoft Office from the system using Microsoft Support and Recovery Assistant (SaRA). 
+    This function removes Microsoft Office from the system using Microsoft Support and Recovery Assistant (SaRA).
     It downloads SaRA from the specified URL, expands it, and starts OfficeScrubScenario via SaRAcmd.exe to remove Office.
     If the user chooses not to remove Office, the function skips the removal process.
 
@@ -2848,7 +2804,6 @@ Function Remove-ItemPropertyVerified {
         1.0:
             - Started logging changes.
 #>
-Function Remove-Office {
     [CmdletBinding(SupportsShouldProcess = $true)]
     param()
 
@@ -2894,8 +2849,8 @@ Function Remove-Office {
         }
     }
 }
-
-<#
+Function Remove-PinnedStartMenu {
+    <#
 .SYNOPSIS
     Removes pinned items from the Start menu by applying a new start menu layout and then deleting it.
 
@@ -2912,10 +2867,9 @@ Function Remove-Office {
         1.0:
             - Started logging changes.
 #>
-Function Remove-PinnedStartMenu {
     [CmdletBinding(SupportsShouldProcess = $true)]
     param()
-$START_MENU_LAYOUT = @"
+    $START_MENU_LAYOUT = @"
 <LayoutModificationTemplate xmlns:defaultlayout="http://schemas.microsoft.com/Start/2014/FullDefaultLayout" xmlns:start="http://schemas.microsoft.com/Start/2014/StartLayout" Version="1" xmlns:taskbar="http://schemas.microsoft.com/Start/2014/TaskbarLayout" xmlns="http://schemas.microsoft.com/Start/2014/LayoutModification">
     <LayoutOptions StartTileGroupCellWidth="6" />
     <DefaultLayoutOverride>
@@ -2926,53 +2880,52 @@ $START_MENU_LAYOUT = @"
 </LayoutModificationTemplate>
 "@
 
-$layoutFile="C:\Windows\StartMenuLayout.xml"
+    $layoutFile = "C:\Windows\StartMenuLayout.xml"
 
-#Delete layout file if it already exists
-If(Test-Path $layoutFile)
-{
+    #Delete layout file if it already exists
+    If (Test-Path $layoutFile) {
+        Remove-Item $layoutFile
+    }
+
+    #Creates the blank layout file
+    $START_MENU_LAYOUT | Out-File $layoutFile -Encoding ASCII
+
+    $regAliases = @("HKLM", "HKCU")
+
+    #Assign the start layout and force it to apply with "LockedStartLayout" at both the machine and user level
+    foreach ($regAlias in $regAliases) {
+        $basePath = $regAlias + ":\SOFTWARE\Policies\Microsoft\Windows"
+        $keyPath = $basePath + "\Explorer"
+        If (!(Test-Path -Path $keyPath)) {
+            New-Item -Path $basePath -Name "Explorer"
+        }
+        Set-ItemProperty -Path $keyPath -Name "LockedStartLayout" -Value 1
+        Set-ItemProperty -Path $keyPath -Name "StartLayoutFile" -Value $layoutFile
+    }
+
+    #Restart Explorer, open the start menu (necessary to load the new layout), and give it a few seconds to process
+    Restart-Explorer
+    Start-Sleep -s 5
+    $wshell = New-Object -ComObject wscript.shell; $wshell.SendKeys('^{ESCAPE}')
+    Start-Sleep -s 5
+
+    #Enable the ability to pin items again by disabling "LockedStartLayout"
+    foreach ($regAlias in $regAliases) {
+        $basePath = $regAlias + ":\SOFTWARE\Policies\Microsoft\Windows"
+        $keyPath = $basePath + "\Explorer"
+        Set-ItemProperty -Path $keyPath -Name "LockedStartLayout" -Value 0
+    }
+
+    #Restart Explorer and delete the layout file
+    Restart-Explorer
+
+    # Uncomment the next line to make clean start menu default for all new users
+    #Import-StartLayout -LayoutPath $layoutFile -MountPath $env:SystemDrive\
+
     Remove-Item $layoutFile
 }
-
-#Creates the blank layout file
-$START_MENU_LAYOUT | Out-File $layoutFile -Encoding ASCII
-
-$regAliases = @("HKLM", "HKCU")
-
-#Assign the start layout and force it to apply with "LockedStartLayout" at both the machine and user level
-foreach ($regAlias in $regAliases){
-    $basePath = $regAlias + ":\SOFTWARE\Policies\Microsoft\Windows"
-    $keyPath = $basePath + "\Explorer" 
-    If(!(Test-Path -Path $keyPath)) { 
-        New-Item -Path $basePath -Name "Explorer"
-    }
-    Set-ItemProperty -Path $keyPath -Name "LockedStartLayout" -Value 1
-    Set-ItemProperty -Path $keyPath -Name "StartLayoutFile" -Value $layoutFile
-}
-
-#Restart Explorer, open the start menu (necessary to load the new layout), and give it a few seconds to process
-Restart-Explorer
-Start-Sleep -s 5
-$wshell = New-Object -ComObject wscript.shell; $wshell.SendKeys('^{ESCAPE}')
-Start-Sleep -s 5
-
-#Enable the ability to pin items again by disabling "LockedStartLayout"
-foreach ($regAlias in $regAliases){
-    $basePath = $regAlias + ":\SOFTWARE\Policies\Microsoft\Windows"
-    $keyPath = $basePath + "\Explorer" 
-    Set-ItemProperty -Path $keyPath -Name "LockedStartLayout" -Value 0
-}
-
-#Restart Explorer and delete the layout file
-Restart-Explorer
-
-# Uncomment the next line to make clean start menu default for all new users
-#Import-StartLayout -LayoutPath $layoutFile -MountPath $env:SystemDrive\
-
-Remove-Item $layoutFile
-}
-
-<#
+Function Remove-UWPAppx {
+    <#
 .SYNOPSIS
     Removes specified UWP appx packages from the system.
 
@@ -2992,7 +2945,6 @@ Remove-Item $layoutFile
         1.0:
             - Started logging changes.
 #>
-Function Remove-UWPAppx {
     [CmdletBinding(SupportsShouldProcess = $true)]
     param (
         [Array] $AppxPackages
@@ -3032,13 +2984,13 @@ Function Remove-UWPAppx {
     }
     $ProgressPreference = "Continue"
 }
-
-<#
+Function Restart-Explorer {
+    <#
 .SYNOPSIS
 This script defines a function to restart Windows Explorer.
 
 .DESCRIPTION
-The Restart-Explorer function checks if Windows Explorer is running and restarts it if it is. 
+The Restart-Explorer function checks if Windows Explorer is running and restarts it if it is.
 
 .EXAMPLE
 Restart-Explorer
@@ -3052,7 +3004,6 @@ This command restarts Windows Explorer.
         1.0:
             - Started logging changes.
 #>
-Function Restart-Explorer {
     [CmdletBinding(SupportsShouldProcess = $true)]
     param()
     # Checks is explorer is running
@@ -3080,8 +3031,8 @@ Function Restart-Explorer {
         }
     }
 }
-
-<#
+Function Request-PCRestart {
+    <#
 .SYNOPSIS
     This function prompts the user to restart their computer in order to apply changes.
 
@@ -3098,7 +3049,6 @@ Function Restart-Explorer {
         1.0:
             - Started logging changes.
 #>
-Function Request-PCRestart {
     Param()
     Write-Status -Types "WAITING" -Status "User action needed - You may have to ALT + TAB " -WriteWarning
     $restartMessage = "For changes to apply please restart your computer. Ready?"
@@ -3115,8 +3065,8 @@ Function Request-PCRestart {
         }
     }
 }
-
-<#
+Function Set-Branding {
+    <#
 .SYNOPSIS
     Sets the branding information for Mother Computers.
 
@@ -3141,7 +3091,6 @@ Function Request-PCRestart {
         1.0:
             - Started logging changes.
 #>
-Function Set-Branding {
     [CmdletBinding(SupportsShouldProcess = $true)]
     Param (
         [Switch]$Undo,
@@ -3191,8 +3140,8 @@ Function Set-Branding {
         Write-Host "$actionDescription operation canceled."
     }
 }
-
-<#
+Function Set-ItemPropertyVerified {
+    <#
 .SYNOPSIS
     This function sets a registry value if it doesn't exist or if it's different from the desired value.
 
@@ -3227,7 +3176,6 @@ Function Set-Branding {
         1.0:
             - Started logging changes.
 #>
-Function Set-ItemPropertyVerified {
     Param(
         [Alias("V")]
         [Parameter(Mandatory = $true)]
@@ -3293,8 +3241,8 @@ Function Set-ItemPropertyVerified {
         Write-Status -Types "@" -Status "Key already set to the desired value. Skipping"
     }
 }
-
-<#
+Function Set-OptionalFeatureState {
+    <#
 .SYNOPSIS
     Sets the state of Windows optional features.
 .DESCRIPTION
@@ -3317,7 +3265,6 @@ Function Set-ItemPropertyVerified {
         1.0:
             - Started logging changes.
 #>
-Function Set-OptionalFeatureState {
     param (
         [ScriptBlock] $CustomMessage,
         [Switch] $Enabled,
@@ -3380,8 +3327,8 @@ Function Set-OptionalFeatureState {
         }
     }
 }
-
-<#
+Function Set-ScheduledTaskState {
+    <#
 .SYNOPSIS
 Sets the state of one or more scheduled tasks.
 
@@ -3413,7 +3360,6 @@ This example sets the scheduled task "Task1" to ready, but skips "Task2".
 .NOTES
 Author: Circlol
 #>
-function Set-ScheduledTaskState {
     [CmdletBinding(SupportsShouldProcess)]
     param (
         [Parameter(Mandatory = $false)]
@@ -3457,7 +3403,7 @@ function Set-ScheduledTaskState {
                         ElseIf ($action -eq "Enable") {
                             Get-ScheduledTask -TaskName (Split-Path -Path $ScheduledTask -Leaf) -ea SilentlyContinue | Where-Object State -Like "Disabled" | Enable-ScheduledTask | Out-Null
                             Get-Status
-                            }
+                        }
                     }
                     catch {
                         Get-Status
@@ -3469,8 +3415,8 @@ function Set-ScheduledTaskState {
         }
     }
 }
-
-<#
+Function Set-ServiceStartup {
+    <#
 .SYNOPSIS
 Sets the startup type of one or more services.
 
@@ -3498,7 +3444,6 @@ Sets the startup type of Service1 and Service2 to Automatic.
         1.0:
             - Started logging changes.
 #>
-function Set-ServiceStartup {
     [CmdletBinding(SupportsShouldProcess)]
     param (
         [Parameter(Mandatory = $true)]
@@ -3557,8 +3502,8 @@ function Set-ServiceStartup {
         }
     }
 }
-
-<#
+Function Set-StartMenu {
+    <#
 .SYNOPSIS
     Applies a Start Menu Layout for Windows 10 and Windows 11.
 
@@ -3575,7 +3520,6 @@ function Set-ServiceStartup {
         1.0:
             - Started logging changes.
 #>
-Function Set-StartMenu {
     [CmdletBinding(SupportsShouldProcess = $true)]
     param (
         [Switch]$Skip
@@ -3651,8 +3595,8 @@ Function Set-StartMenu {
         }
     }
 }
-
-<#
+Function Set-Taskbar {
+    <#
 .SYNOPSIS
     Applies a taskbar layout.
 
@@ -3671,7 +3615,6 @@ Function Set-StartMenu {
         1.0:
             - Started logging changes.
 #>
-Function Set-Taskbar {
     [CmdletBinding(SupportsShouldProcess = $true)]
     param (
         [Switch]$Undo
@@ -3692,8 +3635,8 @@ Function Set-Taskbar {
         }
     }
 }
-
-<#
+Function Set-Wallpaper {
+    <#
 .SYNOPSIS
     Sets the wallpaper of the system to a specified image and sets the system to use light mode.
 
@@ -3710,7 +3653,6 @@ Function Set-Taskbar {
         1.0:
             - Started logging changes.
 #>
-function Set-Wallpaper {
     [CmdletBinding(SupportsShouldProcess = $true)]
     param (
         [Switch]$Undo
@@ -3751,8 +3693,8 @@ function Set-Wallpaper {
         }
     }
 }
-
-<#
+Function Send-EmailLog {
+    <#
 .SYNOPSIS
     Sends an email with the log files and system information.
 
@@ -3769,29 +3711,40 @@ function Set-Wallpaper {
         1.0:
             - Started logging changes.
 #>
-Function Send-EmailLog {
 
     Show-ScriptStatus -WindowTitle "Email Log" #-TweakType "Email" -TitleCounterText "Email Log"
     # - Current Date and Time
     $CurrentDate = Get-Date
+    # - Gathers the end time
     $EndTime = Get-Date
+    # - Formats current date to display as 04 November 2023 5:20:22 PM
     $CurrentDateFormatted = $CurrentDate.ToString("dd MMMM yyyy h:mm:ss tt")
+    # - Formats start time to display as 5:20:22 PM
     $FormattedStartTime = $StartTime.ToString("h:mm:ss tt")
+    # - Formats end time to display as 5:20:22 PM
     $FormattedEndTime = $EndTime.ToString("h:mm:ss tt")
+    # - Calculates runtime of script
     $ElapsedTime = $EndTime - $StartTime
+    # - Formats time
     $FormattedElapsedTime = "{0:mm} minutes {0:ss} seconds" -f $ElapsedTime
+    # - Displays the version table of the system - Used to fish out bugs
     $PowershellTable = $PSVersionTable | Out-String
+
     # - Gathers some information about installed programs
     $ListOfInstalledApplications = (Get-InstalledProgram -Name "*").Name | Sort-Object
     $ListOfInstalledApplications = $ListOfInstalledApplications -join "`n"
     $ListOfInstalledPackages = (Get-appxpackage -User $Env:USERNAME).Name | Sort-Object
     $ListOfInstalledPackages = $ListOfInstalledPackages -join "`n"
-    # - Gathers some information about host
+
+    # - System Information
     $SystemSpecs = Get-SystemInfo
+    # - Retrieves the IP Address of the host
+    # # NOTE # # - This is used to calculate how many runs per month for sales reasons
     $IP = $(Resolve-DnsName -Name myip.opendns.com -Server 208.67.222.220).IPAddress
-    $WallpaperApplied = if ($Variables.CurrentWallpaper -eq $Variables.Wallpaper) { "YES" } else { "NO" }
+    # Gathers the current wallpaper reg
+    $WallpaperApplied = if ($Variables.CurrentWallpaper -eq $Variables.WallpaperDestination) { "YES" } else { "NO" }
     # - Checks if all the programs got installed
-    $Programs = @("Google Chrome", "VLC", "Zoom", "Acrobat")
+    $Programs = @("Google Chrome", "VLC", "Zoom", "Acrobat", "HEVC")
     $ProgramStatus = @{}
     foreach ($program in $Programs) {
         $ProgramStatus[$program] = if (Get-InstalledProgram -Name $program) { "YES" } else { "NO" }
@@ -3840,17 +3793,18 @@ $SystemSpecs
 - VLC: $($ProgramStatus["VLC"])
 - Adobe: $($ProgramStatus["Acrobat"])
 - Zoom: $($ProgramStatus["Zoom"])
+- HEVC: $($ProgramStatus["HEVC"])
+- Packages Removed During Debloat: $($Variables.Removed)
 - Wallpaper Applied: $WallpaperApplied
 - Windows 11 Start Layout Applied: $StartMenuLayout
-- Registry Keys Modified: $ModifiedRegistryKeys
-- Failed Registry Keys: $FailedRegistryKeys
+- Registry Keys Modified: $($Variables.ModifiedRegistryKeys)
+- Failed Registry Keys: $($Variables.FailedRegistryKeys)
 
 
 - Powershell Information:
 $PowershellTable
 
 
-- Packages Removed During Debloat: $($Variables.Removed)
 - List of Packages Removed:
 $($Variables.PackagesRemoved)
 
@@ -3869,8 +3823,8 @@ $ListOfInstalledPackages
     Send-MailMessage -From $From -To $To -Subject $Sub -Body $EmailBody -Attachments $LogFiles -DN OnSuccess, OnFailure -SmtpServer $smtp
     Show-ScriptStatus -WindowTitle ""
 }
-
-<#
+Function Show-ScriptLogo {
+    <#
 .SYNOPSIS
     Displays the New Loads initialization logo and information.
 
@@ -3887,7 +3841,6 @@ $ListOfInstalledPackages
         1.0:
             - Started logging changes.
 #>
-Function Show-ScriptLogo {
     $WindowTitle = "New Loads - Initialization" ; $host.UI.RawUI.WindowTitle = $WindowTitle
     Write-Host "`n`n`n"
     Write-Host "▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀" -NoNewLine -ForegroundColor $Variables.ForegroundColor -BackgroundColor Blue
@@ -3905,8 +3858,8 @@ Function Show-ScriptLogo {
     Write-Host "`n`n"
     $WindowTitle = "New Loads" ; $host.UI.RawUI.WindowTitle = $WindowTitle
 }
-
-<#
+Function Show-ScriptStatus {
+    <#
 .SYNOPSIS
     This script defines the Show-ScriptStatus function, which is used to display the status of the script.
 .DESCRIPTION
@@ -3932,7 +3885,6 @@ Function Show-ScriptLogo {
         1.0:
             - Started logging changes.
 #>
-Function Show-ScriptStatus {
     param(
         [Switch]$AddCounter,
         [String]$SectionText,
@@ -3960,8 +3912,8 @@ Function Show-ScriptStatus {
         $Variables.Counter++
     }
 }
-
-<#
+Function Show-Question {
+    <#
 .SYNOPSIS
     This script defines the Show-Question function which displays a message box with a specified message, title, buttons, and icon.
 
@@ -3993,7 +3945,6 @@ Function Show-ScriptStatus {
         1.0:
             - Started logging changes.
 #>
-function Show-Question {
     param (
         [string]$Message,
         [string]$Title = "New Loads",
@@ -4004,8 +3955,8 @@ function Show-Question {
     If ($Chime) { Start-Chime }
     [System.Windows.Forms.MessageBox]::Show($Message, $Title, $Buttons, $Icon)
 }
-
-<#
+Function Start-BitlockerDecryption {
+    <#
 .SYNOPSIS
     Starts the decryption process for Bitlocker.
 
@@ -4027,7 +3978,6 @@ function Show-Question {
         1.0:
             - Started logging changes.
 #>
-Function Start-BitlockerDecryption {
     [CmdletBinding(SupportsShouldProcess = $true)]
     param (
         [Switch]$Skip
@@ -4058,8 +4008,8 @@ Function Start-BitlockerDecryption {
         }
     }
 }
-
-<#
+Function Start-Bootup {
+    <#
 .SYNOPSIS
     This function checks the requirements for running the New Loads script and starts the bootup process.
 
@@ -4076,7 +4026,6 @@ Function Start-BitlockerDecryption {
         1.0:
             - Started logging changes.
 #>
-Function Start-Bootup {
     param()
     Show-ScriptStatus -WindowTitle "Checking Requirements"
 
@@ -4113,8 +4062,9 @@ Function Start-Bootup {
     New-Variable -Name Time -Value (Get-Date -UFormat %Y%m%d) -Scope Global
     If ($Time -GT $Variables.MaxTime -or $Time -LT $Variables.MinTime) {
         Clear-Host
-        Write-Status -Types ":(", "::ERROR::" -Status "There was an uncorrectable error.." -ForegroundColorText RED
-        Read-Host -Prompt "Press enter to close New Loads"
+        Write-Status -Types ":(", "::ERROR::" -Status "Please manually update the time before continuing.." -ForegroundColorText RED
+        Read-Host -Prompt "Press enter to close New Loads ::: The Settings page for time will open so you can sync right away"
+        Start-Process ms-settings:dateandtime
         Exit
     }
 
@@ -4126,8 +4076,8 @@ Function Start-Bootup {
         Continue
     }
 }
-
-<#
+Function Start-Chime {
+    <#
 .SYNOPSIS
     This function plays a sound file.
 .DESCRIPTION
@@ -4142,7 +4092,6 @@ Function Start-Bootup {
         1.0:
             - Started logging changes.
 #>
-function Start-Chime {
     [CmdletBinding(SupportsShouldProcess = $true)]
     param(
         [Parameter(Mandatory = $False)]
@@ -4163,8 +4112,8 @@ function Start-Chime {
         else { Write-Error "The sound file doesn't exist at the specified path." }
     }
 }
-
-<#
+Function Start-Cleanup {
+    <#
 .SYNOPSIS
 
 .DESCRIPTION
@@ -4178,7 +4127,6 @@ function Start-Chime {
         1.0:
             - Started logging changes.
 #>
-Function Start-Cleanup {
     [CmdletBinding(SupportsShouldProcess = $true)]
     param (
         [Switch]$Skip,
@@ -4215,8 +4163,8 @@ Function Start-Cleanup {
         }
     }
 }
-
-<#
+Function Start-Debloat {
+    <#
 .SYNOPSIS
     This function is used to debloat Windows 10 by removing Win32 apps, Start Menu Ads, and UWP apps.
 
@@ -4233,7 +4181,6 @@ Function Start-Cleanup {
         1.0:
             - Started logging changes.
 #>
-Function Start-Debloat {
     [CmdletBinding(SupportsShouldProcess)]
     param(
         [Switch] $Undo
@@ -4316,8 +4263,95 @@ Function Start-Debloat {
         }
     }
 }
+Function Start-Update {
+    <#
+.SYNOPSIS
+    This function is used to update the system if the user accepts a prompt.
 
-<#
+.DESCRIPTION
+    This function uses PSWindowsUpdate to update the system, once finished the function will remove itself
+
+.EXAMPLE
+    Start-Update
+
+.NOTES
+    Author: Circlol
+    Date Created: Nov 5, 2023
+    Version: 1.0.1
+    History:
+        1.0.1:
+            - Added execution policy check and change
+        1.0:
+            - Created function
+#>
+    $lastUpdateCheckTime = Get-LastCheckForUpdate
+    $currentTime = Get-Date
+    # Calculate time difference in hours
+    $timeDifference = ($currentTime - $lastUpdateCheckTime).TotalHours
+
+    if ($timeDifference -gt 6) {
+        $Message = "The last update check was more than 6 hour ago. Do you want to run Windows Update through New Loads now?"
+        Write-Status -Status "Press ALT + TAB if you dont see the form`n$Message"
+        switch (Show-Question -Buttons YesNo -Title "Windows Updates Notification" -Icon Information -Message $Message) {
+            'Yes' {
+                ## INSTALLATION
+                Write-Status -Types "+" -Status "Installing Assets"
+
+                # Installs NuGet
+                Write-Status -Types "+" -Status "NuGet" -NoNewLine
+                Install-PackageProvider -Name NuGet -MinimumVersion 2.8.5.201 -Force -Confirm:$false | Out-Null
+                Get-Status
+
+                # Installs PSWindowsUpdate
+                Write-Status -Types "+" -Status "PSWindowsUpdate" -NoNewLine
+                Install-Module -Name PSWindowsUpdate -Force -Confirm:$false
+                Get-Status
+
+                $Policy = Get-ExecutionPolicy
+                If ($Policy -ne "RemoteSigned") {
+                    Write-Status -Status "Changing Execution Policy"
+                    Set-ExecutionPolicy RemoteSigned -Confirm:$False -Scope Process -Force
+                }
+
+                # Small sleep to assure PSWindowsUpdate can be loaded
+                Start-Sleep -Seconds 3
+                try {
+
+                    # Imports PSWindowsUpdate
+                    Write-Status -Types "+" -Status "Importing PSWindowsUpdate" -NoNewLine
+                    Import-Module -Name PSWindowsUpdate -Force
+                    Get-Status
+                    Write-Status -Types "+" -Status "Starting Windows Updates - Download, Install, IgnoreReboot, AcceptAll"
+                    Get-WindowsUpdate -AcceptAll -Install -Download -IgnoreReboot
+                    
+                    # CLEANUP & REMOVAL OF START-UPDATE ASSETS
+                    Write-Status -Types "-" -Status "Removing Start-Update Assets"
+                    Write-Status -Types "-" -Status "PSWindowsUpdate" -NoNewLine
+                    Remove-Module -Name PSWindowsUpdate -Force -Confirm:$false
+                    Get-Status
+                    Write-Status -Types "-" -Status "NuGet" -NoNewLine
+                    Uninstall-PackageProvider -Name NuGet -Force -Confirm:$false | Out-Null
+                    Get-Status
+                }catch {
+                    Start-Process ms-settings:windowsupdate
+                    Write-Status -Status "Failed to Update through the script. Please manually do it."
+                    Read-Host
+                    Exit
+                }
+
+                Write-Status -Status "Updates finished"
+            }
+            'No' {
+                Write-Status -Types "D:" "You choose to skip Windows Updates. Naughty Naughty"
+            }
+        }
+    }
+    else {
+        Write-Status -Types "" -Status "The last update check was within the 6 hours."
+    }
+}
+Function Update-Time {
+    <#
 .SYNOPSIS
 Updates the time zone and synchronizes the system time.
 
@@ -4332,10 +4366,9 @@ Update-Time -TimeZoneId "(UTC-05:00) Eastern Time (US & Canada)"
 This example updates the system time zone to Eastern Time (US & Canada) and synchronizes the system time.
 
 #>
-function Update-Time {
     [CmdletBinding(SupportsShouldProcess)]
     param (
-        [string]$TimeZoneId = "(UTC-08:00) Pacific Time (US & Canada)"
+        [string]$TimeZoneId = "Pacific Standard Time"
     )
 
     try {
@@ -4386,8 +4419,8 @@ function Update-Time {
         Continue
     }
 }
-
-<#
+Function Write-Break {
+    <#
 .SYNOPSIS
 Writes a break line to the console.
 
@@ -4404,14 +4437,13 @@ Write-Break
         1.0:
             - Started logging changes.
 #>
-Function Write-Break {
     $line = "=" * 96
     Write-Host "`n`n[" -NoNewline -ForegroundColor $Variables.ForegroundColor -Backgroundcolor $Variables.BackgroundColor
     Write-Host $line -NoNewLine -ForegroundColor White -BackgroundColor $Variables.BackgroundColor
     Write-Host "]`n" -ForegroundColor $Variables.ForegroundColor -BackgroundColor $Variables.BackgroundColor
 }
-
-<#
+Function Write-Caption {
+    <#
 .SYNOPSIS
 Writes a caption to the console.
 
@@ -4428,7 +4460,6 @@ Write-Caption -Type Success -Text "Operation completed successfully."
         1.0:
             - Started logging changes.
 #>
-Function Write-Caption {
     [CmdletBinding()]
     param (
         [ValidateSet("Failed", "Success", "Warning", "none")]
@@ -4467,8 +4498,8 @@ Function Write-Caption {
     Write-Host $Symbol -NoNewline -ForegroundColor $foreg1
     Write-Host "$Text" -ForegroundColor $foreg
 }
-
-<#
+Function Write-HostReminder {
+    <#
 .SYNOPSIS
 Writes a reminder to the console.
 
@@ -4485,7 +4516,6 @@ Write-HostReminder -Text "Remember to save your work."
         1.0:
             - Started logging changes.
 #>
-Function Write-HostReminder {
     [CmdletBinding()]
     param (
         [String] $Text = "Example text"
@@ -4495,8 +4525,27 @@ Function Write-HostReminder {
     Write-Host "]" -BackgroundColor $Variables.BackgroundColor -ForegroundColor $Variables.ForegroundColor -NoNewline
     Write-Host ": $text`n"
 }
+Function Write-ModifiedStatus {
+    param(
+        [string]$Types,
+        [string[]]$Status,
+        [switch]$WriteWarning
+    )
+    Write-Host "$($LogEntry.Time) " -NoNewline -ForegroundColor DarkGray -BackgroundColor $Variables.BackgroundColor
 
-<#
+    ForEach ($Type in $Types) {
+        Write-Host "$Type " -NoNewline -ForegroundColor $Variables.ForegroundColor -BackgroundColor $Variables.BackgroundColor
+    }
+
+    If ($WriteWarning) {
+        Write-Host "::Warning:: -> $Status" -ForegroundColor Red -BackgroundColor $Variables.BackgroundColor -NoNewline
+    }
+    Else {
+        Write-Host "-> $Status" -ForegroundColor White -BackgroundColor $Variables.BackgroundColor
+    }
+}
+Function Write-Section {
+    <#
 .SYNOPSIS
 Writes a section to the console.
 
@@ -4515,7 +4564,6 @@ Write-Section -Text "Section Title"
         1.0:
             - Started logging changes.
 #>
-Function Write-Section {
     [CmdletBinding()]
     param (
         [String] $Text = "No Text",
@@ -4529,8 +4577,8 @@ Function Write-Section {
     Write-Host $break -NoNewline -ForegroundColor White -BackgroundColor $Variables.BackgroundColor
     Write-Host ">" -ForegroundColor $Variables.ForegroundColor -BackgroundColor $Variables.BackgroundColor
 }
-
-<#
+Function Write-Status {
+    <#
 .SYNOPSIS
 Writes a status to the console.
 
@@ -4542,18 +4590,20 @@ Write-Status -Types "Info", "Verbose" -Status "Operation in progress."
 
 .NOTES
     Author: Circlol
-    Version: 1.0
+    Version: 1.0.1
+    Date: Nov 5 23
     History:
+        1.0.1
+        (Nov 5, 2023)
+            - Removed mandatory param on types for simple status
         1.0:
             - Started logging changes.
 #>
-Function Write-Status {
     [CmdletBinding()]
     param (
         [Parameter(Mandatory)]
-        [Array]  $Types,
-        [Parameter(Mandatory)]
         [String] $Status,
+        [Array]  $Types,
         [Switch] $WriteWarning,
         [Switch] $NoNewLine,
         [ValidateSet("Black", "DarkBlue", "DarkGreen", "DarkCyan", "DarkRed", "DarkMagenta", "DarkYellow", "Gray", "DarkGray",
@@ -4589,8 +4639,8 @@ Function Write-Status {
         Write-Host "-> $Status" -ForegroundColor $ForegroundColorText -BackgroundColor $Variables.BackgroundColor -NoNewline:$NoNewLine
     }
 }
-
-<#
+Function Write-Title {
+    <#
 .SYNOPSIS
 Writes a title to the console.
 
@@ -4612,7 +4662,6 @@ Write-Title -Text "Title Text"
         1.0:
             - Started logging changes.
 #>
-Function Write-Title {
     [CmdletBinding()]
     param (
         [String] $Text = "No Text",
@@ -4628,8 +4677,8 @@ Function Write-Title {
     #$TitleToLogFormat = "`n`n   $Text`n`n"
     #Add-Content -Path $Variables.Log -Value $TitleToLogFormat
 }
-
-<#
+Function Write-TitleCounter {
+    <#
 .SYNOPSIS
     Writes a title counter to the console.
 
@@ -4653,20 +4702,19 @@ Function Write-Title {
     Version: 1.1
     History:
         1.1: (10.29.2023)
-            - Added break parameter with purpose of modularity. 
+            - Added break parameter with purpose of modularity.
         1.0:
             - Started logging changes.
 #>
-Function Write-TitleCounter {
     [CmdletBinding()]
     [OutputType([System.Int32])]
     param (
         [String] $Text = "No Text",
         [Int]    $Counter = 0,
         [Int] 	 $MaxLength,
-        [String] $Break = "∙" * 35
+        [String] $Break = "=" * 35
     )
-    
+
     Write-Host "`n`n$break" -ForegroundColor White -BackgroundColor $Variables.BackgroundColor
     Write-Host "    (" -NoNewline -ForegroundColor $Variables.ForegroundColor -BackgroundColor $Variables.BackgroundColor
     Write-Host " $($Counter)/$($Variables.MaxLength) " -NoNewline -ForegroundColor White -BackgroundColor $Variables.BackgroundColor
@@ -4687,23 +4735,17 @@ If (!$Undo -and !$WhatIfPreference) {
     Start-Bootup
     New-Variable -Name "StartTime" -Value (Get-Date -DisplayHint Time) -Scope Global
     Get-Status -StartTranscript
+    Start-Update
     Get-Program
-    $Variables.Counter++
-    Set-StartMenu
+    Set-StartMenu ; $Variables.Counter++
     Set-Taskbar
-    $Variables.Counter++
-    Set-Wallpaper
-    $Variables.Counter++
-    Set-Branding
-    $Variables.Counter++
-    Start-Debloat
+    Set-Wallpaper ; $Variables.Counter++
+    Set-Branding ; $Variables.Counter++
+    Start-Debloat ; $Variables.Counter++
     Get-AdwCleaner
-    $Variables.Counter++
-    Get-Office
-    $Variables.Counter++
-    Start-BitlockerDecryption
-    $Variables.Counter++
-    Optimize-General
+    Get-Office ; $Variables.Counter++
+    Start-BitlockerDecryption ; $Variables.Counter++
+    Optimize-General ; $Variables.Counter++
     Optimize-Performance
     Optimize-Privacy
     Optimize-Security
@@ -4711,10 +4753,8 @@ If (!$Undo -and !$WhatIfPreference) {
     Optimize-SSD
     Optimize-TaskScheduler
     Optimize-WindowsOptional
-    $Variables.Counter++
-    New-SystemRestorePoint
-    $Variables.Counter++
-    Start-Cleanup
+    New-SystemRestorePoint ; $Variables.Counter++
+    Start-Cleanup ; $Variables.Counter++
     Get-Status -StopTranscript #-EndLogEntry
     Send-EmailLog
     Request-PCRestart
@@ -4723,20 +4763,14 @@ elseif ($WhatIfPreference -or $Undo) {
     Start-Bootup
     New-Variable -Name "StartTime" -Value (Get-Date -DisplayHint Time) -Scope Global
     Get-Program -WhatIf:$WhatIfPreference -Skip:$Undo
-    $Variables.Counter++
-    Set-StartMenu -WhatIf:$WhatIfPreference -Skip:$Undo
+    Set-StartMenu -WhatIf:$WhatIfPreference -Skip:$Undo ; $Variables.Counter++
     Set-Taskbar -WhatIf:$WhatIfPreference -Undo:$Undo
-    $Variables.Counter++
-    Set-Wallpaper -WhatIf:$WhatIfPreference -Undo:$Undo
-    $Variables.Counter++
-    Set-Branding -WhatIf:$WhatIfPreference -Undo:$Undo
-    $Variables.Counter++
-    Start-Debloat -WhatIf:$WhatIfPreference -Undo:$Undo
+    Set-Wallpaper -WhatIf:$WhatIfPreference -Undo:$Undo ; $Variables.Counter++
+    Set-Branding -WhatIf:$WhatIfPreference -Undo:$Undo ; $Variables.Counter++
+    Start-Debloat -WhatIf:$WhatIfPreference -Undo:$Undo ; $Variables.Counter++
     Get-AdwCleaner -WhatIf:$WhatIfPreference -Undo:$Undo
-    $Variables.Counter++
-    Start-BitlockerDecryption -Skip:$Undo
-    $Variables.Counter++
-    Optimize-General -WhatIf:$WhatIfPreference -Undo:$Undo
+    Start-BitlockerDecryption -Skip:$Undo ; $Variables.Counter++
+    Optimize-General -WhatIf:$WhatIfPreference -Undo:$Undo ; $Variables.Counter++
     Optimize-Performance -WhatIf:$WhatIfPreference -Undo:$Undo
     Optimize-SSD -WhatIf:$WhatIfPreference -Undo:$Undo
     Optimize-Privacy -WhatIf:$WhatIfPreference -Undo:$Undo
@@ -4744,8 +4778,7 @@ elseif ($WhatIfPreference -or $Undo) {
     Optimize-Service -WhatIf:$WhatIfPreference -Undo:$Undo
     Optimize-TaskScheduler -WhatIf:$WhatIfPreference -Undo:$Undo
     Optimize-WindowsOptional -WhatIf:$WhatIfPreference -Undo:$Undo
-    $Variables.Counter++
-    Start-Cleanup -WhatIf:$WhatIfPreference -Undo:$Undo
+    Start-Cleanup -WhatIf:$WhatIfPreference -Undo:$Undo ; $Variables.Counter++
     Get-Status -StopTranscript #-EndLogEntry
     Send-EmailLog
     Request-PCRestart
