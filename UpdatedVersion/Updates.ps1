@@ -1,7 +1,7 @@
 Add-Type -AssemblyName System.Windows.Forms
 Add-Type -AssemblyName System.Drawing
-
-Set-ExecutionPolicy RemoteSigned
+Clear-Host
+Set-ExecutionPolicy RemoteSigned -Scope Process -Force
 
 Function Show-Question {
     <#
