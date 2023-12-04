@@ -3,6 +3,76 @@ Add-Type -AssemblyName System.Drawing
 Clear-Host
 Set-ExecutionPolicy RemoteSigned -Scope Process -Force
 
+
+Function Get-Status {
+    # Similar function to gs, instead it stores all the information in a variable and outputs to a log at the end of the script. the function has a passhrough to start a new log entry. and end the log entry.
+    <#
+.SYNOPSIS
+This function is used to get the status of a log entry and perform actions based on the status.
+
+.DESCRIPTION
+This function takes in a log entry and performs actions based on the status of the log entry. It can start or stop a transcript, and write to the log file.
+
+.PARAMETER LogEntry
+The log entry to be processed.
+
+.PARAMETER EndLogEntry
+A switch parameter that indicates whether the log entry is the last entry in the log.
+
+.PARAMETER StartTranscript
+A switch parameter that indicates whether to start a transcript.
+
+.PARAMETER StopTranscript
+A switch parameter that indicates whether to stop a transcript.
+
+.NOTES
+    Author: Circlol
+    Version: 1.0
+    Release Notes:
+        1.0:
+            - Started logging changes.
+#>
+    [CmdletBinding()]
+    [OutputType([String])]
+    param (
+        [Parameter(Mandatory = $false, ValueFromPipeline = $true)]
+        [String] $LogEntry,
+        [Switch] $EndLogEntry,
+        [Switch] $StartTranscript,
+        [Switch] $StopTranscript
+    )
+    process {
+        If ($StartTranscript) {
+            Start-Transcript -Path $Variables.Log -Append | wms -Types "STARTING" -Status "Starting Transcript"
+        }
+
+        If ($StopTranscript) {
+            Stop-Transcript | wms -Types "STOPPING" -Status "Stopping Transcript"
+        }
+
+        If (!$EndLogEntry) {
+            If ($? -eq $True) {
+                # If no error message is provided, assume success
+                #$Global:LogEntry.Successful = $true
+                wc -Type Success
+                #$GlobalLogEntry += $logEntry
+            }
+            else {
+                # Set the global LogEntry.Successful to false
+                #$Global:LogEntry.Successful = $false
+                #$Global:LogEntry.ErrorMessage = $Error[0]
+                # Log a failure message
+                wc -Type Failed
+                #$Global:LogEntry += $logEntry
+                #        # Handle the error message
+                #        Get-Error
+            }
+        }
+        else {
+            write $LogEntry | of -FilePath $Variables.Log -Append
+        }
+    }
+}
 Function Show-Question {
     <#
 .SYNOPSIS
@@ -134,75 +204,6 @@ Function Start-Update {
         ws -Types "" -Status "The last update check was within the 6 hours."
     }
 }
-Function Get-Status {
-    # Similar function to gs, instead it stores all the information in a variable and outputs to a log at the end of the script. the function has a passhrough to start a new log entry. and end the log entry.
-    <#
-.SYNOPSIS
-This function is used to get the status of a log entry and perform actions based on the status.
-
-.DESCRIPTION
-This function takes in a log entry and performs actions based on the status of the log entry. It can start or stop a transcript, and write to the log file.
-
-.PARAMETER LogEntry
-The log entry to be processed.
-
-.PARAMETER EndLogEntry
-A switch parameter that indicates whether the log entry is the last entry in the log.
-
-.PARAMETER StartTranscript
-A switch parameter that indicates whether to start a transcript.
-
-.PARAMETER StopTranscript
-A switch parameter that indicates whether to stop a transcript.
-
-.NOTES
-    Author: Circlol
-    Version: 1.0
-    Release Notes:
-        1.0:
-            - Started logging changes.
-#>
-    [CmdletBinding()]
-    [OutputType([String])]
-    param (
-        [Parameter(Mandatory = $false, ValueFromPipeline = $true)]
-        [String] $LogEntry,
-        [Switch] $EndLogEntry,
-        [Switch] $StartTranscript,
-        [Switch] $StopTranscript
-    )
-    process {
-        If ($StartTranscript) {
-            Start-Transcript -Path $Variables.Log -Append | wms -Types "STARTING" -Status "Starting Transcript"
-        }
-
-        If ($StopTranscript) {
-            Stop-Transcript | wms -Types "STOPPING" -Status "Stopping Transcript"
-        }
-
-        If (!$EndLogEntry) {
-            If ($? -eq $True) {
-                # If no error message is provided, assume success
-                #$Global:LogEntry.Successful = $true
-                wc -Type Success
-                #$GlobalLogEntry += $logEntry
-            }
-            else {
-                # Set the global LogEntry.Successful to false
-                #$Global:LogEntry.Successful = $false
-                #$Global:LogEntry.ErrorMessage = $Error[0]
-                # Log a failure message
-                wc -Type Failed
-                #$Global:LogEntry += $logEntry
-                #        # Handle the error message
-                #        Get-Error
-            }
-        }
-        else {
-            write $LogEntry | of -FilePath $Variables.Log -Append
-        }
-    }
-}
 Function Write-Caption {
     <#
 .SYNOPSIS
@@ -323,14 +324,14 @@ Write-Status -Types "Info", "Verbose" -Status "Operation in progress."
 }
 
 If (!([bool]([Security.Principal.WindowsIdentity]::GetCurrent().Groups -match 'S-1-5-32-544'))) {
-    Write-Host "Please open powershell/command prompt as administrator."
-    Read-Host
+    cls ; wh "Please open powershell/command prompt as administrator." ; rh
     Exit 1
 }
 
 
 nal -name gd    -Value Get-Date
 nal -name gs    -Value Get-Status
+nal -name rh    -Value Read-Host
 nal -Name sq    -Value Show-Question
 nal -Name wc    -Value Write-Caption
 nal -Name wh    -Value Write-Host
