@@ -4,6 +4,17 @@ Clear-Host
 Set-ExecutionPolicy RemoteSigned -Scope Process -Force
 
 
+
+nal -name gd    -Value Get-Date
+nal -name gs    -Value Get-Status
+nal -name rh    -Value Read-Host
+nal -Name sq    -Value Show-Question
+nal -Name wc    -Value Write-Caption
+nal -Name wh    -Value Write-Host
+nal -Name wse   -Value Write-Section
+nal -Name ws    -Value Write-Status
+
+
 Function Get-Status {
     # Similar function to gs, instead it stores all the information in a variable and outputs to a log at the end of the script. the function has a passhrough to start a new log entry. and end the log entry.
     <#
@@ -170,27 +181,37 @@ Function Start-Update {
                 # Small sleep to assure PSWindowsUpdate can be loaded
                 sleep -Seconds 3
                 try {
-
                     # Imports PSWindowsUpdate
                     ws -Types "+" -Status "Importing PSWindowsUpdate" -NoNewLine
                     ipmo -Name PSWindowsUpdate -Force
                     gs
-                    ws -Types "+" -Status "Starting Windows Updates - Download, Install, IgnoreReboot, AcceptAll"
-                    Get-WindowsUpdate -AcceptAll -Install -Download -IgnoreReboot
-                    
+                }catch {
+                    gs
+                    ws -Status "Failed to Import Module: -> PSWindowsUpdate"
+                    Read-Host
+                    Exit 4
+                }
+
+                ws -Types "+" -Status "Starting Windows Updates - Download, Install, IgnoreReboot, AcceptAll"
+                Get-WindowsUpdate -AcceptAll -Install -Download -IgnoreReboot
+
+                try {
                     # CLEANUP & REMOVAL OF START-UPDATE ASSETS
-                    ws -Types "-" -Status "Removing Start-Update Assets"
-                    ws -Types "-" -Status "PSWindowsUpdate" -NoNewLine
+                    ws -Status "Removing Start-Update Assets"
+                    ws -Status "Removing PSWindowsUpdate" -NoNewLine
                     Remove-Module -Name PSWindowsUpdate -Force -Confirm:$false
                     gs
-                    ws -Types "-" -Status "NuGet" -NoNewLine
+                } catch {
+                    gs
+                    ws -Status "Failed to remove PSWindowsUpdate"
+                }
+                Try {
+                    ws -Types "-" -Status "Removing NuGet" -NoNewLine
                     Uninstall-PackageProvider -Name NuGet -Force -Confirm:$false | Out-Null
                     gs
                 }catch {
-                    saps ms-settings:windowsupdate
-                    ws -Status "Failed to Update through the script. Please manually do it."
-                    Read-Host
-                    Exit
+                    gs
+                    ws -Status "Failed to remove NuGet from the System."
                 }
 
                 ws -Status "Updates finished"
@@ -328,15 +349,6 @@ If (!([bool]([Security.Principal.WindowsIdentity]::GetCurrent().Groups -match 'S
     Exit 1
 }
 
-
-nal -name gd    -Value Get-Date
-nal -name gs    -Value Get-Status
-nal -name rh    -Value Read-Host
-nal -Name sq    -Value Show-Question
-nal -Name wc    -Value Write-Caption
-nal -Name wh    -Value Write-Host
-nal -Name wse   -Value Write-Section
-nal -Name ws    -Value Write-Status
 
 Start-Update
 Set-ExecutionPolicy Restricted
