@@ -2,7 +2,8 @@ Add-Type -AssemblyName System.Windows.Forms
 Add-Type -AssemblyName System.Drawing
 Clear-Host
 Set-ExecutionPolicy RemoteSigned -Scope Process -Force
-
+$StartPoint = "`n" * 8
+Write-Host $StartPoint
 
 
 nal -name gd    -Value Get-Date
