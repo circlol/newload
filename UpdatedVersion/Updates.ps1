@@ -346,10 +346,9 @@ Write-Status -Types "Info", "Verbose" -Status "Operation in progress."
 }
 
 If (!([bool]([Security.Principal.WindowsIdentity]::GetCurrent().Groups -match 'S-1-5-32-544'))) {
-    cls ; wh "Please open powershell/command prompt as administrator." ; rh
-    Exit 1
+    cls ; wh "Please open powershell as administrator." ; rh
+    Exit 5
 }
 
 
 Start-Update
-Set-ExecutionPolicy Restricted
