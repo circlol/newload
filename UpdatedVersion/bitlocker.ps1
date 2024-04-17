@@ -24,7 +24,8 @@ If (!([bool]([Security.Principal.WindowsIdentity]::GetCurrent().Groups -match 'S
 }
 
 # Gets encryption status
-$bitlockerStatus = (Get-BitlockerVolume -MountPoint C:\ -Verbose).VolumeStatus
+Write-Output "Gathering Bitlocker volume information"
+$bitlockerStatus = (Get-BitlockerVolume -MountPoint C:\).VolumeStatus
 
 # Checks encryption status
 If ($bitlockerStatus -eq "FullyEncrypted" -or "EncryptionInProgress") {
@@ -32,6 +33,7 @@ If ($bitlockerStatus -eq "FullyEncrypted" -or "EncryptionInProgress") {
         switch ($SelfElevate.ToUpper()) {
             "Y" {
                 # Disables bitlocker on C:\
+                Write-Output "Disabling Bitlocker on C:\"
                 Disable-Bitlocker -MountPoint "C:\" -Verbose
 
 
@@ -41,10 +43,11 @@ If ($bitlockerStatus -eq "FullyEncrypted" -or "EncryptionInProgress") {
                     If ($percentage -ne 0) {
                         Write-Output "Encryption Percentage: $percentage %"
                         Start-Sleep -Seconds 5
-                    } else {
-                        Write-Output "C:\ is at 0% encryption."
                     }
                 } while ( (Get-BitLockerVolume -MountPoint "C:\").EncryptionPercentage -ne 0 )
+
+                Write-Output "C:\ is at 0% encryption."
+                exit 0
             }
             "N" { exit 1 }
             default { Write-Host "Invalid input. Please enter Y or N." }
