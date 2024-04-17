@@ -28,7 +28,7 @@ Write-Output "Gathering Bitlocker volume information"
 $bitlockerStatus = (Get-BitlockerVolume -MountPoint C:\).VolumeStatus
 
 # Checks encryption status
-If ($bitlockerStatus -eq "FullyEncrypted" -or "EncryptionInProgress") {
+If ($bitlockerStatus -eq 'FullyEncrypted' -or 'EncryptionInProgress') {
     do { $SelfElevate = Read-Host -Prompt "Bitlocker on drive C has been detected. Do you want to disable it ? (Y/N) "
         switch ($SelfElevate.ToUpper()) {
             "Y" {
@@ -53,6 +53,9 @@ If ($bitlockerStatus -eq "FullyEncrypted" -or "EncryptionInProgress") {
             default { Write-Host "Invalid input. Please enter Y or N." }
         }
     } while ($true)
+} else {
+
+    Write-Output "Bitlocker is not enabled on C:\"
 }
 
 
