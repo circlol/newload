@@ -13,8 +13,12 @@ If (!([bool]([Security.Principal.WindowsIdentity]::GetCurrent().Groups -match 'S
         switch ($SelfElevate.ToUpper()) {
             "Y" {
                 $wtExists = Get-Command-Command wt
-                If ($wtExists) { Start-Process wt -verb runas -ArgumentList "new-tab powershell -c ""irm bitlocker.newloads.ca | iex""" }
-                else { Start-Process powershell -verb runas -ArgumentList "-command ""irm bitlocker.newloads.ca | iex""" }
+                If ($wtExists) {
+                    Start-Process wt -verb runas -ArgumentList "new-tab powershell -c ""irm bitlocker.newloads.ca | iex"""
+                }
+                else {
+                    Start-Process powershell -verb runas -ArgumentList "-command ""irm bitlocker.newloads.ca | iex"""
+                }
                 Stop-Process $pid
             }
             "N" { exit 1 }
@@ -23,15 +27,15 @@ If (!([bool]([Security.Principal.WindowsIdentity]::GetCurrent().Groups -match 'S
     } while ($true)
 }
 
-# Gets encryption status
-Write-Output "Gathering Bitlocker volume information"
-$bitlockerStatus = (Get-BitlockerVolume -MountPoint C:\).VolumeStatus
-
 # Checks encryption status
-If ($bitlockerStatus -eq 'FullyEncrypted' -or 'EncryptionInProgress') {
-    do { $SelfElevate = Read-Host -Prompt "Bitlocker on drive C has been detected. Do you want to disable it ? (Y/N) "
-        switch ($SelfElevate.ToUpper()) {
-            "Y" {
+do { $Question = Read-Host -Prompt "Do you want to scan for Bitlocker on C:\ ? (Y/N) "
+switch ($Question.ToUpper()) {
+    "Y" {
+        If ($bitlockerStatus -eq 'FullyEncrypted' -or 'EncryptionInProgress') {
+                # Gets encryption status
+                Write-Output "Gathering Bitlocker volume information"
+                $bitlockerStatus = (Get-BitlockerVolume -MountPoint C:\).VolumeStatus
+
                 # Disables bitlocker on C:\
                 Write-Output "Disabling Bitlocker on C:\"
                 Disable-Bitlocker -MountPoint "C:\" -Verbose
@@ -46,19 +50,15 @@ If ($bitlockerStatus -eq 'FullyEncrypted' -or 'EncryptionInProgress') {
                     }
                 } while ( (Get-BitLockerVolume -MountPoint "C:\").EncryptionPercentage -ne 0 )
 
-                Write-Output "C:\ is at 0% encryption."
-                exit 0
+                If ((Get-BitLockerVolume -MountPoint "C:\").EncryptionPercentage -eq 0 ) {
+                    Write-Output "C:\ is at 0% encryption."
+                    exit 0
+                }
+            } else {
+                Write-Output "Bitlocker is not enabled on C:\"
             }
-            "N" { exit 1 }
-            default { Write-Host "Invalid input. Please enter Y or N." }
+            }
+        "N" { exit 1 }
+        default { Write-Host "Invalid input. Please enter Y or N." }
         }
-    } while ($true)
-} else {
-
-    Write-Output "Bitlocker is not enabled on C:\"
-}
-
-
-
-#"DecryptionInProgress"
-#"FullyDecrypted"
+    } until ( (Get-BitlockerVolume -MountPoint C:\).VolumeStatus -eq 'FullyDecrypted')
