@@ -1,4 +1,5 @@
-﻿<#BEGIN#>
+﻿
+<#BEGIN#>
 <#  |  #>
 <#  |  #>
 <#  |  #>
@@ -93,9 +94,10 @@ $modularLogo╚═╝  ╚═══╝╚══════╝ ╚══╝╚�
     "MaxLength"                                  = 10
     "Win11"                                      = 22000
     "Win22H2"                                    = 22621
+    "Win23H2"                                    = 22631
     "MinimumBuildNumber"                         = 19042
     "OSVersion"                                  = (gcim -ClassName Win32_OperatingSystem).Caption
-    "BuildNumber"                                = [System.Environment]::OSVersion.Version.Build
+    "BuildNumber"                                = ($PSVersionTable).BuildVersion.Build
     "Connected"                                  = "Internet"
     # Local File Paths
     "WallpaperDestination"                       = "C:\Windows\Resources\Themes\mother.jpg"
@@ -4035,7 +4037,7 @@ Function Start-Bootup {
     Show-ScriptStatus -WindowTitle "Checking Requirements"
 
     # Checks OS version to make sure Windows is atleast v20H2 otherwise it'll display a message and close
-    If ($Variables.BuildNumber -LE $Variables.MinimumBuildNumber) {
+    If ($Variables.BuildNumber -le $Variables.MinimumBuildNumber) {
         wh $Variables.errorMessage1 -ForegroundColor Yellow
         Read-Host -Prompt "Press enter to close New Loads"
         Exit
