@@ -86,7 +86,7 @@ $modularLogo╚═╝  ╚═══╝╚══════╝ ╚══╝╚�
     "ForegroundColor"                            = "Yellow"
     "LogoColor"                                  = "Yellow"
 
-    "Time"                                       = gd -UFormat %Y%m%d
+    "Time"                                       = Get-Date -UFormat %Y%m%d
     "MaxTime"                                    = 20241231
     "MinTime"                                    = 20231031
     "Counter"                                    = 1
@@ -96,8 +96,7 @@ $modularLogo╚═╝  ╚═══╝╚══════╝ ╚══╝╚�
     "Win22H2"                                    = 22621
     "Win23H2"                                    = 22631
     "MinimumBuildNumber"                         = 19042
-    "OSVersion"                                  = (gcim -ClassName Win32_OperatingSystem).Caption
-    "BuildNumber"                                = ($PSVersionTable).BuildVersion.Build
+    "OSVersion"                                  = (Get-CimInstance -ClassName Win32_OperatingSystem).Caption
     "Connected"                                  = "Internet"
     # Local File Paths
     "WallpaperDestination"                       = "C:\Windows\Resources\Themes\mother.jpg"
@@ -137,7 +136,7 @@ $modularLogo╚═╝  ╚═══╝╚══════╝ ╚══╝╚�
     "CommonApps"                                 = "$Env:ALLUSERSPROFILE\Microsoft\Windows\Start Menu\Programs"
 
     #Wallpaper
-    "CurrentWallpaper"                           = (gp -Path "HKCU:\Control Panel\Desktop" -Name Wallpaper).Wallpaper
+    "CurrentWallpaper"                           = (Get-ItemProperty -Path "HKCU:\Control Panel\Desktop" -Name Wallpaper).Wallpaper
 
     #Office Removal
     "PathToOffice86"                             = "${env:ProgramFiles(x86)}\Microsoft Office"
@@ -611,7 +610,7 @@ Release Notes:
 Section: $Section
 
 "
-    ac -Path $Variables.Log -Value $Title
+    Add-Content -Path $Variables.Log -Value $Title
 }
 Function Find-ScheduledTask {
     <#
@@ -641,14 +640,14 @@ Release Notes:
         [String] $ScheduledTask
     )
     Try {
-        $task = gsti -TaskName $ScheduledTask -ea SilentlyContinue
+        $task = Get-ScheduledTaskInfo -TaskName $ScheduledTask -ea SilentlyContinue
         $task = $task
         return $true
     }
     Catch {
         $Status = "The $ScheduledTask task was not found."
-        ws -Types "?", $TweakType -Status $Status -WriteWarning
-        #ac -Path $Variables.Log -Value $Status
+        Write-Status -Types "?", $TweakType -Status $Status -WriteWarning
+        #Add-Content -Path $Variables.Log -Value $Status
         return $false
     }
 }
@@ -690,19 +689,19 @@ Function Get-ADWCleaner {
     Show-ScriptStatus -TitleText "ADWCleaner"
     Add-LogSection -Section "ADWCleaner"
     If ($Skip -or $Undo) {
-        ws -Types "@" -Status "Parameter -SkipADW or -Undo detected.. Malwarebytes ADWCleaner will be skipped.." -WriteWarning -ForegroundColorText RED
+        Write-Status -Types "@" -Status "Parameter -SkipADW or -Undo detected.. Malwarebytes ADWCleaner will be skipped.." -WriteWarning -ForegroundColorText RED
     }
     else {
         if ($PSCmdlet.ShouldProcess("Download and Run ADWCleaner", "Downloading ADWCleaner $description")) {
-            If (!(tp $Variables.adwDestination)) {
-                ws -Types "+", "ADWCleaner" -Status "Downloading ADWCleaner" -NoNewLine
-                sbt -Source $Variables.adwLink -Destination $Variables.adwDestination -Dynamic
-                gs
+            If (!(Test-Path $Variables.adwDestination)) {
+                Write-Status -Types "+", "ADWCleaner" -Status "Downloading ADWCleaner" -NoNewLine
+                Start-BitsTransfer -Source $Variables.adwLink -Destination $Variables.adwDestination -Dynamic
+                Get-Status
             }
-            ws -Types "+", "ADWCleaner" -Status "Starting ADWCleaner with ArgumentList /Scan & /Clean"
-            saps -FilePath $Variables.adwDestination -ArgumentList "/EULA", "/PreInstalled", "/Clean", "/NoReboot" -Wait -NoNewWindow | oh
-            ws -Types "-", "ADWCleaner" -Status "Removing traces of ADWCleaner"
-            saps -FilePath $Variables.adwDestination -ArgumentList "/Uninstall", "/NoReboot" -WindowStyle Minimized
+            Write-Status -Types "+", "ADWCleaner" -Status "Starting ADWCleaner with ArgumentList /Scan & /Clean"
+            Start-Process -FilePath $Variables.adwDestination -ArgumentList "/EULA", "/PreInstalled", "/Clean", "/NoReboot" -Wait -NoNewWindow | Out-Host
+            Write-Status -Types "-", "ADWCleaner" -Status "Removing traces of ADWCleaner"
+            Start-Process -FilePath $Variables.adwDestination -ArgumentList "/Uninstall", "/NoReboot" -WindowStyle Minimized
         }
     }
 }
@@ -712,7 +711,7 @@ Function Get-CPU {
 This function retrieves information about the CPU of the current system.
 
 .DESCRIPTION
-The Get-CPU function uses the gcim cmdlet to retrieve information about the CPU of the current system, including the CPU name, number of cores, and number of threads.
+The Get-CPU function uses the Get-CimInstance cmdlet to retrieve information about the CPU of the current system, including the CPU name, number of cores, and number of threads.
 
 .PARAMETER Formatted
 If this switch is specified, the function returns the CPU information in a formatted string.
@@ -743,9 +742,9 @@ Release Notes:
     )
 
     try {
-        $cpuName = (gcim -Class Win32_Processor).Name
-        $cores = (gcim -class Win32_Processor).NumberOfCores
-        $threads = (gcim -class Win32_Processor).NumberOfLogicalProcessors
+        $cpuName = (Get-CimInstance -Class Win32_Processor).Name
+        $cores = (Get-CimInstance -class Win32_Processor).NumberOfCores
+        $threads = (Get-CimInstance -class Win32_Processor).NumberOfLogicalProcessors
     }
     catch {
         return "Error retrieving CPU information: $($_)"
@@ -786,7 +785,7 @@ Release Notes:
         - Started logging changes.
 #>
     $driveInfo = @()
-    $physicalDisks = Get-PhysicalDisk | ? { $null -ne $_.MediaType }
+    $physicalDisks = Get-PhysicalDisk | Where-Oject { $null -ne $_.MediaType }
     foreach ($disk in $physicalDisks) {
         $model = $disk.FriendlyName
         $driveType = $disk.MediaType
@@ -826,7 +825,7 @@ Specifies the drive letter for which to retrieve information. If not specified, 
         [String] $DriveLetter = $env:SystemDrive[0]
     )
     process {
-        $drives = gdr -PSProvider FileSystem | ? { $_.Free -ge 0 -and $_.Used -ge 0 }
+        $drives = Get-PSDrive -PSProvider FileSystem | Where-Oject { $_.Free -ge 0 -and $_.Used -ge 0 }
         foreach ($drive in $drives) {
             $driveLetter = $drive.Name
             $availableStorage = $drive.Free / 1GB
@@ -841,7 +840,7 @@ Specifies the drive letter for which to retrieve information. If not specified, 
             }
             $percentageAvailable = [math]::Round(($availableStorage / $totalStorage) * 100, 1)
             $driveInfo = "$driveLetter`: $([math]::Round($availableStorage, 1)) $sizeUnit free of $([math]::Round($totalStorage, 1)) $sizeUnit ($percentageAvailable% Available)"
-            write "$driveInfo"
+            Write-Output "$driveInfo"
         }
     }
 }
@@ -878,7 +877,7 @@ Function Get-Error {
         $lineNumber = $MyInvocation.ScriptLineNumber
         $command = $Error[0].InvocationInfo.MyCommand
         $errorType = $Error[0].CategoryInfo.Reason
-        $timestamp = gd -Format "yyyy-MM-dd HH:mm:ss"
+        $timestamp = Get-Date -Format "yyyy-MM-dd HH:mm:ss"
         $userName = [System.Security.Principal.WindowsIdentity]::GetCurrent().Name
         $errorString = @"
 **********************************************************************
@@ -891,10 +890,10 @@ $ErrorMessage
 **********************************************************************
 "@
         if ($null -eq $Path) {
-            write $errorString
+            Write-Output $errorString
         } else {
             try {
-                ac -Path $Path -Value $errorString -ea Continue
+                Add-Content -Path $Path -Value $errorString -ea Continue
             }
             catch {
                 Write-Error "Error writing to log: $($_.Exception.Message)"
@@ -907,7 +906,7 @@ Function Get-GPU {
 .SYNOPSIS
     Gets the name of the GPU installed on the local computer.
 .DESCRIPTION
-    This function uses the gcim cmdlet to retrieve information about the video controller (GPU) installed on the local computer. It then selects the Name property of the returned object and returns it as a string.
+    This function uses the Get-CimInstance cmdlet to retrieve information about the video controller (GPU) installed on the local computer. It then selects the Name property of the returned object and returns it as a string.
 .PARAMETER None
     This function does not accept any parameters.
 .OUTPUTS
@@ -923,7 +922,7 @@ Function Get-GPU {
     [CmdletBinding()]
     [OutputType([String])]
     param ()
-    $gpu = gcim -Class Win32_VideoController | select -ExpandProperty Name
+    $gpu = Get-CimInstance -Class Win32_VideoController | Select-Object -ExpandProperty Name
     return $gpu.Trim()
 }
 Function Get-InstalledProgram {
@@ -957,16 +956,16 @@ Function Get-InstalledProgram {
     )
     $registryPath = "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\*"
     $registryPath2 = "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\*"
-    $installedPrograms = gci -Path $registryPath
-    $installedPrograms += gci -Path $registryPath2
+    $installedPrograms = Get-ChildItem -Path $registryPath
+    $installedPrograms += Get-ChildItem -Path $registryPath2
 
 
     $registryPath3 = "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Installer\UserData\S-1-5-18\Products\*"
     # Scan through everything in products to find the InstallProperties key
-    $installedPrograms += gci -Path $registryPath3 -Recurse | ? { $_.Name -like "*InstallProperties" }
+    $installedPrograms += Get-ChildItem -Path $registryPath3 -Recurse | Where-Oject { $_.Name -like "*InstallProperties" }
 
     # - Filter the list of installed programs to only include programs that match the specified name
-    $matchingPrograms = $installedPrograms | ? {
+    $matchingPrograms = $installedPrograms | Where-Oject {
         ($_.GetValue("DisplayName") -like "*$Name*") -or
         ($_.GetValue("DisplayVersion") -like "*$Name*") -or
         ($_.GetValue("Publisher") -like "*$Name*") -or
@@ -974,21 +973,21 @@ Function Get-InstalledProgram {
     }
     # - Output the matching programs as a list of objects with Name, Version, Publisher, and UninstallString properties
     # - Sort the list by name and remove duplicates
-    $matchingPrograms | % {
+    $matchingPrograms | ForEach-Object {
         [PSCustomObject]@{
             Name            = $_.GetValue("DisplayName")
             Publisher       = $_.GetValue("Publisher")
             Version         = $_.GetValue("DisplayVersion")
             UninstallString = $_.GetValue("UninstallString")
         }
-    } | sort -Property Name -Unique
+    } | Sort-Object -Property Name -Unique
 }
 Function Get-Motherboard {
     <#
 .SYNOPSIS
     Retrieves the motherboard model and OEM information.
 .DESCRIPTION
-    This function uses the gcim cmdlet to retrieve the motherboard model and OEM information.
+    This function uses the Get-CimInstance cmdlet to retrieve the motherboard model and OEM information.
     It then combines the two pieces of information into a single string and returns it.
 .OUTPUTS
     System.String
@@ -1005,8 +1004,8 @@ Function Get-Motherboard {
     [CmdletBinding()]
     [OutputType([String])]
     param ()
-    $motherboardModel = gcim -Class Win32_BaseBoard | select -ExpandProperty Product
-    $motherboardOEM = gcim -Class Win32_BaseBoard | select -ExpandProperty Manufacturer
+    $motherboardModel = Get-CimInstance -Class Win32_BaseBoard | Select-Object -ExpandProperty Product
+    $motherboardOEM = Get-CimInstance -Class Win32_BaseBoard | Select-Object -ExpandProperty Manufacturer
     [String]$CombinedString = "$motherboardOEM $motherboardModel"
     return "$CombinedString"
 }
@@ -1034,14 +1033,14 @@ Function Get-NetworkStatus {
     )
     $NetStatus = (Get-NetConnectionProfile).$NetworkStatusType
     if ($NetStatus -ne 'Internet') {
-        ws -Types "WAITING" -Status "Seems like there's no network connection. Please reconnect." -WriteWarning
+        Write-Status -Types "WAITING" -Status "Seems like there's no network connection. Please reconnect." -WriteWarning
         while ($NetStatus -ne 'Internet') {
-            write "Waiting for Internet"
-            sleep -Milliseconds 3500
+            Write-Output "Waiting for Internet"
+            Start-Sleep -Milliseconds 3500
             $NetStatus = (Get-NetConnectionProfile).$NetworkStatusType
         }
         Test-Connection -ComputerName $Env:COMPUTERNAME -AsJob
-        write "Connected: Moving On"
+        Write-Output "Connected: Moving On"
     }
 }
 Function Get-Office {
@@ -1062,15 +1061,15 @@ Function Get-Office {
             - Started logging changes.
 #>
     Show-ScriptStatus -WindowTitle "Office" -TweakType "Office" -TitleCounterText "Office"
-    ws -Types "?" -Status "Checking for Office"
-    If (tp $Variables.PathToOffice64 ) {
+    Write-Status -Types "?" -Status "Checking for Office"
+    If (Test-Path $Variables.PathToOffice64 ) {
         $Variables.office64 = $true
     }
     Else {
         $Variables.office64 = $false
     }
 
-    If (tp $Variables.PathToOffice86 ) {
+    If (Test-Path $Variables.PathToOffice86 ) {
         $Variables.Office32 = $true
     }
     Else {
@@ -1082,12 +1081,12 @@ Function Get-Office {
     }
 
     If ($Variables.officecheck -eq $true) {
-        ws -Types "WAITING" -Status "Office Exists" -WriteWarning
+        Write-Status -Types "WAITING" -Status "Office Exists" -WriteWarning
     }
     Else {
         $message = "There are no Microsoft Office products on this device."
-        ws -Types "?" -Status $Message -WriteWarning
-        ac -Path $Variables.Log -Value $message
+        Write-Status -Types "?" -Status $Message -WriteWarning
+        Add-Content -Path $Variables.Log -Value $message
     }
 
     If ($Variables.officecheck -eq $true) {
@@ -1132,62 +1131,62 @@ param (
     # - Program Information
     $chrome = @{
         Name              = "Google Chrome"
-        Installed         = tp -Path "$Env:PROGRAMFILES\Google\Chrome\Application\chrome.exe"
+        Installed         = Test-Path -Path "$Env:PROGRAMFILES\Google\Chrome\Application\chrome.exe"
         ChromeLink        = "https://clients2.google.com/service/update2/crx"
         DownloadURL       = "https://dl.google.com/dl/chrome/install/googlechromestandaloneenterprise64.msi"
         InstallerLocation = "$NewLoads\googlechromestandaloneenterprise64.msi"
-        FileExists        = tp -Path "$NewLoads\googlechromestandaloneenterprise64.msi"
+        FileExists        = Test-Path -Path "$NewLoads\googlechromestandaloneenterprise64.msi"
         ArgumentList      = "/passive"
     }
     $vlc = @{
         Name              = "VLC Media Player"
-        Installed         = tp -Path "$Env:ProgramFiles\VideoLAN\VLC\vlc.exe"
+        Installed         = Test-Path -Path "$Env:ProgramFiles\VideoLAN\VLC\vlc.exe"
         #DownloadURL       = "https://get.videolan.org/vlc/3.0.18/win64/vlc-3.0.18-win64.exe"
         DownloadURL       = "https://mirror.csclub.uwaterloo.ca/vlc/vlc/3.0.20/win64/vlc-3.0.20-win64.exe"
         InstallerLocation = "$NewLoads\vlc-3.0.18-win64.exe"
-        FileExists        = tp -Path "$NewLoads\vlc-3.0.18-win64.exe"
+        FileExists        = Test-Path -Path "$NewLoads\vlc-3.0.18-win64.exe"
         ArgumentList      = "/S /L=1033"
     }
     $zoom = @{
         Name              = "Zoom"
-        Installed         = tp -Path "$Env:ProgramFiles\Zoom\bin\Zoom.exe"
+        Installed         = Test-Path -Path "$Env:ProgramFiles\Zoom\bin\Zoom.exe"
         DownloadURL       = "https://zoom.us/client/5.16.2.22807/ZoomInstallerFull.msi?archType=x64"
         InstallerLocation = "$NewLoads\ZoomInstallerFull.msi"
-        FileExists        = tp -Path "$NewLoads\ZoomInstallerFull.msi"
+        FileExists        = Test-Path -Path "$NewLoads\ZoomInstallerFull.msi"
         ArgumentList      = "/quiet"
     }
     $acrobat = @{
         Name              = "Adobe Acrobat Reader"
-        Installed         = tp -Path "${Env:Programfiles(x86)}\Adobe\Acrobat Reader DC\Reader\AcroRd32.exe"
+        Installed         = Test-Path -Path "${Env:Programfiles(x86)}\Adobe\Acrobat Reader DC\Reader\AcroRd32.exe"
         DownloadURL       = "https://ardownload2.adobe.com/pub/adobe/reader/win/AcrobatDC/2200120169/AcroRdrDC2200120169_en_US.exe"
         InstallerLocation = "$NewLoads\AcroRdrDCx642200120085_MUI.exe"
-        FileExists        = tp -Path "$NewLoads\AcroRdrDCx642200120085_MUI.exe"
+        FileExists        = Test-Path -Path "$NewLoads\AcroRdrDCx642200120085_MUI.exe"
         ArgumentList      = "/sPB"
     }
     $HEVC = @{
         Name              = "HEVC/H.265 Codec"
-        Installed         = gaxp -Name "Microsoft.HEVCVideoExtension"
+        Installed         = Get-AppxPackage-Name "Microsoft.HEVCVideoExtension"
         #DownloadURL       = "https://github.com/circlol/newload/raw/main/assets/Microsoft.HEVCVideoExtension_2.0.60091.0_x64__8wekyb3d8bbwe.Appx"
         DownloadURL       = "https://github.com/circlol/newload/raw/main/assets/Microsoft.HEVCVideoExtensions_2.0.61933.0_neutral_~_8wekyb3d8bbwe.AppxBundle"
         InstallerLocation = "$NewLoads\Microsoft.HEVCVideoExtensions_2.0.61933.0_neutral_~_8wekyb3d8bbwe.AppxBundle"
-        FileExists        = tp -Path "$NewLoads\Microsoft.HEVCVideoExtensions_2.0.61933.0_neutral_~_8wekyb3d8bbwe.AppxBundle"
+        FileExists        = Test-Path -Path "$NewLoads\Microsoft.HEVCVideoExtensions_2.0.61933.0_neutral_~_8wekyb3d8bbwe.AppxBundle"
     }
     $OutlookForWindows = @{
         Name              = "Outlook for Windows"
-        Installed         = gaxp -Name "9NRX63209R7B"
+        Installed         = Get-AppxPackage-Name "9NRX63209R7B"
         DownloadURL       = "https://github.com/circlol/newload/raw/main/assets/Microsoft.OutlookForWindows_1.2023.920.0_x64__8wekyb3d8bbwe.Msix"
         InstallerLocation = "$NewLoads\Microsoft.OutlookForWindows_1.2023.920.0_x64__8wekyb3d8bbwe.Msix"
-        FileExists        = tp -Path "$NewLoads\Microsoft.OutlookForWindows_1.2023.920.0_x64__8wekyb3d8bbwe.Msix"
+        FileExists        = Test-Path -Path "$NewLoads\Microsoft.OutlookForWindows_1.2023.920.0_x64__8wekyb3d8bbwe.Msix"
     }
 
     If ($Skip -or $Undo) {
-        ws -Types "@" -Status "Parameter -SkipProgams and/or -Undo detected.. Ignoring this section." -WriteWarning -ForegroundColorText RED
+        Write-Status -Types "@" -Status "Parameter -SkipProgams and/or -Undo detected.. Ignoring this section." -WriteWarning -ForegroundColorText RED
     }
     else {
         if ($PSCmdlet.ShouldProcess("Get-Program", "Perform program installation")) {
             foreach ( $program in $chrome, $vlc, $zoom, $acrobat, $hevc, $OutlookForWindows) {
                 # , $OutlookForWindows
-                wse -Text $program.Name
+                Write-Section -Text $program.Name
                 # Checks if the program is installed
                 if (-not $program.Installed ) {
                     # if not then checks if the installed exists
@@ -1195,12 +1194,12 @@ param (
                         Get-NetworkStatus
                         try {
                             # if not then downloads installer
-                            ws -Types "+", $TweakType -Status "Downloading $($program.Name)" -NoNewLine
-                            sbt -Source $program.DownloadURL -Destination $program.InstallerLocation -TransferType Download -Dynamic
-                            gs
+                            Write-Status -Types "+", $TweakType -Status "Downloading $($program.Name)" -NoNewLine
+                            Start-BitsTransfer -Source $program.DownloadURL -Destination $program.InstallerLocation -TransferType Download -Dynamic
+                            Get-Status
                         }
                         catch {
-                            gs
+                            Get-Status
                             Get-Error $Error[0]
                         }
                     }
@@ -1208,24 +1207,24 @@ param (
                     If ($program.Name -eq $hevc.Name -or $program.Name -eq $OutlookForWindows.Name) {
                         $BackupProgressPreference = $ProgressPreference
                         $ProgressPreference = 'SilentlyContinue'
-                        ws -Types "+", $TweakType -Status "Installing $($programm.Name).." -NoNewLine
+                        Write-Status -Types "+", $TweakType -Status "Installing $($programm.Name).." -NoNewLine
                         If ($program.Name -eq $hevc.Name) {
                             try {
                                 Add-AppPackage -Path $HEVC.InstallerLocation
-                                gs
+                                Get-Status
                             }
                             catch {
-                                gs
+                                Get-Status
                                 Get-Error $Error[0]
                             }
                         }
                         elseif ($program.Name -eq $OutlookForWindows.Name) {
                             try {
                                 Add-AppPackage -Path $OutlookForWindows.InstallerLocation
-                                gs
+                                Get-Status
                             }
                             catch {
-                                gs
+                                Get-Status
                                 Get-Error $Error[0]
                                 Continue
                             }
@@ -1235,12 +1234,12 @@ param (
                     else {
                         try {
                             # if it does then installs the program
-                            ws -Types "+", $TweakType -Status "Installing.." -NoNewLine
-                            saps -FilePath $program.InstallerLocation -ArgumentList $program.ArgumentList -Wait
-                            gs
+                            Write-Status -Types "+", $TweakType -Status "Installing.." -NoNewLine
+                            Start-Process -FilePath $program.InstallerLocation -ArgumentList $program.ArgumentList -Wait
+                            Get-Status
                         }
                         catch {
-                            gs
+                            Get-Status
                             Get-Error $Error[0]
                             Continue
                         }
@@ -1248,16 +1247,16 @@ param (
 
                     # Adds UBlock Origin to Chrome
                     if ($program.Name -eq $Chrome.name) {
-                        ws "+", $TweakType -Status "Adding UBlock Origin to Google Chrome"
-                        spv -Path $Variables.PathToUblockChrome -Name "update_url" -value $Chrome.ChromeLink -Type STRING
+                        Write-Status "+", $TweakType -Status "Adding UBlock Origin to Google Chrome"
+                        Set-ItemPropertyVerified -Path $Variables.PathToUblockChrome -Name "update_url" -value $Chrome.ChromeLink -Type STRING
                     }
                 }
                 else {
                     # Checks if installed if it is then skips the installation
-                    ws -Types "@", $TweakType -Status "$($program.Name) already seems to be installed on this system.. Skipping Installation"
+                    Write-Status -Types "@", $TweakType -Status "$($program.Name) already seems to be installed on this system.. Skipping Installation"
                     if ($program.Name -eq $Chrome.name) {
-                        ws "+", $TweakType -Status "Adding UBlock Origin to Google Chrome"
-                        spv -Path $Variables.PathToUblockChrome -Name "update_url" -value $Chrome.ChromeLink -Type STRING
+                        Write-Status "+", $TweakType -Status "Adding UBlock Origin to Google Chrome"
+                        Set-ItemPropertyVerified -Path $Variables.PathToUblockChrome -Name "update_url" -value $Chrome.ChromeLink -Type STRING
                     }
                 }
             }
@@ -1269,7 +1268,7 @@ Function Get-RAM {
 .SYNOPSIS
     This function retrieves the total physical memory of the computer and returns it in GB.
 .DESCRIPTION
-    The Get-RAM function uses the gcim cmdlet to retrieve the total physical memory of the computer.
+    The Get-RAM function uses the Get-CimInstance cmdlet to retrieve the total physical memory of the computer.
     It then converts the value to GB and returns it as a formatted string.
 .PARAMETER None
     This function does not accept any parameters.
@@ -1290,14 +1289,14 @@ Function Get-RAM {
     param ()
 
     # Retrieve total physical memory of the computer
-    $ram = gcim Win32_ComputerSystem | select -ExpandProperty TotalPhysicalMemory
+    $ram = Get-CimInstance Win32_ComputerSystem | Select-Object -ExpandProperty TotalPhysicalMemory
 
     # Convert value to GB and return as formatted string
     $ram = $ram / 1GB
     return "{0:N2} GB" -f $ram
 }
 Function Get-Status {
-    # Similar function to gs, instead it stores all the information in a variable and outputs to a log at the end of the script. the function has a passhrough to start a new log entry. and end the log entry.
+    # Similar function to Get-Status, instead it stores all the information in a variable and outputs to a log at the end of the script. the function has a passhrough to start a new log entry. and end the log entry.
     <#
 .SYNOPSIS
 This function is used to get the status of a log entry and perform actions based on the status.
@@ -1335,18 +1334,18 @@ A switch parameter that indicates whether to stop a transcript.
     )
     process {
         If ($StartTranscript) {
-            Start-Transcript -Path $Variables.Log -Append | wms -Types "STARTING" -Status "Starting Transcript"
+            Start-Transcript -Path $Variables.Log -Append | Write-ModifiedStatus -Types "STARTING" -Status "Starting Transcript"
         }
 
         If ($StopTranscript) {
-            Stop-Transcript | wms -Types "STOPPING" -Status "Stopping Transcript"
+            Stop-Transcript | Write-ModifiedStatus -Types "STOPPING" -Status "Stopping Transcript"
         }
 
         If (!$EndLogEntry) {
             If ($? -eq $True) {
                 # If no error message is provided, assume success
                 #$Global:LogEntry.Successful = $true
-                wc -Type Success
+                Write-Caption -Type Success
                 #$GlobalLogEntry += $logEntry
             }
             else {
@@ -1354,14 +1353,14 @@ A switch parameter that indicates whether to stop a transcript.
                 #$Global:LogEntry.Successful = $false
                 #$Global:LogEntry.ErrorMessage = $Error[0]
                 # Log a failure message
-                wc -Type Failed
+                Write-Caption -Type Failed
                 #$Global:LogEntry += $logEntry
                 #        # Handle the error message
                 #        Get-Error
             }
         }
         else {
-            write $LogEntry | of -FilePath $Variables.Log -Append
+            Write-Output $LogEntry | Out-File -FilePath $Variables.Log -Append
         }
     }
 }
@@ -1385,7 +1384,7 @@ Function Get-LastCheckForUpdate {
         1.0:
             - Started logging changes.
 #>
-    $wu = nob -ComObject Microsoft.Update.AutoUpdate
+    $wu = New-Object -ComObject Microsoft.Update.AutoUpdate
     $lastUpdateCheck = $wu.Results.LastSearchSuccessDate
     $lastUpdateCheck = $lastUpdateCheck.ToLocalTime()
     return $lastUpdateCheck
@@ -1427,7 +1426,7 @@ Release Notes:
     Begin {
         # Grab CPU info
         try {
-            $cpu = gcim -ClassName Win32_Processor -Property Name, NumberOfCores, NumberOfLogicalProcessors, MaxClockSpeed
+            $cpu = Get-CimInstance -ClassName Win32_Processor -Property Name, NumberOfCores, NumberOfLogicalProcessors, MaxClockSpeed
             $cpuName = $cpu.Name
             $clockSpeed = $cpu.MaxClockSpeed / 1000
             $clockSpeed = [math]::Round($clockSpeed, 2)
@@ -1440,7 +1439,7 @@ Release Notes:
 
         # Grab GPU info
         try {
-            $gpu = (gcim -Class Win32_VideoController).Name
+            $gpu = (Get-CimInstance -Class Win32_VideoController).Name
         }
         catch {
             return "Error retrieving GPU information: $($_)"
@@ -1449,7 +1448,7 @@ Release Notes:
 
         # Grab RAM info
         try {
-            $ram = (gcim Win32_ComputerSystem).TotalPhysicalMemory
+            $ram = (Get-CimInstance Win32_ComputerSystem).TotalPhysicalMemory
             $ram = $ram / 1GB
         }
         catch {
@@ -1459,11 +1458,11 @@ Release Notes:
 
         # Grab Motherboard info
         try {
-            $motherboardModel = (gcim -Class Win32_BaseBoard).Product
-            $motherboardOEM = (gcim -Class Win32_BaseBoard).Manufacturer
-            $BIOSVersion = (gcim -Class Win32_BIOS).Caption
-            $BIOSReleaseDate = (gcim -Class Win32_BIOS).ReleaseDate
-            $motherboardSerial = (gcim -Class Win32_BaseBoard).SerialNumber
+            $motherboardModel = (Get-CimInstance -Class Win32_BaseBoard).Product
+            $motherboardOEM = (Get-CimInstance -Class Win32_BaseBoard).Manufacturer
+            $BIOSVersion = (Get-CimInstance -Class Win32_BIOS).Caption
+            $BIOSReleaseDate = (Get-CimInstance -Class Win32_BIOS).ReleaseDate
+            $motherboardSerial = (Get-CimInstance -Class Win32_BaseBoard).SerialNumber
             $MotherboardCombinedString = "$motherboardOEM $motherboardModel`n    - Serial: ($motherboardSerial)`n    - BIOS: $BIOSVersion`n    - BIOS Release Date: $BIOSReleaseDate"
         }
         catch {
@@ -1473,13 +1472,13 @@ Release Notes:
 
         # Grab Windows Version
         try {
-            $WinVer = (gcim -class Win32_OperatingSystem).Caption -replace 'Microsoft ', ''
-            $DisplayVersion = (gp $Variables.PathToLMCurrentVersion).DisplayVersion
-            $osBuildNumber = (gp $Variables.PathToLMCurrentVersion).CurrentBuild
+            $WinVer = (Get-CimInstance -class Win32_OperatingSystem).Caption -replace 'Microsoft ', ''
+            $DisplayVersion = (Get-ItemProperty $Variables.PathToLMCurrentVersion).DisplayVersion
+            $osBuildNumber = (Get-ItemProperty $Variables.PathToLMCurrentVersion).CurrentBuild
             $completedBuildNumber = "$DisplayVersion ($osBuildNumber)"
-            #$osarch = (gcim Win32_OperatingSystem).OSArchitecture
-            #$OldBuildNumber = (gp $Variables.PathToLMCurrentVersion).ReleaseId
-            #$DisplayLanguage = (gp $Variables.PathToLMCurrentVersion).DisplayLanguage
+            #$osarch = (Get-CimInstance Win32_OperatingSystem).OSArchitecture
+            #$OldBuildNumber = (Get-ItemProperty $Variables.PathToLMCurrentVersion).ReleaseId
+            #$DisplayLanguage = (Get-ItemProperty $Variables.PathToLMCurrentVersion).DisplayLanguage
             #$DisplayedVersionResult = '(' + @{ $true = $DisplayVersion; $false = $OldBuildNumber }[$null -ne $DisplayVersion] + ')'
             #$completedWindowsName = "$WinVer $osarch $DisplayedVersionResult - $DisplayLanguage"
         }
@@ -1490,7 +1489,7 @@ Release Notes:
 
         # Grabs drive space
         try {
-            $drives = gdr -PSProvider FileSystem | ? { $_.Free -ge 0 -and $_.Used -ge 0 }
+            $drives = Get-PSDrive -PSProvider FileSystem | Where-Oject { $_.Free -ge 0 -and $_.Used -ge 0 }
             foreach ($drive in $drives) {
                 $driveRoot = $drive.Root
                 $availableStorage = $drive.Free / 1TB
@@ -1522,9 +1521,9 @@ Release Notes:
 
         # Grabs screen resolution and refresh rate
         try {
-            $screenResolutionHorizontal = (gcim -Class Win32_VideoController).CurrentHorizontalResolution
-            $screenResolutionVertical = (gcim -Class Win32_VideoController).CurrentVerticalResolution
-            $screenRefreshRate = (gcim -Class Win32_VideoController).CurrentRefreshRate
+            $screenResolutionHorizontal = (Get-CimInstance -Class Win32_VideoController).CurrentHorizontalResolution
+            $screenResolutionVertical = (Get-CimInstance -Class Win32_VideoController).CurrentVerticalResolution
+            $screenRefreshRate = (Get-CimInstance -Class Win32_VideoController).CurrentRefreshRate
             $screenCombinedString = "$screenResolutionHorizontal`x$screenResolutionVertical @$screenRefreshRate`Hz"
         }
         catch {
@@ -1576,23 +1575,23 @@ Release Notes:
         Show-ScriptStatus -WindowTitle "Restore Point" -TweakType "Backup" -TitleCounterText "Creating Restore Point"
         Add-LogSection -Section "System Restore"
         try {
-            ws -Types "+" -Status "Enabling System Restore" -NoNewLine
+            Write-Status -Types "+" -Status "Enabling System Restore" -NoNewLine
             Enable-ComputerRestore -Drive "$env:SystemDrive\"
-            gs
+            Get-Status
 
-            ws -Types "+" -Status "Creating System Restore Point: $description" -NoNewLine
+            Write-Status -Types "+" -Status "Creating System Restore Point: $description" -NoNewLine
             Checkpoint-Computer -Description $description -RestorePointType $restorePointType
-            gs
+            Get-Status
         }
         catch {
-            gs
+            Get-Status
             Get-Error $Error[0]
             Continue
         }
         Show-ScriptStatus -WindowTitle ""
     }
     else {
-        write "Operation Canceled."
+        Write-Output "Operation Canceled."
     }
 }
 Function Optimize-General {
@@ -1630,7 +1629,7 @@ Release Notes:
     )
 
     If (($Undo)) {
-        ws -Types "<", $TweakType -Status "Reverting the tweaks is set to '$Undo'."
+        Write-Status -Types "<", $TweakType -Status "Reverting the tweaks is set to '$Undo'."
         $Zero = 1
         $One = 0
         $OneTwo = 2
@@ -1643,56 +1642,56 @@ Release Notes:
     if ($PSCmdlet.ShouldProcess("Optimize-General", "General tweaks to Windows")) {
         If ($Variables.osVersion -like "*Windows 10*") {
             # code for Windows 10
-            wse -Text "Applying Windows 10 Specific Reg Keys"
+            Write-Section -Text "Applying Windows 10 Specific Reg Keys"
 
             ## Changes search box to an icon
-            ws -Types $EnableStatus[0].Symbol, $TweakType -Status "Switching Search Box to an Icon."
-            spv -Path $Variables.PathToCUSearch -Name "SearchboxTaskbarMode" -Value $OneTwo -Type DWord
+            Write-Status -Types $EnableStatus[0].Symbol, $TweakType -Status "Switching Search Box to an Icon."
+            Set-ItemPropertyVerified -Path $Variables.PathToCUSearch -Name "SearchboxTaskbarMode" -Value $OneTwo -Type DWord
 
             ## Removes Cortana from the taskbar
-            ws -Types $EnableStatus[0].Symbol, $TweakType -Status "$($EnableStatus[0].Status) Cortana Button from Taskbar..."
-            spv -Path $Variables.PathToCUExplorerAdvanced -Name "ShowCortanaButton" -Value $Zero -Type DWord
+            Write-Status -Types $EnableStatus[0].Symbol, $TweakType -Status "$($EnableStatus[0].Status) Cortana Button from Taskbar..."
+            Set-ItemPropertyVerified -Path $Variables.PathToCUExplorerAdvanced -Name "ShowCortanaButton" -Value $Zero -Type DWord
 
             ##  Removes 3D Objects from "This PC"
-            ws -Types $EnableStatus[0].Symbol, $TweakType -Status "$($EnableStatus[0].Status)  3D Objects from This PC.."
-            gi $Variables.PathToHide3DObjects -ea SilentlyContinue | ri -Recurse
+            Write-Status -Types $EnableStatus[0].Symbol, $TweakType -Status "$($EnableStatus[0].Status)  3D Objects from This PC.."
+            Get-Item $Variables.PathToHide3DObjects -ea SilentlyContinue | Remove-Item -Recurse
 
             # Expands ribbon in 10 explorer
-            ws -Types $EnableStatus[1].Symbol, $TweakType -Status "$($EnableStatus[1].Status) Expanded Ribbon in Explorer.."
-            spv -Path $Variables.PathToCUExplorerRibbon -Name "MinimizedStateTabletModeOff" -Type DWORD -Value $Zero
+            Write-Status -Types $EnableStatus[1].Symbol, $TweakType -Status "$($EnableStatus[1].Status) Expanded Ribbon in Explorer.."
+            Set-ItemPropertyVerified -Path $Variables.PathToCUExplorerRibbon -Name "MinimizedStateTabletModeOff" -Type DWORD -Value $Zero
 
             ## Disabling Feeds Open on Hover
-            ws -Types $EnableStatus[0].Symbol, $TweakType -Status "$($EnableStatus[0].Status) Feeds Open on Hover..."
-            spv -Path $Variables.PathToRegCurrentVersionFeeds -Name "ShellFeedsTaskbarOpenOnHover" -Value $Zero -Type DWord
+            Write-Status -Types $EnableStatus[0].Symbol, $TweakType -Status "$($EnableStatus[0].Status) Feeds Open on Hover..."
+            Set-ItemPropertyVerified -Path $Variables.PathToRegCurrentVersionFeeds -Name "ShellFeedsTaskbarOpenOnHover" -Value $Zero -Type DWord
 
             #Disables live feeds in search
-            ws -Types $EnableStatus[0].Symbol, $TweakType -Status "$($EnableStatus[0].Status) Dynamic Content in Windows Search..."
-            spv -Path $Variables.PathToCUFeedsDSB -Name "ShowDynamicContent" -Value $Zero -type DWORD
-            spv -Path $Variables.PathToCUSearchSettings -Name "IsDynamicSearchBoxEnabled" -Value $Zero -Type DWORD
+            Write-Status -Types $EnableStatus[0].Symbol, $TweakType -Status "$($EnableStatus[0].Status) Dynamic Content in Windows Search..."
+            Set-ItemPropertyVerified -Path $Variables.PathToCUFeedsDSB -Name "ShowDynamicContent" -Value $Zero -type DWORD
+            Set-ItemPropertyVerified -Path $Variables.PathToCUSearchSettings -Name "IsDynamicSearchBoxEnabled" -Value $Zero -Type DWORD
         }
         elseif ($Variables.osVersion -like "*Windows 11*") {
             ## Code for Windows 11
-            wse -Text "Applying Windows 11 Specific Reg Keys"
+            Write-Section -Text "Applying Windows 11 Specific Reg Keys"
             If ($Variables.BuildNumber -GE $Variables.Win22H2 ) {
-                ws -Types $EnableStatus[1].Symbol, $TweakType -Status "$($EnableStatus[1].Status) More Icons in the Start Menu.."
-                spv -Path $Variables.PathToCUExplorerAdvanced -Name Start_Layout -Value $One -Type DWORD -Force
+                Write-Status -Types $EnableStatus[1].Symbol, $TweakType -Status "$($EnableStatus[1].Status) More Icons in the Start Menu.."
+                Set-ItemPropertyVerified -Path $Variables.PathToCUExplorerAdvanced -Name Start_Layout -Value $One -Type DWORD -Force
             }
 
             # Sets explorer to compact mode
-            ws -Types $EnableStatus[0].Symbol, $TweakType -Status "$($EnableStatus[0].Status) Compact Mode View in Explorer "
-            spv -Path $Variables.PathToCUExplorerAdvanced -Name UseCompactMode -Value $One -Type DWORD
+            Write-Status -Types $EnableStatus[0].Symbol, $TweakType -Status "$($EnableStatus[0].Status) Compact Mode View in Explorer "
+            Set-ItemPropertyVerified -Path $Variables.PathToCUExplorerAdvanced -Name UseCompactMode -Value $One -Type DWORD
 
             # Removes Chats from the taskbar
-            ws -Types $EnableStatus[0].Symbol, $TweakType -Status "$($EnableStatus[0].Status) Chats from the Taskbar..."
-            spv -Path $Variables.PathToCUExplorerAdvanced -Name "TaskBarMn" -Value $Zero -Type DWORD
+            Write-Status -Types $EnableStatus[0].Symbol, $TweakType -Status "$($EnableStatus[0].Status) Chats from the Taskbar..."
+            Set-ItemPropertyVerified -Path $Variables.PathToCUExplorerAdvanced -Name "TaskBarMn" -Value $Zero -Type DWORD
 
             # Removes Copilot from the taskbar
-            ws -Types $EnableStatus[0].Symbol, $TweakType -Status "$($EnableStatus[0].Status) Copilot from the Taskbar..."
-            spv -Path $Variables.PathToCUExplorerAdvanced -Name "ShowCopilotButton" -Type DWORD -Value $Zero
+            Write-Status -Types $EnableStatus[0].Symbol, $TweakType -Status "$($EnableStatus[0].Status) Copilot from the Taskbar..."
+            Set-ItemPropertyVerified -Path $Variables.PathToCUExplorerAdvanced -Name "ShowCopilotButton" -Type DWORD -Value $Zero
 
             # Removes Meet Now from the taskbar
-            ws -Types $EnableStatus[0].Symbol, $TweakType -Status "$($EnableStatus[0].Status) Meet Now from the Taskbar..."
-            spv -Path $Variables.PathToRegCurrentVersionExplorerPolicy -Name "HideSCAMeetNow" -Type DWORD -Value $One
+            Write-Status -Types $EnableStatus[0].Symbol, $TweakType -Status "$($EnableStatus[0].Status) Meet Now from the Taskbar..."
+            Set-ItemPropertyVerified -Path $Variables.PathToRegCurrentVersionExplorerPolicy -Name "HideSCAMeetNow" -Type DWORD -Value $One
         }
         else {
             # code for other operating systems
@@ -1700,16 +1699,16 @@ Release Notes:
             exit
         }
 
-        wse -Text "Explorer Related"
+        Write-Section -Text "Explorer Related"
 
         ## Unpins taskview from Taskbar
-        ws -Types $EnableStatus[0].Symbol, $TweakType -Status "$($EnableStatus[0].Status) Task View from Taskbar..."
-        spv -Path $Variables.PathToCUExplorerAdvanced -Name "ShowTaskViewButton" -Value $Zero -Type DWord
+        Write-Status -Types $EnableStatus[0].Symbol, $TweakType -Status "$($EnableStatus[0].Status) Task View from Taskbar..."
+        Set-ItemPropertyVerified -Path $Variables.PathToCUExplorerAdvanced -Name "ShowTaskViewButton" -Value $Zero -Type DWord
 
 
         # Pinning This PC to Quick Access Page in Home (11) & Quick Access (10)
-        ws -Types $EnableStatus[1].Symbol, $TweakType -Status "$($EnableStatus[1].Status) This PC in Quick Access..."
-        $ThisPC = (nob -ComObject Shell.Application).Namespace(0).ParseName("::{20D04FE0-3AEA-1069-A2D8-08002B30309D}")
+        Write-Status -Types $EnableStatus[1].Symbol, $TweakType -Status "$($EnableStatus[1].Status) This PC in Quick Access..."
+        $ThisPC = (New-Object -ComObject Shell.Application).Namespace(0).ParseName("::{20D04FE0-3AEA-1069-A2D8-08002B30309D}")
         $verbs = $ThisPC.Verbs()
         foreach ($verb in $verbs) {
             if ($verb.Name -eq "Pin to Quick access") {
@@ -1720,32 +1719,32 @@ Release Notes:
 
         ### Explorer related
         # Removes recent files in explorer quick menu
-        ws -Types $EnableStatus[0].Symbol, $TweakType -Status "$($EnableStatus[0].Status) Show Recents in Explorer..."
-        spv -Path $Variables.PathToCUExplorer -Name "ShowRecent" -Value $Zero -Type DWORD
+        Write-Status -Types $EnableStatus[0].Symbol, $TweakType -Status "$($EnableStatus[0].Status) Show Recents in Explorer..."
+        Set-ItemPropertyVerified -Path $Variables.PathToCUExplorer -Name "ShowRecent" -Value $Zero -Type DWORD
 
         # Removes frequent files in explorer quick menu
-        ws -Types $EnableStatus[0].Symbol, $TweakType -Status "$($EnableStatus[0].Status) Show Frequent in Explorer..."
-        spv -Path $Variables.PathToCUExplorer -Name "ShowFrequent" -Value $Zero -Type DWORD
+        Write-Status -Types $EnableStatus[0].Symbol, $TweakType -Status "$($EnableStatus[0].Status) Show Frequent in Explorer..."
+        Set-ItemPropertyVerified -Path $Variables.PathToCUExplorer -Name "ShowFrequent" -Value $Zero -Type DWORD
 
         # Removes drives without any media (usb hubs, wifi adapters, sd card readers, ect.)
-        ws -Types $EnableStatus[0].Symbol, $TweakType -Status "$($EnableStatus[0].Status) Show Drives without Media..."
-        spv -Path $Variables.PathToCUExplorerAdvanced -Name "HideDrivesWithNoMedia" -Type DWord -Value $Zero
+        Write-Status -Types $EnableStatus[0].Symbol, $TweakType -Status "$($EnableStatus[0].Status) Show Drives without Media..."
+        Set-ItemPropertyVerified -Path $Variables.PathToCUExplorerAdvanced -Name "HideDrivesWithNoMedia" -Type DWord -Value $Zero
 
         # Launches Explorer to This PC
-        ws -Types $EnableStatus[1].Symbol, $TweakType -Status "Setting Explorer Launch to This PC.."
-        spv -Path $Variables.PathToCUExplorerAdvanced -Name "LaunchTo" -Value $One -Type Dword
+        Write-Status -Types $EnableStatus[1].Symbol, $TweakType -Status "Setting Explorer Launch to This PC.."
+        Set-ItemPropertyVerified -Path $Variables.PathToCUExplorerAdvanced -Name "LaunchTo" -Value $One -Type Dword
 
         # Adds User shortcut to desktop
-        ws -Types $EnableStatus[1].Symbol, $TweakType -Status "$($EnableStatus[1].Status) User Files to Desktop..."
-        spv -Path "$($Variables.PathToCUExplorer)\HideDesktopIcons\NewStartPanel" -Name $Variables.UsersFolder -Value $Zero -Type DWORD
+        Write-Status -Types $EnableStatus[1].Symbol, $TweakType -Status "$($EnableStatus[1].Status) User Files to Desktop..."
+        Set-ItemPropertyVerified -Path "$($Variables.PathToCUExplorer)\HideDesktopIcons\NewStartPanel" -Name $Variables.UsersFolder -Value $Zero -Type DWORD
 
         # Adds This PC shortcut to desktop
-        ws -Types $EnableStatus[1].Symbol, $TweakType -Status "$($EnableStatus[1].Status) This PC to Desktop..."
-        spv -Path "$($Variables.PathToCUExplorer)\HideDesktopIcons\NewStartPanel" -Name $Variables.ThisPC -Value $Zero -Type DWORD
+        Write-Status -Types $EnableStatus[1].Symbol, $TweakType -Status "$($EnableStatus[1].Status) This PC to Desktop..."
+        Set-ItemPropertyVerified -Path "$($Variables.PathToCUExplorer)\HideDesktopIcons\NewStartPanel" -Name $Variables.ThisPC -Value $Zero -Type DWORD
 
         # Expands details of file operations window
-        ws -Types $EnableStatus[1].Symbol, $TweakType -Status "$($EnableStatus[1].Status) Expanded File Operation Details by Default.."
-        spv -Path "$($Variables.PathToCUExplorer)\OperationStatusManager" -Name "EnthusiastMode" -Type DWORD -Value $One
+        Write-Status -Types $EnableStatus[1].Symbol, $TweakType -Status "$($EnableStatus[1].Status) Expanded File Operation Details by Default.."
+        Set-ItemPropertyVerified -Path "$($Variables.PathToCUExplorer)\OperationStatusManager" -Name "EnthusiastMode" -Type DWORD -Value $One
 
     }
 }
@@ -1780,7 +1779,7 @@ Release Notes:
     )
 
     If (($Undo)) {
-        ws -Types "<", $TweakType -Status "Reverting the tweaks is set to '$Undo'."
+        Write-Status -Types "<", $TweakType -Status "Reverting the tweaks is set to '$Undo'."
         $Zero = 1
         $One = 0
         $OneTwo = 2
@@ -1801,36 +1800,36 @@ Release Notes:
         }
         $UniquePowerPlans = $BuiltInPowerPlans.Clone()
 
-        wc -Text "Display" -Type None
-        ws -Types $EnableStatus[1].Symbol, $TweakType -Status "Enable Hardware Accelerated GPU Scheduling... (Windows 10 20H1+ - Needs Restart)"
-        spv -Path $Variables.PathToGraphicsDrives -Name "HwSchMode" -Type DWord -Value 2
+        Write-Caption -Text "Display" -Type None
+        Write-Status -Types $EnableStatus[1].Symbol, $TweakType -Status "Enable Hardware Accelerated GPU Scheduling... (Windows 10 20H1+ - Needs Restart)"
+        Set-ItemPropertyVerified -Path $Variables.PathToGraphicsDrives -Name "HwSchMode" -Type DWord -Value 2
 
         # [@] (2 = Enable Ndu, 4 = Disable Ndu)
-        ws -Types $EnableStatus[0].Symbol, $TweakType -Status "$($EnableStatus[0].Status) Ndu High RAM Usage..."
-        spv -Path $Variables.PathToLMNdu -Name "Start" -Type DWord -Value 4
+        Write-Status -Types $EnableStatus[0].Symbol, $TweakType -Status "$($EnableStatus[0].Status) Ndu High RAM Usage..."
+        Set-ItemPropertyVerified -Path $Variables.PathToLMNdu -Name "Start" -Type DWord -Value 4
         # Details: https://www.tenforums.com/tutorials/94628-change-split-threshold-svchost-exe-windows-10-a.html
         # Will reduce Processes number considerably on > 4GB of RAM systems
 
-        ws -Types $EnableStatus[1].Symbol, $TweakType -Status "Setting SVCHost to match installed RAM size..."
-        $RamInKB = (gcim -ClassName Win32_PhysicalMemory | measure -Property Capacity -Sum).Sum / 1KB
-        spv -Path $Variables.PathToLMControl -Name "SvcHostSplitThresholdInKB" -Type DWord -Value $RamInKB
+        Write-Status -Types $EnableStatus[1].Symbol, $TweakType -Status "Setting SVCHost to match installed RAM size..."
+        $RamInKB = (Get-CimInstance -ClassName Win32_PhysicalMemory | Measure-Object -Property Capacity -Sum).Sum / 1KB
+        Set-ItemPropertyVerified -Path $Variables.PathToLMControl -Name "SvcHostSplitThresholdInKB" -Type DWord -Value $RamInKB
 
 
-        wse "Microsoft Edge Tweaks"
-        wc -Text "System and Performance" -Type None
+        Write-Section "Microsoft Edge Tweaks"
+        Write-Caption -Text "System and Performance" -Type None
 
-        ws -Types $EnableStatus[0].Symbol, $TweakType -Status "$($EnableStatus[0].Status) Edge Startup boost..."
-        spv -Path $Variables.PathToLMPoliciesEdge -Name "StartupBoostEnabled" -Type DWord -Value $Zero
+        Write-Status -Types $EnableStatus[0].Symbol, $TweakType -Status "$($EnableStatus[0].Status) Edge Startup boost..."
+        Set-ItemPropertyVerified -Path $Variables.PathToLMPoliciesEdge -Name "StartupBoostEnabled" -Type DWord -Value $Zero
 
-        ws -Types $EnableStatus[0].Symbol, $TweakType -Status "$($EnableStatus[0].Status) run extensions and apps when Edge is closed..."
-        spv -Path $Variables.PathToLMPoliciesEdge -Name "BackgroundModeEnabled" -Type DWord -Value $Zero
-        wse -Text "Power Plan Tweaks"
-        ws -Types "@", $TweakType -Status "Cleaning up duplicated Power plans..."
+        Write-Status -Types $EnableStatus[0].Symbol, $TweakType -Status "$($EnableStatus[0].Status) run extensions and apps when Edge is closed..."
+        Set-ItemPropertyVerified -Path $Variables.PathToLMPoliciesEdge -Name "BackgroundModeEnabled" -Type DWord -Value $Zero
+        Write-Section -Text "Power Plan Tweaks"
+        Write-Status -Types "@", $TweakType -Status "Cleaning up duplicated Power plans..."
         ForEach ($PowerCfgString in $ExistingPowerPlans) {
             $PowerPlanGUID = $PowerCfgString.Split(':')[1].Split('(')[0].Trim()
             $PowerPlanName = $PowerCfgString.Split('(')[-1].Replace(')', '').Trim()
             If (($PowerPlanGUID -in $BuiltInPowerPlans.Values)) {
-                ws -Types "@", $TweakType -Status "The '$PowerPlanName' power plan` is built-in, skipping $PowerPlanGUID ..."
+                Write-Status -Types "@", $TweakType -Status "The '$PowerPlanName' power plan` is built-in, skipping $PowerPlanGUID ..."
                 Continue
             }
             Try {
@@ -1838,101 +1837,101 @@ Release Notes:
                     $UniquePowerPlans.Add($PowerPlanName, $PowerPlanGUID)
                 }
                 Else {
-                    ws -Types "-", $TweakType -Status "Duplicated '$PowerPlanName' power plan found, deleting $PowerPlanGUID ..." -NoNewLine
+                    Write-Status -Types "-", $TweakType -Status "Duplicated '$PowerPlanName' power plan found, deleting $PowerPlanGUID ..." -NoNewLine
                     powercfg -Delete $PowerPlanGUID
-                    gs
+                    Get-Status
                 }
             }
             Catch {
-                ws -Types "-", $TweakType -Status "Duplicated '$PowerPlanName' power plan found, deleting $PowerPlanGUID ..." -NoNewLine
+                Write-Status -Types "-", $TweakType -Status "Duplicated '$PowerPlanName' power plan found, deleting $PowerPlanGUID ..." -NoNewLine
                 powercfg -Delete $PowerPlanGUID
-                gs
+                Get-Status
             }
         }
 
-        ws -Types $EnableStatus[1].Symbol, $TweakType -Status "Setting the Monitor Timeout to AC: $($Variables.TimeoutScreenPluggedIn)..." -NoNewLine
+        Write-Status -Types $EnableStatus[1].Symbol, $TweakType -Status "Setting the Monitor Timeout to AC: $($Variables.TimeoutScreenPluggedIn)..." -NoNewLine
         powercfg -Change Monitor-Timeout-AC $Variables.TimeoutScreenPluggedIn
-        gs
-        ws -Types $EnableStatus[1].Symbol, $TweakType -Status "Setting the Monitor Timeout to DC: $($Variables.TimeoutScreenBattery)..." -NoNewLine
+        Get-Status
+        Write-Status -Types $EnableStatus[1].Symbol, $TweakType -Status "Setting the Monitor Timeout to DC: $($Variables.TimeoutScreenBattery)..." -NoNewLine
         powercfg -Change Monitor-Timeout-DC $Variables.TimeoutScreenBattery
-        gs
-        ws -Types $EnableStatus[1].Symbol, $TweakType -Status "Setting the Standby Timeout to AC: $($Variables.TimeoutStandByPluggedIn)" -NoNewLine
+        Get-Status
+        Write-Status -Types $EnableStatus[1].Symbol, $TweakType -Status "Setting the Standby Timeout to AC: $($Variables.TimeoutStandByPluggedIn)" -NoNewLine
         powercfg -Change Standby-Timeout-AC $Variables.TimeoutStandByPluggedIn
-        gs
-        ws -Types $EnableStatus[1].Symbol, $TweakType -Status "Setting the Standby Timeout to DC: $($Variables.TimeoutStandByBattery)..." -NoNewLine
+        Get-Status
+        Write-Status -Types $EnableStatus[1].Symbol, $TweakType -Status "Setting the Standby Timeout to DC: $($Variables.TimeoutStandByBattery)..." -NoNewLine
         powercfg -Change Standby-Timeout-DC $Variables.TimeoutStandByBattery
-        gs
-        ws -Types $EnableStatus[1].Symbol, $TweakType -Status "Setting the Disk Timeout to AC: $($Variables.TimeoutDiskPluggedIn)" -NoNewLine
+        Get-Status
+        Write-Status -Types $EnableStatus[1].Symbol, $TweakType -Status "Setting the Disk Timeout to AC: $($Variables.TimeoutDiskPluggedIn)" -NoNewLine
         powercfg -Change Disk-Timeout-AC $Variables.TimeoutDiskPluggedIn
-        gs
-        ws -Types $EnableStatus[1].Symbol, $TweakType -Status "Setting the Disk Timeout to DC: $($Variables.TimeoutDiskBattery)..." -NoNewLine
+        Get-Status
+        Write-Status -Types $EnableStatus[1].Symbol, $TweakType -Status "Setting the Disk Timeout to DC: $($Variables.TimeoutDiskBattery)..." -NoNewLine
         powercfg -Change Disk-Timeout-DC $Variables.TimeoutDiskBattery
-        gs
-        ws -Types $EnableStatus[1].Symbol, $TweakType -Status "Setting the Hibernate Timeout to AC: $($Variables.TimeoutHibernatePluggedIn)..." -NoNewLine
+        Get-Status
+        Write-Status -Types $EnableStatus[1].Symbol, $TweakType -Status "Setting the Hibernate Timeout to AC: $($Variables.TimeoutHibernatePluggedIn)..." -NoNewLine
         powercfg -Change Hibernate-Timeout-AC $Variables.TimeoutHibernatePluggedIn
-        gs
-        ws -Types $EnableStatus[1].Symbol, $TweakType -Status "Setting the Hibernate Timeout to DC: $($Variables.TimeoutHibernateBattery)..." -NoNewLine
+        Get-Status
+        Write-Status -Types $EnableStatus[1].Symbol, $TweakType -Status "Setting the Hibernate Timeout to DC: $($Variables.TimeoutHibernateBattery)..." -NoNewLine
         Powercfg -Change Hibernate-Timeout-DC $Variables.TimeoutHibernateBattery
-        gs
-        ws -Types $EnableStatus[1].Symbol, $TweakType -Status "Setting Power Plan to High Performance..." -NoNewLine
+        Get-Status
+        Write-Status -Types $EnableStatus[1].Symbol, $TweakType -Status "Setting Power Plan to High Performance..." -NoNewLine
         powercfg -SetActive 8c5e7fda-e8bf-4a96-9a85-a6e23a8c635c
-        gs
-        ws -Types $EnableStatus[1].Symbol, $TweakType -Status "Creating the Ultimate Performance hidden Power Plan..." -NoNewLine
+        Get-Status
+        Write-Status -Types $EnableStatus[1].Symbol, $TweakType -Status "Creating the Ultimate Performance hidden Power Plan..." -NoNewLine
         powercfg -DuplicateScheme e9a42b02-d5df-448d-aa00-03f14749eb61
-        gs
+        Get-Status
 
 
-        wse "Network & Internet"
-        ws -Types $EnableStatus[1].Symbol, $TweakType -Status "Unlimiting your network bandwidth for all your system..." # Based on this Chris Titus video: https://youtu.be/7u1miYJmJ_4
-        spv -Path $Variables.PathToLMPoliciesPsched -Name "NonBestEffortLimit" -Type DWord -Value 0
-        spv -Path $Variables.PathToLMMultimediaSystemProfile -Name "NetworkThrottlingIndex" -Type DWord -Value 0xffffffff
-        wse "System & Apps Timeout behaviors"
-        ws -Types $EnableStatus[1].Symbol, $TweakType -Status "Reducing Time to services app timeout to 2s to ALL users..."
-        spv -Path $Variables.PathToLMControl -Name "WaitToKillServiceTimeout" -Type DWord -Value 2000 # Default: 20000 / 5000
-        ws -Types "*", $TweakType -Status "Don't clear page file at shutdown (takes more time) to ALL users..."
-        spv -Path $Variables.PathToLMMemoryManagement -Name "ClearPageFileAtShutdown" -Type DWord -Value 0
-        ws -Types $EnableStatus[1].Symbol, $TweakType -Status "Reducing mouse hover time events to 10ms..."
-        spv -Path $Variables.PathToCUMouse -Name "MouseHoverTime" -Type String -Value "1000" # Default: 400
+        Write-Section "Network & Internet"
+        Write-Status -Types $EnableStatus[1].Symbol, $TweakType -Status "Unlimiting your network bandwidth for all your system..." # Based on this Chris Titus video: https://youtu.be/7u1miYJmJ_4
+        Set-ItemPropertyVerified -Path $Variables.PathToLMPoliciesPsched -Name "NonBestEffortLimit" -Type DWord -Value 0
+        Set-ItemPropertyVerified -Path $Variables.PathToLMMultimediaSystemProfile -Name "NetworkThrottlingIndex" -Type DWord -Value 0xffffffff
+        Write-Section "System & Apps Timeout behaviors"
+        Write-Status -Types $EnableStatus[1].Symbol, $TweakType -Status "Reducing Time to services app timeout to 2s to ALL users..."
+        Set-ItemPropertyVerified -Path $Variables.PathToLMControl -Name "WaitToKillServiceTimeout" -Type DWord -Value 2000 # Default: 20000 / 5000
+        Write-Status -Types "*", $TweakType -Status "Don't clear page file at shutdown (takes more time) to ALL users..."
+        Set-ItemPropertyVerified -Path $Variables.PathToLMMemoryManagement -Name "ClearPageFileAtShutdown" -Type DWord -Value 0
+        Write-Status -Types $EnableStatus[1].Symbol, $TweakType -Status "Reducing mouse hover time events to 10ms..."
+        Set-ItemPropertyVerified -Path $Variables.PathToCUMouse -Name "MouseHoverTime" -Type String -Value "1000" # Default: 400
         # Details: https://windowsreport.com/how-to-speed-up-windows-11-animations/ and https://www.tenforums.com/tutorials/97842-change-hungapptimeout-value-windows-10-a.html
         ForEach ($DesktopRegistryPath in @($Variables.PathToUsersControlPanelDesktop, $Variables.PathToCUControlPanelDesktop)) {
             <# $DesktopRegistryPath is the path related to all users and current user configuration #>
             If ($DesktopRegistryPath -eq $Variables.PathToUsersControlPanelDesktop) {
-                wc -Text "TO ALL USERS" -Type None
+                Write-Caption -Text "TO ALL USERS" -Type None
             }
             ElseIf ($DesktopRegistryPath -eq $Variables.PathToCUControlPanelDesktop) {
-                wc -Text "TO CURRENT USER" -Type None
+                Write-Caption -Text "TO CURRENT USER" -Type None
             }
-            ws -Types $EnableStatus[1].Symbol, $TweakType -Status "Don't prompt user to end tasks on shutdown..."
-            spv -Path $DesktopRegistryPath -Name "AutoEndTasks" -Type DWord -Value 1 # Default: Removed or 0
+            Write-Status -Types $EnableStatus[1].Symbol, $TweakType -Status "Don't prompt user to end tasks on shutdown..."
+            Set-ItemPropertyVerified -Path $DesktopRegistryPath -Name "AutoEndTasks" -Type DWord -Value 1 # Default: Removed or 0
 
-            If ((gi "$DesktopRegistryPath").Property -contains "HungAppTimeout") {
-                ws -Types "*", $TweakType -Status "Returning 'Hung App Timeout' to default..."
+            If ((Get-Item "$DesktopRegistryPath").Property -contains "HungAppTimeout") {
+                Write-Status -Types "*", $TweakType -Status "Returning 'Hung App Timeout' to default..."
                 Remove-Path "$DesktopRegistryPath" -Name "HungAppTimeout"
             }
 
-            ws -Types $EnableStatus[1].Symbol, $TweakType -Status "Reducing mouse and keyboard hooks timeout to 1s..."
-            spv -Path "$DesktopRegistryPath" -Name "LowLevelHooksTimeout" -Type DWord -Value 1000 # Default: Removed or 5000
+            Write-Status -Types $EnableStatus[1].Symbol, $TweakType -Status "Reducing mouse and keyboard hooks timeout to 1s..."
+            Set-ItemPropertyVerified -Path "$DesktopRegistryPath" -Name "LowLevelHooksTimeout" -Type DWord -Value 1000 # Default: Removed or 5000
 
-            ws -Types $EnableStatus[1].Symbol, $TweakType -Status "Reducing animation speed delay to 1ms on Windows 11..."
-            spv -Path "$DesktopRegistryPath" -Name "MenuShowDelay" -Type DWord -Value 1 # Default: 400
+            Write-Status -Types $EnableStatus[1].Symbol, $TweakType -Status "Reducing animation speed delay to 1ms on Windows 11..."
+            Set-ItemPropertyVerified -Path "$DesktopRegistryPath" -Name "MenuShowDelay" -Type DWord -Value 1 # Default: 400
 
-            ws -Types $EnableStatus[1].Symbol, $TweakType -Status "Reducing Time to kill apps timeout to 5s..."
-            spv -Path "$DesktopRegistryPath" -Name "WaitToKillAppTimeout" -Type DWord -Value 5000 # Default: 20000
+            Write-Status -Types $EnableStatus[1].Symbol, $TweakType -Status "Reducing Time to kill apps timeout to 5s..."
+            Set-ItemPropertyVerified -Path "$DesktopRegistryPath" -Name "WaitToKillAppTimeout" -Type DWord -Value 5000 # Default: 20000
         }
 
-        wse "Gaming Responsiveness Tweaks"
-        ws -Types "*", $TweakType -Status "Enabling game mode..."
-        spv -Path $Variables.PathToCUGameBar -Name "AllowAutoGameMode" -Type DWord -Value 1
-        spv -Path $Variables.PathToCUGameBar -Name "AutoGameModeEnabled" -Type DWord -Value 1
+        Write-Section "Gaming Responsiveness Tweaks"
+        Write-Status -Types "*", $TweakType -Status "Enabling game mode..."
+        Set-ItemPropertyVerified -Path $Variables.PathToCUGameBar -Name "AllowAutoGameMode" -Type DWord -Value 1
+        Set-ItemPropertyVerified -Path $Variables.PathToCUGameBar -Name "AutoGameModeEnabled" -Type DWord -Value 1
 
         # Details: https://www.reddit.com/r/killerinstinct/comments/4fcdhy/an_excellent_guide_to_optimizing_your_windows_10/
-        ws -Types $EnableStatus[1].Symbol, $TweakType -Status "Reserving 100% of CPU to Multimedia/Gaming tasks..."
-        spv -Path $Variables.PathToLMMultimediaSystemProfile -Name "SystemResponsiveness" -Type DWord -Value 0 # Default: 20
+        Write-Status -Types $EnableStatus[1].Symbol, $TweakType -Status "Reserving 100% of CPU to Multimedia/Gaming tasks..."
+        Set-ItemPropertyVerified -Path $Variables.PathToLMMultimediaSystemProfile -Name "SystemResponsiveness" -Type DWord -Value 0 # Default: 20
 
-        ws -Types $EnableStatus[1].Symbol, $TweakType -Status "Dedicate more CPU/GPU usage to Gaming tasks..."
-        spv -Path $Variables.PathToLMMultimediaSystemProfileOnGameTasks -Name "GPU Priority" -Type DWord -Value 8 # Default: 8
-        spv -Path $Variables.PathToLMMultimediaSystemProfileOnGameTasks -Name "Priority" -Type DWord -Value 6 # Default: 2
-        spv -Path $Variables.PathToLMMultimediaSystemProfileOnGameTasks -Name "Scheduling Category" -Type String -Value "High" # Default: "Medium"
+        Write-Status -Types $EnableStatus[1].Symbol, $TweakType -Status "Dedicate more CPU/GPU usage to Gaming tasks..."
+        Set-ItemPropertyVerified -Path $Variables.PathToLMMultimediaSystemProfileOnGameTasks -Name "GPU Priority" -Type DWord -Value 8 # Default: 8
+        Set-ItemPropertyVerified -Path $Variables.PathToLMMultimediaSystemProfileOnGameTasks -Name "Priority" -Type DWord -Value 6 # Default: 2
+        Set-ItemPropertyVerified -Path $Variables.PathToLMMultimediaSystemProfileOnGameTasks -Name "Scheduling Category" -Type String -Value "High" # Default: "Medium"
     }
 }
 Function Optimize-Privacy {
@@ -1974,7 +1973,7 @@ Release Notes:
     )
 
     If (($Undo)) {
-        ws -Types "<", $TweakType -Status "Reverting the tweaks is set to '$Undo'."
+        Write-Status -Types "<", $TweakType -Status "Reverting the tweaks is set to '$Undo'."
         $Zero = 1
         $One = 0
         $OneTwo = 2
@@ -1987,168 +1986,168 @@ Release Notes:
 
     if ($PSCmdlet.ShouldProcess("Optimize-Privacy", "Perform privacy optimizations")) {
 
-        wse -Text "Personalization"
-        wc -Text "Start & Lockscreen"
+        Write-Section -Text "Personalization"
+        Write-Caption -Text "Start & Lockscreen"
 
         # Executes the array above
-        ws -Types "?", $TweakType -Status "From Path: [$($Variables.PathToCUContentDeliveryManager)]." -WriteWarning
+        Write-Status -Types "?", $TweakType -Status "From Path: [$($Variables.PathToCUContentDeliveryManager)]." -WriteWarning
         ForEach ($Name in $Variables.ContentDeliveryManagerDisableOnZero) {
-            ws -Types $EnableStatus[0].Symbol, $TweakType -Status "$($EnableStatus[0].Status) $($Name): $Zero"
-            spv -Path $Variables.PathToCUContentDeliveryManager -Name "$Name" -Type DWord -Value $Zero
+            Write-Status -Types $EnableStatus[0].Symbol, $TweakType -Status "$($EnableStatus[0].Status) $($Name): $Zero"
+            Set-ItemPropertyVerified -Path $Variables.PathToCUContentDeliveryManager -Name "$Name" -Type DWord -Value $Zero
         }
 
         # Disables content suggestions in settings
-        If (tp "$($Variables.PathToCUContentDeliveryManager)\Subscriptions") {
-            ws -Types "-", $TweakType -Status "$($EnableStatus[0].Status) 'Suggested Content in the Settings App'..." -NoNewLine
-            ri -Path "$($Variables.PathToCUContentDeliveryManager)\Subscriptions" -Recurse
-            gs
+        If (Test-Path "$($Variables.PathToCUContentDeliveryManager)\Subscriptions") {
+            Write-Status -Types "-", $TweakType -Status "$($EnableStatus[0].Status) 'Suggested Content in the Settings App'..." -NoNewLine
+            Remove-Item -Path "$($Variables.PathToCUContentDeliveryManager)\Subscriptions" -Recurse
+            Get-Status
         }
 
         # Disables content suggestion in start
-        If (tp "$($Variables.PathToCUContentDeliveryManager)\SuggestedApps") {
-            ws -Types $EnableStatus[0].Symbol, $TweakType -Status "$($EnableStatus[0].Status) 'Show Suggestions' in Start..." -NoNewLine
-            ri -Path "$($Variables.PathToCUContentDeliveryManager)\SuggestedApps" -Recurse
-            gs
+        If (Test-Path "$($Variables.PathToCUContentDeliveryManager)\SuggestedApps") {
+            Write-Status -Types $EnableStatus[0].Symbol, $TweakType -Status "$($EnableStatus[0].Status) 'Show Suggestions' in Start..." -NoNewLine
+            Remove-Item -Path "$($Variables.PathToCUContentDeliveryManager)\SuggestedApps" -Recurse
+            Get-Status
         }
 
-        wse -Text "Privacy -> Windows Permissions"
-        wc -Text "General"
+        Write-Section -Text "Privacy -> Windows Permissions"
+        Write-Caption -Text "General"
 
         # Disables Advertiser ID through permissions and group policy.
-        ws -Types $EnableStatus[0].Symbol, $TweakType -Status "$($EnableStatus[0].Status) Let apps use my advertising ID..."
-        spv -Path $Variables.PathToRegAdvertising -Name "Enabled" -Type DWord -Value $Zero
-        spv -Path $Variables.PathToLMPoliciesAdvertisingInfo -Name "DisabledByGroupPolicy" -Type DWord -Value $One
+        Write-Status -Types $EnableStatus[0].Symbol, $TweakType -Status "$($EnableStatus[0].Status) Let apps use my advertising ID..."
+        Set-ItemPropertyVerified -Path $Variables.PathToRegAdvertising -Name "Enabled" -Type DWord -Value $Zero
+        Set-ItemPropertyVerified -Path $Variables.PathToLMPoliciesAdvertisingInfo -Name "DisabledByGroupPolicy" -Type DWord -Value $One
 
         # Disables locally relevant content
-        ws -Types $EnableStatus[0].Symbol, $TweakType -Status "$($EnableStatus[0].Status) 'Let websites provide locally relevant content by accessing my language list'..."
-        spv -Path $Variables.PathToCUUP -Name "HttpAcceptLanguageOptOut" -Type DWord -Value $One
+        Write-Status -Types $EnableStatus[0].Symbol, $TweakType -Status "$($EnableStatus[0].Status) 'Let websites provide locally relevant content by accessing my language list'..."
+        Set-ItemPropertyVerified -Path $Variables.PathToCUUP -Name "HttpAcceptLanguageOptOut" -Type DWord -Value $One
 
-        wc -Text "Speech"
+        Write-Caption -Text "Speech"
         # Removes consent for online speech recognition services.
         # [@] (0 = Decline, 1 = Accept)
-        ws -Types $EnableStatus[0].Symbol, $TweakType -Status "$($EnableStatus[0].Status) Online Speech Recognition..."
-        spv -Path $Variables.PathToCUOnlineSpeech -Name "HasAccepted" -Type DWord -Value $Zero
+        Write-Status -Types $EnableStatus[0].Symbol, $TweakType -Status "$($EnableStatus[0].Status) Online Speech Recognition..."
+        Set-ItemPropertyVerified -Path $Variables.PathToCUOnlineSpeech -Name "HasAccepted" -Type DWord -Value $Zero
 
-        wc -Text "Inking & Typing Personalization"
+        Write-Caption -Text "Inking & Typing Personalization"
         # Disables personalization of inking and typing data (Keystrokes)
-        spv -Path "$($Variables.PathToCUInputPersonalization)\TrainedDataStore" -Name "HarvestContacts" -Type DWord -Value $Zero
-        spv -Path $Variables.PathToCUInputPersonalization -Name "RestrictImplicitInkCollection" -Type DWord -Value $One
-        spv -Path $Variables.PathToCUInputPersonalization -Name "RestrictImplicitTextCollection" -Type DWord -Value $One
-        spv -Path $Variables.PathToCUPersonalization -Name "AcceptedPrivacyPolicy" -Type DWord -Value $Zero
+        Set-ItemPropertyVerified -Path "$($Variables.PathToCUInputPersonalization)\TrainedDataStore" -Name "HarvestContacts" -Type DWord -Value $Zero
+        Set-ItemPropertyVerified -Path $Variables.PathToCUInputPersonalization -Name "RestrictImplicitInkCollection" -Type DWord -Value $One
+        Set-ItemPropertyVerified -Path $Variables.PathToCUInputPersonalization -Name "RestrictImplicitTextCollection" -Type DWord -Value $One
+        Set-ItemPropertyVerified -Path $Variables.PathToCUPersonalization -Name "AcceptedPrivacyPolicy" -Type DWord -Value $Zero
 
-        wc -Text "Diagnostics & Feedback"
+        Write-Caption -Text "Diagnostics & Feedback"
         #Disables Telemetry
-        ws -Types $EnableStatus[0].Symbol, $TweakType -Status "$($EnableStatus[0].Status) telemetry..."
+        Write-Status -Types $EnableStatus[0].Symbol, $TweakType -Status "$($EnableStatus[0].Status) telemetry..."
         # [@] (0 = Security (Enterprise only), 1 = Basic Telemetry, 2 = Enhanced Telemetry, 3 = Full Telemetry)
-        spv -Path $Variables.PathToLMPoliciesTelemetry -Name "AllowTelemetry" -Type DWord -Value $Zero
-        spv -Path $Variables.PathToLMPoliciesTelemetry2 -Name "AllowTelemetry" -Type DWord -Value $Zero
-        spv -Path $Variables.PathToLMPoliciesTelemetry -Name "AllowDeviceNameInTelemetry" -Type DWord -Value $Zero
+        Set-ItemPropertyVerified -Path $Variables.PathToLMPoliciesTelemetry -Name "AllowTelemetry" -Type DWord -Value $Zero
+        Set-ItemPropertyVerified -Path $Variables.PathToLMPoliciesTelemetry2 -Name "AllowTelemetry" -Type DWord -Value $Zero
+        Set-ItemPropertyVerified -Path $Variables.PathToLMPoliciesTelemetry -Name "AllowDeviceNameInTelemetry" -Type DWord -Value $Zero
         # Disables Microsofts collection of inking and typing data
-        ws -Types $EnableStatus[0].Symbol, $TweakType -Status "$($EnableStatus[0].Status) send inking and typing data to Microsoft..."
-        spv -Path $Variables.PathToCUInputTIPC -Name "Enabled" -Type DWord -Value $Zero
+        Write-Status -Types $EnableStatus[0].Symbol, $TweakType -Status "$($EnableStatus[0].Status) send inking and typing data to Microsoft..."
+        Set-ItemPropertyVerified -Path $Variables.PathToCUInputTIPC -Name "Enabled" -Type DWord -Value $Zero
         # Disables Microsoft's tailored experiences.
-        ws -Types $EnableStatus[0].Symbol, $TweakType -Status "$($EnableStatus[0].Status) Tailored Experiences..."
-        spv -Path $Variables.PathToPrivacy -Name "TailoredExperiencesWithDiagnosticDataEnabled" -Type DWord -Value $Zero
+        Write-Status -Types $EnableStatus[0].Symbol, $TweakType -Status "$($EnableStatus[0].Status) Tailored Experiences..."
+        Set-ItemPropertyVerified -Path $Variables.PathToPrivacy -Name "TailoredExperiencesWithDiagnosticDataEnabled" -Type DWord -Value $Zero
         # Disables transcript of diagnostic data for collection
-        ws -Types $EnableStatus[0].Symbol, $TweakType -Status "$($EnableStatus[0].Status) View diagnostic data..."
-        spv -Path $Variables.PathToLMEventKey -Name "EnableEventTranscript" -Type DWord -Value $Zero
+        Write-Status -Types $EnableStatus[0].Symbol, $TweakType -Status "$($EnableStatus[0].Status) View diagnostic data..."
+        Set-ItemPropertyVerified -Path $Variables.PathToLMEventKey -Name "EnableEventTranscript" -Type DWord -Value $Zero
         # Sets feedback frequency to 0
-        ws -Types $EnableStatus[0].Symbol, $TweakType -Status "$($EnableStatus[0].Status) feedback frequency..."
-        If ((tp "$($Variables.PathToCUSiufRules)\PeriodInNanoSeconds")) {
-            spv -Path $Variables.PathToCUSiufRules -Name "PeriodInNanoSeconds"
+        Write-Status -Types $EnableStatus[0].Symbol, $TweakType -Status "$($EnableStatus[0].Status) feedback frequency..."
+        If ((Test-Path "$($Variables.PathToCUSiufRules)\PeriodInNanoSeconds")) {
+            Set-ItemPropertyVerified -Path $Variables.PathToCUSiufRules -Name "PeriodInNanoSeconds"
         }
-        spv -Path $Variables.PathToCUSiufRules -Name "NumberOfSIUFInPeriod" -Type DWord -Value $Zero
+        Set-ItemPropertyVerified -Path $Variables.PathToCUSiufRules -Name "NumberOfSIUFInPeriod" -Type DWord -Value $Zero
 
-        wc -Text "Activity History"
-        ws -Types $EnableStatus[0].Symbol, $TweakType -Status "$($EnableStatus[0].Status) Activity History..."
-        ws -Types "?", $TweakType -Status "From Path: [$($Variables.PathToLMActivityHistory)]" -WriteWarning
+        Write-Caption -Text "Activity History"
+        Write-Status -Types $EnableStatus[0].Symbol, $TweakType -Status "$($EnableStatus[0].Status) Activity History..."
+        Write-Status -Types "?", $TweakType -Status "From Path: [$($Variables.PathToLMActivityHistory)]" -WriteWarning
         ForEach ($Name in $Variables.ActivityHistoryDisableOnZero) {
-            ws -Types $EnableStatus[0].Symbol, $TweakType -Status "$($EnableStatus[0].Status) $($Name): $Zero"
-            spv -Path $Variables.PathToLMActivityHistory -Name $Name -Type DWord -Value $Zero
+            Write-Status -Types $EnableStatus[0].Symbol, $TweakType -Status "$($EnableStatus[0].Status) $($Name): $Zero"
+            Set-ItemPropertyVerified -Path $Variables.PathToLMActivityHistory -Name $Name -Type DWord -Value $Zero
         }
         # Disables Suggested ways of getting the most out of windows (Microsoft account spam)
-        ws -Types "-" , $TweakType -Status "$($EnableStatus[1].Status) 'Suggest ways i can finish setting up my device to get the most out of windows.')"
-        spv -Path $Variables.PathToCUUserProfileEngagemment -Name "ScoobeSystemSettingEnabled" -Value $Zero -Type DWord
+        Write-Status -Types "-" , $TweakType -Status "$($EnableStatus[1].Status) 'Suggest ways i can finish setting up my device to get the most out of windows.')"
+        Set-ItemPropertyVerified -Path $Variables.PathToCUUserProfileEngagemment -Name "ScoobeSystemSettingEnabled" -Value $Zero -Type DWord
 
         ### Privacy
-        wse -Text "Privacy"
+        Write-Section -Text "Privacy"
 
-        If (tp "$($Variables.PathToCUContentDeliveryManager)\Subscription" ) {
-            ws -Types "-" -Status "Removing $($Variables.PathToCUContentDeliveryManager)\Subscription" -NoNewLine
-            ri "$($Variables.PathToCUContentDeliveryManager)\Subscription" -Recurse
-            gs
+        If (Test-Path "$($Variables.PathToCUContentDeliveryManager)\Subscription" ) {
+            Write-Status -Types "-" -Status "Removing $($Variables.PathToCUContentDeliveryManager)\Subscription" -NoNewLine
+            Remove-Item "$($Variables.PathToCUContentDeliveryManager)\Subscription" -Recurse
+            Get-Status
         }
-        #gi "$($Variables.PathToCUContentDeliveryManager)\SuggestedApps" | ri -Recurse
-        If (tp -Path "$($Variables.PathToCUContentDeliveryManager)\SuggestedApps") {
-            ws -Types "-" -Status "Removing $($Variables.PathToCUContentDeliveryManager)\SuggestedApps" -NoNewLine
-            ri -Path "$($Variables.PathToCUContentDeliveryManager)\SuggestedApps" -Recurse
-            gs
+        #Get-Item "$($Variables.PathToCUContentDeliveryManager)\SuggestedApps" | Remove-Item -Recurse
+        If (Test-Path -Path "$($Variables.PathToCUContentDeliveryManager)\SuggestedApps") {
+            Write-Status -Types "-" -Status "Removing $($Variables.PathToCUContentDeliveryManager)\SuggestedApps" -NoNewLine
+            Remove-Item -Path "$($Variables.PathToCUContentDeliveryManager)\SuggestedApps" -Recurse
+            Get-Status
         }
 
         # Disables app launch tracking
-        ws -Types $EnableStatus[0].Symbol, $TweakType -Status "$($EnableStatus[0].Status) App Launch Tracking..."
-        spv -Path HKCU:\Software\Policies\Microsoft\Windows\EdgeUI -Name "DisableMFUTracking" -Value $One -Type DWORD
+        Write-Status -Types $EnableStatus[0].Symbol, $TweakType -Status "$($EnableStatus[0].Status) App Launch Tracking..."
+        Set-ItemPropertyVerified -Path HKCU:\Software\Policies\Microsoft\Windows\EdgeUI -Name "DisableMFUTracking" -Value $One -Type DWORD
 
-        If ($vari -eq 2) { ri -Path HKCU:\Software\Policies\Microsoft\Windows\EdgeUI }
+        If ($vari -eq 2) { Remove-Item -Path HKCU:\Software\Policies\Microsoft\Windows\EdgeUI }
 
         # Sets windows feeback notifciations to never show
-        ws -Types $EnableStatus[0].Symbol, $TweakType -Status "$($EnableStatus[0].Status) Windows Feedback Notifications..."
-        spv -Path $Variables.PathToLMPoliciesTelemetry -Name "DoNotShowFeedbackNotifications" -Type DWORD -Value $One
+        Write-Status -Types $EnableStatus[0].Symbol, $TweakType -Status "$($EnableStatus[0].Status) Windows Feedback Notifications..."
+        Set-ItemPropertyVerified -Path $Variables.PathToLMPoliciesTelemetry -Name "DoNotShowFeedbackNotifications" -Type DWORD -Value $One
 
         # Disables location tracking
-        ws -Types $EnableStatus[0].Symbol, $TweakType -Status "$($EnableStatus[0].Status) Location Tracking..."
-        spv -Path $Variables.RegCAM -Name "Value" -Type String -Value "Deny"
-        spv -Path $Variables.PathToLFSVC -Name "Status" -Type DWORD -Value $Zero
+        Write-Status -Types $EnableStatus[0].Symbol, $TweakType -Status "$($EnableStatus[0].Status) Location Tracking..."
+        Set-ItemPropertyVerified -Path $Variables.RegCAM -Name "Value" -Type String -Value "Deny"
+        Set-ItemPropertyVerified -Path $Variables.PathToLFSVC -Name "Status" -Type DWORD -Value $Zero
 
         # Disables map updates (Windows Maps is removed)
-        ws -Types $EnableStatus[0].Symbol, $TweakType -Status "$($EnableStatus[0].Status) Automatic Map Updates..."
-        spv -Path:HKLM:\SYSTEM\Maps -Name "AutoUpdateEnabled" -Type DWORD -Value $Zero
+        Write-Status -Types $EnableStatus[0].Symbol, $TweakType -Status "$($EnableStatus[0].Status) Automatic Map Updates..."
+        Set-ItemPropertyVerified -Path:HKLM:\SYSTEM\Maps -Name "AutoUpdateEnabled" -Type DWORD -Value $Zero
 
         # AutoConnect to Hotspots disabled
-        ws -Types $EnableStatus[0].Symbol, $TweakType -Status "$($EnableStatus[0].Status) AutoConnect to Sense Hotspots..."
-        spv -Path "$($Variables.PathToLMPoliciesToWifi)\AllowAutoConnectToWiFiSenseHotspots" -Name "Value" -Type DWORD -Value $Zero
+        Write-Status -Types $EnableStatus[0].Symbol, $TweakType -Status "$($EnableStatus[0].Status) AutoConnect to Sense Hotspots..."
+        Set-ItemPropertyVerified -Path "$($Variables.PathToLMPoliciesToWifi)\AllowAutoConnectToWiFiSenseHotspots" -Name "Value" -Type DWORD -Value $Zero
 
         # Disables reporting hotspots to microsoft
-        ws -Types $EnableStatus[0].Symbol, $TweakType -Status "$($EnableStatus[0].Status) Hotspot Reporting to Microsoft..."
-        spv -Path "$($Variables.PathToLMPoliciesToWifi)\AllowWiFiHotSpotReporting" -Name "Value" -Type DWORD -Value $Zero
+        Write-Status -Types $EnableStatus[0].Symbol, $TweakType -Status "$($EnableStatus[0].Status) Hotspot Reporting to Microsoft..."
+        Set-ItemPropertyVerified -Path "$($Variables.PathToLMPoliciesToWifi)\AllowWiFiHotSpotReporting" -Name "Value" -Type DWORD -Value $Zero
 
         # Disables cloud content from search (OneDrive, Office, Dropbox, ect.)
-        ws -Types $EnableStatus[0].Symbol, $TweakType -Status "$($EnableStatus[0].Status) Cloud Content from Windows Search..."
-        spv -Path $Variables.PathToLMPoliciesCloudContent -Name "DisableWindowsConsumerFeatures" -Type DWORD -Value $One
+        Write-Status -Types $EnableStatus[0].Symbol, $TweakType -Status "$($EnableStatus[0].Status) Cloud Content from Windows Search..."
+        Set-ItemPropertyVerified -Path $Variables.PathToLMPoliciesCloudContent -Name "DisableWindowsConsumerFeatures" -Type DWORD -Value $One
 
         # Disables tailored experience w users diagnostic data.
-        ws -Types $EnableStatus[0].Symbol, $TweakType -Status "$($EnableStatus[0].Status) Tailored Experience w/ Diagnostic Data..."
-        spv -Path $Variables.PathToPrivacy -Name "TailoredExperiencesWithDiagnosticDataEnabled" -Value $Zero -Type DWORD
+        Write-Status -Types $EnableStatus[0].Symbol, $TweakType -Status "$($EnableStatus[0].Status) Tailored Experience w/ Diagnostic Data..."
+        Set-ItemPropertyVerified -Path $Variables.PathToPrivacy -Name "TailoredExperiencesWithDiagnosticDataEnabled" -Value $Zero -Type DWORD
 
         <# Disables HomeGroup
-        ws -Types $EnableStatus[1].Symbol, "$TweakType" -Status "Stopping and disabling Home Groups services.."
-        If (!(gsv -Name HomeGroupListener )) { } else {
-            spsv "HomeGroupListener" -ea SilentlyContinue
+        Write-Status -Types $EnableStatus[1].Symbol, "$TweakType" -Status "Stopping and disabling Home Groups services.."
+        If (!(Get-Service -Name HomeGroupListener )) { } else {
+            Stop-Service "HomeGroupListener" -ea SilentlyContinue
             ss "HomeGroupListener" -StartupType Disabled
         }
-        If (!(gsv -Name HomeGroupListener )) { } else {
-            spsv "HomeGroupProvider" -ea SilentlyContinue
+        If (!(Get-Service -Name HomeGroupListener )) { } else {
+            Stop-Service "HomeGroupProvider" -ea SilentlyContinue
             ss "HomeGroupProvider" -StartupType Disabled
         }#>
 
         # Disables SysMain
-        If ((gsv -Name SysMain).Status -eq 'Stopped') { } else {
+        If ((Get-Service -Name SysMain).Status -eq 'Stopped') { } else {
             try {
-                ws -Types "-" -Status ' Stopping Superfetch service' -NoNewLine
-                spsv "SysMain"
-                gs
+                Write-Status -Types "-" -Status ' Stopping Superfetch service' -NoNewLine
+                Stop-Service "SysMain"
+                Get-Status
             }
             catch {
-                gs
+                Get-Status
                 Get-Error $Error[0]
             }
             try {
-                ws -Types "-" -Status ' Stopping Superfetch service' -NoNewLine
+                Write-Status -Types "-" -Status ' Stopping Superfetch service' -NoNewLine
                 ss "SysMain" -StartupType Disabled
-                gs
+                Get-Status
             }
             catch {
-                gs
+                Get-Status
                 Get-Error $Error[0]
             }
         }
@@ -2156,163 +2155,163 @@ Release Notes:
 
 
         # Disables volume lowering during calls
-        ws -Types $EnableStatus[0].Symbol, $TweakType -Status "$($EnableStatus[0].Status) Volume Adjustment During Calls..."
-        spv -Path:HKCU:\Software\Microsoft\MultiMedia\Audio -Name "UserDuckingPreference" -Value 3 -Type DWORD
+        Write-Status -Types $EnableStatus[0].Symbol, $TweakType -Status "$($EnableStatus[0].Status) Volume Adjustment During Calls..."
+        Set-ItemPropertyVerified -Path:HKCU:\Software\Microsoft\MultiMedia\Audio -Name "UserDuckingPreference" -Value 3 -Type DWORD
 
         # Groups SVChost processes
-        $ram = (gcim -ClassName Win32_PhysicalMemory | measure -Property Capacity -Sum).Sum / 1kb
-        ws -Types $EnableStatus[1].Symbol, "$TweakType" -Status "Grouping svchost.exe Processes"
-        spv -Path:HKLM:\SYSTEM\CurrentControlSet\Control -Name "SvcHostSplitThresholdInKB" -Type DWORD -Value $ram
+        $ram = (Get-CimInstance -ClassName Win32_PhysicalMemory | Measure-Object -Property Capacity -Sum).Sum / 1kb
+        Write-Status -Types $EnableStatus[1].Symbol, "$TweakType" -Status "Grouping svchost.exe Processes"
+        Set-ItemPropertyVerified -Path:HKLM:\SYSTEM\CurrentControlSet\Control -Name "SvcHostSplitThresholdInKB" -Type DWORD -Value $ram
 
         # Stack size increased for greater performance
-        ws -Types $EnableStatus[1].Symbol, "$TweakType" -Status "Increasing Stack Size to 30"
-        spv -Path:HKLM:\SYSTEM\CurrentControlSet\Services\LanmanServer\Parameters -Name "IRPStackSize" -Type DWORD -Value 30
+        Write-Status -Types $EnableStatus[1].Symbol, "$TweakType" -Status "Increasing Stack Size to 30"
+        Set-ItemPropertyVerified -Path:HKLM:\SYSTEM\CurrentControlSet\Services\LanmanServer\Parameters -Name "IRPStackSize" -Type DWORD -Value 30
 
         # Sets DNS settings to Google with CloudFlare as backup
-        If (gcm Set-DnsClientDohServerAddress -ea SilentlyContinue ) {
+        If (Get-Command Set-DnsClientDohServerAddress -ea SilentlyContinue ) {
             ## Imported text from  win10-debloat-tools on github
             # Adapted from: https://techcommunity.microsoft.com/t5/networking-blog/windows-insiders-gain-new-dns-over-https-controls/ba-p/2494644
-            ws -Types $EnableStatus[1].Symbol, $TweakType -Status "Setting up the DNS over HTTPS for Google and Cloudflare (ipv4 and ipv6)..."
+            Write-Status -Types $EnableStatus[1].Symbol, $TweakType -Status "Setting up the DNS over HTTPS for Google and Cloudflare (ipv4 and ipv6)..."
             Set-DnsClientDohServerAddress -ServerAddress ("1.1.1.1", "1.0.0.1", "2606:4700:4700::1111", "2606:4700:4700::1001") -AutoUpgrade $true -AllowFallbackToUdp $true
             Set-DnsClientDohServerAddress -ServerAddress ("8.8.8.8", "8.8.4.4", "2001:4860:4860::8888", "2001:4860:4860::8844") -AutoUpgrade $true -AllowFallbackToUdp $true
-            ws -Types $EnableStatus[1].Symbol, $TweakType -Status "Setting up the DNS from Cloudflare and Google (ipv4 and ipv6)..."
+            Write-Status -Types $EnableStatus[1].Symbol, $TweakType -Status "Setting up the DNS from Cloudflare and Google (ipv4 and ipv6)..."
             #Get-DnsClientServerAddress # To look up the current config.           # Cloudflare, Google,         Cloudflare,              Google
             Set-DNSClientServerAddress -InterfaceAlias "Ethernet*" -ServerAddresses ("1.1.1.1", "8.8.8.8", "2606:4700:4700::1111", "2001:4860:4860::8888")
             Set-DNSClientServerAddress -InterfaceAlias    "Wi-Fi*" -ServerAddresses ("1.1.1.1", "8.8.8.8", "2606:4700:4700::1111", "2001:4860:4860::8888")
         }
         else {
-            ws -Types "?", $TweakType -Status "Failed to set up DNS - DNSClient is not Installed..." -WriteWarning
+            Write-Status -Types "?", $TweakType -Status "Failed to set up DNS - DNSClient is not Installed..." -WriteWarning
         }
 
-        wse -Text "Ease of Access"
-        wc -Text "Keyboard"
+        Write-Section -Text "Ease of Access"
+        Write-Caption -Text "Keyboard"
         # Disables Sticky Keys
-        ws -Types "-", $TweakType -Status "$($EnableStatus[0].Status) Sticky Keys..."
-        spv -Path "$($Variables.PathToCUAccessibility)\StickyKeys" -Name "Flags" -Value 506 -Type STRING
-        spv -Path "$($Variables.PathToCUAccessibility)\Keyboard Response" -Name "Flags" -Value 122 -Type STRING
-        spv -Path "$($Variables.PathToCUAccessibility)\ToggleKeys" -Name "Flags" -Value 58 -Type STRING
+        Write-Status -Types "-", $TweakType -Status "$($EnableStatus[0].Status) Sticky Keys..."
+        Set-ItemPropertyVerified -Path "$($Variables.PathToCUAccessibility)\StickyKeys" -Name "Flags" -Value 506 -Type STRING
+        Set-ItemPropertyVerified -Path "$($Variables.PathToCUAccessibility)\Keyboard Response" -Name "Flags" -Value 122 -Type STRING
+        Set-ItemPropertyVerified -Path "$($Variables.PathToCUAccessibility)\ToggleKeys" -Name "Flags" -Value 58 -Type STRING
 
         If ($Undo) {
-            rpv -Path $Variables.PathToLMPoliciesTelemetry -Name "AllowTelemetry"
-            rpv -Path $Variables.PathToLMPoliciesTelemetry2 -Name "AllowTelemetry"
-            rpv -Path $Variables.PathToCUPersonalization -Name "AcceptedPrivacyPolicy"
-            rpv -Path $Variables.PathToCUInputPersonalization -Name "RestrictImplicitTextCollection"
-            rpv -Path $Variables.PathToCUInputPersonalization -Name "RestrictImplicitInkCollection"
+            Remove-ItemPropertyVerified -Path $Variables.PathToLMPoliciesTelemetry -Name "AllowTelemetry"
+            Remove-ItemPropertyVerified -Path $Variables.PathToLMPoliciesTelemetry2 -Name "AllowTelemetry"
+            Remove-ItemPropertyVerified -Path $Variables.PathToCUPersonalization -Name "AcceptedPrivacyPolicy"
+            Remove-ItemPropertyVerified -Path $Variables.PathToCUInputPersonalization -Name "RestrictImplicitTextCollection"
+            Remove-ItemPropertyVerified -Path $Variables.PathToCUInputPersonalization -Name "RestrictImplicitInkCollection"
             ss "DiagTrack" -StartupType Automatic
             ss "dmwappushservice" -StartupType Automatic
             ss "SysMain" -StartupType Automatic
         }
 
-        wse -Text "Privacy -> Apps Permissions"
-        wc -Text "Notifications"
-        spv -Path $Variables.PathToLMConsentStoreUN -Name "Value" -Value "Deny" -Type String
+        Write-Section -Text "Privacy -> Apps Permissions"
+        Write-Caption -Text "Notifications"
+        Set-ItemPropertyVerified -Path $Variables.PathToLMConsentStoreUN -Name "Value" -Value "Deny" -Type String
 
-        wc -Text "App Diagnostics"
-        spv -Path $Variables.PathToCUConsentStoreAD -Name "Value" -Value "Deny" -Type String
-        spv -Path $Variables.PathToLMConsentStoreAD -Name "Value" -Value "Deny" -Type String
+        Write-Caption -Text "App Diagnostics"
+        Set-ItemPropertyVerified -Path $Variables.PathToCUConsentStoreAD -Name "Value" -Value "Deny" -Type String
+        Set-ItemPropertyVerified -Path $Variables.PathToLMConsentStoreAD -Name "Value" -Value "Deny" -Type String
 
-        wc -Text "Account Info Access"
-        spv -Path $Variables.PathToCUConsentStoreUAI -Name "Value" -Value "Deny" -Type String
-        spv -Path $Variables.PathToLMConsentStoreUAI -Name "Value" -Value "Deny" -Type String
+        Write-Caption -Text "Account Info Access"
+        Set-ItemPropertyVerified -Path $Variables.PathToCUConsentStoreUAI -Name "Value" -Value "Deny" -Type String
+        Set-ItemPropertyVerified -Path $Variables.PathToLMConsentStoreUAI -Name "Value" -Value "Deny" -Type String
 
-        wc -Text "Voice Activation"
-        ws -Types $EnableStatus[0].Symbol, $TweakType -Status "$($EnableStatus[0].Status) Voice Activation"
-        spv -Path $Variables.PathToVoiceActivation -Name "AgentActivationEnabled" -Value $Zero -Type DWord
+        Write-Caption -Text "Voice Activation"
+        Write-Status -Types $EnableStatus[0].Symbol, $TweakType -Status "$($EnableStatus[0].Status) Voice Activation"
+        Set-ItemPropertyVerified -Path $Variables.PathToVoiceActivation -Name "AgentActivationEnabled" -Value $Zero -Type DWord
 
-        wc -Text "Background Apps"
-        ws -Types $EnableStatus[0].Symbol, $TweakType -Status "$($EnableStatus[0].Status) Background Apps"
-        spv -Path $Variables.PathToBackgroundAppAccess -Name "GlobalUserDisabled" -Value $One -Type DWord
-        ws -Types $EnableStatus[0].Symbol, $TweakType -Status "$($EnableStatus[0].Status) Background Apps Global"
-        spv -Path $Variables.PathToCUSearch -Name "BackgroundAppGlobalToggle" -Value $Zero -Type DWord
+        Write-Caption -Text "Background Apps"
+        Write-Status -Types $EnableStatus[0].Symbol, $TweakType -Status "$($EnableStatus[0].Status) Background Apps"
+        Set-ItemPropertyVerified -Path $Variables.PathToBackgroundAppAccess -Name "GlobalUserDisabled" -Value $One -Type DWord
+        Write-Status -Types $EnableStatus[0].Symbol, $TweakType -Status "$($EnableStatus[0].Status) Background Apps Global"
+        Set-ItemPropertyVerified -Path $Variables.PathToCUSearch -Name "BackgroundAppGlobalToggle" -Value $Zero -Type DWord
 
-        wc -Text "Other Devices"
-        ws -Types "-", $TweakType -Status "Denying device access..."
+        Write-Caption -Text "Other Devices"
+        Write-Status -Types "-", $TweakType -Status "Denying device access..."
         # Disable sharing information with unpaired devices
-        spv -Path "$($Variables.PathToCUDeviceAccessGlobal)\LooselyCoupled" -Name "Value" -Value "Deny" -Type String
-        ForEach ($key in (gci $Variables.PathToCUDeviceAccessGlobal)) {
+        Set-ItemPropertyVerified -Path "$($Variables.PathToCUDeviceAccessGlobal)\LooselyCoupled" -Name "Value" -Value "Deny" -Type String
+        ForEach ($key in (Get-ChildItem $Variables.PathToCUDeviceAccessGlobal)) {
             If ($key.PSChildName -EQ "LooselyCoupled") { continue }
-            ws -Types $EnableStatus[1].Symbol, $TweakType -Status "$($EnableStatus[1].Status) Setting $($key.PSChildName) value to 'Deny' ..."
-            spv -Path "$("$($Variables.PathToCUDeviceAccessGlobal)\" + $key.PSChildName)" -Name "Value" -Value "Deny"
+            Write-Status -Types $EnableStatus[1].Symbol, $TweakType -Status "$($EnableStatus[1].Status) Setting $($key.PSChildName) value to 'Deny' ..."
+            Set-ItemPropertyVerified -Path "$("$($Variables.PathToCUDeviceAccessGlobal)\" + $key.PSChildName)" -Name "Value" -Value "Deny"
         }
 
-        wc -Text "Background Apps"
-        ws -Types $EnableStatus[1].Symbol, $TweakType -Status "$($EnableStatus[1].Status) Background Apps..."
-        spv -Path $Variables.PathToBackgroundAppAccess -Name "GlobalUserDisabled" -Type DWord -Value 0
-        spv -Path $Variables.PathToCUSearch -Name "BackgroundAppGlobalToggle" -Type DWord -Value 1
+        Write-Caption -Text "Background Apps"
+        Write-Status -Types $EnableStatus[1].Symbol, $TweakType -Status "$($EnableStatus[1].Status) Background Apps..."
+        Set-ItemPropertyVerified -Path $Variables.PathToBackgroundAppAccess -Name "GlobalUserDisabled" -Type DWord -Value 0
+        Set-ItemPropertyVerified -Path $Variables.PathToCUSearch -Name "BackgroundAppGlobalToggle" -Type DWord -Value 1
 
-        wc -Text "Troubleshooting"
-        ws -Types $EnableStatus[1].Symbol, $TweakType -Status "$($EnableStatus[1].Status) Automatic Recommended Troubleshooting, then notify me..."
-        spv -Path $Variables.PathToLMWindowsTroubleshoot -Name "UserPreference" -Type DWord -Value 3
+        Write-Caption -Text "Troubleshooting"
+        Write-Status -Types $EnableStatus[1].Symbol, $TweakType -Status "$($EnableStatus[1].Status) Automatic Recommended Troubleshooting, then notify me..."
+        Set-ItemPropertyVerified -Path $Variables.PathToLMWindowsTroubleshoot -Name "UserPreference" -Type DWord -Value 3
 
-        wse -Text "$($EnableStatus[0].Status) More Telemetry Features..."
+        Write-Section -Text "$($EnableStatus[0].Status) More Telemetry Features..."
 
-        ws -Types "?", $TweakType -Status "From Path: [$PathToCUPoliciesCloudContent]." -WriteWarning
+        Write-Status -Types "?", $TweakType -Status "From Path: [$PathToCUPoliciesCloudContent]." -WriteWarning
         ForEach ($Name in $Variables.CloudContentDisableOnOne) {
-            ws -Types $EnableStatus[0].Symbol, $TweakType -Status "$($EnableStatus[0].Status) $($Name): $One"
-            spv -Path $Variables.PathToCUPoliciesCloudContent -Name "$Name" -Type DWord -Value $One
+            Write-Status -Types $EnableStatus[0].Symbol, $TweakType -Status "$($EnableStatus[0].Status) $($Name): $One"
+            Set-ItemPropertyVerified -Path $Variables.PathToCUPoliciesCloudContent -Name "$Name" -Type DWord -Value $One
         }
-        spv -Path $Variables.PathToCUPoliciesCloudContent -Name "ConfigureWindowsSpotlight" -Type DWord -Value 2
-        spv -Path $Variables.PathToCUPoliciesCloudContent -Name "IncludeEnterpriseSpotlight" -Type DWord -Value $Zero
+        Set-ItemPropertyVerified -Path $Variables.PathToCUPoliciesCloudContent -Name "ConfigureWindowsSpotlight" -Type DWord -Value 2
+        Set-ItemPropertyVerified -Path $Variables.PathToCUPoliciesCloudContent -Name "IncludeEnterpriseSpotlight" -Type DWord -Value $Zero
 
         # Disabling app suggestions
-        ws -Types $EnableStatus[0].Symbol, $TweakType -Status "$($EnableStatus[0].Status) Apps Suggestions..."
-        spv -Path $Variables.PathToLMPoliciesCloudContent -Name "DisableThirdPartySuggestions" -Type DWord -Value $One
-        spv -Path $Variables.PathToLMPoliciesCloudContent -Name "DisableWindowsConsumerFeatures" -Type DWord -Value $One
+        Write-Status -Types $EnableStatus[0].Symbol, $TweakType -Status "$($EnableStatus[0].Status) Apps Suggestions..."
+        Set-ItemPropertyVerified -Path $Variables.PathToLMPoliciesCloudContent -Name "DisableThirdPartySuggestions" -Type DWord -Value $One
+        Set-ItemPropertyVerified -Path $Variables.PathToLMPoliciesCloudContent -Name "DisableWindowsConsumerFeatures" -Type DWord -Value $One
 
 
         # Reference: https://forums.guru3d.com/threads/windows-10-registry-tweak-for-disabling-drivers-auto-update-controversy.418033/
-        ws -Types $EnableStatus[0].Symbol, $TweakType -Status "$($EnableStatus[0].Status) automatic driver updates..."
+        Write-Status -Types $EnableStatus[0].Symbol, $TweakType -Status "$($EnableStatus[0].Status) automatic driver updates..."
         # [@] (0 = Yes, do this automatically,
         #      1 = No, let me choose what to do, Always install the best,
         #      2 = [...] Install driver software from Windows Update,
         #      3 = [...] Never install driver software from Windows Update)
-        spv -Path $Variables.PathToLMDeviceMetaData -Name "PreventDeviceMetadataFromNetwork" -Type DWord -Value $One
+        Set-ItemPropertyVerified -Path $Variables.PathToLMDeviceMetaData -Name "PreventDeviceMetadataFromNetwork" -Type DWord -Value $One
         # [@] (0 = Enhanced icons enabled,
         #      1 = Enhanced icons disabled)
-        spv -Path $Variables.PathToLMDriverSearching -Name "SearchOrderConfig" -Type DWord -Value $Zero
+        Set-ItemPropertyVerified -Path $Variables.PathToLMDriverSearching -Name "SearchOrderConfig" -Type DWord -Value $Zero
 
 
         ## Performance Tweaks and More Telemetry
-        spv -Path $Variables.PathToLMControl -Name "WaitToKillServiceTimeout" -Type DWord -Value 2000
-        spv -Path $Variables.PathToCUControlPanelDesktop -Name "MenuShowDelay" -Type DWord -Value 1
-        spv -Path $Variables.PathToCUControlPanelDesktop -Name "WaitToKillAppTimeout" -Type DWord -Value 5000
-        rpv -Path $Variables.PathToCUControlPanelDesktop -Name "HungAppTimeout" -ea SilentlyContinue
-        # spv -Path $Variables.PathToCUControlPanelDesktop -Name "HungAppTimeout" -Type DWord -Value 4000 # Note: This caused flickering
-        spv -Path $Variables.PathToCUControlPanelDesktop -Name "AutoEndTasks" -Type DWord -Value 1
-        spv -Path $Variables.PathToCUControlPanelDesktop -Name "LowLevelHooksTimeout" -Type DWord -Value 1000
-        spv -Path $Variables.PathToCUControlPanelDesktop -Name "WaitToKillServiceTimeout" -Type DWord -Value 2000
-        spv -Path $Variables.PathToLMMemoryManagement -Name "ClearPageFileAtShutdown" -Type DWord -Value 0
-        spv -Path $Variables.PathToCUMouse -Name "MouseHoverTime" -Type DWord -Value 10
+        Set-ItemPropertyVerified -Path $Variables.PathToLMControl -Name "WaitToKillServiceTimeout" -Type DWord -Value 2000
+        Set-ItemPropertyVerified -Path $Variables.PathToCUControlPanelDesktop -Name "MenuShowDelay" -Type DWord -Value 1
+        Set-ItemPropertyVerified -Path $Variables.PathToCUControlPanelDesktop -Name "WaitToKillAppTimeout" -Type DWord -Value 5000
+        Remove-ItemPropertyVerified -Path $Variables.PathToCUControlPanelDesktop -Name "HungAppTimeout" -ea SilentlyContinue
+        # Set-ItemPropertyVerified -Path $Variables.PathToCUControlPanelDesktop -Name "HungAppTimeout" -Type DWord -Value 4000 # Note: This caused flickering
+        Set-ItemPropertyVerified -Path $Variables.PathToCUControlPanelDesktop -Name "AutoEndTasks" -Type DWord -Value 1
+        Set-ItemPropertyVerified -Path $Variables.PathToCUControlPanelDesktop -Name "LowLevelHooksTimeout" -Type DWord -Value 1000
+        Set-ItemPropertyVerified -Path $Variables.PathToCUControlPanelDesktop -Name "WaitToKillServiceTimeout" -Type DWord -Value 2000
+        Set-ItemPropertyVerified -Path $Variables.PathToLMMemoryManagement -Name "ClearPageFileAtShutdown" -Type DWord -Value 0
+        Set-ItemPropertyVerified -Path $Variables.PathToCUMouse -Name "MouseHoverTime" -Type DWord -Value 10
 
         # Network Tweaks
-        spv -Path $Variables.PathToLMLanmanServer -Name "IRPStackSize" -Type DWord -Value 20
+        Set-ItemPropertyVerified -Path $Variables.PathToLMLanmanServer -Name "IRPStackSize" -Type DWord -Value 20
 
         # Gaming Tweaks
-        spv -Path $Variables.PathToLMMultimediaSystemProfileOnGameTasks -Name "GPU Priority" -Type DWord -Value 8
-        spv -Path $Variables.PathToLMMultimediaSystemProfileOnGameTasks -Name "Priority" -Type DWord -Value 6
-        spv -Path $Variables.PathToLMMultimediaSystemProfileOnGameTasks -Name "Scheduling Category" -Type String -Value "High"
+        Set-ItemPropertyVerified -Path $Variables.PathToLMMultimediaSystemProfileOnGameTasks -Name "GPU Priority" -Type DWord -Value 8
+        Set-ItemPropertyVerified -Path $Variables.PathToLMMultimediaSystemProfileOnGameTasks -Name "Priority" -Type DWord -Value 6
+        Set-ItemPropertyVerified -Path $Variables.PathToLMMultimediaSystemProfileOnGameTasks -Name "Scheduling Category" -Type String -Value "High"
 
-        spv -Path $Variables.PathToLMPoliciesSQMClient -Name "CEIPEnable" -Type DWord -Value $Zero
-        spv -Path $Variables.PathToLMPoliciesAppCompact -Name "AITEnable" -Type DWord -Value $Zero
-        spv -Path $Variables.PathToLMPoliciesAppCompact -Name "DisableUAR" -Type DWord -Value $One
+        Set-ItemPropertyVerified -Path $Variables.PathToLMPoliciesSQMClient -Name "CEIPEnable" -Type DWord -Value $Zero
+        Set-ItemPropertyVerified -Path $Variables.PathToLMPoliciesAppCompact -Name "AITEnable" -Type DWord -Value $Zero
+        Set-ItemPropertyVerified -Path $Variables.PathToLMPoliciesAppCompact -Name "DisableUAR" -Type DWord -Value $One
 
         # Details: https://docs.microsoft.com/pt-br/windows-server/remote/remote-desktop-services/rds-vdi-recommendations-2004#windows-system-startup-event-traces-autologgers
-        ws -Types $EnableStatus[0].Symbol, $TweakType -Status "$($EnableStatus[0].Status) some startup event traces (AutoLoggers)..."
-        spv -Path "$($Variables.PathToLMAutoLogger)\AutoLogger-Diagtrack-Listener" -Name "Start" -Type DWord -Value $Zero
-        spv -Path "$($Variables.PathToLMAutoLogger)\SQMLogger" -Name "Start" -Type DWord -Value $Zero
+        Write-Status -Types $EnableStatus[0].Symbol, $TweakType -Status "$($EnableStatus[0].Status) some startup event traces (AutoLoggers)..."
+        Set-ItemPropertyVerified -Path "$($Variables.PathToLMAutoLogger)\AutoLogger-Diagtrack-Listener" -Name "Start" -Type DWord -Value $Zero
+        Set-ItemPropertyVerified -Path "$($Variables.PathToLMAutoLogger)\SQMLogger" -Name "Start" -Type DWord -Value $Zero
 
-        ws -Types $EnableStatus[0].Symbol, $TweakType -Status "$($EnableStatus[0].Status) 'WiFi Sense: HotSpot Sharing'..."
-        spv -Path "$($Variables.PathToLMPoliciesToWifi)\AllowWiFiHotSpotReporting" -Name "value" -Type DWord -Value $Zero
+        Write-Status -Types $EnableStatus[0].Symbol, $TweakType -Status "$($EnableStatus[0].Status) 'WiFi Sense: HotSpot Sharing'..."
+        Set-ItemPropertyVerified -Path "$($Variables.PathToLMPoliciesToWifi)\AllowWiFiHotSpotReporting" -Name "value" -Type DWord -Value $Zero
 
-        ws -Types $EnableStatus[0].Symbol, $TweakType -Status "$($EnableStatus[0].Status) 'WiFi Sense: Shared HotSpot Auto-Connect'..."
-        spv -Path "$($Variables.PathToLMPoliciesToWifi)\AllowAutoConnectToWiFiSenseHotspots" -Name "value" -Type DWord -Value $Zero
+        Write-Status -Types $EnableStatus[0].Symbol, $TweakType -Status "$($EnableStatus[0].Status) 'WiFi Sense: Shared HotSpot Auto-Connect'..."
+        Set-ItemPropertyVerified -Path "$($Variables.PathToLMPoliciesToWifi)\AllowAutoConnectToWiFiSenseHotspots" -Name "value" -Type DWord -Value $Zero
 
-        wc -Text "Deleting useless registry keys..." -Type None
+        Write-Caption -Text "Deleting useless registry keys..." -Type None
         ForEach ($Key in $Variables.KeysToDelete) {
-            $KeyExist = tp $key
+            $KeyExist = Test-Path $key
             If ($KeyExist -eq $true) {
-                ws -Types "-", $TweakType -Status "Removing Key: [$Key]"
-                ri $Key -Recurse
+                Write-Status -Types "-", $TweakType -Status "Removing Key: [$Key]"
+                Remove-Item $Key -Recurse
             }
         }
     }
@@ -2351,7 +2350,7 @@ Function Optimize-Security {
     )
 
     If (($Undo)) {
-        ws -Types "<", $TweakType -Status "Reverting the tweaks is set to '$Undo'."
+        Write-Status -Types "<", $TweakType -Status "Reverting the tweaks is set to '$Undo'."
         $Zero = 1
         $One = 0
         $OneTwo = 2
@@ -2363,86 +2362,86 @@ Function Optimize-Security {
     }
 
     if ($PSCmdlet.ShouldProcess("Optimize-Security", "Application of various patches, tighten Security")) {
-        wse "Security Patch"
-        ws -Types $EnableStatus[1], $TweakType -Status "Applying Security Vulnerability Patch CVE-2023-36884 - Office and Windows HTML Remote Code Execution Vulnerability"
+        Write-Section "Security Patch"
+        Write-Status -Types $EnableStatus[1], $TweakType -Status "Applying Security Vulnerability Patch CVE-2023-36884 - Office and Windows HTML Remote Code Execution Vulnerability"
         $SecurityPath = "HKLM:\SOFTWARE\Policies\Microsoft\Internet Explorer\Main\FeatureControl\FEATURE_BLOCK_CROSS_PROTOCOL_FILE_NAVIGATION"
-        spv -Path $SecurityPath -Name "Excel.exe" -Type DWORD -Value $One
-        spv -Path $SecurityPath -Name "Graph.exe" -Type DWORD -Value $One
-        spv -Path $SecurityPath -Name "MSAccess.exe" -Type DWORD -Value $One
-        spv -Path $SecurityPath -Name "MSPub.exe" -Type DWORD -Value $One
-        spv -Path $SecurityPath -Name "Powerpnt.exe" -Type DWORD -Value $One
-        spv -Path $SecurityPath -Name "Visio.exe" -Type DWORD -Value $One
-        spv -Path $SecurityPath -Name "WinProj.exe" -Type DWORD -Value $One
-        spv -Path $SecurityPath -Name "WinWord.exe" -Type DWORD -Value $One
-        spv -Path $SecurityPath -Name "Wordpad.exe" -Type DWORD -Value $One
+        Set-ItemPropertyVerified -Path $SecurityPath -Name "Excel.exe" -Type DWORD -Value $One
+        Set-ItemPropertyVerified -Path $SecurityPath -Name "Graph.exe" -Type DWORD -Value $One
+        Set-ItemPropertyVerified -Path $SecurityPath -Name "MSAccess.exe" -Type DWORD -Value $One
+        Set-ItemPropertyVerified -Path $SecurityPath -Name "MSPub.exe" -Type DWORD -Value $One
+        Set-ItemPropertyVerified -Path $SecurityPath -Name "Powerpnt.exe" -Type DWORD -Value $One
+        Set-ItemPropertyVerified -Path $SecurityPath -Name "Visio.exe" -Type DWORD -Value $One
+        Set-ItemPropertyVerified -Path $SecurityPath -Name "WinProj.exe" -Type DWORD -Value $One
+        Set-ItemPropertyVerified -Path $SecurityPath -Name "WinWord.exe" -Type DWORD -Value $One
+        Set-ItemPropertyVerified -Path $SecurityPath -Name "Wordpad.exe" -Type DWORD -Value $One
 
-        wse "Windows Firewall"
-        ws -Types $EnableStatus[1].Symbol, $TweakType -Status "$($EnableStatus[1].Status) default firewall profiles..."
+        Write-Section "Windows Firewall"
+        Write-Status -Types $EnableStatus[1].Symbol, $TweakType -Status "$($EnableStatus[1].Status) default firewall profiles..."
         Set-NetFirewallProfile -Profile Domain, Public, Private -Enabled True
 
-        wse "Windows Defender"
+        Write-Section "Windows Defender"
         If ($Undo) {
-            ws -Types $EnableStatus[0].Symbol, $TweakType -Status "$($EnableStatus[0].Status) detection for potentially unwanted applications and block them..." -NoNewLine
+            Write-Status -Types $EnableStatus[0].Symbol, $TweakType -Status "$($EnableStatus[0].Status) detection for potentially unwanted applications and block them..." -NoNewLine
             Set-MpPreference -PUAProtection Enabled -Force
-            gs
-            ws -Types $EnableStatus[0].Symbol, $TweakType -Status "$($EnableStatus[0].Status) Microsoft Defender Exploit Guard network protection..." -NoNewLine
+            Get-Status
+            Write-Status -Types $EnableStatus[0].Symbol, $TweakType -Status "$($EnableStatus[0].Status) Microsoft Defender Exploit Guard network protection..." -NoNewLine
             Set-MpPreference -EnableNetworkProtection Disabled -Force
-            gs
+            Get-Status
         }
         else {
-            ws -Types $EnableStatus[1].Symbol, $TweakType -Status "$($EnableStatus[1].Status) detection for potentially unwanted applications and block them..." -NoNewLine
+            Write-Status -Types $EnableStatus[1].Symbol, $TweakType -Status "$($EnableStatus[1].Status) detection for potentially unwanted applications and block them..." -NoNewLine
             Set-MpPreference -PUAProtection Enabled -Force
-            gs
-            ws -Types $EnableStatus[1].Symbol, $TweakType -Status "$($EnableStatus[1].Status) Microsoft Defender Exploit Guard network protection..." -NoNewLine
+            Get-Status
+            Write-Status -Types $EnableStatus[1].Symbol, $TweakType -Status "$($EnableStatus[1].Status) Microsoft Defender Exploit Guard network protection..." -NoNewLine
             Set-MpPreference -EnableNetworkProtection Enabled -Force
-            gs
+            Get-Status
         }
 
-        wse "SmartScreen"
-        ws -Types $EnableStatus[1].Symbol, $TweakType -Status "$($EnableStatus[1].Status) 'SmartScreen' for Microsoft Edge..."
-        spv -Path "$($Variables.PathToLMPoliciesEdge)\PhishingFilter" -Name "EnabledV9" -Type DWord -Value $One
+        Write-Section "SmartScreen"
+        Write-Status -Types $EnableStatus[1].Symbol, $TweakType -Status "$($EnableStatus[1].Status) 'SmartScreen' for Microsoft Edge..."
+        Set-ItemPropertyVerified -Path "$($Variables.PathToLMPoliciesEdge)\PhishingFilter" -Name "EnabledV9" -Type DWord -Value $One
 
-        ws -Types $EnableStatus[1].Symbol, $TweakType -Status "$($EnableStatus[1].Status) 'SmartScreen' for Store Apps..."
-        spv -Path $Variables.PathToCUAppHost-Name "EnableWebContentEvaluation" -Type DWord -Value $One
+        Write-Status -Types $EnableStatus[1].Symbol, $TweakType -Status "$($EnableStatus[1].Status) 'SmartScreen' for Store Apps..."
+        Set-ItemPropertyVerified -Path $Variables.PathToCUAppHost-Name "EnableWebContentEvaluation" -Type DWord -Value $One
 
-        wse "Old SMB Protocol"
+        Write-Section "Old SMB Protocol"
         try {
-            ws -Types $EnableStatus[0].Symbol, $TweakType -Status "$($EnableStatus[0].Status) SMB 1.0 protocol..." -NoNewLine
+            Write-Status -Types $EnableStatus[0].Symbol, $TweakType -Status "$($EnableStatus[0].Status) SMB 1.0 protocol..." -NoNewLine
             Set-SmbServerConfiguration -EnableSMB1Protocol $false -Force
-            gs
+            Get-Status
         }
         catch {
-            gs
+            Get-Status
             Get-Error $Error[0]
             Continue
         }
 
-        wse "Old .NET cryptography"
-        ws -Types $EnableStatus[1].Symbol, $TweakType -Status "$($EnableStatus[1].Status) .NET strong cryptography..."
-        spv -Path $Variables.PathToLMOldDotNet -Name "SchUseStrongCrypto" -Type DWord -Value $One
-        spv -Path $Variables.PathToLMWowNodeOldDotNet -Name "SchUseStrongCrypto" -Type DWord -Value $One
+        Write-Section "Old .NET cryptography"
+        Write-Status -Types $EnableStatus[1].Symbol, $TweakType -Status "$($EnableStatus[1].Status) .NET strong cryptography..."
+        Set-ItemPropertyVerified -Path $Variables.PathToLMOldDotNet -Name "SchUseStrongCrypto" -Type DWord -Value $One
+        Set-ItemPropertyVerified -Path $Variables.PathToLMWowNodeOldDotNet -Name "SchUseStrongCrypto" -Type DWord -Value $One
 
-        wse "Autoplay and Autorun (Removable Devices)"
-        ws -Types $EnableStatus[0].Symbol, $TweakType -Status "$($EnableStatus[0].Status) Autoplay..."
-        spv -Path "$($Variables.PathToCUExplorer)\AutoplayHandlers" -Name "DisableAutoplay" -Type DWord -Value $One
+        Write-Section "Autoplay and Autorun (Removable Devices)"
+        Write-Status -Types $EnableStatus[0].Symbol, $TweakType -Status "$($EnableStatus[0].Status) Autoplay..."
+        Set-ItemPropertyVerified -Path "$($Variables.PathToCUExplorer)\AutoplayHandlers" -Name "DisableAutoplay" -Type DWord -Value $One
 
-        ws -Types $EnableStatus[0].Symbol, $TweakType -Status "$($EnableStatus[0].Status) Autorun for all Drives..."
-        spv -Path $Variables.PathToLMPoliciesExplorer -Name "NoDriveTypeAutoRun" -Type DWord -Value 255
+        Write-Status -Types $EnableStatus[0].Symbol, $TweakType -Status "$($EnableStatus[0].Status) Autorun for all Drives..."
+        Set-ItemPropertyVerified -Path $Variables.PathToLMPoliciesExplorer -Name "NoDriveTypeAutoRun" -Type DWord -Value 255
 
-        wse "Windows Explorer"
-        ws -Types $EnableStatus[1].Symbol, $TweakType -Status "$($EnableStatus[1].Status) Show file extensions in Explorer..."
-        spv -Path "$($Variables.PathToCUExplorerAdvanced)" -Name "HideFileExt" -Type DWord -Value $Zero
+        Write-Section "Windows Explorer"
+        Write-Status -Types $EnableStatus[1].Symbol, $TweakType -Status "$($EnableStatus[1].Status) Show file extensions in Explorer..."
+        Set-ItemPropertyVerified -Path "$($Variables.PathToCUExplorerAdvanced)" -Name "HideFileExt" -Type DWord -Value $Zero
 
-        wse "User Account Control (UAC)"
+        Write-Section "User Account Control (UAC)"
         If (!$Undo) {
-            ws -Types "+", $TweakType -Status "Raising UAC level..."
-            spv -Path $Variables.PathToLMPoliciesSystem -Name "ConsentPromptBehaviorAdmin" -Type DWord -Value 5
-            spv -Path $Variables.PathToLMPoliciesSystem -Name "PromptOnSecureDesktop" -Type DWord -Value 1
+            Write-Status -Types "+", $TweakType -Status "Raising UAC level..."
+            Set-ItemPropertyVerified -Path $Variables.PathToLMPoliciesSystem -Name "ConsentPromptBehaviorAdmin" -Type DWord -Value 5
+            Set-ItemPropertyVerified -Path $Variables.PathToLMPoliciesSystem -Name "PromptOnSecureDesktop" -Type DWord -Value 1
         }
 
-        wse "Windows Update"
-        ws -Types $EnableStatus[1].Symbol, $TweakType -Status "$($EnableStatus[1].Status) offer Malicious Software Removal Tool via Windows Update..."
-        spv -Path $Variables.PathToLMPoliciesMRT -Name "DontOfferThroughWUAU" -Type DWord -Value $Zero
+        Write-Section "Windows Update"
+        Write-Status -Types $EnableStatus[1].Symbol, $TweakType -Status "$($EnableStatus[1].Status) offer Malicious Software Removal Tool via Windows Update..."
+        Set-ItemPropertyVerified -Path $Variables.PathToLMPoliciesMRT -Name "DontOfferThroughWUAU" -Type DWord -Value $Zero
     }
 }
 Function Optimize-Service {
@@ -2473,19 +2472,19 @@ This script optimizes Windows services by disabling unnecessary services and ena
 
     ## Obsolete code
     If ($Undo) {
-        ws -Types "*", "Services" -Status "Reverting the tweaks is set to '$Undo'."
-        sss -State 'Manual' -Services $Variables.ServicesToDisabled -Filter $Variables.EnableServicesOnSSD
+        Write-Status -Types "*", "Services" -Status "Reverting the tweaks is set to '$Undo'."
+        Set-ServiceStartup -State 'Manual' -Services $Variables.ServicesToDisabled -Filter $Variables.EnableServicesOnSSD
     }
     Else {
-        sss -State 'Disabled' -Services $Variables.ServicesToDisabled -Filter $Variables.EnableServicesOnSSD
+        Set-ServiceStartup -State 'Disabled' -Services $Variables.ServicesToDisabled -Filter $Variables.EnableServicesOnSSD
     }
     ##
 
-    wse "Enabling services from Windows"
+    Write-Section "Enabling services from Windows"
     If ($Variables.IsSystemDriveSSD -or $Undo) {
-        sss -State 'Automatic' -Services $Variables.EnableServicesOnSSD
+        Set-ServiceStartup -State 'Automatic' -Services $Variables.EnableServicesOnSSD
     }
-    sss -State 'Manual' -Services $Variables.ServicesToManual
+    Set-ServiceStartup -State 'Manual' -Services $Variables.ServicesToManual
 }
 Function Optimize-SSD {
     <#
@@ -2521,16 +2520,16 @@ Function Optimize-SSD {
     )
     if ($PSCmdlet.ShouldProcess("Get-Program", "Perform program installation")) {
         # SSD life improvement
-        wse "SSD Optimization"
+        Write-Section "SSD Optimization"
         If ($Undo) {
-            ws -Types "+" -Status "Enabling last access timestamps updates on files" -NoNewLine
+            Write-Status -Types "+" -Status "Enabling last access timestamps updates on files" -NoNewLine
             fsutil behavior set DisableLastAccess 0
         }
         else {
-            ws -Types "+" -Status "Disabling last access timestamps updates on files" -NoNewLine
+            Write-Status -Types "+" -Status "Disabling last access timestamps updates on files" -NoNewLine
             fsutil behavior set DisableLastAccess 1
         }
-        gs
+        Get-Status
     }
 }
 Function Optimize-TaskScheduler {
@@ -2557,7 +2556,7 @@ Function Optimize-TaskScheduler {
     Add-LogSection -Section "Optimize: Task Scheduler"
     if ($PSCmdlet.ShouldProcess("Get-Program", "Perform program installation")) {
         If ($Undo) {
-            ws -Types "*", $TweakType -Status "Reverting the tweaks is set to '$Undo'."
+            Write-Status -Types "*", $TweakType -Status "Reverting the tweaks is set to '$Undo'."
             $CustomMessage = { "Resetting the $ScheduledTask task as 'Ready' ..." }
             Set-ScheduledTaskState -Ready -ScheduledTask $Variables.DisableScheduledTasks -CustomMessage $CustomMessage
         }
@@ -2565,7 +2564,7 @@ Function Optimize-TaskScheduler {
             Set-ScheduledTaskState -Disabled -ScheduledTask $Variables.DisableScheduledTasks
         }
 
-        wse -Text "Enabling Scheduled Tasks from Windows"
+        Write-Section -Text "Enabling Scheduled Tasks from Windows"
         Set-ScheduledTaskState -Ready -ScheduledTask $Variables.EnableScheduledTasks
     }
 }
@@ -2595,32 +2594,32 @@ Function Optimize-WindowsOptional {
     Add-LogSection -Section "Optimize: Optional Features"
     if ($PSCmdlet.ShouldProcess("Get-Program", "Perform program installation")) {
         If ($Undo) {
-            ws -Types "*", "OptionalFeature" -Status "Reverting the tweaks is set to '$Undo'."
+            Write-Status -Types "*", "OptionalFeature" -Status "Reverting the tweaks is set to '$Undo'."
             $CustomMessage = { "Re-Installing the $OptionalFeature optional feature..." }
-            sofs -Enabled -OptionalFeatures $Variables.DisableFeatures -CustomMessage $CustomMessage
+            Set-OptionalFeatureState -Enabled -OptionalFeatures $Variables.DisableFeatures -CustomMessage $CustomMessage
         }
         Else {
-            sofs -Disabled -OptionalFeatures $Variables.DisableFeatures
+            Set-OptionalFeatureState -Disabled -OptionalFeatures $Variables.DisableFeatures
         }
 
-        wse -Text "Install Optional Features from Windows"
-        sofs -Enabled -OptionalFeatures $Variables.EnableFeatures
+        Write-Section -Text "Install Optional Features from Windows"
+        Set-OptionalFeatureState -Enabled -OptionalFeatures $Variables.EnableFeatures
 
 
-        wse -Text "Removing Unnecessary Printers"
+        Write-Section -Text "Removing Unnecessary Printers"
         $printers = "Microsoft XPS Document Writer", "Fax", "OneNote"
         foreach ($printer in $printers) {
             $PrinterExists = Get-Printer -Name $Printer -ea SilentlyContinue
             If ($PrinterExists) {
                 try {
-                    ws -Types "-", "Printer" -Status "Attempting removal of $printer..." -NoNewLine
-                    rmp -Name $printer
-                    gs
+                    Write-Status -Types "-", "Printer" -Status "Attempting removal of $printer..." -NoNewLine
+                    Remove-Printer -Name $printer
+                    Get-Status
                 }
                 catch {
-                    gs
+                    Get-Status
                     Get-Error $Error[0]
-                    ws -Types "?", "Printer" -Status "Failed to remove $printer :`n$($_)" -WriteWarning
+                    Write-Status -Types "?", "Printer" -Status "Failed to remove $printer :`n$($_)" -WriteWarning
                 }
             }
         }
@@ -2654,39 +2653,39 @@ Function Remove-InstalledProgram {
         [String[]]$Name
     )
 
-    $uninstall32 = gci "HKLM:\SOFTWARE\Wow6432Node\Microsoft\Windows\CurrentVersion\Uninstall" |
-    % { gp $_.PSPath } | ? { $_.DisplayName -like "*$Name*" } | select UninstallString
+    $uninstall32 = Get-ChildItem "HKLM:\SOFTWARE\Wow6432Node\Microsoft\Windows\CurrentVersion\Uninstall" |
+    ForEach-Object { Get-ItemProperty $_.PSPath } | Where-Oject { $_.DisplayName -like "*$Name*" } | Select-Object UninstallString
 
-    $uninstall64 = gci "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall" |
-    % { gp $_.PSPath } | ? { $_.DisplayName -like "*$Name*" } | select UninstallString
+    $uninstall64 = Get-ChildItem "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall" |
+    ForEach-Object { Get-ItemProperty $_.PSPath } | Where-Oject { $_.DisplayName -like "*$Name*" } | Select-Object UninstallString
     if ($uninstall64) {
         if ($PSCmdlet.ShouldProcess("Uninstalling program: $Name")) {
             $uninstall64 = $uninstall64.UninstallString -Replace "msiexec.exe", "" -Replace "/I", "" -Replace "/X", ""
             $uninstall64 = $uninstall64.Trim()
-            #write "Uninstalling $Name..."
+            #Write-Output "Uninstalling $Name..."
 
-            ws -Types "-", "x64" -Status "Uninstalling $Name..." -NoNewLine
+            Write-Status -Types "-", "x64" -Status "Uninstalling $Name..." -NoNewLine
 
             try {
-                $process = saps "msiexec.exe" -ArgumentList "/X $uninstall64 /qb" -Wait -PassThru
+                $process = Start-Process "msiexec.exe" -ArgumentList "/X $uninstall64 /qb" -Wait -PassThru
                 $exitCode = $process.ExitCode
                 if ($exitCode -eq 0) {
                     $Global:LogEntry.Successful = $True
-                    write "Uninstall of $Name succeeded with exit code $exitCode."
-                    #ac -Path $Variables.Log -Value $logEntry
+                    Write-Output "Uninstall of $Name succeeded with exit code $exitCode."
+                    #Add-Content -Path $Variables.Log -Value $logEntry
                 }
                 else {
                     $Global:LogEntry.Successful = $false
                     $status = "Uninstall of $Name failed with exit code $exitCode."
-                    write $status
-                    #ac -Path $Variables.Log -Value $logEntry
-                    #ac -Path $Variables.Log -Value $status
+                    Write-Output $status
+                    #Add-Content -Path $Variables.Log -Value $logEntry
+                    #Add-Content -Path $Variables.Log -Value $status
                 }
             }
             catch {
                 $status = "Uninstall of $Name failed with error: $_"
-                write $status
-                #ac -Path $Variables.Log -Value $status
+                Write-Output $status
+                #Add-Content -Path $Variables.Log -Value $status
             }
         }
     }
@@ -2697,28 +2696,28 @@ Function Remove-InstalledProgram {
             $uninstall32 = $uninstall32.UninstallString -Replace "msiexec.exe", "" -Replace "/I", "" -Replace "/X", ""
             $uninstall32 = $uninstall32.Trim()
 
-            #write "Uninstalling $Name..."
-            ws -Types "-", "x86" -Status "Uninstalling $Name..." -NoNewLine
+            #Write-Output "Uninstalling $Name..."
+            Write-Status -Types "-", "x86" -Status "Uninstalling $Name..." -NoNewLine
 
             try {
-                $process = saps "msiexec.exe" -ArgumentList "/X $uninstall32 /qb" -Wait -PassThru
+                $process = Start-Process "msiexec.exe" -ArgumentList "/X $uninstall32 /qb" -Wait -PassThru
                 if ($exitCode -eq 0) {
                     $Global:LogEntry.Successful = $True
-                    write "Uninstall of $Name succeeded with exit code $exitCode."
-                    #ac -Path $Variables.Log -Value $logEntry
+                    Write-Output "Uninstall of $Name succeeded with exit code $exitCode."
+                    #Add-Content -Path $Variables.Log -Value $logEntry
                 }
                 else {
                     $Global:LogEntry.Successful = $false
                     $status = "Uninstall of $Name failed with exit code $exitCode."
-                    write $status
-                    #ac -Path $Variables.Log -Value $logEntry
-                    #ac -Path $Variables.Log -Value $status
+                    Write-Output $status
+                    #Add-Content -Path $Variables.Log -Value $logEntry
+                    #Add-Content -Path $Variables.Log -Value $status
                 }
             }
             catch {
                 $status = "Uninstall of $Name failed with error: $_"
-                write $status
-                #ac -Path $Variables.Log -Value $status
+                Write-Output $status
+                #Add-Content -Path $Variables.Log -Value $status
             }
         }
     }
@@ -2763,24 +2762,24 @@ Function Remove-ItemPropertyVerified {
     $confirmationMessage = "This action will remove the property '$Name' from '$Path'. Do you want to proceed?"
     $actionDescription = "Remove Item Property"
     if ($PSCmdlet.ShouldProcess($actionDescription, $confirmationMessage)) {
-        $PathExists = tp $Path -ea SilentlyContinue
+        $PathExists = Test-Path $Path -ea SilentlyContinue
         If ($PathExists -eq $false) {
-            ws -Types "?", $TweakType -Status "Path [$Path] does not exist." -WriteWarning
+            Write-Status -Types "?", $TweakType -Status "Path [$Path] does not exist." -WriteWarning
             return
         }
         else {
             try {
-                ws -Types "-", $TweakType -Status "Removing Item Property: [$Name] from [$Path]..." -NoNewLine
+                Write-Status -Types "-", $TweakType -Status "Removing Item Property: [$Name] from [$Path]..." -NoNewLine
                 if ($force) {
-                    rp -Path $Path -Name $Name -Force
+                    Remove-ItemProperty -Path $Path -Name $Name -Force
                 }
                 else {
-                    rp -Path $Path -Name $Name
+                    Remove-ItemProperty -Path $Path -Name $Name
                 }
-                gs
+                Get-Status
             }
             catch {
-                gs
+                Get-Status
                 Get-Error $Error[0]
             }
         }
@@ -2812,41 +2811,41 @@ Function Remove-Office {
     $confirmationMessage = "Office was found on this system. Do you want to remove it?"
     $actionDescription = "Remove Office"
     if ($PSCmdlet.ShouldProcess($actionDescription, $confirmationMessage)) {
-        $msgBoxInput = sq -Buttons YesNo -Message "Office was found on this system. Should I remove it?" -Icon Warning
+        $msgBoxInput = Show-Question -Buttons YesNo -Message "Office was found on this system. Should I remove it?" -Icon Warning
         switch ($msgBoxInput) {
             'Yes' {
                 $actionDescription = "Downloading Microsoft Support and Recovery Assistant (SaRA)..."
                 try {
-                    ws "+", $TweakType -Status "Downloading Microsoft Support and Recovery Assistant (SaRA)..." -NoNewLine
+                    Write-Status "+", $TweakType -Status "Downloading Microsoft Support and Recovery Assistant (SaRA)..." -NoNewLine
                     Get-NetworkStatus
-                    sbt -Source $Variables.SaRAURL -Destination $Variables.SaRA -TransferType Download -Dynamic | oh
-                    gs
-                    ws "+", $TweakType -Status "Expanding SaRA" -NoNewLine
-                    exar -Path $Variables.SaRA -DestinationPath $Variables.Sexp -Force
-                    gs
+                    Start-BitsTransfer -Source $Variables.SaRAURL -Destination $Variables.SaRA -TransferType Download -Dynamic | Out-Host
+                    Get-Status
+                    Write-Status "+", $TweakType -Status "Expanding SaRA" -NoNewLine
+                    Expand-Archive -Path $Variables.SaRA -DestinationPath $Variables.Sexp -Force
+                    Get-Status
                 }
                 catch {
-                    gs
+                    Get-Status
                     Get-Error $Error[0]
                     Continue
                 }
 
-                $SaRAcmdexe = (gci $Variables.Sexp -Include SaRAcmd.exe -Recurse).FullName
+                $SaRAcmdexe = (Get-ChildItem $Variables.Sexp -Include SaRAcmd.exe -Recurse).FullName
                 $actionDescription = "Starting OfficeScrubScenario via Microsoft Support and Recovery Assistant (SaRA)..."
                 try {
-                    ws "+", $TweakType -Status $actionDescription -NoNewLine
-                    saps $SaRAcmdexe -ArgumentList "-S OfficeScrubScenario -AcceptEula -OfficeVersion All"
-                    gs
+                    Write-Status "+", $TweakType -Status $actionDescription -NoNewLine
+                    Start-Process $SaRAcmdexe -ArgumentList "-S OfficeScrubScenario -AcceptEula -OfficeVersion All"
+                    Get-Status
                 }
                 catch {
-                    gs
+                    Get-Status
                     Get-Error $Error[0]
                     Continue
                 }
             }
             'No' {
-                ws -Types "?" -Status "Skipping Office Removal" -WriteWarning
-                #ac -Path $Variables.Log -Value $logEntry
+                Write-Status -Types "?" -Status "Skipping Office Removal" -WriteWarning
+                #Add-Content -Path $Variables.Log -Value $logEntry
             }
         }
     }
@@ -2885,12 +2884,12 @@ Function Remove-PinnedStartMenu {
     $layoutFile = "C:\Windows\StartMenuLayout.xml"
 
     #Delete layout file if it already exists
-    If (tp $layoutFile) {
-        ri $layoutFile
+    If (Test-Path $layoutFile) {
+        Remove-Item $layoutFile
     }
 
     #Creates the blank layout file
-    $START_MENU_LAYOUT | of $layoutFile -Encoding ASCII
+    $START_MENU_LAYOUT | Out-File $layoutFile -Encoding ASCII
 
     $regAliases = @("HKLM", "HKCU")
 
@@ -2898,33 +2897,33 @@ Function Remove-PinnedStartMenu {
     foreach ($regAlias in $regAliases) {
         $basePath = $regAlias + ":\SOFTWARE\Policies\Microsoft\Windows"
         $keyPath = $basePath + "\Explorer"
-        If (!(tp -Path $keyPath)) {
-            ni -Path $basePath -Name "Explorer"
+        If (!(Test-Path -Path $keyPath)) {
+            New-Item -Path $basePath -Name "Explorer"
         }
-        sp -Path $keyPath -Name "LockedStartLayout" -Value 1
-        sp -Path $keyPath -Name "StartLayoutFile" -Value $layoutFile
+        Set-ItemProperty -Path $keyPath -Name "LockedStartLayout" -Value 1
+        Set-ItemProperty -Path $keyPath -Name "StartLayoutFile" -Value $layoutFile
     }
 
     #Restart Explorer, open the start menu (necessary to load the new layout), and give it a few seconds to process
-    rsex
-    sleep -s 5
-    $wshell = nob -ComObject wscript.shell; $wshell.SendKeys('^{ESCAPE}')
-    sleep -s 5
+    Restart-Explorer
+    Start-Sleep -s 5
+    $wshell = New-Object -ComObject wscript.shell; $wshell.SendKeys('^{ESCAPE}')
+    Start-Sleep -s 5
 
     #Enable the ability to pin items again by disabling "LockedStartLayout"
     foreach ($regAlias in $regAliases) {
         $basePath = $regAlias + ":\SOFTWARE\Policies\Microsoft\Windows"
         $keyPath = $basePath + "\Explorer"
-        sp -Path $keyPath -Name "LockedStartLayout" -Value 0
+        Set-ItemProperty -Path $keyPath -Name "LockedStartLayout" -Value 0
     }
 
     #Restart Explorer and delete the layout file
-    rsex
+    Restart-Explorer
 
     # Uncomment the next line to make clean start menu default for all new users
     #Import-StartLayout -LayoutPath $layoutFile -MountPath $env:SystemDrive\
 
-    ri $layoutFile
+    Remove-Item $layoutFile
 }
 Function Remove-UWPAppx {
     <#
@@ -2958,10 +2957,10 @@ Function Remove-UWPAppx {
         if ($appxPackageToRemove) {
             $actionDescription = "Removing $AppxPackage"
             if ($PSCmdlet.ShouldProcess($actionDescription, "Do you want to remove the app $AppxPackage?")) {
-                $appxPackageToRemove | % -Process {
-                    ws -Types "-", $TweakType -Status "Trying to remove $AppxPackage" -NoNewLine
-                    raxp $_.PackageFullName -ea Continue | Out-Null
-                    gs
+                $appxPackageToRemove | ForEach-Object -Process {
+                    Write-Status -Types "-", $TweakType -Status "Trying to remove $AppxPackage" -NoNewLine
+                    Remove-AppxPackage $_.PackageFullName -ea Continue | Out-Null
+                    Get-Status
                     If ($?) {
                         $Variables.Removed++
                         $Variables.PackagesRemoved += "$appxPackageToRemove.PackageFullName`n"
@@ -2969,9 +2968,9 @@ Function Remove-UWPAppx {
                     elseif (!($?)) {
                         $Variabless.Failed++
                     }
-                    ws -Types "-", $TweakType -Status "Trying to remove provisioned $AppxPackage" -NoNewLine
-                    gaxpp -Online | ? DisplayName -like $AppxPackage | raxpp -Online -AllUsers | Out-Null
-                    gs
+                    Write-Status -Types "-", $TweakType -Status "Trying to remove provisioned $AppxPackage" -NoNewLine
+                    Get-AppxProvisionedPackage -Online | Where-Oject DisplayName -like $AppxPackage | Remove-AppxProvisionedPackage -Online -AllUsers | Out-Null
+                    Get-Status
                     If ($?) {
                         $Variables.Removed++
                         $Variables.PackagesRemoved += "Provisioned Appx $($appxPackageToRemove.PackageFullName)`n"
@@ -3012,7 +3011,7 @@ This command restarts Windows Explorer.
     $confirmationMessage = "This action will restart Windows Explorer. Do you wish to continue?"
     $actionDescription = "Restarts Windows Explorer."
     if ($PSCmdlet.ShouldProcess($actionDescription, $confirmationMessage)) {
-        $ExplorerActive = gps -Name explorer
+        $ExplorerActive = Get-Process -Name explorer
         if ($ExplorerActive) {
             try {
                 taskkill /f /im explorer.exe
@@ -3024,7 +3023,7 @@ This command restarts Windows Explorer.
             }
         }
         try {
-            saps explorer -Wait
+            Start-Process explorer -Wait
         }
         catch {
             Write-Error "Failed to start Explorer process: $_"
@@ -3052,18 +3051,18 @@ Function Request-PCRestart {
             - Started logging changes.
 #>
     Param()
-    ws -Types "WAITING" -Status "User action needed - You may have to ALT + TAB " -WriteWarning
+    Write-Status -Types "WAITING" -Status "User action needed - You may have to ALT + TAB " -WriteWarning
     $restartMessage = "For changes to apply please restart your computer. Ready?"
-    switch (sq -Chime -Buttons YesNoCancel -Title "New Loads Completed" -Icon Warning -Message $restartMessage) {
+    switch (Show-Question -Chime -Buttons YesNoCancel -Title "New Loads Completed" -Icon Warning -Message $restartMessage) {
         'Yes' {
-            wh "You choose to Restart now"
+            Write-Host "You choose to Restart now"
             Restart-Computer
         }
         'No' {
-            wh "You choose to Restart later"
+            Write-Host "You choose to Restart later"
         }
         'Cancel' {
-            wh "You choose to Restart later"
+            Write-Host "You choose to Restart later"
         }
     }
 }
@@ -3123,23 +3122,23 @@ Function Set-Branding {
         Add-LogSection -Section "Mother's Branding"
         If (!$NoBranding) {
             # - Adds Mother Computers support info to About.
-            ws -Types "+", $TweakType -Status "Adding Mother Computers to Support Page"
-            spv -Path $Variables.PathToOEMInfo -Name "Manufacturer" -Type String -Value $Branding.store
-            ws -Types "+", $TweakType -Status "Adding Mothers Number to Support Page"
-            spv -Path $Variables.PathToOEMInfo -Name "SupportPhone" -Type String -Value $Branding.phone
-            ws -Types "+", $TweakType -Status "Adding Store Hours to Support Page"
-            spv -Path $Variables.PathToOEMInfo -Name "SupportHours" -Type String -Value $Branding.hours
-            ws -Types "+", $TweakType -Status "Adding Store URL to Support Page"
-            spv -Path $Variables.PathToOEMInfo -Name "SupportURL" -Type String -Value $Branding.url
-            ws -Types "+", $TweakType -Status "Adding Store Number to Settings Page"
-            spv -Path $Variables.PathToOEMInfo -Name $page -Type String -Value $Branding.Model
+            Write-Status -Types "+", $TweakType -Status "Adding Mother Computers to Support Page"
+            Set-ItemPropertyVerified -Path $Variables.PathToOEMInfo -Name "Manufacturer" -Type String -Value $Branding.store
+            Write-Status -Types "+", $TweakType -Status "Adding Mothers Number to Support Page"
+            Set-ItemPropertyVerified -Path $Variables.PathToOEMInfo -Name "SupportPhone" -Type String -Value $Branding.phone
+            Write-Status -Types "+", $TweakType -Status "Adding Store Hours to Support Page"
+            Set-ItemPropertyVerified -Path $Variables.PathToOEMInfo -Name "SupportHours" -Type String -Value $Branding.hours
+            Write-Status -Types "+", $TweakType -Status "Adding Store URL to Support Page"
+            Set-ItemPropertyVerified -Path $Variables.PathToOEMInfo -Name "SupportURL" -Type String -Value $Branding.url
+            Write-Status -Types "+", $TweakType -Status "Adding Store Number to Settings Page"
+            Set-ItemPropertyVerified -Path $Variables.PathToOEMInfo -Name $page -Type String -Value $Branding.Model
         }
         else {
-            ws -Types "@" -Status "Parameter -NoBranding detected.. Skipping Mother Computers branding" -WriteWarning -ForegroundColorText RED
+            Write-Status -Types "@" -Status "Parameter -NoBranding detected.. Skipping Mother Computers branding" -WriteWarning -ForegroundColorText RED
         }
     }
     else {
-        wh "$actionDescription operation canceled."
+        Write-Host "$actionDescription operation canceled."
     }
 }
 Function Set-ItemPropertyVerified {
@@ -3204,16 +3203,16 @@ Function Set-ItemPropertyVerified {
         [Switch]$Passthru
     )
 
-    $keyExists = tp -Path $Path
+    $keyExists = Test-Path -Path $Path
     if (!$keyExists) {
-        ni -Path $Path -Force | Out-Null
+        New-Item -Path $Path -Force | Out-Null
         $Variables.CreatedKeys++
     }
 
-    $currentValue = gp -Path $Path -Name $Name -ea SilentlyContinue
+    $currentValue = Get-ItemProperty -Path $Path -Name $Name -ea SilentlyContinue
     if ($null -eq $currentValue -or $currentValue.$Name -ne $Value) {
         try {
-            ws -Types "+" -Status "$Name set to $Value in $Path" -NoNewLine
+            Write-Status -Types "+" -Status "$Name set to $Value in $Path" -NoNewLine
 
             $params = @{
                 Path          = $Path
@@ -3228,19 +3227,19 @@ Function Set-ItemPropertyVerified {
             if ($Force) {
                 $params['Force'] = $true
             }
-            sp @params
-            gs
+            Set-ItemProperty @params
+            Get-Status
             $Variables.ModifiedRegistryKeys++
         }
         catch {
-            gs
+            Get-Status
             $Variables.FailedRegistryKeys++
             Get-Error $Error[0]
             Continue
         }
     }
     else {
-        ws -Types "@" -Status "Key already set to the desired value. Skipping"
+        Write-Status -Types "@" -Status "Key already set to the desired value. Skipping"
     }
 }
 Function Set-OptionalFeatureState {
@@ -3277,25 +3276,25 @@ Function Set-OptionalFeatureState {
     $SecurityFilterOnEnable = @("IIS-*")
     $TweakType = "OptionalFeature"
 
-    $OptionalFeatures | % {
-        $feature = gwof -Online -FeatureName $_
+    $OptionalFeatures | ForEach-Object {
+        $feature = Get-WindowsOptionalFeature -Online -FeatureName $_
         if ($feature) {
             if ($_.DisplayName -in $Filter) {
-                ws -Types "@", $TweakType -Status "The $_ ($($feature.DisplayName)) will be skipped as set on Filter..."
+                Write-Status -Types "@", $TweakType -Status "The $_ ($($feature.DisplayName)) will be skipped as set on Filter..."
                 return
             }
 
             if (($_.DisplayName -in $SecurityFilterOnEnable) -and $Enabled) {
-                ws -Types "@", $TweakType -Status "Skipping $_ ($($feature.DisplayName)) to avoid a security vulnerability..." -WriteWarning
+                Write-Status -Types "@", $TweakType -Status "Skipping $_ ($($feature.DisplayName)) to avoid a security vulnerability..." -WriteWarning
                 return
             }
 
             if (!$CustomMessage) {
                 if ($Disabled) {
-                    ws -Types "-", $TweakType -Status $actionDescription -NoNewLine
+                    Write-Status -Types "-", $TweakType -Status $actionDescription -NoNewLine
                     try {
-                        $feature | ? State -Like "Enabled" | dwof -Online -NoRestart -WhatIf:$WhatIf
-                        gs
+                        $feature | Where-Oject State -Like "Enabled" | Disable-WindowsOptionalFeature -Online -NoRestart -WhatIf:$WhatIf
+                        Get-Status
                     }
                     catch {
                         Get-Error $Error[0]
@@ -3303,10 +3302,10 @@ Function Set-OptionalFeatureState {
                     }
                 }
                 elseif ($Enabled) {
-                    ws -Types "+", $TweakType -Status $actionDescription -NoNewLine
+                    Write-Status -Types "+", $TweakType -Status $actionDescription -NoNewLine
                     try {
-                        $feature | ? State -Like "Disabled*" | ewof -Online -NoRestart -WhatIf:$WhatIf
-                        gs
+                        $feature | Where-Oject State -Like "Disabled*" | Enable-WindowsOptionalFeature -Online -NoRestart -WhatIf:$WhatIf
+                        Get-Status
                     }
                     catch {
                         Get-Error $Error[0]
@@ -3314,18 +3313,18 @@ Function Set-OptionalFeatureState {
                     }
                 }
                 else {
-                    ws -Types "?", $TweakType -Status "No parameter received (valid params: -Disabled or -Enabled)"
+                    Write-Status -Types "?", $TweakType -Status "No parameter received (valid params: -Disabled or -Enabled)"
                 }
             }
             else {
                 $customMessageText = $CustomMessage.Invoke($_)
-                ws -Types "@", $TweakType -Status $customMessageText
+                Write-Status -Types "@", $TweakType -Status $customMessageText
             }
         }
         else {
             $Status = "The $_ optional feature was not found."
-            ws -Types "?", $TweakType -Status $Status -WriteWarning
-            #ac -Path $Variables.Log -Value $Status
+            Write-Status -Types "?", $TweakType -Status $Status -WriteWarning
+            #Add-Content -Path $Variables.Log -Value $Status
         }
     }
 }
@@ -3379,7 +3378,7 @@ Author: Circlol
     ForEach ($ScheduledTask in $ScheduledTasks) {
         If (Find-ScheduledTask $ScheduledTask) {
             If ($ScheduledTask -in $Filter) {
-                ws -Types "?", $TweakType -Status "The $ScheduledTask ($((gst $ScheduledTask).TaskName)) will be skipped as set on Filter..." -WriteWarning
+                Write-Status -Types "?", $TweakType -Status "The $ScheduledTask ($((Get-ScheduledTask $ScheduledTask).TaskName)) will be skipped as set on Filter..." -WriteWarning
                 Continue
             }
 
@@ -3390,25 +3389,25 @@ Author: Circlol
                 $action = "Enable"
             }
             Else {
-                ws -Types "?", $TweakType -Status "No parameter received (valid params: -Disabled or -Ready)" -WriteWarning
+                Write-Status -Types "?", $TweakType -Status "No parameter received (valid params: -Disabled or -Ready)" -WriteWarning
                 $action = $null
             }
 
             If ($action) {
                 if ($PSCmdlet.ShouldProcess("$ScheduledTask task", "Set state to $action")) {
-                    ws -Types $action.Substring(0, 1), $TweakType -Status "$action the $ScheduledTask task..." -NoNewLine
+                    Write-Status -Types $action.Substring(0, 1), $TweakType -Status "$action the $ScheduledTask task..." -NoNewLine
                     Try {
                         If ($action -eq "Disable") {
-                            gst -TaskName (Split-Path -Path $ScheduledTask -Leaf) -ea SilentlyContinue | ? State -Like "R*" | dst | Out-Null  # R* = Ready/Running
-                            gs
+                            Get-ScheduledTask -TaskName (Split-Path -Path $ScheduledTask -Leaf) -ea SilentlyContinue | Where-Oject State -Like "R*" | Disable-ScheduledTask | Out-Null  # R* = Ready/Running
+                            Get-Status
                         }
                         ElseIf ($action -eq "Enable") {
-                            gst -TaskName (Split-Path -Path $ScheduledTask -Leaf) -ea SilentlyContinue | ? State -Like "Disabled" | est | Out-Null
-                            gs
+                            Get-ScheduledTask -TaskName (Split-Path -Path $ScheduledTask -Leaf) -ea SilentlyContinue | Where-Oject State -Like "Disabled" | Enable-ScheduledTask | Out-Null
+                            Get-Status
                         }
                     }
                     catch {
-                        gs
+                        Get-Status
                         Get-Error $Error[0]
                         Continue
                     }
@@ -3463,41 +3462,41 @@ Sets the startup type of Service1 and Service2 to Automatic.
 
     Process {
         ForEach ($Service in $Services) {
-            If (!( gsv $Service -ea SilentlyContinue )) {
+            If (!( Get-Service $Service -ea SilentlyContinue )) {
                 $Status = "The $Service service was not found."
-                ws -Types "?", $TweakType -Status $Status -WriteWarning
-                #ac -Path $Variables.Log -Value $Status
+                Write-Status -Types "?", $TweakType -Status $Status -WriteWarning
+                #Add-Content -Path $Variables.Log -Value $Status
                 Continue
             }
 
             If (($Service -in $SecurityFilterOnEnable) -and (($State -eq 'Automatic') -or ($State -eq 'Manual'))) {
-                $Status = "Skipping $Service ($((gsv $Service).DisplayName)) to avoid a security vulnerability..."
-                ws -Types "!", $TweakType -Status $Status -WriteWarning
-                #ac -Path $Variables.Log -Value $Status
+                $Status = "Skipping $Service ($((Get-Service $Service).DisplayName)) to avoid a security vulnerability..."
+                Write-Status -Types "!", $TweakType -Status $Status -WriteWarning
+                #Add-Content -Path $Variables.Log -Value $Status
                 Continue
             }
 
             If ($Service -in $Filter) {
-                $Status = "The $Service ($((gsv $Service).DisplayName)) will be skipped as set on Filter..."
-                ws -Types "!", $TweakType -Status $Status -WriteWarning
-                #ac -Path $Variables.Log -Value $Status
+                $Status = "The $Service ($((Get-Service $Service).DisplayName)) will be skipped as set on Filter..."
+                Write-Status -Types "!", $TweakType -Status $Status -WriteWarning
+                #Add-Content -Path $Variables.Log -Value $Status
                 Continue
             }
 
             Try {
-                $target = "$Service ($(( gsv $Service).DisplayName )) as '$State' on Startup"
-                ws -Types "@", $TweakType -Status "Setting $target" -NoNewLine
+                $target = "$Service ($(( Get-Service $Service).DisplayName )) as '$State' on Startup"
+                Write-Status -Types "@", $TweakType -Status "Setting $target" -NoNewLine
                 If ($WhatIf) {
-                    gsv -Name "$Service" | ss -StartupType $State -WhatIf
-                    gs
+                    Get-Service -Name "$Service" | ss -StartupType $State -WhatIf
+                    Get-Status
                 }
                 Else {
-                    gsv -Name "$Service" | ss -StartupType $State
-                    gs
+                    Get-Service -Name "$Service" | ss -StartupType $State
+                    Get-Status
                 }
             }
             catch {
-                gs
+                Get-Status
                 Get-Error $Error[0]
                 Continue
             }
@@ -3531,67 +3530,67 @@ Function Set-StartMenu {
     if ($PSCmdlet.ShouldProcess("Set-StartMenu", "Applies a Start Menu Layout")) {
         If (!$Skip) {
             If ($Variables.osVersion -like "*Windows 10*") {
-                wse -Text "Clearing pinned start menu items for Windows 10"
-                ws -Types "@", $TweakType -Status "Clearing Windows 10 start pins"
+                Write-Section -Text "Clearing pinned start menu items for Windows 10"
+                Write-Status -Types "@", $TweakType -Status "Clearing Windows 10 start pins"
                 $layoutFile = "C:\Windows\StartMenuLayout.xml"
                 # Delete layout file if it already exists
                 # Creates the blank layout file
-                If (tp $layoutFile) { ri $layoutFile }
-                $Varaibles.START_MENU_LAYOUT | of $layoutFile -Encoding ASCII
+                If (Test-Path $layoutFile) { Remove-Item $layoutFile }
+                $Varaibles.START_MENU_LAYOUT | Out-File $layoutFile -Encoding ASCII
 
                 $regAliases = @("HKLM", "HKCU")
                 #Assign the start layout and force it to apply with "LockedStartLayout" at both the machine and user level
                 foreach ($regAlias in $regAliases) {
                     $basePath = $regAlias + ":\SOFTWARE\Policies\Microsoft\Windows"
                     $keyPath = $basePath + "\Explorer"
-                    spv -Path $keyPath -Name "LockedStartLayout" -Value 1 -Type DWORD
-                    spv -Path $keyPath -Name "StartLayoutFile" -Value $layoutFile -Type ExpandString
+                    Set-ItemPropertyVerified -Path $keyPath -Name "LockedStartLayout" -Value 1 -Type DWORD
+                    Set-ItemPropertyVerified -Path $keyPath -Name "StartLayoutFile" -Value $layoutFile -Type ExpandString
                 }
 
                 #Restart Explorer, open the start menu (necessary to load the new layout), and give it a few seconds to process
-                spps -name explorer
+                Stop-Process -name explorer
 
-                sleep -s 5
-                $wshell = nob -ComObject wscript.shell; $wshell.SendKeys('^{ESCAPE}')
-                sleep -s 5
+                Start-Sleep -s 5
+                $wshell = New-Object -ComObject wscript.shell; $wshell.SendKeys('^{ESCAPE}')
+                Start-Sleep -s 5
 
                 #Enable the ability to pin items again by disabling "LockedStartLayout"
                 foreach ($regAlias in $regAliases) {
                     $basePath = $regAlias + ":\SOFTWARE\Policies\Microsoft\Windows"
                     $keyPath = $basePath + "\Explorer"
-                    spv -Path $keyPath -Name "LockedStartLayout" -Value 0 -Type DWORD
+                    Set-ItemPropertyVerified -Path $keyPath -Name "LockedStartLayout" -Value 0 -Type DWORD
                 }
 
 
                 #Restart Explorer and delete the layout file
-                spps -name explorer
+                Stop-Process -name explorer
                 # Uncomment the next line to make clean start menu default for all new users
                 Import-StartLayout -LayoutPath $layoutFile -MountPath $env:SystemDrive\
-                ri $layoutFile
+                Remove-Item $layoutFile
             }
             elseif ($Variables.osVersion -like "*Windows 11*") {
-                wse -Text "Applying start menu layout for Windows 11"
-                ws -Types "+", $TweakType -Status "Attempting application"
-                $StartBinFiles = gci -Path "$newloads" -Filter "start*.bin" -file
-                If (!(tp -Path "$newloads\start.bin")) {
-                    sbt -Source $Variables.StartBinURL -Destination $Newloads -Dynamic
+                Write-Section -Text "Applying start menu layout for Windows 11"
+                Write-Status -Types "+", $TweakType -Status "Attempting application"
+                $StartBinFiles = Get-ChildItem -Path "$newloads" -Filter "start*.bin" -file
+                If (!(Test-Path -Path "$newloads\start.bin")) {
+                    Start-BitsTransfer -Source $Variables.StartBinURL -Destination $Newloads -Dynamic
                 }
-                If (!(tp -Path "$newloads\start1.bin")) {
-                    sbt -Source $Variables.StartBin2URL -Destination $Newloads -Dynamic
+                If (!(Test-Path -Path "$newloads\start1.bin")) {
+                    Start-BitsTransfer -Source $Variables.StartBin2URL -Destination $Newloads -Dynamic
                 }
-                $StartBinFiles = gci -Path $newloads -Filter "start*.bin" -file
+                $StartBinFiles = Get-ChildItem -Path $newloads -Filter "start*.bin" -file
                 $TotalBinFiles = ($StartBinFiles).Count * 2
                 $progress = 0
 
                 Foreach ($StartBinFile in $StartBinFiles) {
                     $progress++
-                    ws -Types "+", $TweakType -Status "Copying $($StartBinFile.Name) for new users ($progress/$TotalBinFiles)" -NoNewLine
+                    Write-Status -Types "+", $TweakType -Status "Copying $($StartBinFile.Name) for new users ($progress/$TotalBinFiles)" -NoNewLine
                     xcopy $StartBinFile.FullName $Variables.StartBinDefault /y
-                    gs
+                    Get-Status
                     $progress++
-                    ws -Types "+", $TweakType -Status "Copying $($StartBinFile.Name) to current user ($progress)/$TotalBinFiles)" -NoNewLine
+                    Write-Status -Types "+", $TweakType -Status "Copying $($StartBinFile.Name) to current user ($progress)/$TotalBinFiles)" -NoNewLine
                     xcopy $StartBinFile.FullName $Variables.StartBinCurrent /y
-                    gs
+                    Get-Status
                 }
             }
         }
@@ -3623,17 +3622,17 @@ Function Set-Taskbar {
     )
     if ($PSCmdlet.ShouldProcess("Set-Taskbar", "Applies a taskbar layout")) {
         If ($Undo) {
-            write "Skipping Set-Taskbar"
+            Write-Output "Skipping Set-Taskbar"
         }
         else {
-            ws -Types "+" -Status "Applying Taskbar Layout" -NoNewLine
-            If (tp $Variables.layoutFile) {
-                ri $Variables.layoutFile -Verbose | Out-Null
+            Write-Status -Types "+" -Status "Applying Taskbar Layout" -NoNewLine
+            If (Test-Path $Variables.layoutFile) {
+                Remove-Item $Variables.layoutFile -Verbose | Out-Null
             }
-            $Variables.StartLayout | of $Variables.layoutFile -Encoding ASCII
-            gs
-            rsex
-            sleep -Seconds 4
+            $Variables.StartLayout | Out-File $Variables.layoutFile -Encoding ASCII
+            Get-Status
+            Restart-Explorer
+            Start-Sleep -Seconds 4
         }
     }
 }
@@ -3663,35 +3662,35 @@ Function Set-Wallpaper {
     Add-LogSection -Section "Wallpaper & Visuals"
     if ($PSCmdlet.ShouldProcess("Get-Program", "Perform program installation")) {
         If ($Undo) {
-            saps "C:\Windows\Resources\Themes\aero.theme"
+            Start-Process "C:\Windows\Resources\Themes\aero.theme"
         }
         else {
-            $WallpaperPathExists = tp $Variables.wallpaperPath
+            $WallpaperPathExists = Test-Path $Variables.wallpaperPath
             If (!$WallpaperPathExists) {
                 $WallpaperURL = "https://raw.githubusercontent.com/circlol/newload/main/assets/mother.jpg"
-                ws "@", $TweakType -Status "Downloading Wallpaper" -NoNewLine
-                sbt -Source $WallpaperURL -Destination $Variables.WallpaperDestination -Dynamic
-                gs
+                Write-Status "@", $TweakType -Status "Downloading Wallpaper" -NoNewLine
+                Start-BitsTransfer -Source $WallpaperURL -Destination $Variables.WallpaperDestination -Dynamic
+                Get-Status
             }
-            ws -Types "+", $TweakType -Status "Applying Wallpaper"
-            wh " REMINDER " -BackgroundColor Red -ForegroundColor White -NoNewLine
-            wh ": Wallpaper might not Apply UNTIL System is Rebooted`n"
-            If (!(tp $Variables.WallpaperDestination)) {
-                ws -Types "+", $TweakType -Status "Copying Wallpaper to Destination" -NoNewLine
-                cpi -Path $Variables.wallpaperPath -Destination $Variables.WallpaperDestination -Force -Confirm:$False
-                gs
+            Write-Status -Types "+", $TweakType -Status "Applying Wallpaper"
+            Write-Host " REMINDER " -BackgroundColor Red -ForegroundColor White -NoNewLine
+            Write-Host ": Wallpaper might not Apply UNTIL System is Rebooted`n"
+            If (!(Test-Path $Variables.WallpaperDestination)) {
+                Write-Status -Types "+", $TweakType -Status "Copying Wallpaper to Destination" -NoNewLine
+                Copy-Item -Path $Variables.wallpaperPath -Destination $Variables.WallpaperDestination -Force -Confirm:$False
+                Get-Status
             }
-            ws -Types "+", $TweakType -Status "Setting WallpaperStyle to 'Stretch'"
-            spv -Path $Variables.PathToCUControlPanelDesktop -Name WallpaperStyle -Value 2 -Type String
-            ws -Types "+", $TweakType -Status "Setting Wallpaper to Destination"
-            spv -Path $Variables.PathToCUControlPanelDesktop -Name Wallpaper -Value $Variables.WallpaperDestination -Type String
-            ws -Types "+", $TweakType -Status "Setting System to use Light Mode"
-            spv -Path $Variables.PathToRegPersonalize -Name "SystemUsesLightTheme" -Value 1 -Type DWord
-            ws -Types "+", $TweakType -Status "Setting Apps to use Light Mode"
-            spv -Path $Variables.PathToRegPersonalize -Name "AppsUseLightTheme" -Value 1 -Type DWord
-            ws -Types "+", $TweakType -Status "Updating Wallpaper" -NoNewLine
-            saps "RUNDLL32.EXE" "user32.dll, UpdatePerUserSystemParameters"
-            gs
+            Write-Status -Types "+", $TweakType -Status "Setting WallpaperStyle to 'Stretch'"
+            Set-ItemPropertyVerified -Path $Variables.PathToCUControlPanelDesktop -Name WallpaperStyle -Value 2 -Type String
+            Write-Status -Types "+", $TweakType -Status "Setting Wallpaper to Destination"
+            Set-ItemPropertyVerified -Path $Variables.PathToCUControlPanelDesktop -Name Wallpaper -Value $Variables.WallpaperDestination -Type String
+            Write-Status -Types "+", $TweakType -Status "Setting System to use Light Mode"
+            Set-ItemPropertyVerified -Path $Variables.PathToRegPersonalize -Name "SystemUsesLightTheme" -Value 1 -Type DWord
+            Write-Status -Types "+", $TweakType -Status "Setting Apps to use Light Mode"
+            Set-ItemPropertyVerified -Path $Variables.PathToRegPersonalize -Name "AppsUseLightTheme" -Value 1 -Type DWord
+            Write-Status -Types "+", $TweakType -Status "Updating Wallpaper" -NoNewLine
+            Start-Process "RUNDLL32.EXE" "user32.dll, UpdatePerUserSystemParameters"
+            Get-Status
         }
     }
 }
@@ -3733,12 +3732,12 @@ Function Send-EmailLog {
     $PowershellTable = $PSVersionTable | Out-String
 
     # - Gathers history from current session
-    $history = h
+    $history = Get-History
 
     # - Gathers some information about installed programs
-    $ListOfInstalledApplications = (Get-InstalledProgram -Name "*").Name | sort
+    $ListOfInstalledApplications = (Get-InstalledProgram -Name "*").Name | Sort-Object
     $ListOfInstalledApplications = $ListOfInstalledApplications -join "`n"
-    $ListOfInstalledPackages = (gaxp -User $Env:USERNAME).Name | sort
+    $ListOfInstalledPackages = (Get-AppxPackage-User $Env:USERNAME).Name | Sort-Object
     $ListOfInstalledPackages = $ListOfInstalledPackages -join "`n"
 
     # - System Information
@@ -3757,10 +3756,10 @@ Function Send-EmailLog {
 
     # - Joins log files to send as attachments
     $LogFiles = @()
-    if (tp -Path $Variables.log) {
+    if (Test-Path -Path $Variables.log) {
         $LogFiles += $Variables.log
     }
-    if (tp -Path $Variables.errorlog) {
+    if (Test-Path -Path $Variables.errorlog) {
         $LogFiles += $Variables.errorlog
     }
 
@@ -3849,20 +3848,20 @@ Function Show-ScriptLogo {
             - Started logging changes.
 #>
     $WindowTitle = "New Loads - Initialization" ; $host.UI.RawUI.WindowTitle = $WindowTitle
-    wh "`n`n`n"
-    wh "▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀" -NoNewLine -ForegroundColor $Variables.ForegroundColor -BackgroundColor Blue
-    wh "`n`n"
-    wh "$($Variables.Logo)`n`n" -ForegroundColor $Variables.LogoColor -BackgroundColor Black -NoNewline
-    wh "                               Created by " -NoNewLine -ForegroundColor White -BackgroundColor Black
-    wh "$($Variables.Creator)" -ForegroundColor Red -BackgroundColor Black -NoNewLine
-    wh "      Last Update: " -NoNewLine -ForegroundColor White -BackgroundColor Black
-    wh "$($Variables.ProgramVersion) - $($Variables.ReleaseDate)" -ForegroundColor Green -BackgroundColor Black
-    wh "`n`n  Notice: " -NoNewLine -ForegroundColor RED -BackgroundColor Black
-    wh "For best functionality, it is strongly suggested to update windows before running New Loads.`n" -ForegroundColor Yellow -BackgroundColor Black
-    if ($Variables.specifiedParameters.Count -ne 0) { wh "    Specified Parameters: " -ForegroundColor $Variables.LogoColor -NoNewLine ; wh "$parametersString" }
-    wh "`n`n"
-    wh "▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀" -ForegroundColor Blue -BackgroundColor $Variables.LogoColor
-    wh "`n`n"
+    Write-Host "`n`n`n"
+    Write-Host "▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀" -NoNewLine -ForegroundColor $Variables.ForegroundColor -BackgroundColor Blue
+    Write-Host "`n`n"
+    Write-Host "$($Variables.Logo)`n`n" -ForegroundColor $Variables.LogoColor -BackgroundColor Black -NoNewline
+    Write-Host "                               Created by " -NoNewLine -ForegroundColor White -BackgroundColor Black
+    Write-Host "$($Variables.Creator)" -ForegroundColor Red -BackgroundColor Black -NoNewLine
+    Write-Host "      Last Update: " -NoNewLine -ForegroundColor White -BackgroundColor Black
+    Write-Host "$($Variables.ProgramVersion) - $($Variables.ReleaseDate)" -ForegroundColor Green -BackgroundColor Black
+    Write-Host "`n`n  Notice: " -NoNewLine -ForegroundColor RED -BackgroundColor Black
+    Write-Host "For best functionality, it is strongly suggested to update windows before running New Loads.`n" -ForegroundColor Yellow -BackgroundColor Black
+    if ($Variables.specifiedParameters.Count -ne 0) { Write-Host "    Specified Parameters: " -ForegroundColor $Variables.LogoColor -NoNewLine ; Write-Host "$parametersString" }
+    Write-Host "`n`n"
+    Write-Host "▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀" -ForegroundColor Blue -BackgroundColor $Variables.LogoColor
+    Write-Host "`n`n"
     $WindowTitle = "New Loads" ; $host.UI.RawUI.WindowTitle = $WindowTitle
 }
 Function Show-ScriptStatus {
@@ -3907,13 +3906,13 @@ Function Show-ScriptStatus {
         Set-Variable -Name 'TweakType' -Value $TweakType -Scope Global -Force
     }
     If ($TitleCounterText) {
-        wtic -Counter $Variables.Counter -MaxLength $Variables.MaxLength -Text $TitleCounterText
+        Write-TitleCounter -Counter $Variables.Counter -MaxLength $Variables.MaxLength -Text $TitleCounterText
     }
     If ($TitleText) {
-        wti -Text $TitleText
+        write-Title -Text $TitleText
     }
     If ($SectionText) {
-        wse -Text "Section: $SectionText"
+        Write-Section -Text "Section: $SectionText"
     }
     If ($AddCounter) {
         $Variables.Counter++
@@ -3993,7 +3992,7 @@ Function Start-BitlockerDecryption {
     Show-ScriptStatus -WindowTitle "Bitlocker" -TweakType "Bitlocker" -TitleCounterText "Bitlocker Decryption"
     Add-LogSection -Section "Bitlocker Decryption"
     If ($Skip) {
-        ws -Types "@" -Status "Parameter -Skip detected.. Skipping Bitlocker Decryption." -WriteWarning -ForegroundColorText RED
+        Write-Status -Types "@" -Status "Parameter -Skip detected.. Skipping Bitlocker Decryption." -WriteWarning -ForegroundColorText RED
     }
     else {
         if ($PSCmdlet.ShouldProcess("Start-BitlockerDecryption", "Starts the decryption process for Bitlocker.")) {
@@ -4002,15 +4001,15 @@ Function Start-BitlockerDecryption {
             If ($bitlockerVolume -and $bitlockerVolume.ProtectionStatus -eq "On") {
                 # Starts Bitlocker Decryption
                 $messagebld = "Bitlocker was detected turned on. Do you want to start the decryption process?"
-                sq -Buttons YesNo -Title "New Loads" -Icon Warning -Message $messagebld
-                ws -Types "@" -Status "Alert: Bitlocker is enabled. Starting the decryption process" -Type Warning
+                Show-Question -Buttons YesNo -Title "New Loads" -Icon Warning -Message $messagebld
+                Write-Status -Types "@" -Status "Alert: Bitlocker is enabled. Starting the decryption process" -Type Warning
                 Disable-BitLocker -MountPoint C:\
-                gs
+                Get-Status
             }
             else {
                 $message = "Bitlocker is not enabled on this machine"
-                ws -Types "?" -Status $message
-                #ac -Path $Variables.Log -Value $message
+                Write-Status -Types "?" -Status $message
+                #Add-Content -Path $Variables.Log -Value $message
             }
         }
     }
@@ -4036,47 +4035,49 @@ Function Start-Bootup {
     param()
     Show-ScriptStatus -WindowTitle "Checking Requirements"
 
+    <#
     # Checks OS version to make sure Windows is atleast v20H2 otherwise it'll display a message and close
-    If ($Variables.BuildNumber -le $Variables.MinimumBuildNumber) {
-        wh $Variables.errorMessage1 -ForegroundColor Yellow
+    If (($PSVersionTable).BuildVersion.Build -le $Variables.MinimumBuildNumber) {
+        Write-Host $Variables.errorMessage1 -ForegroundColor Yellow
         Read-Host -Prompt "Press enter to close New Loads"
         Exit
     }
+    #>
 
 
     # Checks to make sure New Loads is run as admin otherwise it'll display a message and close
     If (!([bool]([Security.Principal.WindowsIdentity]::GetCurrent().Groups -match 'S-1-5-32-544'))) {
-        wh $Variables.errorMessage2 -ForegroundColor Yellow
+        Write-Host $Variables.errorMessage2 -ForegroundColor Yellow
         do {
             $SelfElevate = Read-Host -Prompt "Would you like to run New Loads as an Administrator? (Y/N) "
             switch ($SelfElevate.ToUpper()) {
                 "Y" {
-                    $wtExists = gcm wt
+                    $wtExists = Get-Command wt
                     If ($wtExists) {
-                        saps wt -verb runas -ArgumentList "new-tab powershell -c ""irm run.newloads.ca | iex"""
+                        Start-Process wt -verb runas -ArgumentList "new-tab powershell -c ""irm run.newloads.ca | iex"""
                     }
-                    else { saps powershell -verb runas -ArgumentList "-command ""irm run.newloads.ca | iex""" }
-                    write "Exiting"
-                    spps $pid
+                    else { Start-Process powershell -verb runas -ArgumentList "-command ""irm run.newloads.ca | iex""" }
+                    Write-Output "Exiting"
+                    Stop-Process $pid
                 }
                 "N" { exit }
-                default { wh "Invalid input. Please enter Y or N." }
+                default { Write-Host "Invalid input. Please enter Y or N." }
             }
         } while ($true)
     }
     Show-ScriptLogo
     Update-Time
-    nv -Name Time -Value (gd -UFormat %Y%m%d) -Scope Global
+    New-Variable -Name Time -Value (Get-Date -UFormat %Y%m%d) -Scope Global
     If ($Time -GT $Variables.MaxTime -or $Time -LT $Variables.MinTime) {
         Clear-Host
-        ws -Types ":(", "::ERROR::" -Status "Please manually update the time before continuing.." -ForegroundColorText RED
+        Write-Status -Types ":(", "::ERROR::" -Status "Please manually update the time before continuing.." -ForegroundColorText RED
         Read-Host -Prompt "Press enter to close New Loads ::: The Settings page for time will open so you can sync right away"
-        saps ms-settings:dateandtime
+        Start-Process ms-settings:dateandtime
         Exit
     }
 
     try {
-        gi $Variables.Log -ea SilentlyContinue | ri
+        Get-Item $Variables.Log -ea SilentlyContinue | Remove-Item
     }
     catch {
         return "An error occurred while removing the files: $_"
@@ -4102,14 +4103,14 @@ Function Start-Chime {
     [CmdletBinding(SupportsShouldProcess = $true)]
     param(
         [Parameter(Mandatory = $False)]
-        [ValidateScript({ tp $_ })]
+        [ValidateScript({ Test-Path $_ })]
         [String]$File = "C:\Windows\Media\Alarm06.wav"
     )
 
     if ($PSCmdlet.ShouldProcess("Play sound file", "Play sound file at $File")) {
-        if (tp $File) {
+        if (Test-Path $File) {
             try {
-                $soundPlayer = nob System.Media.SoundPlayer
+                $soundPlayer = New-Object System.Media.SoundPlayer
                 $soundPlayer.SoundLocation = $File
                 $soundPlayer.Play()
                 $soundPlayer.Dispose()
@@ -4143,28 +4144,28 @@ Function Start-Cleanup {
     Show-ScriptStatus -WindowTitle "Cleanup" -TweakType "Cleanup" -TitleCounterText "Cleanup" -TitleText "Cleanup"
     Add-LogSection -Section "Cleanup"
     If ($Undo -or $Skip) {
-        ws -Types "@" -Status "Parameter -Undo or -Skip was detected.. Skipping this section." -WriteWarning -ForegroundColorText Red
+        Write-Status -Types "@" -Status "Parameter -Undo or -Skip was detected.. Skipping this section." -WriteWarning -ForegroundColorText Red
     }
     else {
         if ($PSCmdlet.ShouldProcess("Get-Program", "Perform program installation")) {
             # - Starts Explorer if it isn't already running
-            If (!(gps -Name Explorer)) { rsex }
+            If (!(Get-Process -Name Explorer)) { Restart-Explorer }
             # Removes layout file if it exists
-            gi $Variables.layoutFile | ri
+            Get-Item $Variables.layoutFile | Remove-Item
             # - Launches Chrome to initiate UBlock Origin
-            ws -Types "+", $TweakType -Status "Launching Google Chrome"
-            saps Chrome -WarningAction SilentlyContinue
+            Write-Status -Types "+", $TweakType -Status "Launching Google Chrome"
+            Start-Process Chrome -WarningAction SilentlyContinue
 
             # - Clears Temp Folder
-            ws -Types "-", $TweakType -Status "Cleaning Temp Folder"
-            ri "$env:temp\*.*" -Force -Recurse -Exclude "New Loads"
+            Write-Status -Types "-", $TweakType -Status "Cleaning Temp Folder"
+            Remove-Item "$env:temp\*.*" -Force -Recurse -Exclude "New Loads"
 
             # - Removes installed program shortcuts from Public/User Desktop
             foreach ($shortcut in $Variables.shortcuts) {
-                $ShortcutExist = tp $shortcut
+                $ShortcutExist = Test-Path $shortcut
                 If ($ShortcutExist) {
-                    ws -Types "-", $TweakType -Status "Removing $shortcut"
-                    ri -Path "$shortcut" -Force | Out-Null
+                    Write-Status -Types "-", $TweakType -Status "Removing $shortcut"
+                    Remove-Item -Path "$shortcut" -Force | Out-Null
                 }
             }
         }
@@ -4212,30 +4213,30 @@ Function Start-Debloat {
         # Remove Start Menu Ads (.url, .lnk)
         ForEach ($app in $apps) {
             try {
-                if (tp -Path "$commonapps\$app.url") {
+                if (Test-Path -Path "$commonapps\$app.url") {
                     # - Checks common start menu .urls
                     if ($PSCmdlet.ShouldProcess("$app.url", "Remove")) {
-                        ws -Types "-", "$TweakType", "$TweakTypeLocal" -Status "Removing $app.url" -NoNewLine
-                        ri -Path "$commonapps\$app.url" -Force
-                        gs
+                        Write-Status -Types "-", "$TweakType", "$TweakTypeLocal" -Status "Removing $app.url" -NoNewLine
+                        Remove-Item -Path "$commonapps\$app.url" -Force
+                        Get-Status
                     }
                 }
-                if (tp -Path "$commonapps\$app.lnk") {
+                if (Test-Path -Path "$commonapps\$app.lnk") {
                     # - Checks common start menu .lnks
                     if ($PSCmdlet.ShouldProcess("$app.lnk", "Remove")) {
-                        ws -Types "-", "$TweakType", "$TweakTypeLocal" -Status "Removing $app.lnk" -NoNewLine
-                        ri -Path "$commonapps\$app.lnk" -Force
-                        gs
+                        Write-Status -Types "-", "$TweakType", "$TweakTypeLocal" -Status "Removing $app.lnk" -NoNewLine
+                        Remove-Item -Path "$commonapps\$app.lnk" -Force
+                        Get-Status
                     }
                 }
             }
             catch {
-                ws -Types "!", "$TweakType", "$TweakTypeLocal" -Status "An error occurred while removing $app`: $_"
+                Write-Status -Types "!", "$TweakType", "$TweakTypeLocal" -Status "An error occurred while removing $app`: $_"
             }
         }
 
         # Remove UWP Apps
-        wse -Text "UWP Apps"
+        Write-Section -Text "UWP Apps"
         $TotalItems = $Variables.Programs.Count
         $CurrentItem = 0
         $PercentComplete = 0
@@ -4253,20 +4254,20 @@ Function Start-Debloat {
         Write-Progress -Activity "Debloating System" -Completed
 
         # Debloat Completion
-        wh "Debloat Completed!`n" -Foregroundcolor Green
-        wh "Packages Removed: " -NoNewline -ForegroundColor Gray
-        wh $Variables.Removed -ForegroundColor Green
+        Write-Host "Debloat Completed!`n" -Foregroundcolor Green
+        Write-Host "Packages Removed: " -NoNewline -ForegroundColor Gray
+        Write-Host $Variables.Removed -ForegroundColor Green
         If ($Failed) {
-            wh "Failed: " -NoNewline -ForegroundColor Gray
-            wh $Variables.FailedPackages -ForegroundColor Red
+            Write-Host "Failed: " -NoNewline -ForegroundColor Gray
+            Write-Host $Variables.FailedPackages -ForegroundColor Red
         }
-        wh "Packages Scanned For: " -NoNewline -ForegroundColor Gray
-        wh "$($Variables.PackagesNotFound)`n" -ForegroundColor Yellow
+        Write-Host "Packages Scanned For: " -NoNewline -ForegroundColor Gray
+        Write-Host "$($Variables.PackagesNotFound)`n" -ForegroundColor Yellow
     }
     elseif ($Undo) {
         if ($PSCmdlet.ShouldProcess("Default Apps", "Reinstall")) {
-            ws -Types "+", "Appx" -Status "Reinstalling Default Apps from manifest"
-            gaxp -allusers | % { Add-AppxPackage -register "$($_.InstallLocation)\appxmanifest.xml" -DisableDevelopmentMode } | oh
+            Write-Status -Types "+", "Appx" -Status "Reinstalling Default Apps from manifest"
+            Get-AppxPackage-allusers | ForEach-Object { Add-AppxPackage -register "$($_.InstallLocation)\appxmanifest.xml" -DisableDevelopmentMode } | Out-Host
         }
     }
 }
@@ -4298,63 +4299,63 @@ Function Start-Update {
 
     if ($timeDifference -gt 6) {
         $Message = "The last update check was more than 6 hour ago. Do you want to run Windows Update through New Loads now?"
-        ws -Status "Press ALT + TAB if you dont see the form`n$Message"
-        switch (sq -Buttons YesNo -Title "Windows Updates Notification" -Icon Information -Message $Message) {
+        Write-Status -Status "Press ALT + TAB if you dont see the form`n$Message"
+        switch (Show-Question -Buttons YesNo -Title "Windows Updates Notification" -Icon Information -Message $Message) {
             'Yes' {
                 ## INSTALLATION
-                ws -Types "+" -Status "Installing Assets"
+                Write-Status -Types "+" -Status "Installing Assets"
 
                 # Installs NuGet
-                ws -Types "+" -Status "NuGet" -NoNewLine
+                Write-Status -Types "+" -Status "NuGet" -NoNewLine
                 Install-PackageProvider -Name NuGet -MinimumVersion 2.8.5.201 -Force -Confirm:$false | Out-Null
-                gs
+                Get-Status
 
                 # Installs PSWindowsUpdate
-                ws -Types "+" -Status "PSWindowsUpdate" -NoNewLine
+                Write-Status -Types "+" -Status "PSWindowsUpdate" -NoNewLine
                 Install-Module -Name PSWindowsUpdate -Force -Confirm:$false
-                gs
+                Get-Status
 
                 $Policy = Get-ExecutionPolicy
                 If ($Policy -ne "RemoteSigned") {
-                    ws -Status "Changing Execution Policy"
+                    Write-Status -Status "Changing Execution Policy"
                     Set-ExecutionPolicy RemoteSigned -Confirm:$False -Scope Process -Force
                 }
 
                 # Small sleep to assure PSWindowsUpdate can be loaded
-                sleep -Seconds 3
+                Start-Sleep -Seconds 3
                 try {
 
                     # Imports PSWindowsUpdate
-                    ws -Types "+" -Status "Importing PSWindowsUpdate" -NoNewLine
-                    ipmo -Name PSWindowsUpdate -Force
-                    gs
-                    ws -Types "+" -Status "Starting Windows Updates - Download, Install, IgnoreReboot, AcceptAll"
+                    Write-Status -Types "+" -Status "Importing PSWindowsUpdate" -NoNewLine
+                    Import-Module -Name PSWindowsUpdate -Force
+                    Get-Status
+                    Write-Status -Types "+" -Status "Starting Windows Updates - Download, Install, IgnoreReboot, AcceptAll"
                     Get-WindowsUpdate -AcceptAll -Install -Download -IgnoreReboot
                     
                     # CLEANUP & REMOVAL OF START-UPDATE ASSETS
-                    ws -Types "-" -Status "Removing Start-Update Assets"
-                    ws -Types "-" -Status "PSWindowsUpdate" -NoNewLine
+                    Write-Status -Types "-" -Status "Removing Start-Update Assets"
+                    Write-Status -Types "-" -Status "PSWindowsUpdate" -NoNewLine
                     Remove-Module -Name PSWindowsUpdate -Force -Confirm:$false
-                    gs
-                    ws -Types "-" -Status "NuGet" -NoNewLine
+                    Get-Status
+                    Write-Status -Types "-" -Status "NuGet" -NoNewLine
                     Uninstall-PackageProvider -Name NuGet -Force -Confirm:$false | Out-Null
-                    gs
+                    Get-Status
                 }catch {
-                    saps ms-settings:windowsupdate
-                    ws -Status "Failed to Update through the script. Please manually do it."
+                    Start-Process ms-settings:windowsupdate
+                    Write-Status -Status "Failed to Update through the script. Please manually do it."
                     Read-Host
                     Exit
                 }
 
-                ws -Status "Updates finished"
+                Write-Status -Status "Updates finished"
             }
             'No' {
-                ws -Types "D:" "You choose to skip Windows Updates. Naughty Naughty"
+                Write-Status -Types "D:" "You choose to skip Windows Updates. Naughty Naughty"
             }
         }
     }
     else {
-        ws -Types "" -Status "The last update check was within the 6 hours."
+        Write-Status -Types "" -Status "The last update check was within the 6 hours."
     }
 }
 Function Update-Time {
@@ -4379,39 +4380,39 @@ This example updates the system time zone to Eastern Time (US & Canada) and sync
     )
 
     try {
-        $currentTimeZone = (gtz).DisplayName
+        $currentTimeZone = (Get-TimeZone).DisplayName
         If ($currentTimeZone -ne $TimeZoneId) {
             if ($PSCmdlet.ShouldProcess("Time zone change", "Setting time zone to $TimeZoneId")) {
-                ws -Types "" -Status "Current Time Zone: $currentTimeZone, Setting to $TimeZoneId" -NoNewLine
+                Write-Status -Types "" -Status "Current Time Zone: $currentTimeZone, Setting to $TimeZoneId" -NoNewLine
                 Set-TimeZone -Id $TimeZoneId -ea Stop
-                gs
+                Get-Status
             }
         }
 
         # Synchronize Time
-        $w32TimeService = gsv -Name W32Time
+        $w32TimeService = Get-Service -Name W32Time
         if ($w32TimeService.Status -ne "Running") {
             if ($PSCmdlet.ShouldProcess("W32Time Service", "Starting service")) {
-                ws -Types "+" -Status "Starting W32Time Service" -NoNewLine
-                sasv -Name W32Time
-                gs
+                Write-Status -Types "+" -Status "Starting W32Time Service" -NoNewLine
+                Start-Service -Name W32Time
+                Get-Status
             }
         }
 
         if ($PSCmdlet.ShouldProcess("Time synchronization", "Syncing time")) {
-            ws -Types "F5" -Status "Syncing Time"
-            If ((gsv W32Time).StartType -eq "Disabled") {
+            Write-Status -Types "F5" -Status "Syncing Time"
+            If ((Get-Service W32Time).StartType -eq "Disabled") {
                 ss W32Time -StartupType Manual
             }
-            If ((gsv W32Time).Status -ne "Running") {
-                sasv W32Time
+            If ((Get-Service W32Time).Status -ne "Running") {
+                Start-Service W32Time
             }
             # Resyncs time
             $resyncOutput = w32tm /resync
             # Catches resyncs output, if it couldnt change it will be attempted manually here.
             if ($resyncOutput -like "*The computer did not resync because the required time change was too big.*") {
                 if ($PSCmdlet.ShouldProcess("Time synchronization", "Setting time manually")) {
-                    ws -Types "@" -Status "Time change is too big. Setting time manually." -WriteWarning
+                    Write-Status -Types "@" -Status "Time change is too big. Setting time manually." -WriteWarning
                     Get-NetworkStatus
                     w32tm /config /manualpeerlist:"time.google.com" /syncfromflags:manual /reliable:YES /update
                     w32tm /resync /force
@@ -4421,7 +4422,7 @@ This example updates the system time zone to Eastern Time (US & Canada) and sync
 
     }
     catch {
-        gs
+        Get-Status
         Get-Error $Error[0]
         Continue
     }
@@ -4435,7 +4436,7 @@ Writes a break line to the console.
 This function writes a break line to the console.
 
 .EXAMPLE
-wb
+Write-Break
 
 .NOTES
     Author: Circlol
@@ -4445,9 +4446,9 @@ wb
             - Started logging changes.
 #>
     $line = "=" * 96
-    wh "`n`n[" -NoNewline -ForegroundColor $Variables.ForegroundColor -Backgroundcolor $Variables.BackgroundColor
-    wh $line -NoNewLine -ForegroundColor White -BackgroundColor $Variables.BackgroundColor
-    wh "]`n" -ForegroundColor $Variables.ForegroundColor -BackgroundColor $Variables.BackgroundColor
+    Write-Host "`n`n[" -NoNewline -ForegroundColor $Variables.ForegroundColor -Backgroundcolor $Variables.BackgroundColor
+    Write-Host $line -NoNewLine -ForegroundColor White -BackgroundColor $Variables.BackgroundColor
+    Write-Host "]`n" -ForegroundColor $Variables.ForegroundColor -BackgroundColor $Variables.BackgroundColor
 }
 Function Write-Caption {
     <#
@@ -4501,9 +4502,9 @@ Write-Caption -Type Success -Text "Operation completed successfully."
         }
     }
     If ($OverrideText) { $Text = $OverrideText }
-    wh "  " -NoNewline #-ForegroundColor $foreg
-    wh $Symbol -NoNewline -ForegroundColor $foreg1
-    wh "$Text" -ForegroundColor $foreg
+    Write-Host "  " -NoNewline #-ForegroundColor $foreg
+    Write-Host $Symbol -NoNewline -ForegroundColor $foreg1
+    Write-Host "$Text" -ForegroundColor $foreg
 }
 Function Write-HostReminder {
     <#
@@ -4527,10 +4528,10 @@ Write-HostReminder -Text "Remember to save your work."
     param (
         [String] $Text = "Example text"
     )
-    wh "[" -BackgroundColor $Variables.BackgroundColor -ForegroundColor $Variables.ForegroundColor -NoNewline
-    wh " REMINDER " -BackgroundColor Red -ForegroundColor White -NoNewLine
-    wh "]" -BackgroundColor $Variables.BackgroundColor -ForegroundColor $Variables.ForegroundColor -NoNewline
-    wh ": $text`n"
+    Write-Host "[" -BackgroundColor $Variables.BackgroundColor -ForegroundColor $Variables.ForegroundColor -NoNewline
+    Write-Host " REMINDER " -BackgroundColor Red -ForegroundColor White -NoNewLine
+    Write-Host "]" -BackgroundColor $Variables.BackgroundColor -ForegroundColor $Variables.ForegroundColor -NoNewline
+    Write-Host ": $text`n"
 }
 Function Write-ModifiedStatus {
     param(
@@ -4538,17 +4539,17 @@ Function Write-ModifiedStatus {
         [string[]]$Status,
         [switch]$WriteWarning
     )
-    wh "$($LogEntry.Time) " -NoNewline -ForegroundColor DarkGray -BackgroundColor $Variables.BackgroundColor
+    Write-Host "$($LogEntry.Time) " -NoNewline -ForegroundColor DarkGray -BackgroundColor $Variables.BackgroundColor
 
     ForEach ($Type in $Types) {
-        wh "$Type " -NoNewline -ForegroundColor $Variables.ForegroundColor -BackgroundColor $Variables.BackgroundColor
+        Write-Host "$Type " -NoNewline -ForegroundColor $Variables.ForegroundColor -BackgroundColor $Variables.BackgroundColor
     }
 
     If ($WriteWarning) {
-        wh "::Warning:: -> $Status" -ForegroundColor Red -BackgroundColor $Variables.BackgroundColor -NoNewline
+        Write-Host "::Warning:: -> $Status" -ForegroundColor Red -BackgroundColor $Variables.BackgroundColor -NoNewline
     }
     Else {
-        wh "-> $Status" -ForegroundColor White -BackgroundColor $Variables.BackgroundColor
+        Write-Host "-> $Status" -ForegroundColor White -BackgroundColor $Variables.BackgroundColor
     }
 }
 Function Write-Section {
@@ -4576,13 +4577,13 @@ Write-Section -Text "Section Title"
         [String] $Text = "No Text",
         [String] $break = "=" * 17
     )
-    wh "`n<" -NoNewline -ForegroundColor $Variables.ForegroundColor -BackgroundColor $Variables.BackgroundColor
-    wh $break -NoNewline -ForegroundColor White -BackgroundColor $Variables.BackgroundColor
-    wh "] " -NoNewline -ForegroundColor $Variables.ForegroundColor -BackgroundColor $Variables.BackgroundColor
-    wh "$Text " -NoNewline -ForegroundColor White -BackgroundColor $Variables.BackgroundColor
-    wh "[" -NoNewline -ForegroundColor $Variables.ForegroundColor -BackgroundColor $Variables.BackgroundColor
-    wh $break -NoNewline -ForegroundColor White -BackgroundColor $Variables.BackgroundColor
-    wh ">" -ForegroundColor $Variables.ForegroundColor -BackgroundColor $Variables.BackgroundColor
+    Write-Host "`n<" -NoNewline -ForegroundColor $Variables.ForegroundColor -BackgroundColor $Variables.BackgroundColor
+    Write-Host $break -NoNewline -ForegroundColor White -BackgroundColor $Variables.BackgroundColor
+    Write-Host "] " -NoNewline -ForegroundColor $Variables.ForegroundColor -BackgroundColor $Variables.BackgroundColor
+    Write-Host "$Text " -NoNewline -ForegroundColor White -BackgroundColor $Variables.BackgroundColor
+    Write-Host "[" -NoNewline -ForegroundColor $Variables.ForegroundColor -BackgroundColor $Variables.BackgroundColor
+    Write-Host $break -NoNewline -ForegroundColor White -BackgroundColor $Variables.BackgroundColor
+    Write-Host ">" -ForegroundColor $Variables.ForegroundColor -BackgroundColor $Variables.BackgroundColor
 }
 Function Write-Status {
     <#
@@ -4633,17 +4634,17 @@ Write-Status -Types "Info", "Verbose" -Status "Operation in progress."
     $Global:LogEntry = $LogEntry
     #>
     # Output the log entry to the console
-    wh "$time " -NoNewline -ForegroundColor DarkGray -BackgroundColor $Variables.BackgroundColor
+    Write-Host "$time " -NoNewline -ForegroundColor DarkGray -BackgroundColor $Variables.BackgroundColor
 
     ForEach ($Type in $Types) {
-        wh "$Type " -NoNewline -ForegroundColor $Variables.ForegroundColor -BackgroundColor $Variables.BackgroundColor
+        Write-Host "$Type " -NoNewline -ForegroundColor $Variables.ForegroundColor -BackgroundColor $Variables.BackgroundColor
     }
 
     If ($WriteWarning) {
-        wh "::Warning:: -> $Status" -ForegroundColor $ForegroundColorText -BackgroundColor $Variables.BackgroundColor -NoNewline:$NoNewLine
+        Write-Host "::Warning:: -> $Status" -ForegroundColor $ForegroundColorText -BackgroundColor $Variables.BackgroundColor -NoNewline:$NoNewLine
     }
     Else {
-        wh "-> $Status" -ForegroundColor $ForegroundColorText -BackgroundColor $Variables.BackgroundColor -NoNewline:$NoNewLine
+        Write-Host "-> $Status" -ForegroundColor $ForegroundColorText -BackgroundColor $Variables.BackgroundColor -NoNewline:$NoNewLine
     }
 }
 Function Write-Title {
@@ -4674,15 +4675,15 @@ Write-Title -Text "Title Text"
         [String] $Text = "No Text",
         [String] $break = "=" * 27
     )
-    wh "`n<" -NoNewline -ForegroundColor $Variables.ForegroundColor -BackgroundColor $Variables.BackgroundColor
-    wh $break -NoNewline -ForegroundColor White -BackgroundColor $Variables.BackgroundColor
-    wh "] " -NoNewline -ForegroundColor $Variables.ForegroundColor -BackgroundColor $Variables.BackgroundColor
-    wh "$Text " -NoNewline -ForegroundColor White -BackgroundColor $Variables.BackgroundColor
-    wh "[" -NoNewline -ForegroundColor $Variables.ForegroundColor -BackgroundColor $Variables.BackgroundColor
-    wh $break -NoNewline -ForegroundColor White -BackgroundColor $Variables.BackgroundColor
-    wh ">" -ForegroundColor $Variables.ForegroundColor -BackgroundColor $Variables.BackgroundColor
+    Write-Host "`n<" -NoNewline -ForegroundColor $Variables.ForegroundColor -BackgroundColor $Variables.BackgroundColor
+    Write-Host $break -NoNewline -ForegroundColor White -BackgroundColor $Variables.BackgroundColor
+    Write-Host "] " -NoNewline -ForegroundColor $Variables.ForegroundColor -BackgroundColor $Variables.BackgroundColor
+    Write-Host "$Text " -NoNewline -ForegroundColor White -BackgroundColor $Variables.BackgroundColor
+    Write-Host "[" -NoNewline -ForegroundColor $Variables.ForegroundColor -BackgroundColor $Variables.BackgroundColor
+    Write-Host $break -NoNewline -ForegroundColor White -BackgroundColor $Variables.BackgroundColor
+    Write-Host ">" -ForegroundColor $Variables.ForegroundColor -BackgroundColor $Variables.BackgroundColor
     #$TitleToLogFormat = "`n`n   $Text`n`n"
-    #ac -Path $Variables.Log -Value $TitleToLogFormat
+    #Add-Content -Path $Variables.Log -Value $TitleToLogFormat
 }
 Function Write-TitleCounter {
     <#
@@ -4722,63 +4723,27 @@ Function Write-TitleCounter {
         [String] $Break = "=" * 35
     )
 
-    wh "`n`n$break" -ForegroundColor White -BackgroundColor $Variables.BackgroundColor
-    wh "    (" -NoNewline -ForegroundColor $Variables.ForegroundColor -BackgroundColor $Variables.BackgroundColor
-    wh " $($Counter)/$($Variables.MaxLength) " -NoNewline -ForegroundColor White -BackgroundColor $Variables.BackgroundColor
-    wh ") " -NoNewline -ForegroundColor $Variables.ForegroundColor -BackgroundColor $Variables.BackgroundColor
-    wh "|" -NoNewline -ForegroundColor White -BackgroundColor $Variables.BackgroundColor
-    wh " $Text " -ForegroundColor $Variables.ForegroundColor -BackgroundColor $Variables.BackgroundColor
-    wh $break -ForegroundColor White -BackgroundColor $Variables.BackgroundColor
+    Write-Host "`n`n$break" -ForegroundColor White -BackgroundColor $Variables.BackgroundColor
+    Write-Host "    (" -NoNewline -ForegroundColor $Variables.ForegroundColor -BackgroundColor $Variables.BackgroundColor
+    Write-Host " $($Counter)/$($Variables.MaxLength) " -NoNewline -ForegroundColor White -BackgroundColor $Variables.BackgroundColor
+    Write-Host ") " -NoNewline -ForegroundColor $Variables.ForegroundColor -BackgroundColor $Variables.BackgroundColor
+    Write-Host "|" -NoNewline -ForegroundColor White -BackgroundColor $Variables.BackgroundColor
+    Write-Host " $Text " -ForegroundColor $Variables.ForegroundColor -BackgroundColor $Variables.BackgroundColor
+    Write-Host $break -ForegroundColor White -BackgroundColor $Variables.BackgroundColor
     #$TitleCounterLogFormat = "`n`n$break`n`n    ($Counter)/$($Variables.MaxLength)) | $Text`n`n$break`n"
     # Writes to Log
-    #ac -Path $Variables.Log -Value "$TitleCounterLogFormat"
+    #Add-Content -Path $Variables.Log -Value "$TitleCounterLogFormat"
 }
 
 # Initiation #
-
-nal -Name dst   -Value Disable-ScheduledTask
-nal -Name dwof  -Value Disable-WindowsOptionalFeature
-nal -Name est   -Value Enable-ScheduledTask
-nal -Name ewof  -Value Enable-WindowsOptionalFeature
-nal -Name exar  -Value Expand-Archive
-nal -Name gaxp  -Value Get-AppxPackage
-nal -Name gaxpp -Value Get-AppxProvisionedPackage
-nal -name gd    -Value Get-Date
-nal -Name gst   -Value Get-ScheduledTask
-nal -Name gsti  -Value Get-ScheduledTaskInfo
-nal -Name gwof  -Value Get-WindowsOptionalFeature
-nal -name gs    -Value Get-Status
-nal -Name nob   -Value New-Object
-nal -Name of    -Value Out-File
-nal -Name rmp   -Value Remove-Printer
-nal -Name raxp  -Value Remove-AppxPackage
-nal -Name rpv   -Value Remove-ItemPropertyVerified
-nal -Name raxpp -Value Remove-AppxProvisionedPackage
-nal -Name rsex  -Value Restart-Explorer
-nal -Name spv   -Value Set-ItemPropertyVerified
-nal -Name sss   -Value Set-ServiceStartup
-nal -Name sofs  -Value Set-OptionalFeatureState
-nal -Name sq    -Value Show-Question
-nal -Name sbt   -Value Start-BitsTransfer
-nal -Name tp    -Value Test-Path
-nal -Name wb    -Value Write-Break
-nal -Name wc    -Value Write-Caption
-nal -Name wh    -Value Write-Host
-nal -Name whr   -Value Write-HostReminder
-nal -Name wms   -Value Write-ModifiedStatus
-nal -Name wse   -Value Write-Section
-nal -Name ws    -Value Write-Status
-nal -Name wti   -Value write-Title
-nal -Name wtic  -Value Write-TitleCounter
-
 
 
 ####################################################################################
 
 If (!$Undo -and !$WhatIfPreference) {
     Start-Bootup
-    nv -Name "StartTime" -Value (gd -DisplayHint Time) -Scope Global
-    gs -StartTranscript
+    New-Variable -Name "StartTime" -Value (gd -DisplayHint Time) -Scope Global
+    Get-Status -StartTranscript
     Start-Update
     Get-Program
     Set-StartMenu ; $Variables.Counter++
@@ -4799,13 +4764,13 @@ If (!$Undo -and !$WhatIfPreference) {
     Optimize-WindowsOptional
     New-SystemRestorePoint ; $Variables.Counter++
     Start-Cleanup ; $Variables.Counter++
-    gs -StopTranscript #-EndLogEntry
+    Get-Status -StopTranscript #-EndLogEntry
     Send-EmailLog
     Request-PCRestart
 }
 elseif ($WhatIfPreference -or $Undo) {
     Start-Bootup
-    nv -Name "StartTime" -Value (gd -DisplayHint Time) -Scope Global
+    New-Variable -Name "StartTime" -Value (gd -DisplayHint Time) -Scope Global
     Get-Program -WhatIf:$WhatIfPreference -Skip:$Undo
     Set-StartMenu -WhatIf:$WhatIfPreference -Skip:$Undo ; $Variables.Counter++
     Set-Taskbar -WhatIf:$WhatIfPreference -Undo:$Undo
@@ -4823,7 +4788,7 @@ elseif ($WhatIfPreference -or $Undo) {
     Optimize-TaskScheduler -WhatIf:$WhatIfPreference -Undo:$Undo
     Optimize-WindowsOptional -WhatIf:$WhatIfPreference -Undo:$Undo
     Start-Cleanup -WhatIf:$WhatIfPreference -Undo:$Undo ; $Variables.Counter++
-    gs -StopTranscript #-EndLogEntry
+    Get-Status -StopTranscript #-EndLogEntry
     Send-EmailLog
     Request-PCRestart
 }
