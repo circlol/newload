@@ -54,10 +54,26 @@ switch ($Question.ToUpper()) {
                     Write-Output "C:\ is at 0% encryption."
                     exit 0
                 }
+            } elseif ($bitlockerStatus -eq 'DecryptionInProgress') {
+                Write-Output "Detected a decryption in progress."
+                # loops until percentage equals 0 
+                do { 
+                    $percentage = (Get-BitLockerVolume -MountPoint "C:\").EncryptionPercentage
+                    If ($percentage -ne 0) {
+                        Write-Output "Encryption Percentage: $percentage %"
+                        Start-Sleep -Seconds 5
+                    }
+                } while ( (Get-BitLockerVolume -MountPoint "C:\").EncryptionPercentage -ne 0 )
+
+                If ((Get-BitLockerVolume -MountPoint "C:\").EncryptionPercentage -eq 0 ) {
+                    Write-Output "C:\ is at 0% encryption."
+                    exit 0
+                }
             } else {
                 Write-Output "Bitlocker is not enabled on C:\"
             }
-            }
+
+        }
         "N" { exit 1 }
         default { Write-Host "Invalid input. Please enter Y or N." }
         }
