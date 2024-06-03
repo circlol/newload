@@ -8,7 +8,12 @@
 .NOTES
     Author         : Circlol
     GitHub         : https://github.com/Circlol
-    Version        : 1.07.076
+    Version        : 1.07.077
+
+    Changelog: 
+    1.07.077
+        - Removed aliases due to incomprehensive naming schemes
+        - Added a password field
 #>
 $WindowTitle = "New Loads"
 $host.UI.RawUI.WindowTitle = $WindowTitle
@@ -30,8 +35,8 @@ $NewLoads = $env:temp
 
 $Variables = @{
     "Creator"                                    = "Circlol"
-    "ProgramVersion"                             = "v1.07.076"
-    "ReleaseDate"                                = "November 5th, 2023"
+    "ProgramVersion"                             = "v1.07.077"
+    "ReleaseDate"                                = "June 3rd, 2024"
     "Logo"                                       = "
 $modularLogo███╗   ██╗███████╗██╗    ██╗    ██╗      ██████╗  █████╗ ██████╗ ███████╗
 $modularLogo████╗  ██║██╔════╝██║    ██║    ██║     ██╔═══██╗██╔══██╗██╔══██╗██╔════╝
@@ -86,7 +91,7 @@ $modularLogo╚═╝  ╚═══╝╚══════╝ ╚══╝╚�
     "LogoColor"                                  = "Yellow"
 
     "Time"                                       = Get-Date -UFormat %Y%m%d
-    "MaxTime"                                    = 20231231
+    "MaxTime"                                    = 20250101
     "MinTime"                                    = 20231031
     "Counter"                                    = 1
     "SelectedParameters"                         = @()
@@ -580,6 +585,46 @@ $modularLogo╚═╝  ╚═══╝╚══════╝ ╚══╝╚�
 
 } # End of $Variables
 
+# Region Authentication
+
+$Key = '8f6cc4bfb27269424c101c22b5bc9bd4e6b894a9df36c0fadbe5b64cb9437fd2'
+
+
+function Get-HashedPassword([String]$Key) {
+    $sha256 = [System.Security.Cryptography.SHA256]::Create()
+    $bytes = [System.Text.Encoding]::UTF8.GetBytes($Key)
+    $hashBytes = $sha256.ComputeHash($bytes)
+    $Global:hashedPassword = [System.BitConverter]::ToString($hashBytes) -replace '-'
+    return $hashedPassword.ToLower()
+}
+
+function Get-Password {
+    $maxAttempts = Get-Random -Minimum 3 -Maximum 6
+    $attempts = 0
+    do {
+        # Prompt user for password
+        $enteredPassword = Read-Host "Enter password" -AsSecureString
+        # Convert the entered password to plain text
+        $enteredPasswordText = [System.Runtime.InteropServices.Marshal]::PtrToStringAuto([System.Runtime.InteropServices.Marshal]::SecureStringToBSTR($enteredPassword))
+        # Hash the entered password
+        $enteredHashedPassword = Get-HashedPassword $enteredPasswordText
+        # Compare hashed passwords
+        $passwordCorrect = $enteredHashedPassword -eq $Key
+        if ( -not $passwordCorrect ) {
+            Write-Host "Incorrect password. Try again."
+            $attempts++
+        }
+    } while ( -not $passwordCorrect -and $attempts -lt $maxAttempts )
+    if ($passwordCorrect) {
+        Write-Host "Password Correct!"
+    } else {
+        Write-Host "Too many incorrect attempts. Exiting..."
+        Exit 1
+    }
+}
+
+
+# end region
 Function Add-LogSection {
     <#
 .SYNOPSIS
@@ -4730,6 +4775,9 @@ Function Write-TitleCounter {
 # Initiation #
 
 ####################################################################################
+Clear-Host
+Get-Password
+
 
 If (!$Undo -and !$WhatIfPreference) {
     Start-Bootup
