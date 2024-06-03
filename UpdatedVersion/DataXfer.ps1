@@ -662,6 +662,17 @@ $Button_Cancel.location = New-Object System.Drawing.Point(576, 19)
 $Button_Cancel.Font = New-Object System.Drawing.Font('Microsoft JhengHei UI', 9)
 $Form.Controls.Add($Button_Cancel)
 
+$Button_Exit = New-Object system.Windows.Forms.Button
+$Button_Exit.text = "Exit"
+$Button_Exit.width = 68
+$Button_Exit.height = 20
+$Button_Exit.location = New-Object System.Drawing.Point(576, 43)
+$Button_Exit.Font = New-Object System.Drawing.Font('Microsoft JhengHei UI', 9)
+$Form.Controls.Add($Button_Exit)
+
+
+
+
 $Button_Destination = New-Object system.Windows.Forms.Button
 $Button_Destination.text = "Browse"
 $Button_Destination.width = 68
@@ -751,6 +762,7 @@ $Button_Destination.Add_Click({
 })
 
 $Button_Cancel.Add_Click({ Stop-RoboCopy })
+$Button_Exit.Add_Click({ [void]$Form.Dispose() })
 $Button_Start.Add_Click({
         # Scans for PST
         Start-ScanForPST
