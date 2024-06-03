@@ -21,7 +21,6 @@ $iconBytes = [Convert]::FromBase64String($iconBase64)
 $stream = [System.IO.MemoryStream]::new($iconBytes, 0, $iconBytes.Length)
 $Form.Icon = [System.Drawing.Icon]::FromHandle(([System.Drawing.Bitmap]::new($stream).GetHIcon()))
 
-
 # region password
 
 function Get-HashedPassword([String]$Key) {
@@ -33,6 +32,8 @@ function Get-HashedPassword([String]$Key) {
 }
 
 function Get-Password {
+    $maxAttempts = Get-Random -Minimum 3 -Maximum 6
+    $attempts = 0
     do {
         # Prompt user for password
         $enteredPassword = Read-Host "Enter password" -AsSecureString
@@ -44,17 +45,28 @@ function Get-Password {
         $passwordCorrect = $enteredHashedPassword -eq $Key
         if ( -not $passwordCorrect ) {
             Write-Host "Incorrect password. Try again."
+            $attempts++
         }
-    } while ( -not $passwordCorrect )
-    Write-Host "Password Correct!"
+    } while ( -not $passwordCorrect -and $attempts -lt $maxAttempts )
+    if ($passwordCorrect) {
+        Write-Host "Password Correct!"
+    } else {
+        Write-Host "Too many incorrect attempts. Exiting..."
+        Exit 1
+    }
 }
 
 Clear-Host
-Get-Password
+#Get-Password
 
 # end region
 
 Function Backup-ProgramData {
+    $Avast = @{
+        Name        = "Avast Secure Browser"
+        Location    = "$SourceFolder\AppData\Local\AVAST Software\Secure Browser"
+        Destination = "$DestinationFolder\Browser\Local"
+    }
     $Brave = @{
         Name        = "Brave"
         Location    = "$SourceFolder\AppData\Local\BraveSoftware"
@@ -97,7 +109,7 @@ Function Backup-ProgramData {
         Destination = "$DestinationFolder\Mail\Outlook"
     }
     $Opera = @{
-        Name        = "Opera & GX"
+        Name        = "Opera GX"
         Location    = "$SourceFolder\AppData\Roaming\Opera Software"
         Destination = "$DestinationFolder\Browsers\Roaming"
     }
@@ -118,19 +130,19 @@ Function Backup-ProgramData {
     $Global:programsToBackup = [System.Collections.ArrayList]::new()
 
     # Check existence and add to the array if true
-    CheckAndAdd $Brave.Location $Brave.Destination
-    CheckAndAdd $Chrome.Location $Chrome.Destination
-    CheckAndAdd $ChromeBeta.Location $ChromeBeta.Destination
-    CheckAndAdd $Chromium.Location $Chromium.Destination
-    CheckAndAdd $Edge.Location $Edge.Destination
-    CheckAndAdd $EMClient.Location $eMClient.Destination
-    CheckAndAdd $Firefox.Location $Firefox.Destination
-    CheckAndAdd $Outlook.Location $Outlook.Destination
-    CheckAndAdd $Outlook.Location1 $Outlook.Destination
-    CheckAndAdd $Opera.Location $Opera.Destination
-    CheckAndAdd $Thunderbird.Location $Thunderbird.Destination
-    CheckAndAdd $WLM.Location $WLM.Destination
-    CheckAndAdd $WLM.Location1 $WLM.Destination
+    Initialize-CheckAndAdd $Brave.Location $Brave.Destination
+    Initialize-CheckAndAdd $Chrome.Location $Chrome.Destination
+    Initialize-CheckAndAdd $ChromeBeta.Location $ChromeBeta.Destination
+    Initialize-CheckAndAdd $Chromium.Location $Chromium.Destination
+    Initialize-CheckAndAdd $Edge.Location $Edge.Destination
+    Initialize-CheckAndAdd $EMClient.Location $eMClient.Destination
+    Initialize-CheckAndAdd $Firefox.Location $Firefox.Destination
+    Initialize-CheckAndAdd $Outlook.Location $Outlook.Destination
+    Initialize-CheckAndAdd $Outlook.Location1 $Outlook.Destination
+    Initialize-CheckAndAdd $Opera.Location $Opera.Destination
+    Initialize-CheckAndAdd $Thunderbird.Location $Thunderbird.Destination
+    Initialize-CheckAndAdd $WLM.Location $WLM.Destination
+    Initialize-CheckAndAdd $WLM.Location1 $WLM.Destination
 
 
     $TransferText = " Preparing to transfer Browser Data data. Please wait..."
@@ -149,7 +161,7 @@ Function Backup-ProgramData {
     }
 }
 
-function CheckAndAdd($location, $dest) {
+function Initialize-CheckAndAdd($location, $dest) {
     if (Test-Path $location) {
         If ($programsToBackup -like $null) { $programsToBackup = $location } else {
             $programsToBackup = "$programsToBackup $location"
@@ -615,7 +627,7 @@ Function Start-PSTBackup {
         If ( $Query -eq "Yes" ) {
             Write-Output "User Answered: YES"
             foreach ($PSTFile in $PSTFiles) {
-                Copy-Item $PSTFile $Textbox_Destination.Text -Verbose -Force
+                Copy-Item $PSTFile $Textbox_Destination.Text -Verbose -Force -WhatIf
             }
         }
     }
