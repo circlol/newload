@@ -10,6 +10,7 @@
 	.DESCRIPTION
 		Decrypts bitlocker on a selected drive
 #>
+Clear-Host
 
 #Region Import Required Modules
 # Ensure BitLocker module is imported for cmdlets
@@ -24,7 +25,7 @@ If (!([bool]([Security.Principal.WindowsIdentity]::GetCurrent().Groups -match 'S
 		$SelfElevate = Read-Host -Prompt "Automatically relaunch the script? (Y/N)"
 		switch ($SelfElevate.ToUpper()) {
 			"Y" {
-				$wtExists = Get-Command-Command wt
+				$wtExists = Get-Command wt
 				If ($wtExists) { Start-Process wt -verb runas -ArgumentList "new-tab powershell -c ""irm bitlocker.newloads.ca | iex""" }
 				else {
 					Start-Process powershell -verb runas -ArgumentList "-command ""irm bitlocker.newloads.ca | iex"""
