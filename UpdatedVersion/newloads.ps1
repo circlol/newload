@@ -749,6 +749,7 @@ Function Get-ADWCleaner {
         }
     }
 }
+
 Function Get-CPU {
     <#
 .SYNOPSIS
@@ -4776,7 +4777,7 @@ Function Write-TitleCounter {
 
 ####################################################################################
 Clear-Host
-Get-Password
+#Get-Password 
 
 
 If (!$Undo -and !$WhatIfPreference) {
