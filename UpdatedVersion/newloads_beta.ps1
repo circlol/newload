@@ -711,9 +711,9 @@ function Write-Center {
 		$BackgroundColor = 'Black'
 	)
 	
-	$padding = [Console]::WindowWidth - $text.Length
-	$padding = $padding - $offset
-	$leftPadding = ' ' * [math]::Floor($padding / 2
+		$padding = [Console]::WindowWidth - $text.Length
+		$padding = $padding - $offset
+		$leftPadding = ' ' * [math]::Floor($padding / 2 )
 		Write-Host "$leftPadding $Text" -NoNewline:$NoNewLine -ForegroundColor $ForegroundColor -BackgroundColor $BackgroundColor
 	}
 Function Write-Break {
