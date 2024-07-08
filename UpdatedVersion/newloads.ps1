@@ -22,6 +22,7 @@ $modularLogo = ( $modularLogo - 73) / 2
 $modularLogo = " " * $modularLogo
 $NewLoads = $env:temp
 
+#region Variables
 $Errors = @{
 	"errorMessage1"   = "
         @|\@@                                                                                    `
@@ -355,9 +356,10 @@ $Variables = @{
 	"MaxLength"	       = 9
 	"Win11"		       = 22000
 	"Win22H2"		   = 22621
+	"Win23H2"		   = 22631
 	"MinimumBuildNumber" = 19042
-	"OSVersion"	       = (Get-CimInstance -ClassName Win32_OperatingSystem).Caption
 	"BuildNumber"	   = [System.Environment]::OSVersion.Version.Build
+	"OSVersion"	       = (Get-CimInstance -ClassName Win32_OperatingSystem).Caption
 	"Connected"	       = "Internet"
 	# Local File Paths
 	"WallpaperDestination" = "$env:SystemRoot\Resources\Themes\mother.jpg"
@@ -582,9 +584,9 @@ $Variables = @{
 "@
 	#<taskbar:UWA AppUserModelID="Microsoft.OutlookForWindows_8wekyb3d8bbwe!Microsoft.OutlookforWindows" />
 	
-} # End of $Variables
+}
 
-
+#endregion
 #region Formatting
 Function Add-LogSection {
 	<#
@@ -1089,7 +1091,6 @@ History:
 	# Writes to Log
 	Add-Content -Path $Variables.Log -Value "$TitleCounterLogFormat"
 }
-
 
 
 #endregion
@@ -2153,7 +2154,87 @@ History:
 }
 
 #endregion
-#region System Information
+#region Information
+function Find-ScheduledTask {
+<#
+.SYNOPSIS
+This script contains a function named Find-ScheduledTask that checks if a scheduled task exists.
+
+.DESCRIPTION
+This script is used to check if a scheduled task exists. The Find-ScheduledTask function takes a parameter named ScheduledTask, which is the name of the scheduled task to check. If the scheduled task exists, the function returns true. If the scheduled task does not exist, the function returns false and writes a warning to the log file.
+
+.EXAMPLE
+Find-ScheduledTask -ScheduledTask "MyScheduledTask"
+
+This example checks if a scheduled task named "MyScheduledTask" exists.
+
+.NOTES
+Author: Circlol
+Version: 1.0
+Release Notes:
+1.0:
+    - Started logging changes.
+
+#>
+	[CmdletBinding()]
+	[OutputType([Bool])]
+	param (
+		[String]$ScheduledTask
+	)
+	
+	If (!$ScheduledTask) {
+		$scheduledTask = Get-ScheduledTask
+		return $ScheduledTask
+	} else {
+		Try {
+			$task = Get-ScheduledTaskInfo -TaskName $ScheduledTask
+			$task = $task
+			return $true
+		} Catch {
+			$Status = "The $ScheduledTask task was not found."
+		<#
+			For more information on the try, catch and finally keywords, see:
+				Get-Help about_try_catch_finally
+		#>
+			
+			# Try one or more commands
+			try {
+				Write-Status $Status '?' -WriteWarning
+			} catch {
+				Write-Output "? $TweakType  $Status"
+			}
+			
+			Add-Content -Path $Variables.Log -Value $Status
+			return $false
+		}
+	}
+	
+}
+function Get-CheckForLastUpdate {
+<#
+.SYNOPSIS
+Checks last time updates were ran.
+.DESCRIPTION
+Checks the last time the user Checked for Updates. This is done to assure technicians have updated before new loads is run.
+.OUTPUTS
+Outputs a date
+.EXAMPLE
+PS C:\> Get-CheckForLastUpdate
+
+November 5, 2023 2:53:49 PM
+.NOTES
+Author: Circlol
+Date Created: Nov 5, 2023
+Version: 1.0
+Changes:
+    1.0:
+        - Started logging changes.
+#>
+	$wu = New-Object -ComObject Microsoft.Update.AutoUpdate
+	$lastUpdateCheck = $wu.Results.LastSearchSuccessDate
+	$lastUpdateCheck = $lastUpdateCheck.ToLocalTime()
+	return $lastUpdateCheck
+}
 Function Get-CPU {
 <#
 .SYNOPSIS
@@ -2295,379 +2376,6 @@ Release Notes:
 		}
 	}
 }
-Function Get-Motherboard {
-<#
-.SYNOPSIS
-Retrieves the motherboard model and OEM information.
-.DESCRIPTION
-This function uses the Get-CimInstance cmdlet to retrieve the motherboard model and OEM information.
-It then combines the two pieces of information into a single string and returns it.
-.OUTPUTS
-System.String
-.EXAMPLE
-PS C:\> Get-Motherboard
-Dell Inc. 0YJPT1
-.NOTES
-Author: Circlol
-Version: 1.0
-Release Notes:
-1.0:
-    - Started logging changes.
-#>
-	[CmdletBinding()]
-	[OutputType([String])]
-	param ()
-	$motherboardModel = Get-CimInstance -ClassName Win32_BaseBoard | Select-Object -ExpandProperty Product
-	$motherboardOEM = Get-CimInstance -ClassName Win32_BaseBoard | Select-Object -ExpandProperty Manufacturer
-	[String]$CombinedString = "$motherboardOEM $motherboardModel"
-	return "$CombinedString"
-}
-Function Get-RAM {
-<#
-.SYNOPSIS
-This function retrieves the total physical memory of the computer and returns it in GB.
-.DESCRIPTION
-The Get-RAM function uses the Get-CimInstance cmdlet to retrieve the total physical memory of the computer.
-It then converts the value to GB and returns it as a formatted string.
-.PARAMETER None
-This function does not accept any parameters.
-.OUTPUTS
-Returns a formatted string representing the total physical memory of the computer in GB.
-.EXAMPLE
-PS C:\> Get-RAM
-16.00 GB
-.NOTES
-Author: Circlol
-Version: 1.0
-Changes:
-1.0:
-    - Started logging changes.
-#>
-	[CmdletBinding()]
-	[OutputType([String])]
-	param ()
-	
-	# Retrieve total physical memory of the computer
-	$ram = Get-CimInstance Win32_ComputerSystem | Select-Object -ExpandProperty TotalPhysicalMemory
-	
-	# Convert value to GB and return as formatted string
-	$ram = $ram / 1GB
-	return "{0:N2} GB" -f $ram
-}
-Function Get-GPU {
-<#
-.SYNOPSIS
-Gets the name of the GPU installed on the local computer.
-.DESCRIPTION
-This function uses the Get-CimInstance cmdlet to retrieve information about the video controller (GPU) installed on the local computer. It then selects the Name property of the returned object and returns it as a string.
-.PARAMETER None
-This function does not accept any parameters.
-.OUTPUTS
-System.String
-This function returns a string that contains the name of the GPU installed on the local computer.
-.NOTES
-Author: Circlol
-Version: 1.0
-Release Notes:
-    1.0:
-        - Started logging changes.
-#>
-	[CmdletBinding()]
-	[OutputType([String])]
-	param ()
-	$gpu = Get-CimInstance -ClassName Win32_VideoController | Select-Object -ExpandProperty Name
-	return $gpu.Trim()
-}
-function Get-SystemInfo {
-<#
-.SYNOPSIS
-This function retrieves system information such as CPU, GPU, RAM, Motherboard, OS, and Disk Info.
-
-.DESCRIPTION
-This function uses PowerShell's CIM cmdlets to retrieve system information such as CPU, GPU, RAM, Motherboard, OS, and Disk Info.
-
-.PARAMETER None
-This function does not accept any parameters.
-
-.EXAMPLE
-Get-SystemInfo
-This example retrieves system information such as CPU, GPU, RAM, Motherboard, OS, and Disk Info.
-
-.OUTPUTS
-System information in the form of a string.
-
-.NOTES
-Author: Circlol
-Last Edit: 10-16-2023
-#>
-	[CmdletBinding()]
-	[OutputType([String])]
-	param ()
-	
-	Begin {
-		# Grab CPU info
-		try {
-			$cpu = Get-CimInstance -ClassName Win32_Processor -Property Name, NumberOfCores, NumberOfLogicalProcessors, MaxClockSpeed
-			$cpuName = $cpu.Name
-			$clockSpeed = $cpu.MaxClockSpeed / 1000
-			$clockSpeed = [math]::Round($clockSpeed, 2)
-			$CPUCombinedString = "$cpuName @ $clockSpeed GHz"
-		} catch {
-			return "Error retrieving CPU information: $($_)"
-			Continue
-		}
-		
-		# Grab GPU info
-		try {
-			$gpu = (Get-CimInstance -ClassName Win32_VideoController).Name
-		} catch {
-			return "Error retrieving GPU information: $($_)"
-			Continue
-		}
-		
-		# Grab RAM info
-		try {
-			$ram = (Get-CimInstance Win32_ComputerSystem).TotalPhysicalMemory
-			$ram = $ram / 1GB
-		} catch {
-			return "Error retrieving RAM information: $($_)"
-			Continue
-		}
-		
-		# Grab Motherboard info
-		try {
-			$motherboardModel = (Get-CimInstance -ClassName Win32_BaseBoard).Product
-			$motherboardOEM = (Get-CimInstance -ClassName Win32_BaseBoard).Manufacturer
-			$BIOSVersion = (Get-CimInstance -ClassName Win32_BIOS).Caption
-			$BIOSReleaseDate = (Get-CimInstance -ClassName Win32_BIOS).ReleaseDate
-			$motherboardSerial = (Get-CimInstance -ClassName Win32_BaseBoard).SerialNumber
-			$MotherboardCombinedString = "$motherboardOEM $motherboardModel`n    - Serial: ($motherboardSerial)`n    - BIOS: $BIOSVersion`n    - BIOS Release Date: $BIOSReleaseDate"
-		} catch {
-			return "Error retrieving Motherboard information: $($_)"
-			Continue
-		}
-		
-		# Grab Windows Version
-		try {
-			$PathToLMCurrentVersion = "HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion"
-			$WinVer = (Get-CimInstance -ClassName Win32_OperatingSystem).Caption -replace 'Microsoft ', ''
-			$DisplayVersion = (Get-ItemProperty $PathToLMCurrentVersion).DisplayVersion
-			$osBuildNumber = (Get-ItemProperty $PathToLMCurrentVersion).CurrentBuild
-			$completedBuildNumber = "$DisplayVersion ($osBuildNumber)"
-		} catch {
-			return "Error retrieving Windows information: $($_)"
-			Continue
-		}
-		
-		# Grabs drive space
-		try {
-			$drives = Get-PSDrive -PSProvider FileSystem | Where-Object {
-				$_.Free -ge 0 -and $_.Used -ge 0
-			}
-			foreach ($drive in $drives) {
-				$driveRoot = $drive.Root
-				$availableStorage = $drive.Free / 1TB
-				$totalStorage = ($drive.Free + $drive.Used) / 1TB
-				$percentageAvailable = [math]::Round(($availableStorage / $totalStorage) * 100, 1)
-				
-				$unit = "TB"
-				
-				# Check if the available storage is less than 1 TB, then display it in GB
-				if ($availableStorage -lt 1) {
-					$availableStorage = $availableStorage * 1024
-					$totalStorage = $totalStorage * 1024
-					$unit = "GB"
-				} elseif ($availableStorage -lt 0.1) {
-					$availableStorage = $availableStorage * 1024 * 1024
-					$totalStorage = $totalStorage * 1024 * 1024
-					$unit = "MB"
-				}
-				
-				# Create a visual bar for the storage percentage
-				$barLength = 20
-				$filledLength = [math]::Round($barLength * ($percentageAvailable / 100))
-				$emptyLength = $barLength - $filledLength
-				$storageBar = "[" + ("#" * $filledLength) + ("." * $emptyLength) + "]"
-				
-				$driveInfo = "    $driveRoot $([math]::Round($availableStorage, 1)) $unit free of $([math]::Round($totalStorage, 1)) $unit ($percentageAvailable% Available) $storageBar"
-				$CombinedDriveInfo = "$($CombinedDriveInfo)`n$($driveInfo)"
-			}
-		} catch {
-			return "Error retrieving disk information: $($_)"
-			Continue
-		}
-		
-		# Grabs screen resolution and refresh rate
-		try {
-			$screenResolutionHorizontal = (Get-CimInstance -ClassName Win32_VideoController).CurrentHorizontalResolution
-			$screenResolutionVertical = (Get-CimInstance -ClassName Win32_VideoController).CurrentVerticalResolution
-			$screenRefreshRate = (Get-CimInstance -ClassName Win32_VideoController).CurrentRefreshRate
-			$screenCombinedString = "$screenResolutionHorizontal`x$screenResolutionVertical @$screenRefreshRate`Hz"
-		} catch {
-			return "Error retrieving screen information: $($_)"
-			Continue
-		}
-		
-		$title = "$env:USERNAME@$env:COMPUTERNAME"
-		$line = "-" * $title.Length
-		$CombinedString = "
-$title
-$line
-
-OS: $WinVer 
-Build: $completedBuildNumber
-Resolution: $screenCombinedString
-CPU: $($CPUCombinedString)
-GPU: $($gpu.Trim())
-RAM: $("{0:N2} GB" -f $ram)
-Motherboard: $($MotherboardCombinedString)
-Disk Info: $($CombinedDriveInfo)
-"
-	}
-	process {
-		return $CombinedString
-	}
-}
-
-#endregion
-#region Script Functions
-function Find-ScheduledTask {
-<#
-.SYNOPSIS
-This script contains a function named Find-ScheduledTask that checks if a scheduled task exists.
-
-.DESCRIPTION
-This script is used to check if a scheduled task exists. The Find-ScheduledTask function takes a parameter named ScheduledTask, which is the name of the scheduled task to check. If the scheduled task exists, the function returns true. If the scheduled task does not exist, the function returns false and writes a warning to the log file.
-
-.EXAMPLE
-Find-ScheduledTask -ScheduledTask "MyScheduledTask"
-
-This example checks if a scheduled task named "MyScheduledTask" exists.
-
-.NOTES
-Author: Circlol
-Version: 1.0
-Release Notes:
-1.0:
-    - Started logging changes.
-
-#>
-	[CmdletBinding()]
-	[OutputType([Bool])]
-	param (
-		[String]$ScheduledTask
-	)
-	
-	If (!$ScheduledTask) {
-		$scheduledTask = Get-ScheduledTask
-		return $ScheduledTask
-	} else {
-		Try {
-			$task = Get-ScheduledTaskInfo -TaskName $ScheduledTask
-			$task = $task
-			return $true
-		} Catch {
-			$Status = "The $ScheduledTask task was not found."
-		<#
-			For more information on the try, catch and finally keywords, see:
-				Get-Help about_try_catch_finally
-		#>
-			
-			# Try one or more commands
-			try {
-				Write-Status $Status '?' -WriteWarning
-			} catch {
-				Write-Output "? $TweakType  $Status"
-			}
-			
-			Add-Content -Path $Variables.Log -Value $Status
-			return $false
-		}
-	}
-	
-}
-function Get-Administrator {
-	# Checks to make sure New Loads is run as admin otherwise it'll display a message and close
-	If (!([bool]([Security.Principal.WindowsIdentity]::GetCurrent().Groups -match 'S-1-5-32-544'))) {
-		Write-Host $Errors.errorMessage2 -ForegroundColor Yellow
-		do {
-			$SelfElevate = Read-Host -Prompt "Would you like to run New Loads as an Administrator? (Y/N) "
-			switch ($SelfElevate.ToUpper()) {
-				"Y" {
-					$wtExists = Get-Command wt
-					If ($wtExists) {
-						Start-Process wt -verb runas -ArgumentList "new-tab powershell -c ""irm run.newloads.ca | iex"""
-					} else {
-						Start-Process powershell -verb runas -ArgumentList "-command ""irm run.newloads.ca | iex"""
-					}
-					Write-Output "Exiting"
-					Stop-Process $pid
-				}
-				"N" {
-					exit
-				}
-				default {
-					Write-Host "Invalid input. Please enter Y or N."
-				}
-			}
-		} while ($true)
-	}
-}
-function Get-ADWCleaner {
-<#
-.SYNOPSIS
-This function downloads and runs Malwarebytes ADWCleaner to scan and clean adware from the system.
-
-.DESCRIPTION
-The function downloads Malwarebytes ADWCleaner from the specified link and runs it with the arguments "/EULA", "/PreInstalled", "/Clean", and "/NoReboot". It then removes traces of ADWCleaner by running it with the arguments "/Uninstall" and "/NoReboot".
-
-.PARAMETER Undo
-If this switch is specified, the function will skip running ADWCleaner.
-
-.PARAMETER Skip
-If this switch is specified, the function will skip downloading and running ADWCleaner.
-
-.EXAMPLE
-Get-ADWCleaner
-
-This command downloads and runs ADWCleaner to scan and clean adware from the system.
-
-.NOTES
-Author: Circlol
-Version: 1.0
-Release Notes:
-    1.0:
-        - Started logging changes.
-        - Added support for the -Undo and -Skip parameters.
-        - Added support for shouldprocess.
-#>
-	[CmdletBinding(
-				   SupportsShouldProcess
-				   )]
-	param (
-		[Switch]$Undo,
-		[Switch]$Skip,
-		[String]$TweakType = "ADWCleaner"
-
-	)
-	Show-ScriptStatus -TitleText "ADWCleaner"
-	Add-LogSection -Section "ADWCleaner"
-	If ($Skip -or $Undo) {
-		Write-Status "Parameter -SkipADW or -Undo detected.. Malwarebytes ADWCleaner will be skipped.." '@' -WriteWarning -ForegroundColorText RED
-	} else {
-		if ($PSCmdlet.ShouldProcess("Download and Run ADWCleaner", "Downloading ADWCleaner $description")) {
-			If (!(Test-Path $Variables.adwDestination)) {
-				Write-Status "Downloading ADWCleaner" "+" -NoNewLine
-				Start-BitsTransfer -Source $Variables.adwLink -Destination $Variables.adwDestination -Dynamic
-				Get-Status
-			}
-			Write-Status "Starting ADWCleaner with ArgumentList /Scan & /Clean" "+"
-			Start-Process -FilePath $Variables.adwDestination -ArgumentList "/EULA", "/PreInstalled", "/Clean", "/NoReboot" -Wait -NoNewWindow | Out-Host
-			Write-Status "Removing traces of ADWCleaner" "-"
-			Start-Process -FilePath $Variables.adwDestination -ArgumentList "/Uninstall", "/NoReboot" -WindowStyle Minimized
-		}
-	}
-}
 function Get-Error {
 <#
 .SYNOPSIS
@@ -2718,6 +2426,30 @@ $ErrorMessage
 			Write-Error "Error writing to log: $($_.Exception.Message)"
 		}
 	}
+}
+Function Get-GPU {
+<#
+.SYNOPSIS
+Gets the name of the GPU installed on the local computer.
+.DESCRIPTION
+This function uses the Get-CimInstance cmdlet to retrieve information about the video controller (GPU) installed on the local computer. It then selects the Name property of the returned object and returns it as a string.
+.PARAMETER None
+This function does not accept any parameters.
+.OUTPUTS
+System.String
+This function returns a string that contains the name of the GPU installed on the local computer.
+.NOTES
+Author: Circlol
+Version: 1.0
+Release Notes:
+    1.0:
+        - Started logging changes.
+#>
+	[CmdletBinding()]
+	[OutputType([String])]
+	param ()
+	$gpu = Get-CimInstance -ClassName Win32_VideoController | Select-Object -ExpandProperty Name
+	return $gpu.Trim()
 }
 function Get-InstalledProgram {
 <#
@@ -2777,6 +2509,33 @@ Release Notes:
 			UninstallString = $_.GetValue("UninstallString")
 		}
 	} | Sort-Object -Property Name -Unique
+}
+Function Get-Motherboard {
+<#
+.SYNOPSIS
+Retrieves the motherboard model and OEM information.
+.DESCRIPTION
+This function uses the Get-CimInstance cmdlet to retrieve the motherboard model and OEM information.
+It then combines the two pieces of information into a single string and returns it.
+.OUTPUTS
+System.String
+.EXAMPLE
+PS C:\> Get-Motherboard
+Dell Inc. 0YJPT1
+.NOTES
+Author: Circlol
+Version: 1.0
+Release Notes:
+1.0:
+    - Started logging changes.
+#>
+	[CmdletBinding()]
+	[OutputType([String])]
+	param ()
+	$motherboardModel = Get-CimInstance -ClassName Win32_BaseBoard | Select-Object -ExpandProperty Product
+	$motherboardOEM = Get-CimInstance -ClassName Win32_BaseBoard | Select-Object -ExpandProperty Manufacturer
+	[String]$CombinedString = "$motherboardOEM $motherboardModel"
+	return "$CombinedString"
 }
 function Get-NetworkStatus {
 <#
@@ -3021,30 +2780,272 @@ History:
 		}
 	}
 }
-function Get-LastCheckForUpdate {
+Function Get-RAM {
 <#
 .SYNOPSIS
-Checks last time updates were ran.
+This function retrieves the total physical memory of the computer and returns it in GB.
 .DESCRIPTION
-Checks the last time the user Checked for Updates. This is done to assure technicians have updated before new loads is run.
+The Get-RAM function uses the Get-CimInstance cmdlet to retrieve the total physical memory of the computer.
+It then converts the value to GB and returns it as a formatted string.
+.PARAMETER None
+This function does not accept any parameters.
 .OUTPUTS
-Outputs a date
+Returns a formatted string representing the total physical memory of the computer in GB.
 .EXAMPLE
-PS C:\> Get-LastCheckForUpdate
-
-November 5, 2023 2:53:49 PM
+PS C:\> Get-RAM
+16.00 GB
 .NOTES
 Author: Circlol
-Date Created: Nov 5, 2023
 Version: 1.0
 Changes:
+1.0:
+    - Started logging changes.
+#>
+	[CmdletBinding()]
+	[OutputType([String])]
+	param ()
+	
+	# Retrieve total physical memory of the computer
+	$ram = Get-CimInstance Win32_ComputerSystem | Select-Object -ExpandProperty TotalPhysicalMemory
+	
+	# Convert value to GB and return as formatted string
+	$ram = $ram / 1GB
+	return "{0:N2} GB" -f $ram
+}
+function Get-SystemInfo {
+<#
+.SYNOPSIS
+This function retrieves system information such as CPU, GPU, RAM, Motherboard, OS, and Disk Info.
+
+.DESCRIPTION
+This function uses PowerShell's CIM cmdlets to retrieve system information such as CPU, GPU, RAM, Motherboard, OS, and Disk Info.
+
+.PARAMETER None
+This function does not accept any parameters.
+
+.EXAMPLE
+Get-SystemInfo
+This example retrieves system information such as CPU, GPU, RAM, Motherboard, OS, and Disk Info.
+
+.OUTPUTS
+System information in the form of a string.
+
+.NOTES
+Author: Circlol
+Last Edit: 10-16-2023
+#>
+	[CmdletBinding()]
+	[OutputType([String])]
+	param ()
+	
+	Begin {
+		# Grab CPU info
+		try {
+			$cpu = Get-CimInstance -ClassName Win32_Processor -Property Name, NumberOfCores, NumberOfLogicalProcessors, MaxClockSpeed
+			$cpuName = $cpu.Name
+			$clockSpeed = $cpu.MaxClockSpeed / 1000
+			$clockSpeed = [math]::Round($clockSpeed, 2)
+			$CPUCombinedString = "$cpuName @ $clockSpeed GHz"
+		} catch {
+			return "Error retrieving CPU information: $($_)"
+			Continue
+		}
+		
+		# Grab GPU info
+		try {
+			$gpu = (Get-CimInstance -ClassName Win32_VideoController).Name
+		} catch {
+			return "Error retrieving GPU information: $($_)"
+			Continue
+		}
+		
+		# Grab RAM info
+		try {
+			$ram = (Get-CimInstance Win32_ComputerSystem).TotalPhysicalMemory
+			$ram = $ram / 1GB
+		} catch {
+			return "Error retrieving RAM information: $($_)"
+			Continue
+		}
+		
+		# Grab Motherboard info
+		try {
+			$motherboardModel = (Get-CimInstance -ClassName Win32_BaseBoard).Product
+			$motherboardOEM = (Get-CimInstance -ClassName Win32_BaseBoard).Manufacturer
+			$BIOSVersion = (Get-CimInstance -ClassName Win32_BIOS).Caption
+			$BIOSReleaseDate = (Get-CimInstance -ClassName Win32_BIOS).ReleaseDate
+			$motherboardSerial = (Get-CimInstance -ClassName Win32_BaseBoard).SerialNumber
+			$MotherboardCombinedString = "$motherboardOEM $motherboardModel`n    - Serial: ($motherboardSerial)`n    - BIOS: $BIOSVersion`n    - BIOS Release Date: $BIOSReleaseDate"
+		} catch {
+			return "Error retrieving Motherboard information: $($_)"
+			Continue
+		}
+		
+		# Grab Windows Version
+		try {
+			$PathToLMCurrentVersion = "HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion"
+			$WinVer = (Get-CimInstance -ClassName Win32_OperatingSystem).Caption -replace 'Microsoft ', ''
+			$DisplayVersion = (Get-ItemProperty $PathToLMCurrentVersion).DisplayVersion
+			$osBuildNumber = (Get-ItemProperty $PathToLMCurrentVersion).CurrentBuild
+			$completedBuildNumber = "$DisplayVersion ($osBuildNumber)"
+		} catch {
+			return "Error retrieving Windows information: $($_)"
+			Continue
+		}
+		
+		# Grabs drive space
+		try {
+			$drives = Get-PSDrive -PSProvider FileSystem | Where-Object {
+				$_.Free -ge 0 -and $_.Used -ge 0
+			}
+			foreach ($drive in $drives) {
+				$driveRoot = $drive.Root
+				$availableStorage = $drive.Free / 1TB
+				$totalStorage = ($drive.Free + $drive.Used) / 1TB
+				$percentageAvailable = [math]::Round(($availableStorage / $totalStorage) * 100, 1)
+				
+				$unit = "TB"
+				
+				# Check if the available storage is less than 1 TB, then display it in GB
+				if ($availableStorage -lt 1) {
+					$availableStorage = $availableStorage * 1024
+					$totalStorage = $totalStorage * 1024
+					$unit = "GB"
+				} elseif ($availableStorage -lt 0.1) {
+					$availableStorage = $availableStorage * 1024 * 1024
+					$totalStorage = $totalStorage * 1024 * 1024
+					$unit = "MB"
+				}
+				
+				# Create a visual bar for the storage percentage
+				$barLength = 20
+				$filledLength = [math]::Round($barLength * ($percentageAvailable / 100))
+				$emptyLength = $barLength - $filledLength
+				$storageBar = "[" + ("#" * $filledLength) + ("." * $emptyLength) + "]"
+				
+				$driveInfo = "    $driveRoot $([math]::Round($availableStorage, 1)) $unit free of $([math]::Round($totalStorage, 1)) $unit ($percentageAvailable% Available) $storageBar"
+				$CombinedDriveInfo = "$($CombinedDriveInfo)`n$($driveInfo)"
+			}
+		} catch {
+			return "Error retrieving disk information: $($_)"
+			Continue
+		}
+		
+		# Grabs screen resolution and refresh rate
+		try {
+			$screenResolutionHorizontal = (Get-CimInstance -ClassName Win32_VideoController).CurrentHorizontalResolution
+			$screenResolutionVertical = (Get-CimInstance -ClassName Win32_VideoController).CurrentVerticalResolution
+			$screenRefreshRate = (Get-CimInstance -ClassName Win32_VideoController).CurrentRefreshRate
+			$screenCombinedString = "$screenResolutionHorizontal`x$screenResolutionVertical @$screenRefreshRate`Hz"
+		} catch {
+			return "Error retrieving screen information: $($_)"
+			Continue
+		}
+		
+		$title = "$env:USERNAME@$env:COMPUTERNAME"
+		$line = "-" * $title.Length
+		$CombinedString = "
+$title
+$line
+
+OS: $WinVer 
+Build: $completedBuildNumber
+Resolution: $screenCombinedString
+CPU: $($CPUCombinedString)
+GPU: $($gpu.Trim())
+RAM: $("{0:N2} GB" -f $ram)
+Motherboard: $($MotherboardCombinedString)
+Disk Info: $($CombinedDriveInfo)
+"
+	}
+	process {
+		return $CombinedString
+	}
+}
+
+#endregion
+#region Script Functions
+function Get-Administrator {
+	# Checks to make sure New Loads is run as admin otherwise it'll display a message and close
+	If (!([bool]([Security.Principal.WindowsIdentity]::GetCurrent().Groups -match 'S-1-5-32-544'))) {
+		Write-Host $Errors.errorMessage2 -ForegroundColor Yellow
+		do {
+			$SelfElevate = Read-Host -Prompt "Would you like to run New Loads as an Administrator? (Y/N) "
+			switch ($SelfElevate.ToUpper()) {
+				"Y" {
+					$wtExists = Get-Command wt
+					If ($wtExists) {
+						Start-Process wt -verb runas -ArgumentList "new-tab powershell -c ""irm run.newloads.ca | iex"""
+					} else {
+						Start-Process powershell -verb runas -ArgumentList "-command ""irm run.newloads.ca | iex"""
+					}
+					Write-Output "Exiting"
+					Stop-Process $pid
+				}
+				"N" {
+					exit
+				}
+				default {
+					Write-Host "Invalid input. Please enter Y or N."
+				}
+			}
+		} while ($true)
+	}
+}
+function Get-ADWCleaner {
+<#
+.SYNOPSIS
+This function downloads and runs Malwarebytes ADWCleaner to scan and clean adware from the system.
+
+.DESCRIPTION
+The function downloads Malwarebytes ADWCleaner from the specified link and runs it with the arguments "/EULA", "/PreInstalled", "/Clean", and "/NoReboot". It then removes traces of ADWCleaner by running it with the arguments "/Uninstall" and "/NoReboot".
+
+.PARAMETER Undo
+If this switch is specified, the function will skip running ADWCleaner.
+
+.PARAMETER Skip
+If this switch is specified, the function will skip downloading and running ADWCleaner.
+
+.EXAMPLE
+Get-ADWCleaner
+
+This command downloads and runs ADWCleaner to scan and clean adware from the system.
+
+.NOTES
+Author: Circlol
+Version: 1.0
+Release Notes:
     1.0:
         - Started logging changes.
+        - Added support for the -Undo and -Skip parameters.
+        - Added support for shouldprocess.
 #>
-	$wu = New-Object -ComObject Microsoft.Update.AutoUpdate
-	$lastUpdateCheck = $wu.Results.LastSearchSuccessDate
-	$lastUpdateCheck = $lastUpdateCheck.ToLocalTime()
-	return $lastUpdateCheck
+	[CmdletBinding(
+				   SupportsShouldProcess
+				   )]
+	param (
+		[Switch]$Undo,
+		[Switch]$Skip,
+		[String]$TweakType = "ADWCleaner"
+
+	)
+	Show-ScriptStatus -TitleText "ADWCleaner"
+	Add-LogSection -Section "ADWCleaner"
+	If ($Skip -or $Undo) {
+		Write-Status "Parameter -SkipADW or -Undo detected.. Malwarebytes ADWCleaner will be skipped.." '@' -WriteWarning -ForegroundColorText RED
+	} else {
+		if ($PSCmdlet.ShouldProcess("Download and Run ADWCleaner", "Downloading ADWCleaner $description")) {
+			If (!(Test-Path $Variables.adwDestination)) {
+				Write-Status "Downloading ADWCleaner" "+" -NoNewLine
+				Start-BitsTransfer -Source $Variables.adwLink -Destination $Variables.adwDestination -Dynamic
+				Get-Status
+			}
+			Write-Status "Starting ADWCleaner with ArgumentList /Scan & /Clean" "+"
+			Start-Process -FilePath $Variables.adwDestination -ArgumentList "/EULA", "/PreInstalled", "/Clean", "/NoReboot" -Wait -NoNewWindow | Out-Host
+			Write-Status "Removing traces of ADWCleaner" "-"
+			Start-Process -FilePath $Variables.adwDestination -ArgumentList "/Uninstall", "/NoReboot" -WindowStyle Minimized
+		}
+	}
 }
 function New-SystemRestorePoint {
 <#
@@ -4447,7 +4448,7 @@ History:
 	Show-ScriptStatus -WindowTitle "Checking Requirements"
 	
 	# Checks OS version to make sure Windows is atleast v20H2 otherwise it'll display a message and close
-	If ($Variables.BuildNumber -LE $Variables.MinimumBuildNumber) {
+	If ($Variables.BuildNumber -lt $Variables.MinimumBuildNumber) {
 		Write-Host $Errors.errorMessage1 -ForegroundColor Yellow
 		Read-Host -Prompt "Press enter to close New Loads"
 		Exit
@@ -4689,7 +4690,7 @@ History:
     1.0:
         - Created function
 #>
-	$lastUpdateCheckTime = Get-LastCheckForUpdate
+	$lastUpdateCheckTime = Get-CheckForLastUpdate
 	$currentTime = Get-Date
 	# Calculate time difference in hours
 	$timeDifference = ($currentTime - $lastUpdateCheckTime).TotalHours
@@ -4728,15 +4729,15 @@ History:
 					Get-Status
 					Write-Status "Starting Windows Updates - Download, Install, IgnoreReboot, AcceptAll" '+'
 					Get-WindowsUpdate -AcceptAll -Install -Download -IgnoreReboot
-					
+										
 					# CLEANUP & REMOVAL OF START-UPDATE ASSETS
-					Write-Status "Removing Start-Update Assets" '-'
-					Write-Status "PSWindowsUpdate" '-' -NoNewLine
-					Remove-Module -Name PSWindowsUpdate -Force -Confirm:$false
-					Get-Status
-					Write-Status "NuGet" '-' -NoNewLine
-					Uninstall-PackageProvider -Name NuGet -Force -Confirm:$false | Out-Null
-					Get-Status
+					#Write-Status "Removing Start-Update Assets" '-'
+					#Write-Status "PSWindowsUpdate" '-' -NoNewLine
+					#Remove-Module -Name PSWindowsUpdate -Force -Confirm:$false
+					#Get-Status
+					#Write-Status "NuGet" '-' -NoNewLine
+					#Uninstall-PackageProvider -Name NuGet -Force -Confirm:$false | Out-Null
+					#Get-Status
 				} catch {
 					Start-Process ms-settings:windowsupdate
 					Write-Status "Failed to Update through the script. Please manually do it."
@@ -4829,13 +4830,11 @@ This example updates the system time zone to Eastern Time (US & Canada) and sync
 }
 #endregion
 
-# Initiation #
-
 ####################################################################################
 
 If (!$Undo -and !$WhatIfPreference) {
 	Start-Bootup
-	Start-Update
+	#Start-Update
 	Get-Program
 	Write-Log
 	Set-StartMenu
