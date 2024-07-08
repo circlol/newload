@@ -1281,7 +1281,7 @@ Release Notes:
 		# Details: https://www.tenforums.com/tutorials/94628-change-split-threshold-svchost-exe-windows-10-a.html
 		# Will reduce Processes number considerably on > 4GB of RAM systems
 		
-		Write-Status "Setting SVCHost to match installed RAM size..." $EnableStatus[1].Symbol)
+		Write-Status "Setting SVCHost to match installed RAM size..." $EnableStatus[1].Symbol
 		$RamInKB = (Get-CimInstance -ClassName Win32_PhysicalMemory | Measure-Object -Property Capacity -Sum).Sum / 1KB
 		Set-ItemPropertyVerified -Path $Registry.PathToLMControl -Name "SvcHostSplitThresholdInKB" -Type DWord -Value $RamInKB
 		
@@ -1468,7 +1468,7 @@ Release Notes:
 		# Executes the array above
 		Write-Status "From Path: [$($Registry.PathToCUContentDeliveryManager)]." "?" -WriteWarning
 		ForEach ($Name in $Registry.ContentDeliveryManagerDisableOnZero) {
-			Write-Status "$($EnableStatus[0].Status) $($Name): $Zero" $EnableStatus[0].Symbol)
+			Write-Status "$($EnableStatus[0].Status) $($Name): $Zero" $EnableStatus[0].Symbol
 			Set-ItemPropertyVerified -Path $Registry.PathToCUContentDeliveryManager -Name "$Name" -Type DWord -Value $Zero
 		}
 		
