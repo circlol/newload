@@ -355,7 +355,7 @@ $Variables = @{
 	"MaxTime"		   = 20250101
 	"MinTime"		   = 20231031
 	"Counter"		   = 1
-	"MaxLength"	       = 10
+	"MaxLength"	       = 9
 	"Win11"		       = 22000
 	"Win22H2"		   = 22621
 	"MinimumBuildNumber" = 19042
@@ -4257,7 +4257,8 @@ History:
 #>
 	
 	Write-Host "`n`n`n"
-	Write-Host "▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀" -NoNewLine -ForegroundColor $Variables.ForegroundColor -BackgroundColor Blue
+	$b = '▀' * [Console]::WindowWidth
+	Write-Host $b -NoNewLine -ForegroundColor $Variables.ForegroundColor -BackgroundColor Blue
 	Write-Host "`n`n"
 	$Logo = "
 $modularLogo███╗   ██╗███████╗██╗    ██╗    ██╗      ██████╗  █████╗ ██████╗ ███████╗
@@ -4277,7 +4278,7 @@ $modularLogo╚═╝  ╚═══╝╚══════╝ ╚══╝╚�
 		Write-Host "    Specified Parameters: " -ForegroundColor $Variables.LogoColor -NoNewLine; Write-Host "$parametersString"
 	}
 	Write-Host "`n`n"
-	Write-Host "▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀" -ForegroundColor Blue -BackgroundColor $Variables.LogoColor
+	Write-Host $b -ForegroundColor Blue -BackgroundColor $Variables.LogoColor
 	Write-Host "`n`n"
 	$WindowTitle = "New Loads"; $host.UI.RawUI.WindowTitle = $WindowTitle
 }
