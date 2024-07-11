@@ -6,11 +6,13 @@
 #Changelog: 
 # 1.08
 #- Split variables into categorized hashtables
+Import-Module Appx
+Import-Module BitsTransfer
 Import-Module ScheduledTasks
 Import-Module PrintManagement
+Import-Module DnsClient
 Clear-Host
 
-Import-Module BitsTransfer
 Add-Type -AssemblyName System.Windows.Forms
 Add-Type -AssemblyName System.Drawing
 
@@ -347,7 +349,7 @@ $ScheduledTasks = @{
 $Variables = @{
 	"Creator"		   = "Circlol"
 	"ProgramVersion"   = "v1.08.release"
-	"ModificationDate" = "08-07-2024"
+	"ModificationDate" = "10-07-2024"
 	
 	
 	"ForegroundColor"  = "White"
@@ -358,9 +360,9 @@ $Variables = @{
 	
 	"Time"			   = Get-Date -UFormat %Y%m%d
 	"MaxTime"		   = 20250101
-	"MinTime"		   = 20231031
+	"MinTime"		   = 20240710
 	"Counter"		   = 1
-	"MaxLength"	       = 9
+	"MaxLength"	       = 14
 	"Win11"		       = 22000
 	"Win22H2"		   = 22621
 	"Win23H2"		   = 22631
@@ -1325,12 +1327,13 @@ Release Notes:
 		Write-Status "Enable Hardware Accelerated GPU Scheduling... (Windows 10 20H1+ - Needs Restart)" $EnableStatus[1].Symbol
 		Set-ItemPropertyVerified -Path $Registry.PathToGraphicsDrives -Name "HwSchMode" -Type DWord -Value 2
 		
+		<# Retired due to Snapdragon processors #>
 		# [@] (2 = Enable Ndu, 4 = Disable Ndu)
-		Write-Status "$($EnableStatus[0].Status) Ndu High RAM Usage..." $EnableStatus[0].Symbol
-		Set-ItemPropertyVerified -Path $Registry.PathToLMNdu -Name "Start" -Type DWord -Value 4
+		#Write-Status "$($EnableStatus[0].Status) Ndu High RAM Usage..." $EnableStatus[0].Symbol
+		#Set-ItemPropertyVerified -Path $Registry.PathToLMNdu -Name "Start" -Type DWord -Value 2
+		
 		# Details: https://www.tenforums.com/tutorials/94628-change-split-threshold-svchost-exe-windows-10-a.html
 		# Will reduce Processes number considerably on > 4GB of RAM systems
-		
 		Write-Status "Setting SVCHost to match installed RAM size..." $EnableStatus[1].Symbol
 		$RamInKB = (Get-CimInstance -ClassName Win32_PhysicalMemory | Measure-Object -Property Capacity -Sum).Sum / 1KB
 		Set-ItemPropertyVerified -Path $Registry.PathToLMControl -Name "SvcHostSplitThresholdInKB" -Type DWord -Value $RamInKB
@@ -1344,6 +1347,7 @@ Release Notes:
 		
 		Write-Status "$($EnableStatus[0].Status) run extensions and apps when Edge is closed..." $EnableStatus[0].Symbol
 		Set-ItemPropertyVerified -Path $Registry.PathToLMPoliciesEdge -Name "BackgroundModeEnabled" -Type DWord -Value $Zero
+		
 		Write-Section -Text "Power Plan Tweaks"
 		Write-Status "Cleaning up duplicated Power plans..." "@"
 		ForEach ($PowerCfgString in $ExistingPowerPlans) {
@@ -2516,6 +2520,39 @@ Release Notes:
 		}
 	} | Sort-Object -Property Name -Unique
 }
+function Get-MissingDriver {
+	[CmdletBinding()]
+	param ()
+	
+	# Create an array to store the driver information
+	$drivers = @()
+	
+	# Get a list of all PnP devices
+	$devices = Get-WmiObject -Class Win32_PnPEntity | Where-Object {
+		$_.Status -ne "OK" -or $_.DeviceID -eq $null -or $_.Name -like "*Microsoft Basic Display Adapter*"
+	}
+	
+	foreach ($device in $devices) {
+		# Create a hashtable for the device information
+		If ($device.Name -eq $null) {
+			$friendly = $device.Caption
+		}
+		
+		
+		$driverInfo = @{
+			FriendlyName = $device.Name
+			DeviceID	 = $device.DeviceID
+		}
+		# Add the hashtable to the array
+		$drivers += $driverInfo
+	}
+	
+	return $drivers
+	
+}
+#$driverStatus = Get-DriverStatus
+#$driverStatus | Format-Table -AutoSize
+
 Function Get-Motherboard {
 <#
 .SYNOPSIS
@@ -4218,6 +4255,8 @@ History:
 	if (Test-Path -Path $Variables.errorlog) {
 		$LogFiles += $Variables.errorlog
 	}
+
+	$Space = " " * 35
 	
 	# - Email Settings
 	$smtp = 'smtp.shaw.ca'
@@ -4226,9 +4265,9 @@ History:
 	$Sub = "New Loads Log"
 	$EmailBody = "
 <####################################>
-<#                                  #>
+<#$space#>
 <#          NEW LOADS LOG           #>
-<#                                  #>
+<#$space#>
 <####################################>
 
 
@@ -4418,19 +4457,27 @@ History:
 			# Checks if Bitlocker is active on the host
 			$bitlockerVolume = Get-BitLockerVolume -MountPoint "C:" -WarningAction SilentlyContinue
 			If ($bitlockerVolume -and $bitlockerVolume.ProtectionStatus -eq "On") {
+				
 				# Starts Bitlocker Decryption
 				$messagebld = "Bitlocker was detected turned on. Do you want to start the decryption process?"
-				Show-Question -Buttons YesNo -Title "New Loads" -Icon Warning -Message $messagebld
-				Write-Status "Alert: Bitlocker is enabled. Starting the decryption process" '@' -Types Warning
-				Disable-BitLocker -MountPoint C:\
-				Get-Status
-			} else {
-				$message = "Bitlocker is not enabled on this machine"
-				Write-Status $message '?'
-				Add-Content -Path $Variables.Log -Value $message
-			}
+				$q = Show-Question -Buttons YesNo -Title "New Loads" -Icon Warning -Message $messagebld
+				
+				If ($q -eq $True) {
+					Import-Module Bitlocker
+					Write-Status "Alert: Bitlocker is enabled. Starting the decryption process" '@' -Types Warning
+					Disable-BitLocker -MountPoint C:\
+					Get-Status
+				} else {
+					Write-Status "Alert: Bitlocker is enabled. However user declined decryption" '@' -Types Warning
+				}
+				
+		} else {
+			$message = "Bitlocker is not enabled on this machine"
+			Write-Status $message '?'
+			Add-Content -Path $Variables.Log -Value $message
 		}
 	}
+}
 }
 function Start-Bootup {
 <#
@@ -4840,12 +4887,12 @@ This example updates the system time zone to Eastern Time (US & Canada) and sync
 If (!$Undo -and !$WhatIfPreference) {
 	Start-Bootup
 	#Start-Update
-	Get-Program
-	Set-StartMenu
+	Get-Program # Task1
+	Set-StartMenu # Task2
 	Set-Taskbar
 	Set-Wallpaper
 	Set-Branding
-	Start-Debloat
+	Start-Debloat # Task3
 	#Get-AdwCleaner
 	Get-Office
 	Start-BitlockerDecryption
