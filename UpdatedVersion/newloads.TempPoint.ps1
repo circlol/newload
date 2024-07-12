@@ -1,5 +1,4 @@
 ﻿<#BEGIN#>
-Clear-Host
 <#  |  #>
 <#  |  #>
 <#  |  #>
@@ -929,7 +928,7 @@ function Get-Password {
 }
 
 Clear-Host
-#Get-Password
+Get-Password
 
 # end region
 
