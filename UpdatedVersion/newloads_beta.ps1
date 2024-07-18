@@ -346,7 +346,7 @@ $Variables = @{
 	"ModificationDate" = "13-07-2024"
 	
 	
-	"ForegroundColor"  = "White"
+	"ForegroundColor"  = "Magenta"
 	"BackgroundColor"  = "Black"
 	"AccentColor1"	   = "Magenta"
 	"AccentColor2"     = "White"
@@ -971,7 +971,7 @@ History:
 		[Switch]$NoNewLine,
 		[ValidateSet("Black", "DarkBlue", "DarkGreen", "DarkCyan", "DarkRed", "DarkMagenta", "DarkYellow", "Gray", "DarkGray",
 					 "Blue", "Green", "Cyan", "Red", "Magenta", "Yellow", "White")]
-		[String]$ForegroundColorText = "Magenta"
+		[String]$ForegroundColorText = $Variables.ForegroundColor
 	)
 	
 	If ($WriteWarning -eq $True) {
@@ -991,14 +991,16 @@ History:
 	Write-Host "$time " -NoNewline -ForegroundColor DarkGray -BackgroundColor $Variables.BackgroundColor
 	
 	ForEach ($Type in $Types) {
-		Write-Host "$TweakType, $Type " -NoNewline -ForegroundColor $Variables.AccentColor1 -BackgroundColor $Variables.BackgroundColor
+		Write-Host "$TweakType, $Type " -NoNewline -ForegroundColor $Variables.AccentColor2 -BackgroundColor $Variables.BackgroundColor
 	}
 	
 	If ($WriteWarning) {
-		Write-Host "::Warning:: -> $Status" -ForegroundColor $ForegroundColorText -BackgroundColor $Variables.BackgroundColor -NoNewline:$NoNewLine
+		Write-Host "::Warning:: -> " -ForegroundColor $ForegroundColorText -BackgroundColor $Variables.BackgroundColor -NoNewline:$NoNewLine
 	} Else {
-		Write-Host "-> $Status" -ForegroundColor $ForegroundColorText -BackgroundColor $Variables.BackgroundColor -NoNewline:$NoNewLine
+		Write-Host "-> " -ForegroundColor $Variables.AccentColor2 -BackgroundColor $Variables.BackgroundColor -NoNewline:$NoNewLine
 	}
+	
+	Write-Host "$Status" -ForegroundColor $ForegroundColorText -BackgroundColor $Variables.BackgroundColor -NoNewline:$NoNewLine
 }
 Function Write-Title {
 <#
