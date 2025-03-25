@@ -1,8 +1,18 @@
+#region Initialization
+$host.UI.RawUI.WindowTitle = "DataXFer"
+Add-Type -TypeDefinition @"
+using System;
+using System.Runtime.InteropServices;
+public class DPIAwareness {
+    [DllImport("user32.dll")]
+    public static extern bool SetProcessDPIAware();
+}
+"@
+[void] [DPIAwareness]::SetProcessDPIAware()
 [void] [System.Reflection.Assembly]::LoadWithPartialName("System.Drawing") 
 [void] [System.Reflection.Assembly]::LoadWithPartialName("System.Windows.Forms")  
 [System.Windows.Forms.Application]::EnableVisualStyles()
 #/ZB /J /XD $APPDATA /copy:DAT /NDL /NJH /NJS /BYTES /LOG+:output.log
-
 $Form = New-Object system.Windows.Forms.Form
 $Form.ClientSize = New-Object System.Drawing.Point(659, 470)
 $Form.text = "DataXfer"
@@ -20,47 +30,8 @@ $iconBytes = [Convert]::FromBase64String($iconBase64)
 # initialize a Memory stream holding the bytes
 $stream = [System.IO.MemoryStream]::new($iconBytes, 0, $iconBytes.Length)
 $Form.Icon = [System.Drawing.Icon]::FromHandle(([System.Drawing.Bitmap]::new($stream).GetHIcon()))
-
-# region password
-
-function Get-HashedPassword([String]$Key) {
-    $sha256 = [System.Security.Cryptography.SHA256]::Create()
-    $bytes = [System.Text.Encoding]::UTF8.GetBytes($Key)
-    $hashBytes = $sha256.ComputeHash($bytes)
-    $Global:hashedPassword = [System.BitConverter]::ToString($hashBytes) -replace '-'
-    return $hashedPassword.ToLower()
-}
-
-function Get-Password {
-    $maxAttempts = Get-Random -Minimum 3 -Maximum 6
-    $attempts = 0
-    do {
-        # Prompt user for password
-        $enteredPassword = Read-Host "Enter password" -AsSecureString
-        # Convert the entered password to plain text
-        $enteredPasswordText = [System.Runtime.InteropServices.Marshal]::PtrToStringAuto([System.Runtime.InteropServices.Marshal]::SecureStringToBSTR($enteredPassword))
-        # Hash the entered password
-        $enteredHashedPassword = Get-HashedPassword $enteredPasswordText
-        # Compare hashed passwords
-        $passwordCorrect = $enteredHashedPassword -eq $Key
-        if ( -not $passwordCorrect ) {
-            Write-Host "Incorrect password. Try again."
-            $attempts++
-        }
-    } while ( -not $passwordCorrect -and $attempts -lt $maxAttempts )
-    if ($passwordCorrect) {
-        Write-Host "Password Correct!"
-    } else {
-        Write-Host "Too many incorrect attempts. Exiting..."
-        Exit 1
-    }
-}
-
 Clear-Host
-#Get-Password
-
-# end region
-
+#endregion
 Function Backup-ProgramData {
     $Avast = @{
         Name        = "Avast Secure Browser"
@@ -130,6 +101,7 @@ Function Backup-ProgramData {
     $Global:programsToBackup = [System.Collections.ArrayList]::new()
 
     # Check existence and add to the array if true
+    Initialize-CheckAndAdd $Avast.Location $Avast.Destination
     Initialize-CheckAndAdd $Brave.Location $Brave.Destination
     Initialize-CheckAndAdd $Chrome.Location $Chrome.Destination
     Initialize-CheckAndAdd $ChromeBeta.Location $ChromeBeta.Destination
@@ -156,7 +128,7 @@ Function Backup-ProgramData {
         $outputBox.AppendText($TransferText)
         if ($Textbox_Source.text -notlike $Null) {
             $sourcefiles = robocopy.exe $EdgePath $EdgePath /L /S /NJH /BYTES /FP /NC /NDL /TS /XJ /R:0 /W:0
-            If ($sourcefiles[-5] -match '^\s{3}Files\s:\s+(?<Count>\d+).*') { $filecount = $matches.Count }
+            If ($sourcefiles[-5] -match '^\s{3}Files\s:\s+(?<Count>\d+).*') { $filecount = $matches.Count ; $filecount | out-null }
         }
     }
 }
@@ -168,7 +140,7 @@ function Initialize-CheckAndAdd($location, $dest) {
         }
     }
 }
-# region brave backup
+#region brave backup
 Function Backup-BraveData {
     begin {
         $progressbar.Value = 0
@@ -197,14 +169,15 @@ Function Backup-BraveData {
                 $outputBox.AppendText($_ + "`r`n")
                 [void] [System.Windows.Forms.Application]::DoEvents()
             }
+            $run | out-null
         }
     } end {
         $progressbar.Value = 100
     }
 }
-# end region
+#endregion
 
-# region chrome backup
+#region chrome backup
 Function Backup-ChromeData {
     begin {
         $progressbar.Value = 0
@@ -233,14 +206,15 @@ Function Backup-ChromeData {
                 $outputBox.AppendText($_ + "`r`n")
                 [void] [System.Windows.Forms.Application]::DoEvents()
             }
+            $run | out-null
         }
     } end {
         $progressbar.Value = 100
     }
 }
-# end region
+#endregion
 
-# region edge
+#region edge
 Function Backup-EdgeData {
     begin {
         $progressbar.Value = 0
@@ -268,14 +242,15 @@ Function Backup-EdgeData {
                 $outputBox.AppendText($_ + "`r`n")
                 [void] [System.Windows.Forms.Application]::DoEvents()
             }
+            $run | out-null
         }
     } end {
         $progressbar.Value = 100
     }
 }
-# end region
+#endregion
 
-# region firefox backup
+#region firefox backup
 Function Backup-FirefoxData {
     begin {
         $progressbar.Value = 0
@@ -303,6 +278,7 @@ Function Backup-FirefoxData {
                 $outputBox.AppendText($_ + "`r`n")
                 [void] [System.Windows.Forms.Application]::DoEvents()
             }
+            $run | out-null            
         }
         If ($LocalFirefoxExists) {
             #count the source files
@@ -328,10 +304,9 @@ Function Backup-FirefoxData {
         $progressbar.Value = 100
     }
 }
-# end region
+#endregion
 
-
-# region opera backup
+#region opera backup
 Function Backup-OperaData {
     begin {
         # sets progress to 0
@@ -363,16 +338,15 @@ Function Backup-OperaData {
                 $outputBox.AppendText($_ + "`r`n")
                 [void] [System.Windows.Forms.Application]::DoEvents()
             }
+            $run | out-null
         }
     } end {
         $progressbar.Value = 100
     }
 }
-# end region
+#endregion
 
-
-
-# region windows live mail backup
+#region windows live mail backup
 
 Function Backup-WindowsLiveMailData {
     begin {
@@ -431,11 +405,9 @@ Function Backup-WindowsLiveMailData {
     end {
         $progressbar.Value = 100
     }
-}# end region
+}#endregion
 
-
-# region folder selector
-
+#region folder selector
 Function Get-Folder($InitialDirectory, $Description = "Select a Folder.") {
     # loads winform
     [void] [System.Reflection.Assembly]::LoadWithPartialName('System.Windows.Forms')
@@ -450,10 +422,9 @@ Function Get-Folder($InitialDirectory, $Description = "Select a Folder.") {
     # returns the value
     return $FolderBrowserDialog.SelectedPath
 }
-# end region
+#endregion
 
-
-# region robocopy
+#region robocopy
 
 function Invoke-RoboCopy {
     begin {
@@ -506,10 +477,9 @@ function Invoke-RoboCopy {
         $progressbar.Value = 100
     }
 }
-# end region
+#endregion
 
-
-# region question
+#region question
 Function Show-Question() {
     [CmdletBinding()]
     param (
@@ -546,11 +516,9 @@ Function Show-Question() {
 
     return $result
 }
-# end region
+#endregion
 
-
-
-# region chime
+#region chime
 
 function Start-Chime {
     [CmdletBinding(SupportsShouldProcess)]
@@ -580,10 +548,57 @@ function Start-Chime {
         Write-Error "The sound file doesn't exist at the specified path."
     }
 }
-# end region
+#endregion
+
+#region password
+
+function Get-HashedPassword([String]$Key)
+{
+	$sha256 = [System.Security.Cryptography.SHA256]::Create()
+	$bytes = [System.Text.Encoding]::UTF8.GetBytes($Key)
+	$hashBytes = $sha256.ComputeHash($bytes)
+	$Global:hashedPassword = [System.BitConverter]::ToString($hashBytes) -replace '-'
+	return $hashedPassword.ToLower()
+}
+
+function Get-Password
+{
+	$maxAttempts = Get-Random -Minimum 3 -Maximum 6
+	$attempts = 0
+	do
+	{
+		# Prompt user for password
+		$enteredPassword = Read-Host "Enter password" -AsSecureString
+		# Convert the entered password to plain text
+		$enteredPasswordText = [System.Runtime.InteropServices.Marshal]::PtrToStringAuto([System.Runtime.InteropServices.Marshal]::SecureStringToBSTR($enteredPassword))
+		# Hash the entered password
+		$enteredHashedPassword = Get-HashedPassword $enteredPasswordText
+		# Compare hashed passwords
+		$passwordCorrect = $enteredHashedPassword -eq $Key
+		if (-not $passwordCorrect)
+		{
+			Write-Host "Incorrect password. Try again."
+			$attempts++
+		}
+	}
+	while (-not $passwordCorrect -and $attempts -lt $maxAttempts)
+	if ($passwordCorrect)
+	{
+		Write-Host "Password Correct!"
+	}
+	else
+	{
+		Write-Host "Too many incorrect attempts. Exiting..."
+		Exit 1
+	}
+}
 
 
-# region scanforpst
+#Get-Password
+
+#endregion
+
+#region scanforpst
 Function Start-ScanForPST {
     $Path1 = "$Env:USERPROFILE\Documents"
     $Path2 = "$Env:OneDrive\Documents"
@@ -608,10 +623,9 @@ Function Start-ScanForPST {
 
     Start-PSTBackup
 }
-# end region
+#endregion
 
-
-# region BackupPST
+#region BackupPST
 Function Start-PSTBackup {
     If ( ( !$PSTFiles ) -and ( !$NoPST ) ) {
         Write-Output "No PST Files have been found. Proceeding to next step."
@@ -632,13 +646,9 @@ Function Start-PSTBackup {
         }
     }
 }
-# end region
+#endregion
 
-
-
-
-
-# region robocopy cancel
+#region robocopy cancel
 function Stop-RoboCopy {
     # checks if robocopy is running
     if (get-process -Name robocopy -ErrorAction SilentlyContinue) {
@@ -648,12 +658,9 @@ function Stop-RoboCopy {
         $outputBox.AppendText("`n`r$timestamp Robocopy process has been terminated.")
     }
 }
-# end region
+#endregion
 
-
-
-
-
+#region GUI
 $Button_Cancel = New-Object system.Windows.Forms.Button
 $Button_Cancel.text = "Cancel"
 $Button_Cancel.width = 68
@@ -694,7 +701,6 @@ $Button_Start.text = "Start"
 $Button_Start.width = 60
 $Button_Start.height = 30
 $Button_Start.location = New-Object System.Drawing.Point(587, 428)
-#$Button_Start.Font               = New-Object System.Drawing.Font('Microsoft JhengHei UI',9)
 $Button_Start.Font = [System.Drawing.Font]::new('Microsoft JhengHei UI', 9)
 $Form.Controls.Add($Button_Start)
 
@@ -716,7 +722,6 @@ $Label_Source.location = New-Object System.Drawing.Point(90, 70)
 $Label_Source.Font = [System.Drawing.Font]::new('Microsoft JhengHei UI', 10)
 $Form.Controls.Add($Label_Source)
 
-#Output box
 $outputBox = New-Object System.Windows.Forms.RichTextBox 
 $OutputBox.location = New-Object System.Drawing.Point(45, 222)
 $outputBox.Size = New-Object System.Drawing.Size(570, 180)
@@ -742,9 +747,9 @@ $Textbox_Source.height = 20
 $Textbox_Source.location = New-Object System.Drawing.Point(152, 67)
 $Textbox_Source.Font = [System.Drawing.Font]::new('Microsoft JhengHei UI', 10)
 $Form.Controls.Add($Textbox_Source)
+#endregion
 
-
-
+#region Buttons
 $Button_Source.Add_Click({
         # asks user what folder they want to backup from
         $Global:SourceFolder = Get-Folder
@@ -791,8 +796,9 @@ $Button_Start.Add_Click({
         $OpenExplorer = Show-Question -Title "DataXfer" -Message "Transfer Completed. Would you like to open explorer?" -YesNo -Icon Question
         If ($OpenExplorer -eq $true) { explorer $DestinationFolder }
     })
+#endregion
 
-
+#region GUI Progress bar
 $ProgressBar = New-Object system.Windows.Forms.ProgressBar
 $ProgressBar.Visible = $true
 $progressBar.Style = "Continuous"
@@ -802,7 +808,7 @@ $ProgressBar.location = New-Object System.Drawing.Point(11, 433)
 
 #initialize a counter
 $i = 0
-
+#endregion
 
 $Form.Controls.Add($progressBar)
 $Form.Add_Shown({ $Form.Activate() })
